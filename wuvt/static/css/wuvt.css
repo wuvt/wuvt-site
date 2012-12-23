@@ -1,6 +1,8 @@
 @font-face {
     font-family: "Homestead Display";
-    src: url('/static/fonts/Homestead-Display.ttf') format('truetype');
+    src: local("Homestead Display"),
+         url('/static/fonts/Homestead-Display.ttf') format('truetype'),
+         url('/static/fonts/Homestead-Display.eot') format('embedded-opentype');
 }
 
 body {
@@ -202,6 +204,7 @@ header nav li a {
 
 #side ul#side_social li img {
     height: 23px;
+    border: 0;
 }
 /* }}} */
 
