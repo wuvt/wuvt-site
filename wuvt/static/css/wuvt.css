@@ -15,15 +15,20 @@ body {
 /* Now playing bar {{{ */
 #nowplaying {
     clear: both;
-    margin: 20px 0px 30px 0px;
-    padding: 4px;
-    background-color: #bcccd3;
-    font-size: 0.9em;
+    height: 34px;
+    margin: 8px 0 15px 0;
+    padding: 8px 50px 8px 16px;
+    background-image: url('/static/img/nowplaying_banner_left.svg'), url('/static/img/nowplaying_banner_right.svg');
+    background-size: 32px 15px, 52px 34px;
+    background-position: 0% 60%, top right;
+    background-repeat: no-repeat;
+    font-size: 0.8em;
 }
 
 #nowplaying ul {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 4px;
+    background: #bcccd3;
     list-style: none;
 }
 
@@ -50,14 +55,13 @@ header hgroup h1 {
 
 header hgroup h1 a {
     display: block;
-    background: url('/static/img/wuvt_logo_small.png') top left no-repeat;
+    background: url('/static/img/logo.png') no-repeat;
     width: 100%;
     height: 100%;
 }
 
 header hgroup h1 a:hover {
-    /* TODO: on logo over, display "Radio for Everyone" */
-    background: url('/static/img/bubble.png') top left no-repeat;
+    background-position: 0 -90px;
 }
 
 header hgroup img:last-child {
@@ -76,28 +80,34 @@ header hgroup#bubble {
     margin: -100px 0 0 350px;
     padding: 12px 0 12px 40px;
     width: 520px;
-    height: 99px;
-    background: url('/static/img/bubble.png') no-repeat;
+    height: 80px;
+    background-image: url('/static/img/bubble.svg');
+    background-size: 558px 99px;
+    background-repeat: no-repeat;
 }
 
 header hgroup#bubble ul {
     margin: 0;
     padding: 0;
     list-style: none;
-    font-family: "Homestead Display";
+    font-family: "Homestead Display", "Impact", sans-serif;
     font-size: 0.9em;
 }
 
-header hgroup#bubble ul li {
+header hgroup#bubble li {
     display: inline-block;
     padding: 0 6px;
     width: 150px;
     font-size: 2.1em;
 }
 
-header hgroup#bubble ul li a {
+/* make first element in bubble less wide */
+header hgroup#bubble li:first-child {
+    width: 120px;
+}
+
+header hgroup#bubble li a {
     display: block;
-    width: 100%;
     color: #808080;
     text-decoration: none;
 }
@@ -150,9 +160,14 @@ header nav a {
 header nav li {
     display: inline-block;
     margin: 2px 2px 0 2px;
-    padding: 4px 18px;
+    padding: 0;
     background-color: #cccccc;
     font-weight: bold;
+}
+
+header nav li a {
+    display: block;
+    padding: 4px 12px;
 }
 /* }}} */
 
@@ -162,7 +177,7 @@ header nav li {
     width: 180px;
 }
 
-#side a {
+#side li a {
     display: block;
     margin: 10px 0px 0px 0px;
     padding: 14px;
@@ -186,15 +201,8 @@ header nav,
 }
 /* }}} */
 
-/*header nav,
-#content {
-    width: 824px;
-}*
-
-/* the first article or section element in #content needs spacing for
- * robot's tie */
-#content article:first-child,
-#content section:first-child {
+/* the first element in #content needs spacing for robot's tie */
+#content > :first-child {
     padding-top: 40px !important;
 }
 
@@ -240,12 +248,18 @@ article:last-child {
     margin-bottom: 0px;
 }
 
-footer {
+/* Footer {{{ */
+#content > :last-child {
+    padding-bottom: 40px;
+}
+
+body > footer {
     clear: both;
+    margin-top: -15px;
+    height: 30px;
+    background-image: url('/static/img/moon.svg');
+    background-size: 796px 42px;
+    background-position: top center;
+    background-repeat: no-repeat;
 }
-footer img {
-    position: absolute;
-    left: 0px;
-    margin-top: -300px;
-    width: 100%;
-}
+/* }}} */
