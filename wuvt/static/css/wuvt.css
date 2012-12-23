@@ -1,8 +1,6 @@
 @font-face {
     font-family: "Homestead Display";
-    src: local("Homestead Display"),
-         url('/static/fonts/Homestead-Display.ttf') format('truetype'),
-         url('/static/fonts/Homestead-Display.eot') format('embedded-opentype');
+    src: url('/static/fonts/Homestead-Display.woff');
 }
 
 body {
