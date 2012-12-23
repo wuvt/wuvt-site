@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "Homestead Display";
+    src: url('/static/fonts/Homestead-Display.ttf') format('truetype');
+}
+
 body {
     font-family: Helvetica, sans-serif;
     font-size: 100%;
@@ -10,10 +15,9 @@ body {
 /* Now playing bar {{{ */
 #nowplaying {
     clear: both;
-    margin: 20px 0px 20px 0px;
+    margin: 20px 0px 30px 0px;
     padding: 4px;
     background-color: #bcccd3;
-    text-align: center;
     font-size: 0.9em;
 }
 
@@ -25,10 +29,6 @@ body {
 
 #nowplaying li {
     display: inline;
-}
-
-#nowplaying li:first-child {
-    float: left
 }
 
 #nowplaying li:last-child {
@@ -44,11 +44,20 @@ body {
 header hgroup h1 {
     position: absolute;
     width: 200px;
-    height: 69px;
-    background: url(/static/img/wuvt_logo_small.png) top left no-repeat;
-    font-size: 3.5em;
-    text-shadow: -3px -3px 4px #ffffff;
+    height: 90px;
     text-indent: -9999px;
+}
+
+header hgroup h1 a {
+    display: block;
+    background: url('/static/img/wuvt_logo_small.png') top left no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+header hgroup h1 a:hover {
+    /* TODO: on logo over, display "Radio for Everyone" */
+    background: url('/static/img/bubble.png') top left no-repeat;
 }
 
 header hgroup img:last-child {
@@ -56,10 +65,47 @@ header hgroup img:last-child {
     z-index: 9999;
     /*margin-bottom: -86px;
     height: 238px;*/
-    margin-bottom: -68px;
+    margin-bottom: -67px;
     width: 160px;
     height: 148px;
 }
+
+/* Header: speech bubble {{{ */
+header hgroup#bubble {
+    position: absolute;
+    margin: -100px 0 0 350px;
+    padding: 12px 0 12px 40px;
+    width: 520px;
+    height: 99px;
+    background: url('/static/img/bubble.png') no-repeat;
+}
+
+header hgroup#bubble ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: "Homestead Display";
+    font-size: 0.9em;
+}
+
+header hgroup#bubble ul li {
+    display: inline-block;
+    padding: 0 6px;
+    width: 150px;
+    font-size: 2.1em;
+}
+
+header hgroup#bubble ul li a {
+    display: block;
+    width: 100%;
+    color: #808080;
+    text-decoration: none;
+}
+
+header hgroup#bubble ul li a:hover {
+    color: #ff0000;
+}
+/* }}} */
 
 /* Navigation: common elements {{{ */
 nav ul {
@@ -93,7 +139,7 @@ header nav {
     margin: 6px 0 0 0;
     /*padding: 0 0 0 260px;
     font-size: 0.9em;*/
-    padding: 0 0 0 200px;
+    padding: 0 0 0 180px;
 }
 
 header nav a {
@@ -140,10 +186,10 @@ header nav,
 }
 /* }}} */
 
-header nav,
+/*header nav,
 #content {
     width: 824px;
-}
+}*
 
 /* the first article or section element in #content needs spacing for
  * robot's tie */
