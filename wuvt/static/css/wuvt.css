@@ -1,0 +1,205 @@
+body {
+    font-family: Helvetica, sans-serif;
+    font-size: 100%;
+    width: 1024px;
+    margin: auto;
+    padding: 0px;
+    background-color: #cfeeff;
+}
+
+/* Now playing bar {{{ */
+#nowplaying {
+    clear: both;
+    margin: 20px 0px 20px 0px;
+    padding: 4px;
+    background-color: #bcccd3;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+#nowplaying ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+#nowplaying li {
+    display: inline;
+}
+
+#nowplaying li:first-child {
+    float: left
+}
+
+#nowplaying li:last-child {
+    float: right;
+}
+
+#nowplaying strong {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+/* }}} */
+
+header hgroup h1 {
+    position: absolute;
+    width: 200px;
+    height: 69px;
+    background: url(/static/img/wuvt_logo_small.png) top left no-repeat;
+    font-size: 3.5em;
+    text-shadow: -3px -3px 4px #ffffff;
+    text-indent: -9999px;
+}
+
+header hgroup img:last-child {
+    position: absolute:
+    z-index: 9999;
+    /*margin-bottom: -86px;
+    height: 238px;*/
+    margin-bottom: -68px;
+    width: 160px;
+    height: 148px;
+}
+
+/* Navigation: common elements {{{ */
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav li {
+    color: #ffffff;
+    text-align: center;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+}
+
+nav li a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+nav li a:hover {
+    text-decoration: underline;
+}
+/* }}} */
+
+/* Navigation: top {{{ */
+header nav {
+    z-index: 9999;
+    /*height: 35px;*/
+    height: 35px;
+    margin: 6px 0 0 0;
+    /*padding: 0 0 0 260px;
+    font-size: 0.9em;*/
+    padding: 0 0 0 200px;
+}
+
+header nav a {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+header nav li {
+    display: inline-block;
+    margin: 2px 2px 0 2px;
+    padding: 4px 18px;
+    background-color: #cccccc;
+    font-weight: bold;
+}
+/* }}} */
+
+/* Navigation: side {{{ */
+#side {
+    display: block;
+    width: 180px;
+}
+
+#side a {
+    display: block;
+    margin: 10px 0px 0px 0px;
+    padding: 14px;
+    font-size: 1.2em;
+    background-color: #ec1c23;
+}
+/* }}} */
+
+/* Navbar and content positioning {{{ */
+/* to move nav to right side, uncomment flot: right and delete margin-left */
+
+#side {
+    /*float: right;*/
+    float: left;
+}
+
+header #mainheader img,
+header nav,
+#content {
+    margin-left: 200px;
+}
+/* }}} */
+
+header nav,
+#content {
+    width: 824px;
+}
+
+/* the first article or section element in #content needs spacing for
+ * robot's tie */
+#content article:first-child,
+#content section:first-child {
+    padding-top: 40px !important;
+}
+
+article {
+    padding: 20px;
+    margin: 0px 0px 60px 0px;
+    background-color: #bcccd3;
+}
+article h1 {
+    margin: 0px;
+    padding: 0px;
+    font-size: 1.8em;
+}
+article h2 {
+    margin: 0px;
+    padding: 0px;
+    font-size: 0.8em;
+    font-style: italic;
+    font-weight: normal;
+}
+article hr {
+    margin: 0px;
+    border: 1px solid #ffffff;
+}
+article hgroup {
+    margin-bottom: 25px;
+}
+article img {
+    float: left;
+    margin: 0px 20px 10px 0px;
+}
+article footer {
+    font-style: italic;
+    color: #ffffff;
+}
+article footer a {
+    color: #ffffff;
+}
+article footer span {
+    font-weight: bold;
+}
+article:last-child {
+    margin-bottom: 0px;
+}
+
+footer {
+    clear: both;
+}
+footer img {
+    position: absolute;
+    left: 0px;
+    margin-top: -300px;
+    width: 100%;
+}
