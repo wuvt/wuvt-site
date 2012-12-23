@@ -177,12 +177,28 @@ header nav li a {
     width: 180px;
 }
 
-#side li a {
+#side nav li a {
     display: block;
     margin: 10px 0px 0px 0px;
     padding: 14px;
     font-size: 1.2em;
     background-color: #ec1c23;
+}
+
+#side ul#side_social {
+    margin: 12px 0 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+#side ul#side_social li {
+    display: inline-block;
+    padding: 0 6px;
+}
+
+#side ul#side_social li img {
+    height: 20px;
 }
 /* }}} */
 
