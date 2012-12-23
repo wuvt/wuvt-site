@@ -46,6 +46,7 @@ body {
 }
 /* }}} */
 
+/* Header: logo and robot {{{ */
 header hgroup h1 {
     position: absolute;
     width: 200px;
@@ -73,6 +74,7 @@ header hgroup img:last-child {
     width: 160px;
     height: 148px;
 }
+/* }}} */
 
 /* Header: speech bubble {{{ */
 header hgroup#bubble {
@@ -222,16 +224,20 @@ header nav,
     padding-top: 40px !important;
 }
 
+/* Article {{{ */
 article {
     padding: 20px;
     margin: 0px 0px 60px 0px;
     background-color: #bcccd3;
 }
+
 article h1 {
     margin: 0px;
     padding: 0px;
+    border-bottom: 2px solid #fff;
     font-size: 1.8em;
 }
+
 article h2 {
     margin: 0px;
     padding: 0px;
@@ -239,30 +245,33 @@ article h2 {
     font-style: italic;
     font-weight: normal;
 }
-article hr {
-    margin: 0px;
-    border: 1px solid #ffffff;
-}
+
 article hgroup {
     margin-bottom: 25px;
 }
+
 article img {
     float: left;
     margin: 0px 20px 10px 0px;
 }
+
 article footer {
     font-style: italic;
     color: #ffffff;
 }
+
 article footer a {
     color: #ffffff;
 }
+
 article footer span {
     font-weight: bold;
 }
+
 article:last-child {
     margin-bottom: 0px;
 }
+/* }}} */
 
 /* Footer {{{ */
 #content > :last-child {
