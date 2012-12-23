@@ -7,8 +7,8 @@ body {
     font-family: Helvetica, sans-serif;
     font-size: 100%;
     width: 1024px;
-    margin: auto;
-    padding: 0px;
+    margin: 0 auto;
+    padding: 0;
     background-color: #cfeeff;
 }
 
