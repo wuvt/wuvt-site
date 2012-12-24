@@ -92,7 +92,31 @@ def submit_automation_track():
             listeners=lib.stream_listeners(app.config['ICECAST_STATS']))
     db.session.add(track)
     db.session.commit()
-    
+
+    # update last.fm (yay!)
+    if len(app.config['LASTFM_APIKEY']) > 0:
+        import pylast
+        import hashlib
+        import time
+
+        h = hashlib.md5()
+        h.update(app.config['LASTFM_PASSWORD'])
+        password_hash = h.hexdigest()
+
+        try:
+            network = pylast.LastFMNetwork(
+                    api_key=app.config['LASTFM_APIKEY'],
+                    api_secret=app.config['LASTFM_SECRET'],
+                    username=app.config['LASTFM_USERNAME'],
+                    password_hash=password_hash)
+            network.scrobble(artist=track.artist, title=track.title,
+                    timestamp=int(time.mktime(track.datetime.timetuple())),
+                    album=track.album)
+        except Exception as e:
+            print(e)
+
+    # send server-sent event
     sse.send(json.dumps({'event': "track_change", 'track':
         track.serialize()}))
+
     return Response("Logged", mimetype="text/plain")

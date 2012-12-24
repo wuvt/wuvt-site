@@ -1,8 +1,16 @@
-DEBUG = True
+DEBUG = False
 SQLALCHEMY_DATABASE_URI = ''
 SECRET_KEY = ''
 ADMINS = ['WUVT-IT@listserv.vt.edu']
 MAIL_FROM = 'noreply@wuvt.vt.edu'
 REDIS_CHANNEL = "wuvt"
+
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"
+AUTOMATION_PASSWORD = ""
+ICECAST_STATS = ""
+
+LASTFM_APIKEY = ""
+LASTFM_SECRET = ""
+LASTFM_USERNAME = "wuvtfm"
+LASTFM_PASSWORD = ""
