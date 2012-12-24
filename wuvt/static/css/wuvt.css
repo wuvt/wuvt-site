@@ -115,7 +115,9 @@ header #bubble li a {
     text-decoration: none;
 }
 
-header #bubble ul li a:hover {
+header #bubble ul li a:hover,
+header #bubble ul li a:active,
+header #bubble ul li.active a {
     color: #ff0000;
 }
 /* }}} */
@@ -226,21 +228,24 @@ header nav,
     padding-top: 40px !important;
 }
 
-/* Article {{{ */
-article {
+/* Article/section {{{ */
+article,
+section {
     padding: 20px;
     margin: 0px 0px 60px 0px;
     background-color: #bcccd3;
 }
 
-article h2 {
+article h2,
+section h2 {
     margin: 0px;
     padding: 0px;
     border-bottom: 2px solid #fff;
     font-size: 1.8em;
 }
 
-article h3 {
+article h3,
+section h3 {
     margin: 0px;
     padding: 0px;
     font-size: 0.8em;
@@ -248,32 +253,59 @@ article h3 {
     font-weight: normal;
 }
 
-article hgroup {
+article hgroup,
+section hgroup {
     margin-bottom: 25px;
 }
 
-article img {
+article img,
+section img {
     float: left;
     margin: 0px 20px 10px 0px;
 }
 
-article footer {
+article footer,
+section footer {
     font-style: italic;
     color: #ffffff;
 }
 
-article footer a {
+article footer a,
+section footer a {
     color: #ffffff;
 }
 
-article footer span {
+article footer span,
+section footer span {
     font-weight: bold;
 }
 
-article:last-child {
+article:last-child,
+section:last-child {
     margin-bottom: 0px;
 }
 /* }}} */
+
+table.tracklist {
+    width: 100%;
+    border: 1px solid #ffffff;
+    border-collapse: collapse;
+    font-size: 0.8em;
+}
+
+table.tracklist thead th {
+    background: #ffffff;
+    font-weight: bold;
+}
+
+table.tracklist th,
+table.tracklist td {
+    padding: 4px;
+}
+
+table.tracklist tr:nth-child(odd) {
+    background: #c5d5dc;
+}
 
 /* Footer {{{ */
 #content > :last-child {

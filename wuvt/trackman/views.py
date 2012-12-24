@@ -29,9 +29,21 @@ def trackinfo():
 def inject_nowplaying():
     track = trackinfo()
     return {
-        'current_track': "{artist} - {title}".format(**track),
+        'current_track': u"{artist} - {title}".format(**track),
         'current_dj': track['dj'],
     }
+
+
+@app.route('/last15')
+def last15():
+    tracks = Track.query.order_by(db.desc(Track.id)).limit(15).all()
+    
+    if request.wants_json():
+        return jsonify({
+            'tracks': [t.serialize() for t in tracks],
+        })
+
+    return render_template('last15.html', tracks=tracks)
 
 
 @app.route('/playlists/latest_track')

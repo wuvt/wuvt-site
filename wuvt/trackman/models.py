@@ -29,12 +29,13 @@ class Track(db.Model):
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('dj', lazy='dynamic'))
     # TODO: enBin?
-    title = db.Column(db.String)
-    artist = db.Column(db.String)
-    album = db.Column(db.String)
-    label = db.Column(db.String)
+    title = db.Column(db.Unicode)
+    artist = db.Column(db.Unicode)
+    album = db.Column(db.Unicode)
+    label = db.Column(db.Unicode)
     request = db.Column(db.Boolean, default=False)
     vinyl = db.Column(db.Boolean, default=False)
+    new = db.Column(db.Boolean, default=False)
     listeners = db.Column(db.Integer)
 
     def __init__(self, dj_id, title, artist, album, label, request=False,

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Last 15 Tracks - {{ super() }}{% endblock %}
+{% block bubble %}
+<ul>
+    <li><a href="#listen">Listen Live!</a></li>
+    <li class='active'><a href="{{ url_for('last15') }}">Last 15 Tracks!!</a></li>
+    <li><a href="#programguide">Program Guide!!!</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<section>
+<hgroup>
+    <h2>Last 15 Tracks</h2>
+</hgroup>
+
+<table id="tracktable" class="tracklist">
+    <thead>
+        <th>Time Aired</th>
+        <th>New?</th>
+        <th>Track</th>
+        <th>Album</th>
+        <th>DJ</th>
+        <th colspan="2">Request/Vinyl</th>
+    </thead>
+    <tbody>
+        {% for track in tracks %}
+        <tr>
+            <td>{{ track.datetime|datetime("%H:%M:%S") }}</td>
+            <td>{% if track.new %}NEW{% endif %}</td>
+            <td>{{ track.artist }} - {{ track.title }}</td>
+            <td>{{ track.album }}</td>
+            <td>{{ track.dj.airname }}</td>
+            <td>{% if track.request %}REQ{% endif %}</td>
+            <td>{% if track.vinyl %}VIN{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</section>
+
+<section>
+<hgroup>
+    <h2>Miss a Song?</h2>
+</hgroup>
+
+<p>Check out our playlist archives. You can search <a href='#FIXME'>air
+date</a> or <a href='#FIXME'>DJ</a>.</p>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/live.js') }}"></script>
+<script>$(function(){wuvtLiveLast15("{{ url_for('livestream') }}");})</script>
+{% endblock %}
