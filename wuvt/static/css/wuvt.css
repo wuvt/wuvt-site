@@ -182,7 +182,7 @@ header nav li a {
 
 #side nav li a {
     display: block;
-    margin: 10px 0px 0px 0px;
+    margin: 0 0 10px 0;
     padding: 14px;
     font-size: 1.2em;
     background-color: #ec1c23;
