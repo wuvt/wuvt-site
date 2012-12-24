@@ -1,0 +1,9 @@
+*.pyc
+*.pyo
+*~
+.*.swo
+.*.swp
+.DS_Store
+Thumbs.db
+__pycache__
+wuvt.db
