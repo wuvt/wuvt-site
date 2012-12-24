@@ -73,7 +73,7 @@ def submit_automation_track():
         artist = "Not Available"
 
     if 'album' in request.form and len(request.form['album']) > 0:
-        album = request.form['title'].strip()
+        album = request.form['album'].strip()
     else:
         album = "Not Available"
 
@@ -85,7 +85,7 @@ def submit_automation_track():
     if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr",
             "ua"):
         # ignore PSAs and other traffic
-        return Response("Will not log traffic", mimetype="text/plain")
+        return Response("Will not log traffic\n", mimetype="text/plain")
 
     dj = DJ.query.filter_by(name="Automation").first()
     track = Track(dj.id, title, artist, album, label,
@@ -119,4 +119,4 @@ def submit_automation_track():
     sse.send(json.dumps({'event': "track_change", 'track':
         track.serialize()}))
 
-    return Response("Logged", mimetype="text/plain")
+    return Response("Logged\n", mimetype="text/plain")
