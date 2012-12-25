@@ -52,14 +52,14 @@ def latest_track():
     if request.wants_json():
         return jsonify(trackinfo())
 
-    return Response("{artist} - {title}".format(**trackinfo()),
+    return Response(u"{artist} - {title}".format(**trackinfo()),
             mimetype="text/plain")
 
 
 @app.route('/playlists/latest_track_stream')
 @app.route('/playlists/latest_track_stream.php')
 def latest_track_stream():
-    return Response("""\
+    return Response(u"""\
 title={title}
 artist={artist}
 album={album}

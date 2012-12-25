@@ -8,9 +8,9 @@ class DJ(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     airname = db.Column(db.Unicode)
     name = db.Column(db.Unicode)
-    phone = db.Column(db.String(10))
-    email = db.Column(db.String)
-    genres = db.Column(db.String)
+    phone = db.Column(db.Unicode(10))
+    email = db.Column(db.Unicode)
+    genres = db.Column(db.Unicode)
     time_added = db.Column(db.DateTime, default=datetime.datetime.now)
     visible = db.Column(db.Boolean, default=True)
 
