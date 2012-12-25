@@ -10,14 +10,16 @@
 
 {% for article in articles %}
 <article>
-<hgroup>
-    <h2>{{ article.title }}</h2>
-    <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
-</hgroup>
+    <hgroup>
+        <h2>{{ article.title }}</h2>
+        <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
+    </hgroup>
 
 {{ article.content|safe }}
 
-<footer><a href="#readmore">Read more...</a></footer>
+    <footer>
+        <a href="{{ url_for('article', slug=article.slug) }}">Read more...</a>
+    </footer>
 </article>
 {% endfor %}
 {% endblock %}
