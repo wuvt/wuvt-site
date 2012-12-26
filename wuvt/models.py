@@ -11,3 +11,16 @@ class User(db.Model):
         self.username = username
         self.name = name
 
+
+class Page(db.Model):
+    __tablename__ = "page"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode, nullable=False)
+    slug = db.Column(db.Unicode, nullable=False)
+    content = db.Column(db.UnicodeText, nullable=False)
+
+    def __init__(self, name, slug, content):
+        self.name = name
+        self.slug = slug
+        self.content = content
+

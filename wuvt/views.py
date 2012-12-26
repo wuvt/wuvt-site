@@ -6,7 +6,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import lib
 
-from wuvt.models import User
+from wuvt.models import User, Page
 from wuvt.blog.models import Article, Category
 from wuvt.blog.views import *
 from wuvt.trackman.views import *
@@ -18,6 +18,15 @@ def index():
     articles = Article.query.order_by(db.asc(Article.id)).limit(5).all()
     return render_template('index.html', categories=categories,
             articles=articles)
+
+
+@app.route('/<string:slug>')
+def page(slug):
+    page = Page.query.filter(Page.slug == slug).first()
+    if not page:
+        abort(404)
+
+    return render_template('page.html', page=page)
 
 
 @app.route('/live')
