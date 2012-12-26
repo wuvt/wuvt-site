@@ -19,6 +19,9 @@ from wuvt.trackman.models import DJ, Track
 
 def trackinfo():
     track = Track.query.order_by(db.desc(Track.id)).first()
+    if not track:
+        return None
+
     data = track.serialize()
     data['description'] = app.config['STATION_NAME']
     data['contact'] = app.config['STATION_URL']
@@ -28,6 +31,12 @@ def trackinfo():
 @app.context_processor
 def inject_nowplaying():
     track = trackinfo()
+    if not track:
+        return {
+            'current_track': u"Not Available",
+            'current_dj': u"Not Available"
+        }
+
     return {
         'current_track': u"{artist} - {title}".format(**track),
         'current_dj': track['dj'],
