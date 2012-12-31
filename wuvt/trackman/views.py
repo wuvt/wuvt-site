@@ -9,6 +9,7 @@ from flask import abort, flash, jsonify, render_template, redirect, \
 from flask.ext.csrf import csrf
 import datetime
 import json
+import redis
 
 from wuvt import app
 from wuvt import db
@@ -82,6 +83,11 @@ def submit_automation_track():
     if 'password' not in request.form or \
         request.form['password'] != app.config['AUTOMATION_PASSWORD']:
         abort(403)
+
+    red = redis.StrictRedis()
+    automation = red.get('automation_enabled') == "true"
+    if not automation:
+        return Response("Automation is off\n", mimetype="text/plain")
 
     if 'title' in request.form and len(request.form['title']) > 0:
         title = request.form['title'].strip()
