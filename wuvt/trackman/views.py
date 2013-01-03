@@ -15,7 +15,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import lib
 from wuvt import sse
-from wuvt.trackman.models import DJ, Track
+from wuvt.trackman.models import DJ, DJSet, Track
 
 
 def trackinfo():
@@ -76,6 +76,50 @@ album={album}
 description={description}
 contact={contact}
 """.format(**trackinfo()), mimetype="text/plain")
+
+
+# Playlist Archive (by date) {{{
+@app.route('/playlists/date')
+def playlists_date():
+    dates = [datetime.datetime(2012, 12, 26), datetime.datetime(2012, 12, 27)]
+    return render_template('playlists_date_list.html', dates=dates)
+
+
+@app.route('/playlists/date/<int:year>/<int:month>/<int:day>')
+def playlists_date_sets(year, month, day):
+    dtstart = datetime.datetime(year, month, day, 0, 0, 0)
+    dtstart = dtstart - datetime.timedelta(seconds=30)
+    dtend = datetime.datetime(year, month, day, 23, 59, 59)
+    sets = DJSet.query.filter(DJSet.dtstart >= dtstart).\
+            filter(DJSet.dtend <= dtend).all()
+    return render_template('playlists_date_sets.html', date=dtend, sets=sets)
+# }}}
+
+
+# Playlist Archive (by DJ) {{{
+@app.route('/playlists/dj')
+def playlists_dj():
+    djs = DJ.query.order_by(DJ.airname).filter(DJ.visible == True)
+    return render_template('playlists_dj_list.html', djs=djs)
+
+
+@app.route('/playlists/dj/<int:dj_id>')
+def playlists_dj_sets(dj_id):
+    dj = DJ.query.get(dj_id)
+    if not dj:
+        abort(404)
+    sets = DJSet.query.filter(DJSet.dj_id == dj_id).all()
+    return render_template('playlists_dj_sets.html', dj=dj, sets=sets)
+# }}}
+
+
+@app.route('/playlists/set/<int:set_id>')
+def playlist(set_id):
+    djset = DJSet.query.get(set_id)
+    if not djset:
+        abort(404)
+    tracks = Track.query.filter(Track.djset_id == djset.id).all()
+    return render_template('playlist.html', djset=djset, tracks=tracks)
 
 
 @app.route('/trackman/automation/submit', methods=['POST'])

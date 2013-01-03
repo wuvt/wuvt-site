@@ -44,8 +44,9 @@
     <h2>Miss a Song?</h2>
 </hgroup>
 
-<p>Check out our playlist archives. You can search <a href='#FIXME'>air
-date</a> or <a href='#FIXME'>DJ</a>.</p>
+<p>Check out our playlist archives. You can search
+<a href='{{ url_for('playlists_date') }}'>air date</a> or
+<a href="{{ url_for('playlists_dj') }}">DJ</a>.</p>
 </section>
 {% endblock %}
 

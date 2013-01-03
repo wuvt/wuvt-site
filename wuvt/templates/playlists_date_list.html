@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Playlist Archive (by date) - {{ super() }}{% endblock %}
+
+{% block content %}
+<section>
+<hgroup>
+    <h2>Playlist Archive (by date)</h2>
+</hgroup>
+
+<section>
+    <ul>
+        {% for date in dates %}
+        <li><a href="{{ url_for('playlists_date_sets', year=date.year, month=date.month, day=date.day) }}">{{ date|datetime("%Y-%m-%d") }}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

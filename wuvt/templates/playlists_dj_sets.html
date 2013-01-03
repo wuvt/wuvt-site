@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ dj.airname }} - Playlist Archive (by DJ) - {{ super() }}{% endblock %}
+
+{% block content %}
+<section>
+<hgroup>
+    <h2>Playlist Archive (by DJ)</h2>
+    <h3>{{ dj.airname }}</h3>
+</hgroup>
+
+<section>
+    <ul>
+        {% for set in sets %}
+        <li><a href="{{ url_for('playlist', set_id=set.id) }}">{{ set.dtstart|datetime("%Y-%m-%d %H:%S") }}-{{ set.dtend|datetime("%Y-%m-%d %H:%S") }}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

@@ -14,9 +14,25 @@ class DJ(db.Model):
     time_added = db.Column(db.DateTime, default=datetime.datetime.now)
     visible = db.Column(db.Boolean, default=True)
 
-    def __init__(self, airname, name):
+    def __init__(self, airname, name, visible=True):
         self.airname = airname
         self.name = name
+        self.visible = visible
+
+
+class DJSet(db.Model):
+    __tablename__ = "set"
+    # FIXME: sqlite uses 64-bit integers and does not support autoincrement on
+    # BigInteger, but postgres uses only 32-bit integers and needs this to be
+    # a bigint
+    id = db.Column(db.Integer, primary_key=True)
+    dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
+    dj = db.relationship('DJ', backref=db.backref('setdj', lazy='dynamic'))
+    dtstart = db.Column(db.DateTime, default=datetime.datetime.now)
+    dtend = db.Column(db.DateTime)
+
+    def __init__(self, dj_id):
+        self.dj_id = dj_id
 
 
 class Track(db.Model):
@@ -28,6 +44,7 @@ class Track(db.Model):
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('dj', lazy='dynamic'))
+    djset_id = db.Column(db.Integer, db.ForeignKey('set.id'))
     # TODO: enBin?
     title = db.Column(db.Unicode)
     artist = db.Column(db.Unicode)

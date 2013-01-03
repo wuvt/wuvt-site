@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Playlist Archive (by DJ) - {{ super() }}{% endblock %}
+
+{% block content %}
+<section>
+<hgroup>
+    <h2>Playlist Archive (by DJ)</h2>
+</hgroup>
+
+<section>
+    <ul>
+        {% for dj in djs %}
+        <li><a href="{{ url_for('playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}
