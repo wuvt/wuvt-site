@@ -8,10 +8,29 @@
 </hgroup>
 
 <section>
-    <ul>
-        {% for date in dates %}
-        <li><a href="{{ url_for('playlists_date_sets', year=date.year, month=date.month, day=date.day) }}">{{ date|datetime("%Y-%m-%d") }}</a></li>
-        {% endfor %}
-    </ul>
+    <noscript>Sorry, but you need to enable JavaScript to use the date
+    picker.</noscript>
+    <div id="datepicker"></div>
 </section>
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+<script>
+// <![CDATA[
+$('#datepicker').datepicker({
+    'dateFormat': "yy/mm/dd",
+    'minDate': "2007/01/01",
+    'maxDate': 0,
+    'changeMonth': true,
+    'changeYear': true,
+    'prevText': "«",
+    'nextText': "»",
+    'onSelect': function(dt) {
+        window.location = "/playlists/date/" + dt;
+    },
+});
+// ]]>
+</script>
 {% endblock %}

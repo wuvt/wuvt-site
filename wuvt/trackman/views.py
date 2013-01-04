@@ -81,8 +81,7 @@ contact={contact}
 # Playlist Archive (by date) {{{
 @app.route('/playlists/date')
 def playlists_date():
-    dates = [datetime.datetime(2012, 12, 26), datetime.datetime(2012, 12, 27)]
-    return render_template('playlists_date_list.html', dates=dates)
+    return render_template('playlists_date_list.html')
 
 
 @app.route('/playlists/date/<int:year>/<int:month>/<int:day>')
