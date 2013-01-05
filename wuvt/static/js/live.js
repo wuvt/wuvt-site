@@ -15,7 +15,10 @@ function wuvtLive(liveurl) {
 }
 
 function updateLast15(track) {
-    $('#tracktable tbody tr:last-child').remove();
+    if($('#tracktable tbody tr').length >= 15) {
+        // remove last item if already 15 tracks
+        $('#tracktable tbody tr:last-child').remove();
+    }
 
     var tr = document.createElement('tr');
 
