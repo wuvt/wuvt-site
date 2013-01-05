@@ -12,6 +12,19 @@ Here's a list of required features. If they aren't in this list, they won't be i
 - Top banner pulls currently playing data from quicktrack
 - There needs to be an Atom feed of some sort. 
 
+# Trackman
+* Quicktrack replacement
+* DJ interface not yet implemented, but will be based on Quicktrack1
+* Submits automation submission from Winamp as before
+    * Submission URL has changed but everything else functions the same
+* All public APIs that were in use have been reimplemented identically, others
+  removed
+    * Checked logs on sledge to ensure this
+    * RDS updates and everything else will work fine after switchover
+* Site automatically updated when track changes using events instead of polling
+* New "DJ set" model to clean up handling of show start/stop times
+* Playlist archive works as before, but with a calendar instead of a dropdown
+
 # Unspecified behavior
 - How to handle subcategories on the side nav
 - Our logo - I can't find a vector image. Does someone have one? Which version should we use (should it show "radio for everyone"/"90.7 fm" or not)?
