@@ -39,8 +39,13 @@
         <ul>
             <li><a href="{{ url_for('page', slug='about') }}">About</a></li>
             <li><a href="{{ url_for('page', slug='community') }}">Community</a></li>
-            <li><a href="#playlists">Playlists</a></li>
-            <li><a href="#woove">Woove</a></li>
+            <li>
+                <a href="{{ url_for('playlists_date') }}">Playlists</a>
+                <ul>
+                    <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
+                    <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
+                </ul></li>
+            <li><a href="{{ url_for('page', slug='woove') }}">Woove</a></li>
             <li><a href="{{ url_for('page', slug='contact') }}">Contact</a></li>
         </ul>
         {% endblock %}
@@ -53,6 +58,10 @@
         <nav id="side_primary">
             {% block nav_side_primary %}
             <ul>
+                {% for cat in categories %}
+                <li><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
+                {% endfor %}
+
                 <li><a href="{{ url_for('page', slug='links') }}">Links</a></li>
             </ul>
             {% endblock %}

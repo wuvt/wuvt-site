@@ -149,7 +149,6 @@ nav li a:hover {
 /* Navigation: top {{{ */
 header nav {
     z-index: 9999;
-    /*height: 35px;*/
     height: 35px;
     margin: 6px 0 0 0;
     /*padding: 0 0 0 260px;
@@ -163,16 +162,64 @@ header nav a {
 }
 
 header nav li {
-    display: inline-block;
-    margin: 2px 2px 0 2px;
+    display: block;
+    margin: 0;
     padding: 0;
-    background-color: #cccccc;
-    font-weight: bold;
 }
 
 header nav li a {
     display: block;
     padding: 4px 12px;
+    background-color: #cccccc;
+    font-weight: bold;
+}
+
+header nav li a:hover {
+    text-decoration: none;
+}
+
+header nav > ul {
+    position: absolute; /* prevent dropdown from moving other elements */
+}
+
+header nav > ul > li {
+    float: left;
+    margin: 2px 2px 0 2px;
+}
+
+header nav ul ul {
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+header nav > ul > li:hover > a {
+    color: #000000;
+}
+
+header nav ul li:hover ul {
+    display: block;
+    height: auto;
+    opacity: 1.0;
+    background-color: #808080;
+
+    -webkit-transition: all 0.2s ease-in-out;
+       -moz-transition: all 0.2s ease-in-out;
+         -o-transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
+}
+
+header nav ul li li a {
+    display: block;
+    background-color: #808080;
+}
+
+header nav ul li li a:hover {
+    background-color: #aaaaaa;
+}
+
+header nav ul ul {
+    padding: 6px 0;
 }
 /* }}} */
 

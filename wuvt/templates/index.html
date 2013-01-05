@@ -1,11 +1,4 @@
 {% extends "base.html" %}
-{% block nav_side_primary %}
-<ul>
-    {% for cat in categories %}
-    <li><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
-    {% endfor %}
-</ul>
-{% endblock %}
 {% block content %}
 
 {% for article in articles %}

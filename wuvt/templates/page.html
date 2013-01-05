@@ -1,12 +1,5 @@
 {% extends "base.html" %}
 {% block title %}{{ page.name }} - {{ super() }}{% endblock %}
-{% block nav_side_primary %}
-<ul>
-    {% for cat in categories %}
-    <li><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
-    {% endfor %}
-</ul>
-{% endblock %}
 {% block content %}
 
 <section>

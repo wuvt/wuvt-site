@@ -10,6 +10,12 @@ from wuvt.models import User
 from wuvt.blog.models import Article, Category
 
 
+@app.context_processor
+def inject_categories():
+    categories = Category.query.order_by(Category.name).all()
+    return {'categories': categories}
+
+
 @app.route('/category/<string:slug>')
 def category(slug):
     category = Category.query.filter(Category.slug == slug).first()

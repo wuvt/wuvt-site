@@ -14,10 +14,8 @@ from wuvt.trackman.views import *
 
 @app.route('/')
 def index():
-    categories = Category.query.order_by(Category.name).all()
     articles = Article.query.order_by(db.asc(Article.id)).limit(5).all()
-    return render_template('index.html', categories=categories,
-            articles=articles)
+    return render_template('index.html', articles=articles)
 
 
 @app.route('/<string:slug>')
