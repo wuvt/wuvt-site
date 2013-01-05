@@ -99,8 +99,9 @@
             <li><a href="https://www.facebook.com/WUVTFM" rel="external"><img
                 src="/static/img/facebook.svg" title="WUVT on Facebook"
                 alt="WUVT on Facebook" /></a></li>
-            <li><a href="/feed"><img src="/static/img/rss.svg" 
-                title="WUVT Feed" alt="WUVT Feed" /></a></li>
+            <li><a href="{{ feedlink or url_for('all_feed') }}"><img
+                src="/static/img/rss.svg" title="WUVT Feed"
+                alt="WUVT Feed" /></a></li>
             <li><a href="https://twitter.com/wuvtfm" rel="external"><img
                 src="/static/img/twitter.svg" title="WUVT on Twiter"
                 alt="WUVT on Twitter" /></a></li>
