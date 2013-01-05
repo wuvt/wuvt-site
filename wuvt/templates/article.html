@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }} - {{ super() }}{% endblock %}
+{% block content %}
+
+<article>
+    <hgroup>
+        <h2>{{ article.title }}</h2>
+        <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
+    </hgroup>
+
+{{ article.content|safe or article.summary|safe }}
+
+    <footer>
+        Filed under
+        <a href="{{ url_for('category', slug=article.category.slug) }}">{{ article.category.name }}</a>
+    </footer>
+</article>
+{% endblock %}

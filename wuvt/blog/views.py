@@ -68,8 +68,8 @@ def article(slug):
     categories = Category.query.\
             filter(Category.parent_id == article.category.parent_id).\
             order_by(Category.name).all()
-    return render_template('index.html', categories=categories,
-            articles=[article])
+    return render_template('article.html', categories=categories,
+            article=article)
 
 @app.route('/feed.atom')
 def all_feed():
