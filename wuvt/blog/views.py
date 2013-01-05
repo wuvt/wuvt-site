@@ -73,6 +73,7 @@ def article(slug):
     return render_template('article.html', categories=categories,
             article=article)
 
+
 @app.route('/feed.atom')
 def all_feed():
     feed = AtomFeed("WUVT: Recent Articles", feed_url=request.url,
