@@ -24,7 +24,8 @@ def inject_categories():
 
 
 @app.route('/category/<string:slug>')
-def category(slug):
+@app.route('/category/<string:slug>/<int:page>')
+def category(slug, page=1):
     category = Category.query.filter(Category.slug == slug).first()
     if not category:
         abort(404)
@@ -32,7 +33,8 @@ def category(slug):
     categories = Category.query.filter(Category.parent_id == category.id).\
             order_by(Category.name).all()
     articles = Article.query.filter(Article.category_id == category.id).\
-            order_by(db.asc(Article.id)).all()
+            order_by(db.asc(Article.id)).paginate(page,
+            app.config['POSTS_PER_PAGE'])
     return render_template('index.html', #categories=categories,
             articles=articles, feedlink=url_for('category_feed', slug=slug))
 
@@ -70,6 +72,7 @@ def article(slug):
             order_by(Category.name).all()
     return render_template('article.html', categories=categories,
             article=article)
+
 
 @app.route('/feed.atom')
 def all_feed():

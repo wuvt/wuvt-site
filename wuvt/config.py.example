@@ -4,6 +4,7 @@ SECRET_KEY = ''
 ADMINS = ['WUVT-IT@listserv.vt.edu']
 MAIL_FROM = 'noreply@wuvt.vt.edu'
 REDIS_CHANNEL = "wuvt"
+POSTS_PER_PAGE = 5
 
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"

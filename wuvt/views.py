@@ -27,8 +27,10 @@ def inject_menus():
 
 
 @app.route('/')
-def index():
-    articles = Article.query.order_by(db.asc(Article.id)).limit(5).all()
+@app.route('/index/<int:page>')
+def index(page=1):
+    articles = Article.query.order_by(db.asc(Article.id)).paginate(page,
+            app.config['POSTS_PER_PAGE'])
     return render_template('index.html', articles=articles)
 
 
