@@ -12,6 +12,20 @@ from wuvt.blog.views import *
 from wuvt.trackman.views import *
 
 
+@app.context_processor
+def inject_menus():
+    menus = {}
+    pages = db.session.query(Page.name, Page.slug, Page.menu).\
+            filter(Page.menu != None).all()
+    for page in pages:
+        menu = str(page.menu)
+        if menu not in menus:
+            menus[menu] = []
+        menus[menu].append(page)
+
+    return {'menus': menus}
+
+
 @app.route('/')
 def index():
     articles = Article.query.order_by(db.asc(Article.id)).limit(5).all()

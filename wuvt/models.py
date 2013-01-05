@@ -17,10 +17,11 @@ class Page(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, nullable=False)
     slug = db.Column(db.Unicode, nullable=False)
+    menu = db.Column(db.Unicode)
     content = db.Column(db.UnicodeText, nullable=False)
 
-    def __init__(self, name, slug, content):
+    def __init__(self, name, slug, content, menu=None):
         self.name = name
         self.slug = slug
         self.content = content
-
+        self.menu = menu
