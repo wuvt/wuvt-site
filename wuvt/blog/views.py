@@ -37,6 +37,8 @@ def article(slug):
     if not article:
         abort(404)
 
-    categories = Category.query.order_by(Category.name).all()
+    categories = Category.query.\
+            filter(Category.parent_id == article.category.parent_id).\
+            order_by(Category.name).all()
     return render_template('index.html', categories=categories,
             articles=[article])
