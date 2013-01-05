@@ -76,6 +76,13 @@ function makeAjaxLink(item) {
 }
 
 function loadPage(path) {
-    $('#content').load(path + ' #content > *');
-    $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+    $.ajax({
+        'url': path,
+        'dataType': 'html',
+    }).done(function(data) {
+        doc = $('<div>').append($.parseHTML(data));
+        $('title').text(doc.find('title').text());
+        $('#content').html(doc.find('#content > *'));
+        $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+    });
 }
