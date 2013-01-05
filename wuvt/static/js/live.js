@@ -83,6 +83,23 @@ function loadPage(path) {
         doc = $('<div>').append($.parseHTML(data));
         $('title').text(doc.find('title').text());
         $('#content').html(doc.find('#content > *'));
+
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+
+        // build date picker
+        if($('#datepicker')) {
+            $('#datepicker').datepicker({
+                'dateFormat': "yy/mm/dd",
+                'minDate': "2007/01/01",
+                'maxDate': 0,
+                'changeMonth': true,
+                'changeYear': true,
+                'prevText': "«",
+                'nextText': "»",
+                'onSelect': function(dt) {
+                    window.location = "/playlists/date/" + dt;
+                },
+            });
+        }
     });
 }
