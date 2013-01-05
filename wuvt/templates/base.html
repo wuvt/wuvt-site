@@ -45,7 +45,7 @@
                     <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
                     <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
                 </ul></li>
-            <li><a href="{{ url_for('page', slug='woove') }}">Woove</a></li>
+            <li><a href="{{ url_for('page', slug='links') }}">Links</a></li>
             <li><a href="{{ url_for('page', slug='contact') }}">Contact</a></li>
         </ul>
         {% endblock %}
@@ -61,8 +61,6 @@
                 {% for cat in categories %}
                 <li><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
                 {% endfor %}
-
-                <li><a href="{{ url_for('page', slug='links') }}">Links</a></li>
             </ul>
             {% endblock %}
         </nav>
