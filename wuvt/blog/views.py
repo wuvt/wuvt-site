@@ -12,7 +12,8 @@ from wuvt.blog.models import Article, Category
 
 @app.context_processor
 def inject_categories():
-    categories = Category.query.order_by(Category.name).all()
+    categories = Category.query.filter(Category.parent_id == 0).\
+            order_by(Category.name).all()
     return {'categories': categories}
 
 
@@ -22,7 +23,8 @@ def category(slug):
     if not category:
         abort(404)
 
-    categories = Category.query.order_by(Category.name).all()
+    categories = Category.query.filter(Category.parent_id == category.id).\
+            order_by(Category.name).all()
     articles = Article.query.filter(Article.category_id == category.id).\
             order_by(db.asc(Article.id)).all()
     return render_template('index.html', categories=categories,

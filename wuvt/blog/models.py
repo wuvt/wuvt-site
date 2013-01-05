@@ -8,10 +8,12 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, nullable=False)
     slug = db.Column(db.Unicode, nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
-    def __init__(self, name, slug):
+    def __init__(self, name, slug, parent_id=0):
         self.name = name
         self.slug = slug
+        self.parent_id = parent_id
 
 
 class Article(db.Model):
@@ -20,9 +22,11 @@ class Article(db.Model):
     title = db.Column(db.Unicode, nullable=False)
     slug = db.Column(db.Unicode, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    category = db.relationship('Category', backref=db.backref('category', lazy='dynamic'))
+    category = db.relationship('Category', backref=db.backref('category',
+        lazy='dynamic'))
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    author = db.relationship('User', backref=db.backref('author', lazy='dynamic'))
+    author = db.relationship('User', backref=db.backref('author',
+        lazy='dynamic'))
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     content = db.Column(db.UnicodeText)
 
