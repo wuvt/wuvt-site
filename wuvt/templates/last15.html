@@ -1,12 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Last 15 Tracks - {{ super() }}{% endblock %}
-{% block bubble %}
-<ul>
-    <li><a href="#listen">Listen Live!</a></li>
-    <li class='active'><a href="{{ url_for('last15') }}">Last 15 Tracks!!</a></li>
-    <li><a href="#programguide">Program Guide!!!</a></li>
-</ul>
-{% endblock %}
 
 {% block content %}
 <section>
@@ -48,10 +41,4 @@
 <a href='{{ url_for('playlists_date') }}'>air date</a> or
 <a href="{{ url_for('playlists_dj') }}">DJ</a>.</p>
 </section>
-{% endblock %}
-
-{% block js %}
-<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-<script src="{{ url_for('static', filename='js/live.js') }}"></script>
-<script>$(function(){wuvtLiveLast15("{{ url_for('livestream') }}");})</script>
 {% endblock %}
