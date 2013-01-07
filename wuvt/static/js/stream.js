@@ -1,3 +1,4 @@
+var streamUrl = "http://engine.collegemedia.vt.edu:8000/wuvt.ogg";
 var streamPlaying = false;
 
 function initPlayer() {
@@ -5,7 +6,7 @@ function initPlayer() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
             $(stream).attr('id', "wuvt_stream");
-            $(stream).attr('src', "http://engine.collegemedia.vt.edu:8000/wuvt.ogg");
+            $(stream).attr('src', streamUrl);
             $(stream).attr('autoplay', "autoplay");
             $('body').append(stream);
 
@@ -13,6 +14,13 @@ function initPlayer() {
                 $('#stream_btn').addClass('playing');
                 $('#stream_btn').attr('title', "Stop");
                 $('#stream_btn').removeAttr('disabled');
+            });
+
+            // workaround to deal with playback stopping when metadata changes
+            // https://bugzil.la/455165
+            stream.addEventListener("ended", function() {
+                $('#wuvt_stream').attr('src', "");
+                $('#wuvt_stream').attr('src', streamUrl);
             });
 
             streamPlaying = true;
