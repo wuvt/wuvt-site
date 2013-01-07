@@ -56,8 +56,10 @@ header #mainheader h1 {
 
 header #mainheader h1 a {
     display: block;
-    background: url('/static/img/logo.svg') no-repeat;
-    background-size: 200px, 180px;
+    /*background: url('/static/img/logo.svg') no-repeat;
+    background-size: 200px, 180px;*/
+    background-image: url('/static/img/logo.png');
+    background-repeat: no-repeat;
     width: 100%;
     height: 100%;
     text-decoration: none;
@@ -78,7 +80,7 @@ header #mainheader h1 span {
 
 header #mainheader h1 .sub1 {
     left: 40px;
-    bottom: 0;
+    bottom: 5px;
 }
 
 header #mainheader h1 .sub2 {
