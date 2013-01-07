@@ -62,7 +62,8 @@ function updateLast15(track) {
 }
 
 function makeAjaxLink(item) {
-    if($(item).attr('href').charAt(0) == '#') {
+    href = $(item).attr('href');
+    if(!href || href.charAt(0) == '#') {
         return;
     }
 
@@ -97,7 +98,7 @@ function loadPage(path) {
                 'prevText': "«",
                 'nextText': "»",
                 'onSelect': function(dt) {
-                    window.location = "/playlists/date/" + dt;
+                    loadPage("/playlists/date/" + dt);
                 },
             });
         }

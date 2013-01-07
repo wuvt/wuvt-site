@@ -18,18 +18,19 @@
 {{ super() }}
 <script>
 // <![CDATA[
-$('#datepicker').datepicker({
-    'dateFormat': "yy/mm/dd",
-    'minDate': "2007/01/01",
-    'maxDate': 0,
-    'changeMonth': true,
-    'changeYear': true,
-    'prevText': "«",
-    'nextText': "»",
-    'onSelect': function(dt) {
-        loadPage("/playlists/date/" + dt);
-        return false;
-    },
+$(function() {
+    $('#datepicker').datepicker({
+        'dateFormat': "yy/mm/dd",
+        'minDate': "2007/01/01",
+        'maxDate': 0,
+        'changeMonth': true,
+        'changeYear': true,
+        'prevText': "«",
+        'nextText': "»",
+        'onSelect': function(dt) {
+            loadPage("/playlists/date/" + dt);
+        },
+    });
 });
 // ]]>
 </script>
