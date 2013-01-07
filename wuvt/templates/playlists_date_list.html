@@ -28,6 +28,7 @@ $('#datepicker').datepicker({
     'nextText': "»",
     'onSelect': function(dt) {
         loadPage("/playlists/date/" + dt);
+        return false;
     },
 });
 // ]]>
