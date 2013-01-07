@@ -27,7 +27,7 @@ $('#datepicker').datepicker({
     'prevText': "«",
     'nextText': "»",
     'onSelect': function(dt) {
-        window.location = "/playlists/date/" + dt;
+        loadPage("/playlists/date/" + dt);
     },
 });
 // ]]>
