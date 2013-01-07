@@ -5,7 +5,7 @@ function initPlayer() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
             $(stream).attr('id', "wuvt_stream");
-            $(stream).attr('src', "http://engine.collegemedia.vt.edu:8000/wuvt-hq.ogg");
+            $(stream).attr('src', "http://engine.collegemedia.vt.edu:8000/wuvt.ogg");
             $(stream).attr('autoplay', "autoplay");
             $('body').append(stream);
 
