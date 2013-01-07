@@ -65,9 +65,9 @@ header #mainheader h1 a:hover {
     background-position: 0 -90px;
 }
 
-header #mainheader img:last-child {
+header #mainheader #robot {
     position: absolute:
-    z-index: 9999;
+    z-index: 999;
     /*margin-bottom: -86px;
     height: 238px;*/
     margin-bottom: -68px;
@@ -75,6 +75,50 @@ header #mainheader img:last-child {
     height: 148px;
     border: 0;
 }
+
+header #mainheader button {
+    position: absolute;
+    z-index: 9999;
+    margin-top: 39px;
+    width: 15px;
+    height: 15px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    border: 0;
+    text-indent: -99999px;
+}
+
+header #mainheader button:focus,
+header #mainheader button::-moz-focus-inner {
+    border: 0;
+    outline: 0;
+}
+
+header #mainheader #stream_btn {
+    margin-left: -106px;
+    background-image: url('/static/img/play.svg');
+}
+
+header #mainheader #stream_btn:disabled {
+    opacity: 0.5;
+
+    -webkit-transition: all 0.5s ease-in-out;
+       -moz-transition: all 0.5s ease-in-out;
+         -o-transition: all 0.5s ease-in-out;
+            transition: all 0.5s ease-in-out;
+}
+
+header #mainheader #stream_btn.playing {
+    background-image: url('/static/img/stop.svg');
+}
+
+header #mainheader #volume_btn {
+    display: none;
+    margin-left: -51px;
+    background-image: url('/static/img/volume.svg');
+}
+
 /* }}} */
 
 /* Header: speech bubble {{{ */
@@ -179,11 +223,12 @@ header nav li a:hover {
 }
 
 header nav > ul {
-    position: absolute; /* prevent dropdown from moving other elements */
+    position: absolute;
 }
 
 header nav > ul > li {
-    float: left;
+    display: inline-block;
+    vertical-align: top;
     margin: 2px 2px 0 2px;
 }
 
