@@ -23,6 +23,13 @@ function initPlayer() {
                 $('#wuvt_stream').attr('src', streamUrl);
             });
 
+            // chrome workaround for the same thing
+            stream.addEventListener("error", function() {
+                $('#wuvt_stream').attr('src', "");
+                $('#wuvt_stream').attr('src', streamUrl);
+                $('#wuvt_stream').trigger('play');
+            });
+
             streamPlaying = true;
             $('#stream_btn').attr('title', "Buffering...");
             $('#stream_btn').attr('disabled', "disabled");
