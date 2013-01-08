@@ -97,11 +97,16 @@ header #mainheader #robot {
     height: 148px;
     border: 0;
 }
+/* }}} */
 
-header #mainheader button {
+/* Header: live stream player {{{ */
+header #mainheader > button {
     position: absolute;
     z-index: 9999;
     margin-top: 39px;
+}
+
+header #mainheader button {
     width: 15px;
     height: 15px;
     background-color: transparent;
@@ -136,9 +141,60 @@ header #mainheader #stream_btn.playing {
 }
 
 header #mainheader #volume_btn {
-    display: none;
     margin-left: -51px;
     background-image: url('/static/img/volume.svg');
+}
+
+header #mainheader #volume_box {
+    position: absolute;
+    padding: 20px 12px 12px 12px;
+    background: #808080;
+    opacity: 0;
+}
+
+header #mainheader #volume_box.visible {
+    opacity: 1.0;
+
+    -webkit-transition: opacity 0.2s ease-in-out;
+       -moz-transition: opacity 0.2s ease-in-out;
+         -o-transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.2s ease-in-out;
+}
+
+header #mainheader #volume_box #volume_slider {
+    position: relative;
+    background: #aaaaaa;
+}
+
+header #mainheader #volume_box #volume_mute_btn {
+    margin-top: 12px;
+    background-image: url('/static/img/mute.svg');
+}
+
+.ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; cursor: default; }
+.ui-slider .ui-slider-range { position: absolute; z-index: 1; font-size: .7em; display: block; border: 0; background-position: 0 0; }
+
+.ui-slider-horizontal { height: .8em; }
+.ui-slider-horizontal .ui-slider-handle { top: -.3em; margin-left: -.6em; }
+.ui-slider-horizontal .ui-slider-range { top: 0; height: 100%; }
+.ui-slider-horizontal .ui-slider-range-min { left: 0; }
+.ui-slider-horizontal .ui-slider-range-max { right: 0; }
+
+.ui-slider-vertical { width: .8em; height: 100px; }
+.ui-slider-vertical .ui-slider-range { left: 0; width: 100%; }
+.ui-slider-vertical .ui-slider-range-min { bottom: 0; }
+.ui-slider-vertical .ui-slider-range-max { top: 0; }
+
+.ui-slider-vertical .ui-slider-handle {
+    left: -0.2em;
+    margin-left: 0;
+    margin-bottom: -0.6em;
+    background: #ffffff;
+
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+         -o-border-radius: 8px;
+            border-radius: 8px;
 }
 
 /* }}} */
