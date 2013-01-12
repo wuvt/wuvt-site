@@ -1,4 +1,9 @@
 function wuvtLive(liveurl) {
+    if(typeof EventSource == 'undefined') {
+        // cannot use server-sent events, boo
+        return;
+    }
+
     var source = new EventSource(liveurl);
     source.onmessage = function(ev) {
         msg = JSON.parse(ev.data);

@@ -2,6 +2,13 @@ var streamUrl = "http://engine.collegemedia.vt.edu:8000/wuvt.ogg";
 var streamPlaying = false;
 
 function initPlayer() {
+    var audioTag = document.createElement('audio');
+    if(!audioTag.canPlayType('audio/ogg')) {
+        $('#stream_btn').hide();
+        $('#volume_btn').hide();
+        return;
+    }
+
     $('#stream_btn').click(function() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
