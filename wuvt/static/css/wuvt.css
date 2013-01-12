@@ -459,6 +459,11 @@ article:last-child,
 section:last-child {
     margin-bottom: 0px;
 }
+
+section.pagination a {
+    margin-right: 1em;
+    color: #000000;
+}
 /* }}} */
 
 table.tracklist {

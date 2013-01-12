@@ -35,7 +35,7 @@ def category(slug, page=1):
     articles = Article.query.filter(Article.category_id == category.id).\
             order_by(db.asc(Article.id)).paginate(page,
             app.config['POSTS_PER_PAGE'])
-    return render_template('index.html', #categories=categories,
+    return render_template('category.html', category=category,
             articles=articles, feedlink=url_for('category_feed', slug=slug))
 
 

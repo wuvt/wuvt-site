@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}{{ category.name }} - {{ super() }}{% endblock %}
 {% block content %}
 
 {% if articles.items %}
@@ -18,8 +19,8 @@
 {% endfor %}
 
 <section class="pagination">
-    {% if articles.has_prev %}<a href="{{ url_for('index', page=articles.prev_num) }}">« Previous</a>{% endif %}
-    {% if articles.has_next %}<a href="{{ url_for('index', page=articles.next_num) }}">Next »</a>{% endif %}
+    {% if articles.has_prev %}<a href="{{ url_for('category', slug=category.slug, page=articles.prev_num) }}">« Previous</a>{% endif %}
+    {% if articles.has_next %}<a href="{{ url_for('category', slug=category.slug, page=articles.next_num) }}">Next »</a>{% endif %}
 </section>
 {% else %}
 <section>
