@@ -3,6 +3,13 @@
     src: url('/static/fonts/Homestead-Display.woff');
 }
 
+/* remove focus outline */
+:focus,
+::-moz-focus-inner {
+    border: 0;
+    outline: 0;
+}
+
 body {
     font-family: Helvetica, sans-serif;
     font-size: 100%;
@@ -114,12 +121,6 @@ header #mainheader button {
     background-size: 15px, 15px;
     border: 0;
     text-indent: -99999px;
-}
-
-header #mainheader button:focus,
-header #mainheader button::-moz-focus-inner {
-    border: 0;
-    outline: 0;
 }
 
 header #mainheader #stream_btn {
