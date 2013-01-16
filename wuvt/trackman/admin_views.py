@@ -8,7 +8,7 @@ import netaddr
 from wuvt import app
 from wuvt import db
 from wuvt import lib
-from wuvt import sse
+from wuvt.trackman.lib import log_track
 from wuvt.trackman.models import DJ, DJSet, Track
 
 
@@ -74,16 +74,8 @@ def trackman_log(setid):
             errors['label'] = "You must enter a label."
 
         if len(errors.items()) <= 0:
-            track = Track(djset.dj_id, djset.id, title, artist, album, label,
+            log_track(djset.dj_id, djset.id, title, artist, album, label,
                     'request' in request.form, 'vinyl' in request.form)
-            db.session.add(track)
-            db.session.commit()
-
-            # send server-sent event
-            sse.send(json.dumps({'event': "track_change", 'track':
-                track.serialize()}))
-
-            #flash("Track logged")
 
     return render_template('admin/trackman_log.html', djset=djset,
             errors=errors)

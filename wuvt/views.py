@@ -5,6 +5,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import lib
 from wuvt import login_manager
+from wuvt import sse
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Article, Category

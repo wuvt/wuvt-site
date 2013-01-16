@@ -6,6 +6,7 @@
 
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
+from flask.ext.csrf import csrf_exempt
 import datetime
 import json
 import redis
@@ -13,7 +14,7 @@ import redis
 from wuvt import app
 from wuvt import db
 from wuvt import lib
-from wuvt import sse
+from wuvt.trackman.lib import log_track
 from wuvt.trackman.models import DJ, DJSet, Track
 
 
@@ -121,6 +122,7 @@ def playlist(set_id):
 
 
 @app.route('/trackman/automation/submit', methods=['POST'])
+@csrf_exempt
 def submit_automation_track():
     if 'password' not in request.form or \
         request.form['password'] != app.config['AUTOMATION_PASSWORD']:
@@ -157,35 +159,6 @@ def submit_automation_track():
         return Response("Will not log traffic\n", mimetype="text/plain")
 
     dj = DJ.query.filter_by(name="Automation").first()
-    track = Track(dj.id, title, artist, album, label,
-            listeners=lib.stream_listeners(app.config['ICECAST_STATS']))
-    db.session.add(track)
-    db.session.commit()
-
-    # update last.fm (yay!)
-    if len(app.config['LASTFM_APIKEY']) > 0:
-        import pylast
-        import hashlib
-        import time
-
-        h = hashlib.md5()
-        h.update(app.config['LASTFM_PASSWORD'])
-        password_hash = h.hexdigest()
-
-        try:
-            network = pylast.LastFMNetwork(
-                    api_key=app.config['LASTFM_APIKEY'],
-                    api_secret=app.config['LASTFM_SECRET'],
-                    username=app.config['LASTFM_USERNAME'],
-                    password_hash=password_hash)
-            network.scrobble(artist=track.artist, title=track.title,
-                    timestamp=int(time.mktime(track.datetime.timetuple())),
-                    album=track.album)
-        except Exception as e:
-            print(e)
-
-    # send server-sent event
-    sse.send(json.dumps({'event': "track_change", 'track':
-        track.serialize()}))
+    log_track(dj.id, None, title, artist, album, label)
 
     return Response("Logged\n", mimetype="text/plain")
