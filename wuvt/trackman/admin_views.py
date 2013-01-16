@@ -8,6 +8,7 @@ import netaddr
 from wuvt import app
 from wuvt import db
 from wuvt import lib
+from wuvt import sse
 from wuvt.trackman.models import DJ, DJSet, Track
 
 
@@ -40,7 +41,7 @@ def trackman_login():
             djs=djs)
 
 
-@app.route('/admin/trackman/automation/enable', methods=['POST'])
+@app.route('/trackman/automation/start', methods=['POST'])
 def trackman_start_automation():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
@@ -80,6 +81,10 @@ def trackman_log(setid):
                     'request' in request.form, 'vinyl' in request.form)
             db.session.add(track)
             db.session.commit()
+
+            # send server-sent event
+            sse.send(json.dumps({'event': "track_change", 'track':
+                track.serialize()}))
 
             flash("Track logged")
 
