@@ -12,12 +12,7 @@ from wuvt import sse
 from wuvt.trackman.models import DJ, DJSet, Track
 
 
-# TODO: turn automation on and off (when not logged in)
-# when logged in, allow logging tracks
-# 85 minute timeout
-
-
-@app.route('/admin/trackman', methods=['GET', 'POST'])
+@app.route('/trackman', methods=['GET', 'POST'])
 def trackman_login():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
@@ -49,14 +44,16 @@ def trackman_start_automation():
     red = redis.StrictRedis()
     red.set('automation_enabled', "true")
 
-    flash("Automation started")
+    #flash("Automation started")
     return redirect(url_for('trackman_login'))
 
 
-@app.route('/admin/trackman/log/<int:setid>', methods=['GET', 'POST'])
+@app.route('/trackman/log/<int:setid>', methods=['GET', 'POST'])
 def trackman_log(setid):
-    djset = DJSet.query.get_or_404(setid)
+    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
+        abort(403)
 
+    djset = DJSet.query.get_or_404(setid)
     errors = {}
 
     if 'artist' in request.form:
@@ -86,13 +83,17 @@ def trackman_log(setid):
             sse.send(json.dumps({'event': "track_change", 'track':
                 track.serialize()}))
 
-            flash("Track logged")
+            #flash("Track logged")
 
-    return render_template('admin/trackman_log.html', djset=djset)
+    return render_template('admin/trackman_log.html', djset=djset,
+            errors=errors)
 
 
-@app.route('/admin/trackman/log/<int:setid>/end', methods=['POST'])
+@app.route('/trackman/log/<int:setid>/end', methods=['POST'])
 def trackman_logout(setid):
+    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
+        abort(403)
+
     djset = DJSet.query.get_or_404(setid)
     djset.dtend = datetime.datetime.now()
     db.session.commit()

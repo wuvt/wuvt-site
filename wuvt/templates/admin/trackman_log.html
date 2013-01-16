@@ -1,4 +1,6 @@
 {% extends "admin/base.html" %}
+{% block title %}Trackman - {{ super() }}{% endblock %}
+{% block header %}{% endblock %}
 {% block content %}
 
 <form action="{{ url_for('trackman_log', setid=djset.id) }}" method="post" class="form-horizontal">

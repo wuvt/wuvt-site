@@ -1,4 +1,7 @@
 {% extends "admin/base.html" %}
+{% block title %}Trackman - {{ super() }}{% endblock %}
+{% block bodyattrib %} class="page-signin"{% endblock %}
+{% block header %}{% endblock %}
 {% block content %}
 
 <form action="{{ url_for('trackman_login') }}" method="post" class="form-signin">
