@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }} -G{{ djset.dj.airname }} - Playlist Archive - {{ super() }}{% endblock %}
+{% block title %}{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }} - {{ djset.dj.airname }} - Playlist Archive - {{ super() }}{% endblock %}
 
 {% block content %}
 <section>
