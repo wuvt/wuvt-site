@@ -6,7 +6,6 @@
 
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-from flask.ext.csrf import csrf
 import datetime
 import json
 import redis

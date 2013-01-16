@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% block bodyattrib %} class="page-signin"{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<form action="{{ url_for('login') }}" method="post" class="form-signin">
+    <h2 class="form-signin-heading">WUVT Login</h2>
+
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="next" value="{{ next }}" />
+
+    <input type="text" name="username" id="id_username" value=""
+        placeholder="Username" class="input-block-level" />
+
+    <input type="password" name="password" id="id_password" value=""
+        placeholder="Password" class="input-block-level" />
+
+    <button class="btn btn-large btn-primary" type="submit">Login</button>
+</form>
+{% endblock %}

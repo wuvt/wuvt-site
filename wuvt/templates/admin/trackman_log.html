@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% block content %}
+
+<form action="{{ url_for('trackman_log', setid=djset.id) }}" method="post" class="form-horizontal">
+    <h2 class="form-signin-heading">Trackman: {{ djset.dj.airname }}</h2>
+
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="control-group">
+        <label for="id_artist" class="control-label">Artist</label>
+        <div class="controls">
+            <input type="text" name="artist" id="id_artist" value=""
+                required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_title" class="control-label">Title</label>
+        <div class="controls">
+            <input type="text" name="title" id="id_title" value=""
+                required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_album" class="control-label">Album</label>
+        <div class="controls">
+            <input type="text" name="album" id="id_album" value=""
+                required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_label" class="control-label">Label</label>
+        <div class="controls">
+            <input type="text" name="label" id="id_label" value=""
+                required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" name="request" />
+                Request
+            </label>
+
+            <label class="checkbox">
+                <input type="checkbox" name="vinyl" />
+                Vinyl
+            </label>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="icon-list icon-white"></i>
+            Add to Playlist
+        </button>
+
+        <button class="btn">
+            <i class="icon-eject"></i>
+            Logout
+        </button>
+    </div>
+</form>
+{% endblock %}

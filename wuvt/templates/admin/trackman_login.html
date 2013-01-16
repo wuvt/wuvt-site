@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block content %}
+
+<form action="{{ url_for('trackman_admin') }}" method="post" class="form-signin">
+    <h2 class="form-signin-heading">Trackman</h2>
+
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <select name="dj" class="input-block-level">
+        {% for dj in djs %}
+        <option value="{{ dj.id }}">{{ dj.airname }}
+        {% endfor %}
+    </select>
+
+    <button class="btn" type="submit">
+        <i class="icon-headphones"></i>
+        Login
+    </button>
+
+    {% if automation %}
+    <!--button class="btn">
+        <i class="icon-stop"></i>
+        Stop Automation
+    </button-->
+    {% else %}
+    <button class="btn" id="automation_btn">
+        <i class="icon-play"></i>
+        Start Automation
+    </button>
+    {% endif %}
+</form>
+{% endblock %}

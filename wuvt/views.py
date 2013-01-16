@@ -1,15 +1,22 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-from flask.ext.csrf import csrf
 
 from wuvt import app
 from wuvt import db
 from wuvt import lib
+from wuvt import login_manager
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Article, Category
+
+from wuvt.admin.views import *
 from wuvt.blog.views import *
 from wuvt.trackman.views import *
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.query.get(userid)
 
 
 @app.context_processor

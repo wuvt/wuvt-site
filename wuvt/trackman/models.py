@@ -55,9 +55,10 @@ class Track(db.Model):
     new = db.Column(db.Boolean, default=False)
     listeners = db.Column(db.Integer)
 
-    def __init__(self, dj_id, title, artist, album, label, request=False,
+    def __init__(self, dj_id, djset_id, title, artist, album, label, request=False,
             vinyl=False, listeners=None):
         self.dj_id = dj_id
+        self.djset_id = djset_id
         self.title = title
         self.artist = artist
         self.album = album
@@ -76,4 +77,5 @@ class Track(db.Model):
             'vinyl': self.vinyl,
             'datetime': str(self.datetime),
             'dj': self.dj.airname,
+            'djset': self.djset_id,
         }
