@@ -17,7 +17,7 @@ from wuvt.trackman.models import DJ, DJSet, Track
 
 
 @app.route('/admin/trackman', methods=['GET', 'POST'])
-def trackman_admin():
+def trackman_login():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
@@ -41,23 +41,15 @@ def trackman_admin():
 
 
 @app.route('/admin/trackman/automation/enable', methods=['POST'])
-def enable_automation():
+def trackman_start_automation():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
     red = redis.StrictRedis()
     red.set('automation_enabled', "true")
-    return Response("enabled")
 
-
-@app.route('/admin/trackman/automation/disable', methods=['POST'])
-def disable_automation():
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
-
-    red = redis.StrictRedis()
-    red.set('automation_enabled', "false")
-    return Response("enabled")
+    flash("Automation started")
+    return redirect(url_for('trackman_login'))
 
 
 @app.route('/admin/trackman/log/<int:setid>', methods=['GET', 'POST'])
@@ -92,3 +84,12 @@ def trackman_log(setid):
             flash("Track logged")
 
     return render_template('admin/trackman_log.html', djset=djset)
+
+
+@app.route('/admin/trackman/log/<int:setid>/end', methods=['POST'])
+def trackman_logout(setid):
+    djset = DJSet.query.get_or_404(setid)
+    djset.dtend = datetime.datetime.now()
+    db.session.commit()
+
+    return redirect(url_for('trackman_login'))

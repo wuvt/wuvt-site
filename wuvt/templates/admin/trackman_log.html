@@ -58,10 +58,22 @@
             Add to Playlist
         </button>
 
-        <button class="btn">
+        <button type="button" class="btn" id="trackman_logout_btn">
             <i class="icon-eject"></i>
             Logout
         </button>
     </div>
 </form>
+<form action="{{ url_for('trackman_logout', setid=djset.id) }}" method="post"
+    id="trackman_logout_form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+</form>
+{% endblock %}
+{% block js %}
+{{ super() }}
+<script>
+$('#trackman_logout_btn').click(function() {
+    $('#trackman_logout_form').submit();
+});
+</script>
 {% endblock %}
