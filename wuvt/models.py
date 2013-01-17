@@ -1,9 +1,7 @@
 from wuvt import db
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.login import UserMixin
-
-
-bcrypt = Bcrypt()
+from passlib.hash import django_pbkdf2_sha256
 
 
 class User(db.Model, UserMixin):
@@ -20,10 +18,10 @@ class User(db.Model, UserMixin):
         self.name = name
 
     def set_password(self, password):
-        self.pw_hash = bcrypt.generate_password_hash(password)
+        self.pw_hash = django_pbkdf2_sha256.encrypt(password)
 
     def check_password(self, password):
-        return bcrypt.check_password_hash(self.pw_hash, password)
+        return django_pbkdf2_sha256.verify(password, self.pw_hash)
 
 
 class Page(db.Model):
