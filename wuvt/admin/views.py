@@ -23,8 +23,7 @@ def login():
         user = User.query.filter(User.username == request.form['username']).first()
         if user and user.check_password(request.form['password']):
             login_user(user)
-            flash("Logged in")
-            redirect_back('admin_index')
+            return redirect_back('admin_index')
         else:
             return Response("bad username or password")
     return render_template('admin/login.html', next=request.values.get('next'))
