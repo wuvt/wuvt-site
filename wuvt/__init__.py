@@ -22,17 +22,20 @@ def format_datetime(value, format=None):
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
 app.jinja_env.filters['datetime'] = format_datetime
 
+
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
 
+
 def redirect_back(endpoint, **values):
     target = request.form['next']
     if not target or not is_safe_url(target):
         target = url_for(endpoint, **values)
     return redirect(target)
+
 
 import wuvt.views
 
