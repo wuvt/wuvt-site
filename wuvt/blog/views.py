@@ -18,8 +18,7 @@ def make_external(url):
 
 @app.context_processor
 def inject_categories():
-    categories = Category.query.filter(Category.parent_id == 0).\
-            order_by(Category.name).all()
+    categories = Category.query.order_by(Category.name).all()
     return {'categories': categories}
 
 
@@ -30,8 +29,7 @@ def category(slug, page=1):
     if not category:
         abort(404)
 
-    categories = Category.query.filter(Category.parent_id == category.id).\
-            order_by(Category.name).all()
+    categories = Category.query.order_by(Category.name).all()
     articles = Article.query.filter(Article.category_id == category.id).\
             order_by(db.asc(Article.id)).paginate(page,
             app.config['POSTS_PER_PAGE'])
@@ -67,9 +65,7 @@ def article(slug):
     if not article:
         abort(404)
 
-    categories = Category.query.\
-            filter(Category.parent_id == article.category.parent_id).\
-            order_by(Category.name).all()
+    categories = Category.query.order_by(Category.name).all()
     return render_template('article.html', categories=categories,
             article=article)
 

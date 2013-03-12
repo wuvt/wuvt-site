@@ -8,12 +8,10 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, nullable=False)
     slug = db.Column(db.Unicode, nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
-    def __init__(self, name, slug, parent_id=0):
+    def __init__(self, name, slug):
         self.name = name
         self.slug = slug
-        self.parent_id = parent_id
 
 
 class Article(db.Model):
