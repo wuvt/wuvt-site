@@ -12,9 +12,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.Unicode(255), nullable=False)
     enabled = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __init__(self, username, name):
+    def __init__(self, username, name, email):
         self.username = username
         self.name = name
+        self.email = email
 
     def set_password(self, password):
         self.pw_hash = django_pbkdf2_sha256.encrypt(password)
