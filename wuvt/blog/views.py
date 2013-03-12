@@ -65,6 +65,9 @@ def article(slug):
     if not article:
         abort(404)
 
+    if not article.content:
+        article.content = article.summary
+
     categories = Category.query.order_by(Category.name).all()
     return render_template('article.html', categories=categories,
             article=article)
@@ -77,7 +80,7 @@ def all_feed():
 
     articles = Article.query.order_by(db.asc(Article.id)).limit(15).all()
     for article in articles:
-        feed.add(article.title, unicode(article.content),
+        feed.add(article.title, unicode(article.content or article.summary),
                 content_type='html',
                 author=article.author.name,
                 url=make_external(url_for('article', slug=article.slug)),
