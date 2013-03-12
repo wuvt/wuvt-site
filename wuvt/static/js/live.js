@@ -109,5 +109,13 @@ function loadPage(path) {
                 },
             });
         }
+    }).fail(function(data) {
+        doc = $('<div>').append($.parseHTML(data.responseText));
+        $('title').text(doc.find('title').text());
+        $('#side_primary').html(doc.find('#side_primary > *'));
+        $('#content').html(doc.find('#content > *'));
+
+        $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
+        $.each($('#content a'), function(i, item){makeAjaxLink(item);});
     });
 }
