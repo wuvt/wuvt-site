@@ -6,11 +6,11 @@ from wuvt import db
 class DJ(db.Model):
     __tablename__ = "dj"
     id = db.Column(db.Integer, primary_key=True)
-    airname = db.Column(db.Unicode)
-    name = db.Column(db.Unicode)
+    airname = db.Column(db.Unicode(255))
+    name = db.Column(db.Unicode(255))
     phone = db.Column(db.Unicode(10))
-    email = db.Column(db.Unicode)
-    genres = db.Column(db.Unicode)
+    email = db.Column(db.Unicode(255))
+    genres = db.Column(db.Unicode(255))
     time_added = db.Column(db.DateTime, default=datetime.datetime.now)
     visible = db.Column(db.Boolean, default=True)
 
@@ -46,10 +46,10 @@ class Track(db.Model):
     dj = db.relationship('DJ', backref=db.backref('dj', lazy='dynamic'))
     djset_id = db.Column(db.Integer, db.ForeignKey('set.id'))
     # TODO: enBin?
-    title = db.Column(db.Unicode)
-    artist = db.Column(db.Unicode)
-    album = db.Column(db.Unicode)
-    label = db.Column(db.Unicode)
+    title = db.Column(db.Unicode(255))
+    artist = db.Column(db.Unicode(255))
+    album = db.Column(db.Unicode(255))
+    label = db.Column(db.Unicode(255))
     request = db.Column(db.Boolean, default=False)
     vinyl = db.Column(db.Boolean, default=False)
     new = db.Column(db.Boolean, default=False)

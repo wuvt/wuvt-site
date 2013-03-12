@@ -6,8 +6,8 @@ from wuvt import db
 class Category(db.Model):
     __tablename__ = "category"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode, nullable=False)
-    slug = db.Column(db.Unicode, nullable=False)
+    name = db.Column(db.Unicode(255), nullable=False)
+    slug = db.Column(db.Unicode(255), nullable=False)
 
     def __init__(self, name, slug):
         self.name = name
@@ -17,8 +17,8 @@ class Category(db.Model):
 class Article(db.Model):
     __tablename__ = "article"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Unicode, nullable=False)
-    slug = db.Column(db.Unicode, nullable=False)
+    title = db.Column(db.Unicode(255), nullable=False)
+    slug = db.Column(db.Unicode(255), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', backref=db.backref('category',
         lazy='dynamic'))

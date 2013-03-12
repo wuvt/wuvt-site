@@ -1,5 +1,4 @@
 from wuvt import db
-from flask.ext.bcrypt import Bcrypt
 from flask.ext.login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
 
@@ -7,10 +6,10 @@ from passlib.hash import django_pbkdf2_sha256
 class User(db.Model, UserMixin):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.Unicode, nullable=False)
-    name = db.Column(db.Unicode, nullable=False)
-    pw_hash = db.Column(db.String)
-    email = db.Column(db.Unicode, nullable=False)
+    username = db.Column(db.Unicode(255), nullable=False)
+    name = db.Column(db.Unicode(255), nullable=False)
+    pw_hash = db.Column(db.String(255))
+    email = db.Column(db.Unicode(255), nullable=False)
     enabled = db.Column(db.Boolean, default=True, nullable=False)
 
     def __init__(self, username, name):
@@ -27,9 +26,9 @@ class User(db.Model, UserMixin):
 class Page(db.Model):
     __tablename__ = "page"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode, nullable=False)
-    slug = db.Column(db.Unicode, nullable=False)
-    menu = db.Column(db.Unicode)
+    name = db.Column(db.Unicode(255), nullable=False)
+    slug = db.Column(db.Unicode(255), nullable=False)
+    menu = db.Column(db.Unicode(255))
     content = db.Column(db.UnicodeText, nullable=False)
 
     def __init__(self, name, slug, content, menu=None):
