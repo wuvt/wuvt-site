@@ -77,8 +77,60 @@ def trackman_log(setid):
             log_track(djset.dj_id, djset.id, title, artist, album, label,
                     'request' in request.form, 'vinyl' in request.form)
 
+    tracks = Track.query.filter(Track.djset_id == djset.id).\
+            order_by(Track.datetime).all()
+
     return render_template('admin/trackman_log.html', djset=djset,
-            errors=errors)
+            tracks=tracks, errors=errors)
+
+
+@app.route('/trackman/log/<int:setid>/<int:trackid>',
+        methods=['DELETE', 'GET', 'POST'])
+def trackman_edit(setid, trackid):
+    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
+        abort(403)
+
+    djset = DJSet.query.get_or_404(setid)
+    track = Track.query.get_or_404(trackid)
+    if track.djset_id != djset.id:
+        abort(404)
+
+    errors = {}
+
+    if request.method == 'DELETE':
+        db.session.delete(track)
+        db.session.commit()
+        return Response("deleted")
+    elif request.method == 'POST':
+        artist = request.form['artist'].strip()
+        if len(artist) <= 0:
+            errors['artist'] = "You must enter an artist."
+
+        title = request.form['title'].strip()
+        if len(title) <= 0:
+            errors['title'] = "You must enter a song title."
+
+        album = request.form['album'].strip()
+        if len(album) <= 0:
+            errors['album'] = "You must enter an album."
+
+        label = request.form['label'].strip()
+        if len(label) <= 0:
+            errors['label'] = "You must enter a label."
+
+        if len(errors.items()) <= 0:
+            track.artist = artist
+            track.title = title
+            track.album = album
+            track.label = label
+            track.request = 'request' in request.form
+            track.vinyl = 'vinyl' in request.form
+            db.session.commit()
+
+            return redirect(url_for('trackman_log', setid=djset.id))
+
+    return render_template('admin/trackman_edit.html', djset=djset,
+            track=track, errors=errors)
 
 
 @app.route('/trackman/log/<int:setid>/end', methods=['POST'])

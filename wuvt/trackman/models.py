@@ -22,9 +22,7 @@ class DJ(db.Model):
 
 class DJSet(db.Model):
     __tablename__ = "set"
-    # FIXME: sqlite uses 64-bit integers and does not support autoincrement on
-    # BigInteger, but postgres uses only 32-bit integers and needs this to be
-    # a bigint
+    # may need to make this a BigInteger
     id = db.Column(db.Integer, primary_key=True)
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('setdj', lazy='dynamic'))
@@ -37,15 +35,12 @@ class DJSet(db.Model):
 
 class Track(db.Model):
     __tablename__ = "track"
-    # FIXME: sqlite uses 64-bit integers and does not support autoincrement on
-    # BigInteger, but postgres uses only 32-bit integers and needs this to be
-    # a bigint
+    # may need to make this a BigInteger
     id = db.Column(db.Integer, primary_key=True)
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('dj', lazy='dynamic'))
     djset_id = db.Column(db.Integer, db.ForeignKey('set.id'))
-    # TODO: enBin?
     title = db.Column(db.Unicode(255))
     artist = db.Column(db.Unicode(255))
     album = db.Column(db.Unicode(255))
@@ -75,6 +70,7 @@ class Track(db.Model):
             'label': self.label,
             'request': self.request,
             'vinyl': self.vinyl,
+            'listeners': self.listeners,
             'datetime': str(self.datetime),
             'dj': self.dj.airname,
             'djset': self.djset_id,

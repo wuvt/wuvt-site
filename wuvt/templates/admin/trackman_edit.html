@@ -1,47 +1,13 @@
 {% extends "admin/base.html" %}
-{% block title %}Trackman - {{ super() }}{% endblock %}
+{% block title %}Edit Track - Trackman - {{ super() }}{% endblock %}
 {% block header %}{% endblock %}
 {% block content %}
 
 <h1>Trackman: {{ djset.dj.airname }}</h1>
 
-{% if tracks %}
-<table class='table table-condensed table-striped table-hover'>
-    <thead>
-        <tr>
-            <th>Artist</th>
-            <th>Title</th>
-            <th>Album</th>
-            <th>Label</th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for track in tracks %}
-        <tr id="track-{{ track.id }}">
-            <td>{{ track.artist }}</td>
-            <td>{{ track.title }}</td>
-            <td>{{ track.album }}</td>
-            <td>{{ track.label }}</td>
-            <td>{% if track.request %}REQ{% endif %}</td>
-            <td>{% if track.vinyl %}VIN{% endif %}</td>
-            <td class="buttons">
-                <a href="{{ url_for('trackman_edit', setid=djset.id,
-                    trackid=track.id) }}" class="btn btn-small">Edit</a>
-                <button class="btn btn-small btn-danger delete-track"
-                    type="button">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% endif %}
-
-<form action="{{ url_for('trackman_log', setid=djset.id) }}" method="post"
-    class="form-horizontal">
-    <h2>Add to Playlist</h2>
+<form action="{{ url_for('trackman_edit', setid=djset.id, trackid=track.id)
+    }}" method="post" class="form-horizontal">
+    <h2>Edit Track</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
@@ -50,44 +16,46 @@
             <div class="control-group">
                 <label for="id_artist" class="control-label">Artist</label>
                 <div class="controls">
-                    <input type="text" name="artist" id="id_artist" value=""
-                        required="required" />
+                    <input type="text" name="artist" id="id_artist"
+                        value="{{ track.artist }}" required="required" />
                 </div>
             </div>
 
             <div class="control-group">
                 <label for="id_title" class="control-label">Title</label>
                 <div class="controls">
-                    <input type="text" name="title" id="id_title" value=""
-                        required="required" />
+                    <input type="text" name="title" id="id_title"
+                        value="{{ track.title }}" required="required" />
                 </div>
             </div>
 
             <div class="control-group">
                 <label for="id_album" class="control-label">Album</label>
                 <div class="controls">
-                    <input type="text" name="album" id="id_album" value=""
-                        required="required" />
+                    <input type="text" name="album" id="id_album"
+                        value="{{ track.album }}" required="required" />
                 </div>
             </div>
 
             <div class="control-group">
                 <label for="id_label" class="control-label">Label</label>
                 <div class="controls">
-                    <input type="text" name="label" id="id_label" value=""
-                        required="required" />
+                    <input type="text" name="label" id="id_label"
+                        value="{{ track.label }}" required="required" />
                 </div>
             </div>
 
             <div class="control-group">
                 <div class="controls">
                     <label class="checkbox">
-                        <input type="checkbox" name="request" />
+                        <input type="checkbox" name="request"
+                            {% if track.request %}checked="checked"{% endif %} />
                         Request
                     </label>
 
                     <label class="checkbox">
-                        <input type="checkbox" name="vinyl" />
+                        <input type="checkbox" name="vinyl"
+                            {% if track.vinyl %}checked="checked"{% endif %} />
                         Vinyl
                     </label>
                 </div>
@@ -114,8 +82,8 @@
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
-            <i class="icon-list icon-white"></i>
-            Add to Playlist
+            <i class="icon-edit icon-white"></i>
+            Edit Track
         </button>
 
         <button type="button" class="btn" id="trackman_logout_btn">

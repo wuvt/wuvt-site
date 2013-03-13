@@ -21,3 +21,27 @@ form.form-signin {
        -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
             box-shadow: 0 1px 2px rgba(0,0,0,.05);
 }
+
+td.buttons {
+    text-align: right;
+}
+
+.trackman-entry {
+    -webkit-columns: 2;
+       -moz-columns: 2;
+         -o-columns: 2;
+            columns: 2;
+}
+
+.trackman-controls {
+    display: inline-block;
+}
+
+.trackman-help {
+    padding-left: 18px;
+}
+
+.trackman-help i {
+    float: left;
+    margin-left: -18px;
+}
