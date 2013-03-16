@@ -140,16 +140,20 @@ $(function() {
     });
 
     $('button.delete-track').bind('click', function(ev) {
-        $.ajax({
-            'type': "DELETE",
-            'url': "/trackman/log/{{ djset.id }}/" + $(this).closest('tr').attr('id').replace("track-", "") + "?_csrf_token=" + csrf_token,
-        }).done(function(msg) {
-            csrf_token = msg['_csrf_token'];
-            $(ev.currentTarget).closest('tr').
-                fadeTo('fast', 0, function() {
-                    $(this).remove();
-                });
-        });
+        if(confirm("Are you sure you want to delete this track?")) {
+            $.ajax({
+                'type': "DELETE",
+                'url': "/trackman/log/{{ djset.id }}/" +
+                    $(this).closest('tr').attr('id').replace("track-", "") +
+                    "?_csrf_token=" + csrf_token,
+            }).done(function(msg) {
+                csrf_token = msg['_csrf_token'];
+                $(ev.currentTarget).closest('tr').
+                    fadeTo('fast', 0, function() {
+                        $(this).remove();
+                    });
+            });
+        }
     });
 });
 </script>
