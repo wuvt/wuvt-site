@@ -32,8 +32,9 @@ def trackman_login():
     automation = red.get('automation_enabled') == "true"
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
-    return render_template('admin/trackman_login.html', automation=automation,
-            djs=djs)
+    return render_template('admin/trackman_login.html',
+            trackman_name=app.config['TRACKMAN_NAME'],
+            automation=automation, djs=djs)
 
 
 @app.route('/trackman/automation/start', methods=['POST'])
@@ -80,7 +81,8 @@ def trackman_log(setid):
     tracks = Track.query.filter(Track.djset_id == djset.id).\
             order_by(Track.datetime).all()
 
-    return render_template('admin/trackman_log.html', djset=djset,
+    return render_template('admin/trackman_log.html',
+            trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
             tracks=tracks, errors=errors)
 
 
@@ -129,7 +131,8 @@ def trackman_edit(setid, trackid):
 
             return redirect(url_for('trackman_log', setid=djset.id))
 
-    return render_template('admin/trackman_edit.html', djset=djset,
+    return render_template('admin/trackman_edit.html',
+            trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
             track=track, errors=errors)
 
 

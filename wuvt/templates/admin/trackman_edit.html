@@ -1,9 +1,9 @@
 {% extends "admin/base.html" %}
-{% block title %}Edit Track - Trackman - {{ super() }}{% endblock %}
+{% block title %}Edit Track - {{ trackman_name }} - {{ super() }}{% endblock %}
 {% block header %}{% endblock %}
 {% block content %}
 
-<h1>Trackman: {{ djset.dj.airname }}</h1>
+<h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
 
 <form action="{{ url_for('trackman_edit', setid=djset.id, trackid=track.id)
     }}" method="post" class="form-horizontal">
