@@ -9,18 +9,19 @@
 <table class='table table-condensed table-striped table-hover'>
     <thead>
         <tr>
+            <th>Time</th>
             <th>Artist</th>
             <th>Title</th>
             <th>Album</th>
             <th>Label</th>
-            <th></th>
-            <th></th>
+            <th colspan="2">Request/Vinyl</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         {% for track in tracks %}
         <tr id="track-{{ track.id }}">
+            <td>{{ track.datetime|datetime("%H:%M:%S") }}</td>
             <td>{{ track.artist }}</td>
             <td>{{ track.title }}</td>
             <td>{{ track.album }}</td>
