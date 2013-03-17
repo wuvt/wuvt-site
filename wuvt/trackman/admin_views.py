@@ -45,7 +45,6 @@ def trackman_start_automation():
     red = redis.StrictRedis()
     red.set('automation_enabled', "true")
 
-    #flash("Automation started")
     return redirect(url_for('trackman_login'))
 
 
@@ -146,3 +145,46 @@ def trackman_logout(setid):
     db.session.commit()
 
     return redirect(url_for('trackman_login'))
+
+
+@app.route('/trackman/register', methods=['GET', 'POST'])
+def trackman_register():
+    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
+        abort(403)
+
+    errors = {}
+
+    if request.method == 'POST':
+        airname = request.form['airname'].strip()
+        if len(airname) <= 0:
+            errors['airname'] = "You must enter an on-air name."
+
+        name = request.form['name'].strip()
+        if len(name) <= 0:
+            errors['name'] = "You must enter your name."
+
+        email = request.form['email'].strip()
+        if len(email) <= 0:
+            errors['email'] = "You must enter your email address."
+
+        phone = request.form['phone'].strip()
+        if len(phone) <= 0:
+            errors['phone'] = "You must enter your phone number."
+
+        genres = request.form['genres'].strip()
+        if len(genres) <= 0:
+            errors['genres'] = "You must enter the genres you can DJ."
+
+        if len(errors.items()) <= 0:
+            newdj = DJ(airname, name)
+            newdj.email = email
+            newdj.phone = phone
+            newdj.genres = genres
+            db.session.add(newdj)
+            db.session.commit()
+
+            flash("DJ added")
+            return redirect(url_for('trackman_login'))
+
+    return render_template('admin/trackman_register.html',
+            trackman_name=app.config['TRACKMAN_NAME'], errors=errors)

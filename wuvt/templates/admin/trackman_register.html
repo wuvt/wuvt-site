@@ -1,0 +1,68 @@
+{% extends "admin/base.html" %}
+{% block title %}DJ Registration - {{ trackman_name }} - {{ super() }}{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+
+<h1>{{ trackman_name }}: DJ Registration</h1>
+
+<form action="{{ url_for('trackman_register') }}" method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="control-group">
+        <label for="id_airname" class="control-label">On-Air Name</label>
+        <div class="controls">
+            <input type="text" name="airname" id="id_airname"
+                value="" required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_name" class="control-label">Real Name</label>
+        <div class="controls">
+            <input type="text" name="name" id="id_name"
+                value="" required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_email" class="control-label">Email Address</label>
+        <div class="controls">
+            <input type="text" name="email" id="id_email"
+                value="" required="required" />
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_phone" class="control-label">Phone Number</label>
+        <div class="controls">
+            <div class="input-prepend">
+                <span class="add-on">+1</span>
+                <input type="text" name="phone" id="id_phone" value=""
+                    class="input-medium" required="required"
+                    pattern="\d{3}\-\d{3}\-\d{4}"
+                    placeholder="540-555-5555" />
+            </div>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="id_genres" class="control-label">Genres you can DJ</label>
+        <div class="controls">
+            <input type="text" name="genres" id="id_genres"
+                value="" required="required" />
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="icon-ok icon-white"></i>
+            Register DJ
+        </button>
+
+        <a href="{{ url_for('trackman_login') }}" class="btn">
+            <i class="icon-remove"></i>
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

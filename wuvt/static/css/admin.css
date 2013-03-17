@@ -6,7 +6,8 @@ body.page-signin {
     background-color: #f5f5f5;
 }
 
-form.form-signin {
+form.form-signin,
+div.trackman-buttons {
     margin: 0 auto 20px;
     padding: 19px 29px 29px;
     max-width: 300px;

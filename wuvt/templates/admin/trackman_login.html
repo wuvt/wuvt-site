@@ -32,6 +32,14 @@
     </button>
     {% endif %}
 </form>
+
+<div class="trackman-buttons">
+    <a href="{{ url_for('trackman_register') }}" class="btn">
+        <i class="icon-wrench"></i>
+        Register New DJ
+    </a>
+</div>
+
 <form action="{{ url_for('trackman_start_automation') }}" method="post" id="automation_start_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 </form>
