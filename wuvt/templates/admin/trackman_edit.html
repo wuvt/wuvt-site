@@ -86,10 +86,10 @@
             Edit Track
         </button>
 
-        <button type="button" class="btn" id="trackman_logout_btn">
-            <i class="icon-eject"></i>
-            Logout
-        </button>
+        <a href="{{ url_for('trackman_log', setid=djset.id) }}" class="btn">
+            <i class="icon-remove"></i>
+            Cancel
+        </a>
     </div>
 </form>
 <form action="{{ url_for('trackman_logout', setid=djset.id) }}" method="post"
