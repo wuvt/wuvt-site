@@ -6,14 +6,17 @@
     <h2 class="form-signin-heading">WUVT Login</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-    <input type="hidden" name="next" value="{{ next }}" />
 
-    <input type="text" name="username" id="id_username" value=""
-        placeholder="Username" class="input-block-level" />
+    <div class="form-group">
+        <input type="hidden" name="next" value="{{ next }}" />
 
-    <input type="password" name="password" id="id_password" value=""
-        placeholder="Password" class="input-block-level" />
+        <input type="text" name="username" id="id_username" value=""
+            placeholder="Username" class="form-control" />
 
-    <button class="btn btn-large btn-primary" type="submit">Login</button>
+        <input type="password" name="password" id="id_password" value=""
+            placeholder="Password" class="form-control" />
+    </div>
+
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Login</button>
 </form>
 {% endblock %}

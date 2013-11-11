@@ -30,8 +30,8 @@
             <td>{% if track.vinyl %}VIN{% endif %}</td>
             <td class="buttons">
                 <a href="{{ url_for('trackman_edit', setid=djset.id,
-                    trackid=track.id) }}" class="btn btn-small">Edit</a>
-                <button class="btn btn-small btn-danger delete-track"
+                    trackid=track.id) }}" class="btn btn-default btn-sm">Edit</a>
+                <button class="btn btn-danger btn-sm delete-track"
                     type="button">Delete</button>
             </td>
         </tr>
@@ -46,58 +46,64 @@
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="trackman-entry">
-        <div class="trackman-controls">
-            <div class="control-group">
-                <label for="id_artist" class="control-label">Artist</label>
-                <div class="controls">
+    <div class="row trackman-entry">
+        <div class="col-md-6 trackman-controls">
+            <div class="form-group">
+                <label for="id_artist" class="col-sm-3 control-label">Artist</label>
+                <div class="col-sm-9">
                     <input type="text" name="artist" id="id_artist" value=""
-                        required="required" />
+                        required="required" class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="id_title" class="control-label">Title</label>
-                <div class="controls">
+            <div class="form-group">
+                <label for="id_title" class="col-sm-3 control-label">Title</label>
+                <div class="col-sm-9">
                     <input type="text" name="title" id="id_title" value=""
-                        required="required" />
+                        required="required" class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="id_album" class="control-label">Album</label>
-                <div class="controls">
+            <div class="form-group">
+                <label for="id_album" class="col-sm-3 control-label">Album</label>
+                <div class="col-sm-9">
                     <input type="text" name="album" id="id_album" value=""
-                        required="required" />
+                        required="required" class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="id_label" class="control-label">Label</label>
-                <div class="controls">
+            <div class="form-group">
+                <label for="id_label" class="col-sm-3 control-label">Label</label>
+                <div class="col-sm-9">
                     <input type="text" name="label" id="id_label" value=""
-                        required="required" />
+                        required="required" class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <div class="controls">
-                    <label class="checkbox">
-                        <input type="checkbox" name="request" />
-                        Request
-                    </label>
+            <div class="form-group">
+                <div class="col-sm-9 col-sm-offset-3">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="request" />
+                            Request
+                        </label>
+                    </div>
 
-                    <label class="checkbox">
-                        <input type="checkbox" name="vinyl" />
-                        Vinyl
-                    </label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="vinyl" />
+                            Vinyl
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="trackman-help">
-            <i class="icon-flag"></i>
-            <h4>If you can't fill in the blanks, you can't play it.</h4>
+        <div class="col-md-5 col-md-offset-1 trackman-help">
+            <h4>
+                <span class="glyphicon glyphicon-flag"></span>
+                If you can't fill in the blanks, you can't play it.
+            </h4>
 
             You may find these sites helpful to find missing information:
             <ul>
@@ -110,24 +116,28 @@
                 <li><a href="http://musicbrainz.org/search.html"
                     rel="external">MusicBrainz</a></li>
             </ul>
-        </div>
 
-        <label class="checkbox">
-            <input type="checkbox" name="email_playlist"
-                id="id_email_playlist"
-                {% if email_playlist %}checked="checked"{% endif %} />
-            Email me my playlist after I logout
-        </label>
+            <div class="col-sm-9 col-sm-offset-3 form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="email_playlist"
+                            id="id_email_playlist"
+                            {% if email_playlist %}checked="checked"{% endif %} />
+                        Email me my playlist after I logout
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="form-actions">
+    <div class="row form-actions">
         <button type="submit" class="btn btn-primary">
-            <i class="icon-list icon-white"></i>
+            <span class="glyphicon glyphicon-list"></span>
             Add to Playlist
         </button>
 
-        <button type="button" class="btn" id="trackman_logout_btn">
-            <i class="icon-eject"></i>
+        <button type="button" class="btn btn-default" id="trackman_logout_btn">
+            <span class="glyphicon glyphicon-eject"></span>
             Logout
         </button>
     </div>

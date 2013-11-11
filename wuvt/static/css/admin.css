@@ -26,23 +26,3 @@ div.trackman-buttons {
 td.buttons {
     text-align: right;
 }
-
-.trackman-entry {
-    -webkit-columns: 2;
-       -moz-columns: 2;
-         -o-columns: 2;
-            columns: 2;
-}
-
-.trackman-controls {
-    display: inline-block;
-}
-
-.trackman-help {
-    padding-left: 18px;
-}
-
-.trackman-help i {
-    float: left;
-    margin-left: -18px;
-}

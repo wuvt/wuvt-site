@@ -11,60 +11,70 @@
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="trackman-entry">
-        <div class="trackman-controls">
-            <div class="control-group">
-                <label for="id_artist" class="control-label">Artist</label>
-                <div class="controls">
+    <div class="row trackman-entry">
+        <div class="col-md-6 trackman-controls">
+            <div class="form-group">
+                <label for="id_artist" class="col-sm-3 control-label">Artist</label>
+                <div class="col-sm-9">
                     <input type="text" name="artist" id="id_artist"
-                        value="{{ track.artist }}" required="required" />
+                        value="{{ track.artist }}" required="required"
+                        class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="id_title" class="control-label">Title</label>
-                <div class="controls">
+            <div class="form-group">
+                <label for="id_title" class="col-sm-3 control-label">Title</label>
+                <div class="col-sm-9">
                     <input type="text" name="title" id="id_title"
-                        value="{{ track.title }}" required="required" />
+                        value="{{ track.title }}" required="required"
+                        class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="id_album" class="control-label">Album</label>
-                <div class="controls">
+            <div class="form-group">
+                <label for="id_album" class="col-sm-3 control-label">Album</label>
+                <div class="col-sm-9">
                     <input type="text" name="album" id="id_album"
-                        value="{{ track.album }}" required="required" />
+                        value="{{ track.album }}" required="required"
+                        class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="id_label" class="control-label">Label</label>
-                <div class="controls">
+            <div class="form-group">
+                <label for="id_label" class="col-sm-3 control-label">Label</label>
+                <div class="col-sm-9">
                     <input type="text" name="label" id="id_label"
-                        value="{{ track.label }}" required="required" />
+                        value="{{ track.label }}" required="required"
+                        class="form-control" />
                 </div>
             </div>
 
-            <div class="control-group">
-                <div class="controls">
-                    <label class="checkbox">
-                        <input type="checkbox" name="request"
-                            {% if track.request %}checked="checked"{% endif %} />
-                        Request
-                    </label>
+            <div class="form-group">
+                <div class="col-sm-9 col-sm-offset-3">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="request"
+                                {% if track.request %}checked="checked"{% endif %} />
+                            Request
+                        </label>
+                    </div>
 
-                    <label class="checkbox">
-                        <input type="checkbox" name="vinyl"
-                            {% if track.vinyl %}checked="checked"{% endif %} />
-                        Vinyl
-                    </label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="vinyl"
+                                {% if track.vinyl %}checked="checked"{% endif %} />
+                            Vinyl
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="trackman-help">
-            <i class="icon-flag"></i>
-            <h4>If you can't fill in the blanks, you can't play it.</h4>
+        <div class="col-md-5 col-md-offset-1 trackman-help">
+            <h4>
+                <span class="glyphicon glyphicon-flag"></span>
+                If you can't fill in the blanks, you can't play it.
+            </h4>
 
             You may find these sites helpful to find missing information:
             <ul>
@@ -82,12 +92,13 @@
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
-            <i class="icon-edit icon-white"></i>
+            <span class="glyphicon glyphicon-edit"></span>
             Edit Track
         </button>
 
-        <a href="{{ url_for('trackman_log', setid=djset.id) }}" class="btn">
-            <i class="icon-remove"></i>
+        <a href="{{ url_for('trackman_log', setid=djset.id) }}"
+            class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>
     </div>

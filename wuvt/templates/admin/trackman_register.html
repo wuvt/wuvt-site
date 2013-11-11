@@ -8,59 +8,56 @@
 <form action="{{ url_for('trackman_register') }}" method="post">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="control-group">
-        <label for="id_airname" class="control-label">On-Air Name</label>
-        <div class="controls">
+    <div class="form-group">
+        <label for="id_airname" class="col-sm-3 control-label">On-Air Name</label>
+        <div class="col-sm-9">
             <input type="text" name="airname" id="id_airname"
-                value="" required="required" />
+                value="" required="required" class="form-control" />
         </div>
     </div>
 
-    <div class="control-group">
-        <label for="id_name" class="control-label">Real Name</label>
-        <div class="controls">
+    <div class="form-group">
+        <label for="id_name" class="col-sm-3 control-label">Real Name</label>
+        <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
-                value="" required="required" />
+                value="" required="required" class="form-control" />
         </div>
     </div>
 
-    <div class="control-group">
-        <label for="id_email" class="control-label">Email Address</label>
-        <div class="controls">
+    <div class="form-group">
+        <label for="id_email" class="col-sm-3 control-label">Email Address</label>
+        <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
-                value="" required="required" />
+                value="" required="required" class="form-control" />
         </div>
     </div>
 
-    <div class="control-group">
-        <label for="id_phone" class="control-label">Phone Number</label>
-        <div class="controls">
-            <div class="input-prepend">
-                <span class="add-on">+1</span>
-                <input type="text" name="phone" id="id_phone" value=""
-                    class="input-medium" required="required"
-                    pattern="\d{3}\-\d{3}\-\d{4}"
-                    placeholder="540-555-5555" />
-            </div>
+    <div class="form-group">
+        <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
+        <div class="col-sm-9">
+            <input type="text" name="phone" id="id_phone" value=""
+                class="form-control" required="required"
+                pattern="\d{3}\-\d{3}\-\d{4}"
+                placeholder="540-555-5555" />
         </div>
     </div>
 
-    <div class="control-group">
-        <label for="id_genres" class="control-label">Genres you can DJ</label>
-        <div class="controls">
+    <div class="form-group">
+        <label for="id_genres" class="col-sm-3 control-label">Genres you can DJ</label>
+        <div class="col-sm-9">
             <input type="text" name="genres" id="id_genres"
-                value="" required="required" />
+                value="" required="required" class="form-control" />
         </div>
     </div>
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
-            <i class="icon-ok icon-white"></i>
+            <span class="glyphicon glyphicon-ok"></span>
             Register DJ
         </button>
 
-        <a href="{{ url_for('trackman_login') }}" class="btn">
-            <i class="icon-remove"></i>
+        <a href="{{ url_for('trackman_login') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>
     </div>
