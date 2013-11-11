@@ -3,6 +3,7 @@ from flask import abort, flash, jsonify, render_template, \
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import email.utils
 import datetime
 import json
 import redis
@@ -157,24 +158,27 @@ def trackman_logout(setid):
 
     # email playlist
     if 'email_playlist' in session and session['email_playlist']:
-        print('email playlist')
         msg = MIMEMultipart('alternative')
+        msg['Date'] = email.utils.formatdate()
         msg['From'] = app.config['MAIL_FROM']
         msg['To'] = djset.dj.email
+        msg['Message-Id'] = email.utils.make_msgid()
+        msg['X-Mailer'] = "Trackman"
         msg['Subject'] = "[{name}] {djname} - Playlist from {dtend}".format(
             name=app.config['TRACKMAN_NAME'],
             djname=djset.dj.airname,
-            dtend=djset.dtend)
-        msg['X-Mailer'] = "Trackman"
+            dtend=datetime.datetime.strftime(djset.dtend, "%Y-%m-%d"))
 
         tracks = Track.query.filter(Track.djset_id == djset.id).all()
 
-        msg.attach(MIMEText(render_template('email/playlist.txt',
-                                            djset=djset, tracks=tracks),
-                            'text'))
-        msg.attach(MIMEText(render_template('email/playlist.html',
-                                            djset=djset, tracks=tracks),
-                            'html'))
+        msg.attach(MIMEText(
+            render_template('email/playlist.txt',
+                            djset=djset, tracks=tracks).encode('utf-8'),
+            'text'))
+        msg.attach(MIMEText(
+            render_template('email/playlist.html',
+                            djset=djset, tracks=tracks).encode('utf-8'),
+            'html'))
 
         s = smtplib.SMTP(app.config['SMTP_SERVER'])
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
