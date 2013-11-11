@@ -42,9 +42,9 @@ import wuvt.views
 if not app.debug:
     import logging
     from logging.handlers import SMTPHandler
-    mail_handler = SMTPHandler('127.0.0.1',
+    mail_handler = SMTPHandler(app.config['SMTP_SERVER'],
                                app.config['MAIL_FROM'],
-                               app.config['ADMINS'], "WUVT website error")
+                               app.config['ADMINS'], "[WUVT] Website error")
     mail_handler.setFormatter(logging.Formatter('''
 Message type:       %(levelname)s
 Time:               %(asctime)s
