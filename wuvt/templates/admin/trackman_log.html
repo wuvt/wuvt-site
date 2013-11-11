@@ -111,6 +111,13 @@
                     rel="external">MusicBrainz</a></li>
             </ul>
         </div>
+
+        <label class="checkbox">
+            <input type="checkbox" name="email_playlist"
+                id="id_email_playlist"
+                {% if email_playlist %}checked="checked"{% endif %} />
+            Email me my playlist after I logout
+        </label>
     </div>
 
     <div class="form-actions">
@@ -128,6 +135,7 @@
 <form action="{{ url_for('trackman_logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="email_playlist" value="0" />
 </form>
 {% endblock %}
 {% block js %}
@@ -137,6 +145,9 @@ var csrf_token = "{{ csrf_token() }}";
 
 $(function() {
     $('#trackman_logout_btn').click(function() {
+        var email = ($('#id_email_playlist:checked').val() == "on") ? 1 : 0;
+        $("#trackman_logout_form input[name='email_playlist']").val(email);
+
         $('#trackman_logout_form').submit();
     });
 

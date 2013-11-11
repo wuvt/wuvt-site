@@ -1,8 +1,12 @@
-from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response
+from flask import abort, flash, jsonify, render_template, \
+        render_template_string, redirect, request, url_for, Response, session
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import datetime
 import json
 import redis
+import smtplib
 import netaddr
 
 from wuvt import app
@@ -57,6 +61,8 @@ def trackman_log(setid):
     errors = {}
 
     if 'artist' in request.form:
+        session['email_playlist'] = 'email_playlist' in request.form
+
         artist = request.form['artist'].strip()
         if len(artist) <= 0:
             errors['artist'] = "You must enter an artist."
@@ -77,12 +83,17 @@ def trackman_log(setid):
             log_track(djset.dj_id, djset.id, title, artist, album, label,
                     'request' in request.form, 'vinyl' in request.form)
 
+    if 'email_playlist' in session:
+        email_playlist = session['email_playlist']
+    else:
+        email_playlist = False
+
     tracks = Track.query.filter(Track.djset_id == djset.id).\
             order_by(Track.datetime).all()
 
     return render_template('admin/trackman_log.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
-            tracks=tracks, errors=errors)
+            tracks=tracks, email_playlist=email_playlist, errors=errors)
 
 
 @app.route('/trackman/log/<int:setid>/<int:trackid>',
@@ -143,6 +154,33 @@ def trackman_logout(setid):
     djset = DJSet.query.get_or_404(setid)
     djset.dtend = datetime.datetime.now()
     db.session.commit()
+
+    # email playlist
+    if 'email_playlist' in session and session['email_playlist']:
+        print('email playlist')
+        msg = MIMEMultipart('alternative')
+        msg['From'] = app.config['MAIL_FROM']
+        msg['To'] = djset.dj.email
+        msg['Subject'] = "[{name}] {djname} - Playlist from {dtend}".format(
+            name=app.config['TRACKMAN_NAME'],
+            djname=djset.dj.airname,
+            dtend=djset.dtend)
+        msg['X-Mailer'] = "Trackman"
+
+        tracks = Track.query.filter(Track.djset_id == djset.id).all()
+
+        msg.attach(MIMEText(render_template('email/playlist.txt',
+                                            djset=djset, tracks=tracks),
+                            'text'))
+        msg.attach(MIMEText(render_template('email/playlist.html',
+                                            djset=djset, tracks=tracks),
+                            'html'))
+
+        s = smtplib.SMTP(app.config['SMTP_SERVER'])
+        s.sendmail(msg['From'], [msg['To']], msg.as_string())
+        s.quit()
+
+    session['email_playlist'] = False
 
     return redirect(url_for('trackman_login'))
 

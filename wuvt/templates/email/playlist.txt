@@ -1,0 +1,6 @@
+Your playlist: {{ djset.dj.airname }} / {{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}
+
+{% for track in tracks %}
+- {{ track.datetime|datetime("%H:%M:%S") -}}
+: {{ track.artist }} - {{ track.album }} - {{ track.title }}
+{% endfor %}

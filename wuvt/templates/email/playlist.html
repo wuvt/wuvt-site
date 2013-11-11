@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset"'utf-8" />
+    <title>Your playlist: {{ djset.dj.airname }}</title>
+</head>
+<body>
+    <h1>Your playlist: {{ djset.dj.airname }} /
+        {{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</h1>
+
+    <table id="tracktable" class="tracklist">
+        <thead>
+            <th>Time Aired</th>
+            <th>New?</th>
+            <th>Track</th>
+            <th>Album</th>
+            <th colspan="2">Request/Vinyl</th>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+            <tr>
+                <td>{{ track.datetime|datetime("%H:%M:%S") }}</td>
+                <td>{% if track.new %}NEW{% endif %}</td>
+                <td>{{ track.artist }} - {{ track.title }}</td>
+                <td>{{ track.album }}</td>
+                <td>{% if track.request %}REQ{% endif %}</td>
+                <td>{% if track.vinyl %}VIN{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
