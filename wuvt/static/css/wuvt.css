@@ -379,7 +379,7 @@ header nav ul ul {
 /* }}} */
 
 /* Navbar and content positioning {{{ */
-/* to move nav to right side, uncomment flot: right and delete margin-left */
+/* to move nav to right side, uncomment float: right and delete margin-left */
 
 #side {
     /*float: right;*/
