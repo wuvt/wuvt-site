@@ -1,6 +1,9 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-from flask.ext.login import login_required, login_user
+try:
+    from flask.ext.login import login_required, login_user
+except:
+    from flaskext.login import login_required, login_user
 
 from wuvt import app
 from wuvt import db

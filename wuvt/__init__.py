@@ -1,9 +1,14 @@
 import config
 import lib
 from flask import Flask, Request, redirect, request, url_for
-from flask.ext.csrf import csrf
-from flask.ext.login import LoginManager
-from flask.ext.sqlalchemy import SQLAlchemy
+try:
+    from flask.ext.csrf import csrf
+    from flask.ext.login import LoginManager
+    from flask.ext.sqlalchemy import SQLAlchemy
+except:
+    from flaskext.csrf import csrf
+    from flaskext.login import LoginManager
+    from flaskext.sqlalchemy import SQLAlchemy
 from urlparse import urlparse, urljoin
 
 app = Flask(__name__)

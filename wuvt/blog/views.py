@@ -1,6 +1,9 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-from flask.ext.csrf import csrf
+try:
+    from flask.ext.csrf import csrf
+except:
+    from flaskext.csrf import csrf
 from urlparse import urljoin
 from werkzeug.contrib.atom import AtomFeed
 

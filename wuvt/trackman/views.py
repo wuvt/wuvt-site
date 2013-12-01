@@ -6,7 +6,10 @@
 
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-from flask.ext.csrf import csrf_exempt
+try:
+    from flask.ext.csrf import csrf_exempt
+except:
+    from flaskext.csrf import csrf_exempt
 import datetime
 import json
 import redis
