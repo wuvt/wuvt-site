@@ -3,7 +3,7 @@ uwsgi:
     socket: /srv/http/wuvt/wuvt.sock
     master: true
     processes: 60
-    gevent: 1000
+    gevent: 100
     chdir: /srv/http/wuvt
     module: wuvt
     callable: app
