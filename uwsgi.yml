@@ -1,12 +1,12 @@
 uwsgi:
     procname-prefix-spaced: wuvt
-    socket: /srv/http/wuvt/wuvt.sock
+    socket: /srv/http/wuvt-site/wuvt.sock
     master: true
     processes: 60
     gevent: 100
-    chdir: /srv/http/wuvt
+    chdir: /srv/http/wuvt-site
     module: wuvt
     callable: app
     chmod-socket: 600
     disable-logging: 1
-    touch-reload: /srv/http/wuvt/reload.txt
+    touch-reload: /srv/http/wuvt-site/reload.txt
