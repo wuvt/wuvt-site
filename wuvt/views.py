@@ -60,6 +60,11 @@ def livestream():
     return response
 
 
+@app.errorhandler(403)
+def error403(error):
+    return render_template('error403.html'), 403
+
+
 @app.errorhandler(404)
 def error404(error):
     return render_template('error404.html'), 404
