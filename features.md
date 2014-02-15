@@ -1,10 +1,14 @@
 Here's a list of required features. If they aren't in this list, they won't be implemented.
 
 # Admin interface:
-- Posts must be assigned one category (or subcategory) to be filed under (e.g. for Woove, News/Sports/Weather) OR be static pages. Dynamic pages (e.g. for quicktrack) are not modifiable by users.
-- Posts may optionally be added to the front page, which aggregates content of all sections, sorted by date
-- Posts may be either published or unpublished, and this state may change at any time
-- Need a way to bulk-import everything from Joomla (preferably including users)
+- Main things: manage pages, manage posts, manage categories, manage users, manage media, "settings (catch-all for random utilities)"
+- Posts: must be assigned one category (or subcategory) to be filed under (e.g. for Woove, News/Sports/Weather). Posts may or may not be published, and this status may change at any time. The date on the post should be the date at which it was first published. Posts can be optionally flagged as "front page". "front page" posts are displayed on wuvt.vt.edu, sorted reverse-chronologically
+- Pages: are either static or dynamic. Dynamic pages (e.g. for quicktrack) are not modifiable by users, but the page should appear in page/category listings. Posts may optionally be added to the front page, which aggregates content of all sections, sorted by date. Pages may also be published/unpublished, and this state may change at any time
+- Categories: may optionally have one parent. Admins must be able to manage these by add/edit/delete/reorder/change parent. If you "edit" the name of a category, all posts filed under that category should point to the same category with the new name.
+- Media: users must be able to upload any images or other media and include uploaded images in their posts/pages
+- Settings: Need a way to bulk-import everything from Joomla (preferably including users)
+- Users are either "admin" or non-admin. Admins can manage categories (add/edit/delete/reorder/change parent) and manage users (add/edit/delete/change password/change role/lock). Users must have: email, password, admin/non-admin flag, locked/unlocked flag, user ID (numerical, can't be changed)
+- Settings: should include a kludge "import from Joomla" utility, hopefully this will only need to be used once. Separate DB export would be nice.
 
 # Main site:
 - The front page is sorted by date (with most recent posts first), and paginated
