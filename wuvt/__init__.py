@@ -1,5 +1,6 @@
-import config
-import lib
+from wuvt import config
+from wuvt import lib
+from wuvt import session
 from flask import Flask, Request, redirect, request, url_for
 try:
     from flask.ext.csrf import csrf
@@ -14,6 +15,7 @@ from urlparse import urlparse, urljoin
 app = Flask(__name__)
 app.config.from_object(config)
 app.request_class = lib.Request
+app.session_interface = session.RedisSessionInterface()
 csrf(app)
 
 db = SQLAlchemy(app)
