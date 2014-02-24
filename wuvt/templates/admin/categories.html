@@ -32,7 +32,8 @@ $('button.delete-button').bind('click', function(ev) {
 
     $.ajax({
         'type': "DELETE",
-        'url': $(this).closest('tr').attr('data-edit-url') + "?_csrf_token=" + csrf_token,
+        'url': $(this).closest('tr').attr('data-edit-url'),
+        'headers': {'X-CSRFToken': csrf_token},
     }).done(function(msg) {
         csrf_token = msg['_csrf_token']
         $(ev.currentTarget).closest('tr').fadeTo('fast', 0, function() {
