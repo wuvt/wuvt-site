@@ -3,7 +3,6 @@ from flask import abort, flash, jsonify, render_template, redirect, \
 
 from wuvt import app
 from wuvt import db
-from wuvt import lib
 from wuvt import login_manager
 from wuvt import sse
 

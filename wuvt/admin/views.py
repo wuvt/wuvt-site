@@ -6,7 +6,6 @@ except:
     from flaskext.login import login_required, login_user, logout_user
 
 from wuvt import db
-from wuvt import lib
 from wuvt import redirect_back
 from wuvt.admin import bp
 
