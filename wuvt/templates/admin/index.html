@@ -1,4 +1,6 @@
 {% extends "admin/base.html" %}
+{% block nav_admin_index %}<li class="active"><a href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
 {% block content %}
-Hello!
+<h1>WUVT Administration</h1>
+<img src="{{ url_for('static', filename='img/robot.svg') }}" alt="" />
 {% endblock %}

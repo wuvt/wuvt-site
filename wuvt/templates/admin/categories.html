@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.categories') }}">Categories</a></li>{% endblock %}
+{% block content %}
+<h1>Categories</h1>
+
+<table class="table table-striped table-hover">
+    {% for cat in categories %}
+    <tr>
+        <td>{{ cat.name }}</td>
+        <td class="row-options">
+            <a href="{{ url_for('admin.category_edit', cat_id=cat.id) }}" class="btn btn-default btn-sm">Edit</a>
+            <button class="btn btn-danger btn-sm">Delete</button>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="2">
+            <a href="{{ url_for('admin.category_add') }}" class="btn btn-primary">Add New Category</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}

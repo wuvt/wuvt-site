@@ -12,29 +12,16 @@ except:
     from flaskext.sqlalchemy import SQLAlchemy
 from urlparse import urlparse, urljoin
 
-app = Flask(__name__)
-app.config.from_object(config)
-app.request_class = lib.Request
-app.session_interface = session.RedisSessionInterface()
-csrf(app)
-
-db = SQLAlchemy(app)
-
-login_manager = LoginManager()
-login_manager.login_view = "login"
-login_manager.setup_app(app)
-
 
 def format_datetime(value, format=None):
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
-app.jinja_env.filters['datetime'] = format_datetime
 
 
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
+        ref_url.netloc == test_url.netloc
 
 
 def redirect_back(endpoint, **values):
@@ -44,7 +31,25 @@ def redirect_back(endpoint, **values):
     return redirect(target)
 
 
-import wuvt.views
+
+
+app = Flask(__name__)
+app.config.from_object(config)
+app.request_class = lib.Request
+app.session_interface = session.RedisSessionInterface()
+app.jinja_env.filters['datetime'] = format_datetime
+csrf(app)
+
+db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.login_view = "admin.login"
+login_manager.init_app(app)
+
+from wuvt import admin
+app.register_blueprint(admin.bp, url_prefix='/admin')
+
+from wuvt import views
 
 if not app.debug:
     import logging

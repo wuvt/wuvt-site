@@ -10,9 +10,9 @@ from wuvt import sse
 from wuvt.models import User, Page
 from wuvt.blog.models import Article, Category
 
-from wuvt.admin.views import *
 from wuvt.blog.views import *
 from wuvt.trackman.views import *
+from wuvt.trackman.admin_views import *
 
 
 @login_manager.user_loader
