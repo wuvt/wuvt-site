@@ -37,7 +37,7 @@ def trackman_login():
     automation = red.get('automation_enabled') == "true"
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
-    return render_template('admin/trackman_login.html',
+    return render_template('admin/trackman/login.html',
             trackman_name=app.config['TRACKMAN_NAME'],
             automation=automation, djs=djs)
 
@@ -92,7 +92,7 @@ def trackman_log(setid):
     tracks = Track.query.filter(Track.djset_id == djset.id).\
             order_by(Track.datetime).all()
 
-    return render_template('admin/trackman_log.html',
+    return render_template('admin/trackman/log.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
             tracks=tracks, email_playlist=email_playlist, errors=errors)
 
@@ -142,7 +142,7 @@ def trackman_edit(setid, trackid):
 
             return redirect(url_for('trackman_log', setid=djset.id))
 
-    return render_template('admin/trackman_edit.html',
+    return render_template('admin/trackman/edit.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
             track=track, errors=errors)
 
@@ -228,5 +228,5 @@ def trackman_register():
             flash("DJ added")
             return redirect(url_for('trackman_login'))
 
-    return render_template('admin/trackman_register.html',
+    return render_template('admin/trackman/register.html',
             trackman_name=app.config['TRACKMAN_NAME'], errors=errors)
