@@ -4,7 +4,7 @@
 {% block header %}{% endblock %}
 {% block content %}
 
-<form action="{{ url_for('trackman_login') }}" method="post" class="form-signin">
+<form action="{{ url_for('trackman.login') }}" method="post" class="form-signin">
     <h2 class="form-signin-heading">{{ trackman_name }}</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
@@ -31,13 +31,13 @@
 </form>
 
 <div class="trackman-buttons">
-    <a href="{{ url_for('trackman_register') }}" class="btn btn-default">
+    <a href="{{ url_for('trackman.register') }}" class="btn btn-default">
         <span class="glyphicon glyphicon-wrench"></span>
         Register New DJ
     </a>
 </div>
 
-<form action="{{ url_for('trackman_start_automation') }}" method="post" id="automation_start_form">
+<form action="{{ url_for('trackman.start_automation') }}" method="post" id="automation_start_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 </form>
 {% endblock %}

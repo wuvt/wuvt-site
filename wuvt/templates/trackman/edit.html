@@ -5,7 +5,7 @@
 
 <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
 
-<form action="{{ url_for('trackman_edit', setid=djset.id, trackid=track.id)
+<form action="{{ url_for('trackman.edit', setid=djset.id, trackid=track.id)
     }}" method="post" class="form-horizontal">
     <h2>Edit Track</h2>
 
@@ -96,14 +96,14 @@
             Edit Track
         </button>
 
-        <a href="{{ url_for('trackman_log', setid=djset.id) }}"
+        <a href="{{ url_for('trackman.log', setid=djset.id) }}"
             class="btn btn-default">
             <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>
     </div>
 </form>
-<form action="{{ url_for('trackman_logout', setid=djset.id) }}" method="post"
+<form action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 </form>

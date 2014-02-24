@@ -31,8 +31,6 @@ def redirect_back(endpoint, **values):
     return redirect(target)
 
 
-
-
 app = Flask(__name__)
 app.config.from_object(config)
 app.request_class = lib.Request
@@ -48,6 +46,9 @@ login_manager.init_app(app)
 
 from wuvt import admin
 app.register_blueprint(admin.bp, url_prefix='/admin')
+
+from wuvt import trackman
+app.register_blueprint(trackman.bp, url_prefix='/trackman')
 
 from wuvt import views
 

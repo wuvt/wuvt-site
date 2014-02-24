@@ -5,7 +5,7 @@
 
 <h1>{{ trackman_name }}: DJ Registration</h1>
 
-<form action="{{ url_for('trackman_register') }}" method="post"
+<form action="{{ url_for('trackman.register') }}" method="post"
     class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
@@ -57,7 +57,7 @@
             Register DJ
         </button>
 
-        <a href="{{ url_for('trackman_login') }}" class="btn btn-default">
+        <a href="{{ url_for('trackman.login') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>

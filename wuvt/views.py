@@ -12,7 +12,6 @@ from wuvt.blog.models import Article, Category
 
 from wuvt.blog.views import *
 from wuvt.trackman.views import *
-from wuvt.trackman.admin_views import *
 
 
 @login_manager.user_loader
