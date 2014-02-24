@@ -1,5 +1,5 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response
+    request, url_for, Response
 
 from wuvt import app
 from wuvt import db
@@ -24,7 +24,7 @@ def load_user(userid):
 def inject_menus():
     menus = {}
     pages = db.session.query(Page.name, Page.slug, Page.menu).\
-            filter(Page.menu != None).all()
+        filter(Page.menu is not None).all()
     for page in pages:
         menu = str(page.menu)
         if menu not in menus:
@@ -37,8 +37,9 @@ def inject_menus():
 @app.route('/')
 @app.route('/index/<int:page>')
 def index(page=1):
-    articles = Article.query.order_by(db.asc(Article.id)).paginate(page,
-            app.config['POSTS_PER_PAGE'])
+    articles = Article.query.order_by(db.asc(Article.id)).paginate(
+        page,
+        app.config['POSTS_PER_PAGE'])
     return render_template('index.html', articles=articles)
 
 
