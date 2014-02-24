@@ -1,6 +1,8 @@
 {% extends "admin/base.html" %}
+{% set page_title="Login" %}
 {% block bodyattrib %} class="page-signin"{% endblock %}
 {% block header %}{% endblock %}
+
 {% block content %}
 {% for msg in errors %}
 <div class="alert alert-danger">{{ msg }}</div>

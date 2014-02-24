@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
 
-        <title>{% block title %}WUVT Administration{% endblock %}</title>
+        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}WUVT Administration</title>
 
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" />

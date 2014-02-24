@@ -1,6 +1,5 @@
-{% extends "admin/base.html" %}
-{% block title %}Edit Track - {{ trackman_name }} - {{ super() }}{% endblock %}
-{% block header %}{% endblock %}
+{% extends "trackman/base.html" %}
+{% set page_title="Edit Track" %}
 {% block content %}
 
 <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>

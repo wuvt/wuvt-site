@@ -1,5 +1,7 @@
 {% extends "admin/base.html" %}
+{% set page_title="Edit Category: " + category.name %}
 {% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.categories') }}">Categories</a></li>{% endblock %}
+
 {% block content %}
 <h1>Edit Category: {{ category.name }}</h1>
 
