@@ -10,6 +10,10 @@
     outline: 0;
 }
 
+html {
+    min-height: 100%;
+}
+
 body {
     font-family: Helvetica, sans-serif;
     font-size: 100%;
@@ -17,6 +21,10 @@ body {
     margin: 0 auto;
     padding: 0;
     background-color: #cfeeff;
+    background-image: url('/static/img/moon.svg');
+    background-size: 1200px 42px;
+    background-position: bottom center;
+    background-repeat: no-repeat;
 }
 
 /* Now playing bar {{{ */
@@ -585,16 +593,13 @@ table.tracklist tr:nth-child(odd) {
 
 /* Footer {{{ */
 #content > :last-child {
-    padding-bottom: 40px;
+    margin-bottom: 50px;
 }
 
 body > footer {
     clear: both;
-    margin-top: -15px;
-    height: 30px;
-    background-image: url('/static/img/moon.svg');
-    background-size: 1200px 42px;
-    background-position: top center;
-    background-repeat: no-repeat;
+    color: #666666;
+    font-size: 0.7em;
+    text-align: center;
 }
 /* }}} */
