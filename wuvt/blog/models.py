@@ -28,12 +28,14 @@ class Article(db.Model):
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     summary = db.Column(db.UnicodeText)
     content = db.Column(db.UnicodeText)
+    published = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, title, slug, category_id, author_id, summary,
-            content=None):
+            content=None, published=False):
         self.title = title
         self.slug = slug
         self.category_id = category_id
         self.author_id = author_id
         self.summary = summary
         self.content = content
+        self.published = published

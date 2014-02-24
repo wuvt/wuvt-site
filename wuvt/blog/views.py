@@ -1,5 +1,5 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response
+    request, url_for, Response
 from urlparse import urljoin
 from werkzeug.contrib.atom import AtomFeed
 
@@ -29,10 +29,13 @@ def category(slug, page=1):
 
     categories = Category.query.order_by(Category.name).all()
     articles = Article.query.filter(Article.category_id == category.id).\
-            order_by(db.asc(Article.id)).paginate(page,
-            app.config['POSTS_PER_PAGE'])
-    return render_template('category.html', category=category,
-            articles=articles, feedlink=url_for('category_feed', slug=slug))
+        filter_by(published=True).\
+        order_by(db.asc(Article.id)).paginate(page,
+                                              app.config['POSTS_PER_PAGE'])
+    return render_template('category.html',
+                           category=category,
+                           articles=articles,
+                           feedlink=url_for('category_feed', slug=slug))
 
 
 @app.route('/category/<string:slug>.atom')
@@ -42,17 +45,18 @@ def category_feed(slug):
         abort(404)
 
     feed = AtomFeed("WUVT: {0}".format(category.name),
-            feed_url=request.url, url=request.url_root)
+                    feed_url=request.url,
+                    url=request.url_root)
 
     articles = Article.query.filter(Article.category_id == category.id).\
-            order_by(db.asc(Article.id)).all()
+        filter_by(published=True).order_by(db.asc(Article.id)).all()
     for article in articles:
         feed.add(article.title, unicode(article.content),
-                content_type='html',
-                author=article.author.name,
-                url=make_external(url_for('article', slug=article.slug)),
-                updated=article.datetime,
-                published=article.datetime)
+                 content_type='html',
+                 author=article.author.name,
+                 url=make_external(url_for('article', slug=article.slug)),
+                 updated=article.datetime,
+                 published=article.datetime)
 
     return feed.get_response()
 
@@ -60,29 +64,32 @@ def category_feed(slug):
 @app.route('/article/<string:slug>')
 def article(slug):
     article = Article.query.filter(Article.slug == slug).first()
-    if not article:
+    if not article or not article.published:
         abort(404)
 
     if not article.content:
         article.content = article.summary
 
     categories = Category.query.order_by(Category.name).all()
-    return render_template('article.html', categories=categories,
-            article=article)
+    return render_template('article.html',
+                           categories=categories,
+                           article=article)
 
 
 @app.route('/feed.atom')
 def all_feed():
-    feed = AtomFeed("WUVT: Recent Articles", feed_url=request.url,
-            url=request.url_root)
+    feed = AtomFeed("WUVT: Recent Articles",
+                    feed_url=request.url,
+                    url=request.url_root)
 
-    articles = Article.query.order_by(db.asc(Article.id)).limit(15).all()
+    articles = Article.query.filter_by(published=True).\
+        order_by(db.asc(Article.id)).limit(15).all()
     for article in articles:
         feed.add(article.title, unicode(article.content or article.summary),
-                content_type='html',
-                author=article.author.name,
-                url=make_external(url_for('article', slug=article.slug)),
-                updated=article.datetime,
-                published=article.datetime)
+                 content_type='html',
+                 author=article.author.name,
+                 url=make_external(url_for('article', slug=article.slug)),
+                 updated=article.datetime,
+                 published=article.datetime)
 
     return feed.get_response()
