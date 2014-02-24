@@ -1,15 +1,9 @@
 from wuvt import config
-from wuvt import lib
 from wuvt import session
 from flask import Flask, Request, redirect, request, url_for
-try:
-    from flask.ext.csrf import csrf
-    from flask.ext.login import LoginManager
-    from flask.ext.sqlalchemy import SQLAlchemy
-except:
-    from flaskext.csrf import csrf
-    from flaskext.login import LoginManager
-    from flaskext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager
+from flask.ext.seasurf import SeaSurf
+from flask.ext.sqlalchemy import SQLAlchemy
 import urlparse
 import re
 import unidecode
@@ -62,7 +56,7 @@ app.config.from_object(config)
 app.request_class = JSONRequest
 app.session_interface = session.RedisSessionInterface()
 app.jinja_env.filters['datetime'] = format_datetime
-csrf(app)
+csrf = SeaSurf(app)
 
 db = SQLAlchemy(app)
 

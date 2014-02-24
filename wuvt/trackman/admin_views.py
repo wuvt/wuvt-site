@@ -12,7 +12,6 @@ import netaddr
 
 from wuvt import app
 from wuvt import db
-from wuvt import lib
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track
 from wuvt.trackman.models import DJ, DJSet, Track

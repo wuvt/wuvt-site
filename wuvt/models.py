@@ -1,8 +1,5 @@
 from wuvt import db
-try:
-    from flask.ext.login import UserMixin
-except:
-    from flaskext.login import UserMixin
+from flask.ext.login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
 
 

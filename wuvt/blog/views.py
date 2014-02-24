@@ -1,15 +1,10 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-try:
-    from flask.ext.csrf import csrf
-except:
-    from flaskext.csrf import csrf
 from urlparse import urljoin
 from werkzeug.contrib.atom import AtomFeed
 
 from wuvt import app
 from wuvt import db
-from wuvt import lib
 
 from wuvt.models import User
 from wuvt.blog.models import Article, Category
