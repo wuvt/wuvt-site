@@ -7,7 +7,7 @@
     class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="form-group">
+    <div class="form-group{% if 'name' in error_fields %} has-error{% endif %}">
         <label for="id_name" class="col-sm-3 control-label">Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"

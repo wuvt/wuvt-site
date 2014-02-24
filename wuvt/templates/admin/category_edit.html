@@ -3,11 +3,11 @@
 {% block content %}
 <h1>Edit Category: {{ category.name }}</h1>
 
-<form action="{{ url_for('admin_category_add') }}" method="post"
+<form action="{{ url_for('admin.category_edit', cat_id=category.id) }}" method="post"
     class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="form-group">
+    <div class="form-group{% if 'name' in error_fields %} has-error{% endif %}">
         <label for="id_name" class="col-sm-3 control-label">Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
@@ -20,15 +20,15 @@
         <label for="id_slug" class="col-sm-3 control-label">Slug</label>
         <div class="col-sm-9">
             <input type="text" name="slug" id="id_slug"
-                value="{{ category.slug }}" required="required"
-                class="form-control" />
+                value="{{ category.slug }}" class="form-control" />
+            <p class="help-block">Leave blank to generate a new slug.</p>
         </div>
     </div>
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
             <span class="glyphicon glyphicon-ok"></span>
-            Edit Category
+            Save Changes
         </button>
 
         <a href="{{ url_for('admin.categories') }}" class="btn btn-default">

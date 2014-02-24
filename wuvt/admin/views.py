@@ -5,7 +5,9 @@ try:
 except:
     from flaskext.login import login_required, login_user, logout_user
 
+from wuvt import app
 from wuvt import db
+from wuvt import slugify
 from wuvt import redirect_back
 from wuvt.admin import bp
 
@@ -30,21 +32,69 @@ def categories():
 @bp.route('/categories/add', methods=['GET', 'POST'])
 @login_required
 def category_add():
+    error_fields = []
+
     if request.method == 'POST':
         name = request.form['name'].strip()
-        if not name:
-            pass
+        if len(name) <= 0:
+            error_fields.append('name')
 
-    return render_template('admin/category_add.html')
+        if len(error_fields) <= 0:
+            slug = slugify(name)
+
+            # ensure slug is unique, add - until it is
+            while Category.query.filter_by(slug=slug).count() > 0:
+                slug += '-'
+
+            db.session.add(Category(name, slug))
+            db.session.commit()
+
+            flash("Category added.")
+            return redirect(url_for('admin.categories'))
+
+    return render_template('admin/category_add.html',
+                           error_fields=error_fields)
 
 
-
-@bp.route('/categories/<int:cat_id>', methods=['GET', 'POST'])
+@bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
 def category_edit(cat_id):
-    category = Category.query.get(id == cat_id)
+    category = Category.query.get_or_404(cat_id)
+    error_fields = []
+
+    if request.method == 'POST':
+        name = request.form['name'].strip()
+        if len(name) <= 0:
+            error_fields.append('name')
+
+        slug = request.form['slug'].strip()
+        if len(slug) <= 0:
+            # generate a new slug if none is provided
+            slug = slugify(name)
+
+        if len(error_fields) <= 0:
+            if slug != category.slug:
+                # if slug has changed, ensure it is unique
+                while Category.query.filter_by(slug=slug).count() > 0:
+                    slug += '-'
+
+            category.name = name
+            category.slug = slug
+            db.session.commit()
+
+            flash("Category saved.")
+            return redirect(url_for('admin.categories'))
+    elif request.method == 'DELETE':
+        db.session.delete(category)
+        db.session.commit()
+
+        return jsonify({
+            '_csrf_token': app.jinja_env.globals['csrf_token'](),
+        })
+
     return render_template('admin/category_edit.html',
-                           category=category)
+                           category=category,
+                           error_fields=error_fields)
 
 
 @bp.route('/articles')
@@ -87,4 +137,4 @@ def login():
 def logout():
     logout_user()
     flash("You have been logged out.")
-    return redirect(url_for('login'))
+    return redirect(url_for('.login'))
