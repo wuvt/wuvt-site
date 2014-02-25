@@ -1,38 +1,36 @@
-import config
-import lib
+from wuvt import config
+from wuvt import session
 from flask import Flask, Request, redirect, request, url_for
-try:
-    from flask.ext.csrf import csrf
-    from flask.ext.login import LoginManager
-    from flask.ext.sqlalchemy import SQLAlchemy
-except:
-    from flaskext.csrf import csrf
-    from flaskext.login import LoginManager
-    from flaskext.sqlalchemy import SQLAlchemy
-from urlparse import urlparse, urljoin
+from flask.ext.login import LoginManager
+from flask.ext.seasurf import SeaSurf
+from flask.ext.sqlalchemy import SQLAlchemy
+import urlparse
+import re
+import unidecode
 
-app = Flask(__name__)
-app.config.from_object(config)
-app.request_class = lib.Request
-csrf(app)
 
-db = SQLAlchemy(app)
+json_mimetypes = ['application/json']
+_punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
-login_manager = LoginManager()
-login_manager.login_view = "login"
-login_manager.setup_app(app)
+
+def slugify(text, delim=u'-'):
+    """Generates an ASCII-only slug."""
+    # from http://flask.pocoo.org/snippets/5/
+    result = []
+    for word in _punct_re.split(text.lower()):
+        result.extend(unidecode.unidecode(word).split())
+    return unicode(delim.join(result))
 
 
 def format_datetime(value, format=None):
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
-app.jinja_env.filters['datetime'] = format_datetime
 
 
 def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
+    ref_url = urlparse.urlparse(request.host_url)
+    test_url = urlparse.urlparse(urlparse.urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
+        ref_url.netloc == test_url.netloc
 
 
 def redirect_back(endpoint, **values):
@@ -42,7 +40,37 @@ def redirect_back(endpoint, **values):
     return redirect(target)
 
 
-import wuvt.views
+class JSONRequest(Request):
+    # from http://flask.pocoo.org/snippets/45/
+    def wants_json(self):
+        mimes = json_mimetypes
+        mimes.append('text/html')
+        best = self.accept_mimetypes.best_match(mimes)
+        return best in json_mimetypes and \
+            self.accept_mimetypes[best] > \
+            self.accept_mimetypes['text/html']
+
+
+app = Flask(__name__)
+app.config.from_object(config)
+app.request_class = JSONRequest
+app.session_interface = session.RedisSessionInterface()
+app.jinja_env.filters['datetime'] = format_datetime
+csrf = SeaSurf(app)
+
+db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.login_view = "admin.login"
+login_manager.init_app(app)
+
+from wuvt import admin
+app.register_blueprint(admin.bp, url_prefix='/admin')
+
+from wuvt import trackman
+app.register_blueprint(trackman.bp, url_prefix='/trackman')
+
+from wuvt import views
 
 if not app.debug:
     import logging

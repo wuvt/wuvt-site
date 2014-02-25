@@ -6,17 +6,13 @@
 
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
-try:
-    from flask.ext.csrf import csrf_exempt
-except:
-    from flaskext.csrf import csrf_exempt
 import datetime
 import json
 import redis
 
 from wuvt import app
+from wuvt import csrf
 from wuvt import db
-from wuvt import lib
 from wuvt.trackman.lib import log_track
 from wuvt.trackman.models import DJ, DJSet, Track
 
@@ -125,7 +121,7 @@ def playlist(set_id):
 
 
 @app.route('/trackman/automation/submit', methods=['POST'])
-@csrf_exempt
+@csrf.exempt
 def submit_automation_track():
     if 'password' not in request.form or \
         request.form['password'] != app.config['AUTOMATION_PASSWORD']:

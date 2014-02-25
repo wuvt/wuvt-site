@@ -12,13 +12,13 @@ import netaddr
 
 from wuvt import app
 from wuvt import db
-from wuvt import lib
+from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track
 from wuvt.trackman.models import DJ, DJSet, Track
 
 
-@app.route('/trackman', methods=['GET', 'POST'])
-def trackman_login():
+@bp.route('/', methods=['GET', 'POST'])
+def login():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
@@ -32,29 +32,29 @@ def trackman_login():
         db.session.add(djset)
         db.session.commit()
 
-        return redirect(url_for('trackman_log', setid=djset.id))
+        return redirect(url_for('trackman.log', setid=djset.id))
 
     automation = red.get('automation_enabled') == "true"
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
-    return render_template('admin/trackman_login.html',
+    return render_template('trackman/login.html',
             trackman_name=app.config['TRACKMAN_NAME'],
             automation=automation, djs=djs)
 
 
-@app.route('/trackman/automation/start', methods=['POST'])
-def trackman_start_automation():
+@bp.route('/automation/start', methods=['POST'])
+def start_automation():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
     red = redis.StrictRedis()
     red.set('automation_enabled', "true")
 
-    return redirect(url_for('trackman_login'))
+    return redirect(url_for('trackman.login'))
 
 
-@app.route('/trackman/log/<int:setid>', methods=['GET', 'POST'])
-def trackman_log(setid):
+@bp.route('/log/<int:setid>', methods=['GET', 'POST'])
+def log(setid):
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
@@ -92,14 +92,14 @@ def trackman_log(setid):
     tracks = Track.query.filter(Track.djset_id == djset.id).\
             order_by(Track.datetime).all()
 
-    return render_template('admin/trackman_log.html',
+    return render_template('trackman/log.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
             tracks=tracks, email_playlist=email_playlist, errors=errors)
 
 
-@app.route('/trackman/log/<int:setid>/<int:trackid>',
+@bp.route('/log/<int:setid>/<int:trackid>',
         methods=['DELETE', 'GET', 'POST'])
-def trackman_edit(setid, trackid):
+def edit(setid, trackid):
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
@@ -140,15 +140,15 @@ def trackman_edit(setid, trackid):
             track.vinyl = 'vinyl' in request.form
             db.session.commit()
 
-            return redirect(url_for('trackman_log', setid=djset.id))
+            return redirect(url_for('trackman.log', setid=djset.id))
 
-    return render_template('admin/trackman_edit.html',
+    return render_template('trackman/edit.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
             track=track, errors=errors)
 
 
-@app.route('/trackman/log/<int:setid>/end', methods=['POST'])
-def trackman_logout(setid):
+@bp.route('/log/<int:setid>/end', methods=['POST'])
+def logout(setid):
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
@@ -186,11 +186,11 @@ def trackman_logout(setid):
 
     session['email_playlist'] = False
 
-    return redirect(url_for('trackman_login'))
+    return redirect(url_for('trackman.login'))
 
 
-@app.route('/trackman/register', methods=['GET', 'POST'])
-def trackman_register():
+@bp.route('/register', methods=['GET', 'POST'])
+def register():
     if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
         abort(403)
 
@@ -226,7 +226,7 @@ def trackman_register():
             db.session.commit()
 
             flash("DJ added")
-            return redirect(url_for('trackman_login'))
+            return redirect(url_for('trackman.login'))
 
-    return render_template('admin/trackman_register.html',
+    return render_template('trackman/register.html',
             trackman_name=app.config['TRACKMAN_NAME'], errors=errors)

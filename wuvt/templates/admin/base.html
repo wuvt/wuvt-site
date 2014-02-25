@@ -3,33 +3,42 @@
     <head>
         <meta charset="utf-8" />
 
-        <title>{% block title %}WUVT Administration{% endblock %}</title>
+        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}WUVT Administration</title>
 
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}" />
+
+        <link rel="shortcut icon"
+            href="{{ url_for('static', filename='img/favicon.ico') }}" />
+        <link rel="apple-touch-icon"
+            href="{{ url_for('static', filename='img/icon.png') }}" />
     </head>
     <body{% block bodyattrib %}{% endblock %}>
         {% block header %}
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </a>
-                    <a class="brand" href="#">WUVT Admin</a>
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                            <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#about">About</a></li>
-                            <li><a href="#contact">Contact</a></li>
-                        </ul>
-                    </div><!--/.nav-collapse -->
-                </div>
+        <header class="navbar navbar-default navbar-static-top" role="banner">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('admin.index') }}">WUVT Admin</a>
             </div>
-        </div>
+            <nav class="collapse navbar-collapse" role="navigation">
+                <ul class="nav navbar-nav">
+                    {% block nav_admin_index %}<li><a href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
+                    {% block nav_admin_categories %}<li><a href="{{ url_for('admin.categories') }}">Categories</a></li>{% endblock %}
+                    {% block nav_admin_articles %}<li><a href="{{ url_for('admin.articles') }}">Articles</a></li>{% endblock %}
+                    {% block nav_admin_pages %}<li><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}
+                    {% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
+                    <li><a href="{{ url_for('admin.logout') }}">
+                        <span class="glyphicon glyphicon-off"></span>
+                        Logout</a></li>
+                </ul>
+            </nav>
+        </header>
         {% endblock %}
 
 <div class="container">

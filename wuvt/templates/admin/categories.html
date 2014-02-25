@@ -1,0 +1,48 @@
+{% extends "admin/base.html" %}
+{% set page_title="Categories" %}
+{% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.categories') }}">Categories</a></li>{% endblock %}
+
+{% block content %}
+<h1>Categories</h1>
+
+<table class="table table-striped table-hover">
+    {% for cat in categories %}
+    <tr data-edit-url="{{ url_for('admin.category_edit', cat_id=cat.id) }}">
+        <td>{{ cat.name }}</td>
+        <td class="row-options">
+            <a href="{{ url_for('admin.category_edit', cat_id=cat.id) }}" class="btn btn-default btn-sm">Edit</a>
+            <button class="btn btn-danger btn-sm delete-button">Delete</button>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="2">
+            <a href="{{ url_for('admin.category_add') }}" class="btn btn-primary">Add New Category</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+{% block js %}
+{{ super() }}
+<script>
+var csrf_token = "{{ csrf_token() }}";
+
+$('button.delete-button').bind('click', function(ev) {
+    if(!confirm("Are you sure you want to delete this category?")) {
+        return;
+    }
+
+    $.ajax({
+        'type': "DELETE",
+        'url': $(this).closest('tr').attr('data-edit-url'),
+        'headers': {'X-CSRFToken': csrf_token},
+    }).done(function(msg) {
+        csrf_token = msg['_csrf_token']
+        $(ev.currentTarget).closest('tr').fadeTo('fast', 0, function() {
+            $(this).remove();
+        });
+    });
+    return false;
+});
+</script>
+{% endblock %}

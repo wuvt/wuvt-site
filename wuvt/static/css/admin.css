@@ -1,8 +1,5 @@
-body {
-    padding-top: 60px;
-}
-
 body.page-signin {
+    padding-top: 60px;
     background-color: #eee;
 }
 
@@ -23,6 +20,6 @@ div.trackman-buttons {
             box-shadow: 0 1px 2px rgba(0,0,0,.05);
 }
 
-td.buttons {
+td.row-options {
     text-align: right;
 }

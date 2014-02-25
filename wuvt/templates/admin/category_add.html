@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% set page_title="Add New Category" %}
+{% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.categories') }}">Categories</a></li>{% endblock %}
+
+{% block content %}
+<h1>Add New Category</h1>
+
+<form action="{{ url_for('admin.category_add') }}" method="post"
+    class="form-horizontal" role="form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group{% if 'name' in error_fields %} has-error{% endif %}">
+        <label for="id_name" class="col-sm-3 control-label">Name</label>
+        <div class="col-sm-9">
+            <input type="text" name="name" id="id_name"
+                value="" required="required" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span>
+            Add Category
+        </button>
+
+        <a href="{{ url_for('admin.categories') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

@@ -1,8 +1,14 @@
 {% extends "admin/base.html" %}
+{% set page_title="Login" %}
 {% block bodyattrib %} class="page-signin"{% endblock %}
 {% block header %}{% endblock %}
+
 {% block content %}
-<form action="{{ url_for('login') }}" method="post" class="form-signin">
+{% for msg in errors %}
+<div class="alert alert-danger">{{ msg }}</div>
+{% endfor %}
+
+<form action="{{ url_for('admin.login') }}" method="post" class="form-signin">
     <h2 class="form-signin-heading">WUVT Login</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />

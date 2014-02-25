@@ -1,6 +1,4 @@
-{% extends "admin/base.html" %}
-{% block title %}{{ trackman_name }} - {{ super() }}{% endblock %}
-{% block header %}{% endblock %}
+{% extends "trackman/base.html" %}
 {% block content %}
 
 <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
@@ -29,7 +27,7 @@
             <td>{% if track.request %}REQ{% endif %}</td>
             <td>{% if track.vinyl %}VIN{% endif %}</td>
             <td class="buttons">
-                <a href="{{ url_for('trackman_edit', setid=djset.id,
+                <a href="{{ url_for('trackman.edit', setid=djset.id,
                     trackid=track.id) }}" class="btn btn-default btn-sm">Edit</a>
                 <button class="btn btn-danger btn-sm delete-track"
                     type="button">Delete</button>
@@ -40,7 +38,7 @@
 </table>
 {% endif %}
 
-<form action="{{ url_for('trackman_log', setid=djset.id) }}" method="post"
+<form action="{{ url_for('trackman.log', setid=djset.id) }}" method="post"
     class="form-horizontal">
     <h2>Add to Playlist</h2>
 
@@ -142,7 +140,7 @@
         </button>
     </div>
 </form>
-<form action="{{ url_for('trackman_logout', setid=djset.id) }}" method="post"
+<form action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="email_playlist" value="0" />
