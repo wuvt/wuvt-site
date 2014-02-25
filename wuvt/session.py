@@ -1,4 +1,5 @@
 import pickle
+import sys
 from datetime import timedelta
 from uuid import uuid4
 from redis import Redis
@@ -57,8 +58,17 @@ class RedisSessionInterface(SessionInterface):
         redis_exp = self.get_redis_expiration_time(app, session)
         cookie_exp = self.get_expiration_time(app, session)
         val = self.serializer.dumps(dict(session))
-        self.redis.setex(self.prefix + session.sid, val,
-                         int(redis_exp.total_seconds()))
+
+        if sys.version_info < (2, 7, 0):
+            def total_seconds(td):
+                return td.days * 60 * 60 * 24 + td.seconds
+
+            self.redis.setex(self.prefix + session.sid, val,
+                             int(total_seconds(redis_exp)))
+        else:
+            self.redis.setex(self.prefix + session.sid, val,
+                             int(redis_exp.total_seconds()))
+
         response.set_cookie(app.session_cookie_name, session.sid,
                             expires=cookie_exp, httponly=True,
                             domain=domain)
