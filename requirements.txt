@@ -7,7 +7,7 @@ Jinja2==2.7.2
 MarkupSafe==0.18
 SQLAlchemy==0.9.3
 Unidecode==0.04.14
-Werkzeug==0.9.4
+Werkzeug==0.9.6
 gevent==1.0
 greenlet==0.4.2
 itsdangerous==0.23
