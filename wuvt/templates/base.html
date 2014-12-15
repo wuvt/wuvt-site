@@ -53,45 +53,19 @@
     <nav> <!-- top, horizontal nav bar -->
         {% block nav_top %}
         <ul>
+            {% for section_key, section_name in config['NAV_TOP_SECTIONS'] -%}
             <li>
-            <a href="{{ url_for('page', slug='wuvt') }}">About</a>
+                <a href="{{ url_for('page', slug='wuvt') }}">{{ section_name }}</a>
                 <ul>
-                    {% for page in menus['about'] %}
-                    <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                    {% endfor %}
-                </ul></li>
-
-            <li><a href="{{ url_for('page', slug='community') }}">Community</a>
-                <ul>
-                    {% for page in menus['community'] %}
-                    <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                    {% endfor %}
-                </ul></li>
-
-            <li>
-                <a href="{{ url_for('playlists_date') }}">Playlists</a>
-                <ul>
+                    {% if section_key == 'playlists' -%}
                     <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
                     <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
-
-                    {% for page in menus['playlists'] %}
+                    {% endif -%}
+                    {% for page in menus[section_key] %}
                     <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
                     {% endfor %}
                 </ul></li>
-
-            <li><a href="{{ url_for('page', slug='local-zone') }}">Local Zone</a>
-                <ul>
-                    {% for page in menus['local-zone'] %}
-                    <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                    {% endfor %}
-                </ul></li>
-
-            <li><a href="{{ url_for('page', slug='contact') }}">Contact</a>
-                <ul>
-                    {% for page in menus['contact'] %}
-                    <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                    {% endfor %}
-                </ul></li>
+            {% endfor %}
         </ul>
         {% endblock %}
     </nav>
