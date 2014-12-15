@@ -53,17 +53,23 @@
     <nav> <!-- top, horizontal nav bar -->
         {% block nav_top %}
         <ul>
-            {% for section_key, section_name in config['NAV_TOP_SECTIONS'] -%}
+            {% for section in config['NAV_TOP_SECTIONS'] -%}
             <li>
-                <a href="{{ url_for('page', slug='wuvt') }}">{{ section_name }}</a>
+                {% if section['menu'] == 'playlists' -%}
+                <a href="{{ url_for('playlists_date') }}">{{ section['name'] }}</a>
+                {% elif 'slug' in section -%}
+                <a href="{{ url_for('page', slug=section['slug']) }}">{{ section['name'] }}</a>
+                {% else -%}
+                <a href="{{ url_for('page', slug=section['menu']) }}">{{ section['name'] }}</a>
+                {% endif -%}
                 <ul>
-                    {% if section_key == 'playlists' -%}
+                    {% if section['menu'] == 'playlists' -%}
                     <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
                     <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
                     {% endif -%}
-                    {% for page in menus[section_key] %}
+                    {% for page in menus[section['menu']] -%}
                     <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                    {% endfor %}
+                    {% endfor -%}
                 </ul></li>
             {% endfor %}
         </ul>

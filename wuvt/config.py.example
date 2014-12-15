@@ -6,11 +6,19 @@ POSTS_PER_PAGE = 5
 
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"
-NAV_TOP_SECTIONS = [('about', 'About'),
-                    ('community', 'Community'),
-                    ('playlists', 'Playlists'),
-                    ('local-zone', 'Local Zone'),
-                    ('contact', 'Contact')]
+NAV_TOP_SECTIONS = [
+    {'menu': 'about',
+     'name': 'About',
+     'slug': 'wuvt'},
+    {'key': 'community',
+     'name': 'Community'},
+    {'menu': 'playlists',
+     'name': 'Playlists'},
+    {'menu': 'local-zone',
+     'name': 'Local Zone'},
+    {'menu': 'contact',
+     'name': 'Contact'},
+]
 
 AUTOMATION_PASSWORD = ""
 ICECAST_ADMIN = "http://user:password@engine.wuvt..vt.edu:8000/admin/"
