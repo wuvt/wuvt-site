@@ -10,7 +10,7 @@ NAV_TOP_SECTIONS = [
     {'menu': 'about',
      'name': 'About',
      'slug': 'wuvt'},
-    {'key': 'community',
+    {'menu': 'community',
      'name': 'Community'},
     {'menu': 'playlists',
      'name': 'Playlists'},
