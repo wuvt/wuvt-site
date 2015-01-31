@@ -1,3 +1,4 @@
+import re
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response, session, g
 from flask.ext.login import login_required, login_user, logout_user, current_user
@@ -10,7 +11,6 @@ from wuvt.admin import bp
 
 from wuvt.models import User
 from wuvt.blog.models import Category, Article
-
 
 @bp.route('/')
 @login_required
@@ -194,30 +194,82 @@ def category_edit(cat_id):
 def articles():
     return render_template('admin/articles.html')
 
-@bp.route('/categories/add', methods=['GET', 'POST'])
+@bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
-def article_add():
+def article_edit(art_id):
+    article = Article.query.get_or_404(art_id)
     error_fields = []
 
     if request.method == 'POST':
-        name = request.form['name'].strip()
-        if len(name) <= 0:
-            error_fields.append('name')
+        # Title
+        title = request.form['title'].strip()
+        if len(title) <= 0:
+            error_fields.append('title')
+
+        # Slug
+        slug = request.form['slug'].strip()
+        if slug != article.slug:
+            slug = slugify(slug)
+            if len(slug) <= 0 or slug == False:
+                error_fields.append('slug')
+
+        # author_id
+        author_id = request.form['author_id'].strip()
+        if User.query.filter_by(id=author_id).count() != 1:
+            error_fields.append('author_id')
+
+        # Category_id
+        category_id = request.form['category_id'].strip()
+        if Category.query.filter_by(id=category_id).count() != 1:
+            error_fields.append('category_id')
+
+        # datetime (should update to published time)
+        published = request.form['published']
+        if published == "True":
+            published = True
+        else:
+            published = False
+        if article.published == False and published != None:
+            pass
+            # update datetime
+
+        # summary
+        summary = request.form['summary']
+        content = request.form['content']
+
+        # markdown
 
         if len(error_fields) <= 0:
-            slug = slugify(name)
 
             # ensure slug is unique, add - until it is
-            while Category.query.filter_by(slug=slug).count() > 0:
+            while Article.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
 
-            db.session.add(Category(name, slug))
+            article.title = title
+            article.slug = slug
+            article.category_id = category_id
+            article.author_id = author_id
+            article.published = published
+            article.summary = summary
+            article.content = content
             db.session.commit()
 
-            flash("Category added.")
+            flash("Article Saved")
             return redirect(url_for('admin.articles'))
+    elif request.method == 'DELETE':
+        db.session.delete(category)
+        db.session.commit()
 
-    return render_template('admin/category_add.html',
+        return jsonify({
+            '_csrf_token': app.jinja_env.globals['csrf_token'](),
+        })
+
+    categories = Category.query.all()
+    authors = User.query.all()
+    return render_template('admin/article_edit.html',
+                           article=article,
+                           categories=categories,
+                           authors=authors,
                            error_fields=error_fields)
 
 @bp.route('/pages')

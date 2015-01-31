@@ -28,6 +28,7 @@ class Article(db.Model):
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     summary = db.Column(db.UnicodeText)
     content = db.Column(db.UnicodeText)
+    html = db.Column(db.UnicodeText)
     published = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, title, slug, category_id, author_id, summary,

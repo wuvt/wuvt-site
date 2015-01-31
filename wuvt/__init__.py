@@ -11,10 +11,14 @@ import unidecode
 
 json_mimetypes = ['application/json']
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-
+_slug_pattern = re.compile(r"[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._~:/?#\[\]@!$&'()*+,;=\-]*")
 
 def slugify(text, delim=u'-'):
-    """Generates an ASCII-only slug."""
+    """Generates an ASCII-only slug and validates that it is an acceptable
+    character set as per rfc3986"""
+    if _slug_pattern.match(text) == None:
+        return False
+
     # from http://flask.pocoo.org/snippets/5/
     result = []
     for word in _punct_re.split(text.lower()):
