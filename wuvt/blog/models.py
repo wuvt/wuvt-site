@@ -18,7 +18,7 @@ class Article(db.Model):
     __tablename__ = "article"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255), nullable=False)
-    slug = db.Column(db.Unicode(255), nullable=False)
+    slug = db.Column(db.Unicode(255), nullable=False, unique=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', backref=db.backref('category',
         lazy='dynamic'))
