@@ -20,3 +20,7 @@ python-ldap==2.4.14
 redis==2.9.1
 requests==2.2.1
 wsgiref==0.1.2
+metalsmyth>=0.1.5
+python-frontmatter>=0.1.6
+Markdown>=2.5.2
+bleach>=1.4.1
