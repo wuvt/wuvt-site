@@ -194,6 +194,31 @@ def category_edit(cat_id):
 def articles():
     return render_template('admin/articles.html')
 
+@bp.route('/categories/add', methods=['GET', 'POST'])
+@login_required
+def article_add():
+    error_fields = []
+
+    if request.method == 'POST':
+        name = request.form['name'].strip()
+        if len(name) <= 0:
+            error_fields.append('name')
+
+        if len(error_fields) <= 0:
+            slug = slugify(name)
+
+            # ensure slug is unique, add - until it is
+            while Category.query.filter_by(slug=slug).count() > 0:
+                slug += '-'
+
+            db.session.add(Category(name, slug))
+            db.session.commit()
+
+            flash("Category added.")
+            return redirect(url_for('admin.articles'))
+
+    return render_template('admin/category_add.html',
+                           error_fields=error_fields)
 
 @bp.route('/pages')
 @login_required
