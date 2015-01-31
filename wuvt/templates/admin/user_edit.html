@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% set page_title="Edit User: " + user.username %}
+{% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
+
+{% block content %}
+<h1>Edit User: {{ user.username }}</h1>
+
+<form action="{{ url_for('admin.user_edit', id=user.id) }}" method="post"
+    class="form-horizontal" role="form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group{% if 'name' in error_fields %} has-error{% endif %}">
+        <label for="id_name" class="col-sm-3 control-label">Name</label>
+        <div class="col-sm-9">
+            <input type="text" name="name" id="id_name"
+                value="{{ user.name }}" required="required"
+                class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group{% if 'email' in error_fields %} has-error{% endif %}">
+        <label for="id_email" class="col-sm-3 control-label">Email</label>
+        <div class="col-sm-9">
+            <input type="text" name="email" id="id_email"
+                value="{{ user.email }}" class="form-control" required="required"/>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_newpass" class="col-sm-3 control-label">New password</label>
+        <div class="col-sm-9">
+            <input type="password" name="newpass" id="id_newpass"
+                value="" class="form-control"/>
+            <p>Leave blank to leave password unchanged.</p>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span>
+            Save Changes
+        </button>
+
+        <a href="{{ url_for('admin.users') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

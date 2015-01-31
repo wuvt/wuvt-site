@@ -1,6 +1,6 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response
-from flask.ext.login import login_required, login_user, logout_user
+        request, url_for, Response, session, g
+from flask.ext.login import login_required, login_user, logout_user, current_user
 
 from wuvt import app
 from wuvt import db
@@ -24,7 +24,6 @@ def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
                            categories=categories)
-
 
 @bp.route('/categories/add', methods=['GET', 'POST'])
 @login_required
@@ -52,6 +51,103 @@ def category_add():
     return render_template('admin/category_add.html',
                            error_fields=error_fields)
 
+
+
+@bp.route('/users/new', methods=['GET', 'POST'])
+@login_required
+def user_add():
+    error_fields = []
+    if (current_user.username != 'admin'):
+        abort(401)
+
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+
+        if len(username) <= 2:
+            error_fields.append('username') 
+
+        if len(username) > 8:
+            error_fields.append('username')
+
+        if not username.isalnum():
+            error_fields.append('username')
+
+        if User.query.filter_by(username=username).count() > 0:
+            error_fields.append('username')
+
+        name = request.form['name'].strip()
+        
+        if len(name) <= 0:
+            error_fields.append('name')
+
+        email = request.form['email'].strip()
+
+        if len(email) <= 3: 
+            error_fields.append('email')
+       
+        password = request.form['password'].strip()
+
+        if len(password) <= 0:
+            error_fields.append('password')
+
+   
+        # Create user if no errors
+        if len(error_fields) <= 0:
+            db.session.add(User(username, name, email))
+            db.session.commit()
+            user = User.query.filter_by(username=username).first()
+            user.set_password(password)
+            db.session.commit()
+
+            flash("User added.")
+            return redirect(url_for('admin.users'))
+
+    return render_template('admin/user_add.html', error_fields=error_fields)
+        
+
+@bp.route('/users/<int:id>', methods=['GET', 'POST'])
+@login_required
+def user_edit(id):
+    user = User.query.get_or_404(id)
+    error_fields = []
+
+    # Only admins can edit users other than themselves
+    if (current_user.username != 'admin') and (current_user.id != id) :
+        abort(401)
+
+
+    if request.method == 'POST':
+        name = request.form['name'].strip()
+        if len(name) <= 0:
+            error_fields.append('name')
+       
+        # You can't change a username or ID
+        
+        pw = request.form['newpass'].strip()
+
+        email = request.form['email'].strip()
+        if len(email) <= 0:
+            error_fields.append('email')
+        
+        # TODO allow users to be disabled
+ 
+        if len(error_fields) == 0:
+            # update user's: name, email 
+            user.name = name
+            user.email = email
+            
+            # if user entered a new pw 
+            if len(pw) > 0:
+                user.set_password(pw)
+            # TODO reset password to pw
+
+            db.session.commit()
+
+            flash('User updated.')
+            return redirect(url_for('admin.users'))
+
+    else:
+        return render_template('admin/user_edit.html', user=user, error_fields=error_fields)
 
 @bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -93,7 +189,6 @@ def category_edit(cat_id):
                            category=category,
                            error_fields=error_fields)
 
-
 @bp.route('/articles')
 @login_required
 def articles():
@@ -109,7 +204,15 @@ def pages():
 @bp.route('/users')
 @login_required
 def users():
-    return render_template('admin/users.html')
+    if current_user.username == 'admin':
+        users = User.query.order_by('name').all()
+
+    else:
+        users = User.query.filter(User.username == current_user.username).order_by('name').all()
+    
+    return render_template('admin/users.html', users=users)
+
+#        return 'you are not authorized to modify users' # TODO 401
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -120,6 +223,7 @@ def login():
         user = User.query.filter(User.username == request.form['username']).first()
         if user and user.check_password(request.form['password']):
             login_user(user)
+            session['username'] = request.form['username']
             return redirect_back('admin.index')
         else:
             errors.append("Invalid username or password.")
@@ -133,5 +237,6 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.pop('userrname', None)
     flash("You have been logged out.")
     return redirect(url_for('.login'))

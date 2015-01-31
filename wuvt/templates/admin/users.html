@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% set page_title="Users" %}
+{% block nav_admin_users %}<li class="active"><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
+
+{% block content %}
+<h1>Users</h1>
+
+<table class="table table-striped table-hover">
+    <tr><strong>
+        <td>Name</td>
+        <td>Username</td>
+        <td>Email</td>
+        <td>Enabled</td>
+        <td>Options</td>
+    </strong>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.enabled }}</td>
+        <td class="row-options">
+            <a href="{{ url_for('admin.user_edit', id=user.id) }}" class="btn btn-default btn-sm">Edit</a>
+
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="5">
+            <a href="{{ url_for('admin.user_add') }}" class="btn btn-primary">Add New User</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+{% block js %}
+{{ super() }}
+{% endblock %}
