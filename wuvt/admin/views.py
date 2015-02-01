@@ -349,6 +349,10 @@ def article_add():
         published = request.form.get('published', False)
         if published != False:
             published = True
+        # front page
+        front_page = request.form.get('front_page', False)
+        if front_page != False:
+            front_page = True
 
         # summary
         summary = request.form.get('summary', "").strip()
@@ -361,6 +365,9 @@ def article_add():
                 slug += '-'
             
             article = Article(title, slug, category_id, author_id, summary, content, published)
+            # Why can't we just have a parameterless constructor so we don't
+            # have to add constructors for each new field
+            article.front_page = front_page
             if article.published == True:
                 article.datetime = datetime.datetime.now()
             
@@ -422,6 +429,10 @@ def article_edit(art_id):
             published = True
         if article.published == False and published != None:
             article.datetime = datetime.datetime.now()
+        # front page
+        front_page = request.form.get('front_page', False)
+        if front_page != False:
+            front_page = True
 
         # summary
         summary = request.form.get('summary', "").strip()
@@ -445,6 +456,7 @@ def article_edit(art_id):
             article.published = published
             article.summary = summary
             article.content = content
+            article.front_page = front_page
             db.session.commit()
             article.render_html()
             db.session.commit()

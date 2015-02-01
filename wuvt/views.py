@@ -37,7 +37,7 @@ def inject_menus():
 @app.route('/')
 @app.route('/index/<int:page>')
 def index(page=1):
-    articles = Article.query.filter_by(published=True).\
+    articles = Article.query.filter_by(published=True, front_page=True).\
         order_by(desc(Article.datetime)).paginate(page,
                                               app.config['POSTS_PER_PAGE'])
     return render_template('index.html', articles=articles)
