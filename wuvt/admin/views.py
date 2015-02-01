@@ -235,7 +235,7 @@ def page_edit(page_id):
                     slug += '-'
 
             page.slug = slug
-            page.title = title
+            page.name = title
             page.menu = section
             page.content = content
             
