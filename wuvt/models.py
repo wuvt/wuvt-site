@@ -1,7 +1,7 @@
 from wuvt import db
 from flask.ext.login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
-
+from markdown import markdown
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
@@ -31,9 +31,17 @@ class Page(db.Model):
     slug = db.Column(db.Unicode(255), nullable=False)
     menu = db.Column(db.Unicode(255))
     content = db.Column(db.UnicodeText, nullable=False)
+    html = db.Column(db.UnicodeText)
+    published = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __init__(self, name, slug, content, menu=None):
+
+    def __init__(self, name, slug, content, published=True, menu=None):
         self.name = name
         self.slug = slug
         self.content = content
+        self.published = published
         self.menu = menu
+
+    def update_content(self, content):
+        self.content = content
+        self.html = markdown(content)

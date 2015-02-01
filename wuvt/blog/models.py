@@ -1,6 +1,7 @@
 import datetime
 
 from wuvt import db
+from markdown import markdown
 
 
 class Category(db.Model):
@@ -28,7 +29,8 @@ class Article(db.Model):
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     summary = db.Column(db.UnicodeText)
     content = db.Column(db.UnicodeText)
-    html = db.Column(db.UnicodeText)
+    html_summary = db.Column(db.UnicodeText)
+    html_content = db.Column(db.UnicodeText)
     published = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, title, slug, category_id, author_id, summary,
@@ -40,5 +42,9 @@ class Article(db.Model):
         self.summary = summary
         self.content = content
         self.published = published
-    def __init__(self):
-        pass
+
+    def render_html(self):
+        if self.summary is not None:
+            self.html_summary = markdown(self.summary)
+        if self.content is not None:
+            self.html_content = markdown(self.content)

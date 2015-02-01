@@ -200,7 +200,7 @@ def articles():
 @login_required
 def article_add():
     error_fields = []
-    article = Article()
+    # article = Article()
 
     if request.method == 'POST':
         # Title
@@ -233,22 +233,21 @@ def article_add():
             published = True
         else:
             published = False
-        if article.published == False and published != None:
-            pass
+        #if article.published == False and published != None:
+        #    pass
             # update datetime
 
         # summary
-        summary = request.form.get('summary', "")
-        content = request.form.get('content', "")
+        summary = request.form.get('summary', "").strip()
+        content = request.form.get('content', "").strip()
 
-        # markdown
 
         if len(error_fields) <= 0:
-
+            article = Article(title, slug, category_id, author_id, summary, content, published)
             # ensure slug is unique, add - until it is
             while Article.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
-
+            """
             article.title = title
             article.slug = slug
             article.category_id = category_id
@@ -256,7 +255,9 @@ def article_add():
             article.published = published
             article.summary = summary
             article.content = content
+            """
             db.session.add(article)
+            article.render_html()   # markdown to html
             db.session.commit()
 
             flash("Article Saved")
@@ -272,7 +273,6 @@ def article_add():
     categories = Category.query.all()
     authors = User.query.all()
     return render_template('admin/article_add.html',
-                           article=article,
                            categories=categories,
                            authors=authors,
                            error_fields=error_fields)
@@ -317,8 +317,10 @@ def article_edit(art_id):
             # update datetime
 
         # summary
-        summary = request.form.get('summary', "")
-        content = request.form.get('content', "")
+        summary = request.form.get('summary', "").strip()
+        print('summary: {0}', summary)
+        content = request.form.get('content', "").strip()
+        print('content: {0}', content)
 
         # markdown
 
@@ -335,6 +337,8 @@ def article_edit(art_id):
             article.published = published
             article.summary = summary
             article.content = content
+            db.session.commit()
+            article.render_html()
             db.session.commit()
 
             flash("Article Saved")

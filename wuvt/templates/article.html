@@ -8,7 +8,8 @@
         <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
     </hgroup>
 
-{{ article.content|safe or article.summary|safe }}
+{{ article.html_summary|safe }}
+{# {{ article.html_content|safe or article.html_summary|safe }} #}
 
     <footer>
         Filed under
