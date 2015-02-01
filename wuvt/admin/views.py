@@ -200,7 +200,20 @@ def articles():
     return render_template('admin/articles.html',
                            articles=articles)
 
+@bp.route('/articles/draft/<int:art_id>')
+@login_required
+def article_draft(art_id):
+    article = Article.query.filter(Article.id == art_id).first()
+    if not article:
+        abort(404)
 
+    if not article.content:
+        article.content = article.summary
+
+    categories = Category.query.order_by(Category.name).all()
+    return render_template('article.html',
+                           categories=categories,
+                           article=article)
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST'])
 @login_required
