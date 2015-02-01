@@ -1,4 +1,5 @@
 import re
+import datetime
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response, session, g
 from flask.ext.login import login_required, login_user, logout_user, current_user
@@ -199,7 +200,20 @@ def articles():
     return render_template('admin/articles.html',
                            articles=articles)
 
+@bp.route('/articles/draft/<int:art_id>')
+@login_required
+def article_draft(art_id):
+    article = Article.query.filter(Article.id == art_id).first()
+    if not article:
+        abort(404)
 
+    if not article.content:
+        article.content = article.summary
+
+    categories = Category.query.order_by(Category.name).all()
+    return render_template('article.html',
+                           categories=categories,
+                           article=article)
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST'])
 @login_required
@@ -332,14 +346,13 @@ def article_add():
             error_fields.append('category_id')
 
         # datetime (should update to published time)
-        published = request.form.get('published', "False").strip()
-        if published == "True":
+        published = request.form.get('published', False)
+        if published != False:
             published = True
-        else:
-            published = False
-        #if article.published == False and published != None:
-        #    pass
-            # update datetime
+        # front page
+        front_page = request.form.get('front_page', False)
+        if front_page != False:
+            front_page = True
 
         # summary
         summary = request.form.get('summary', "").strip()
@@ -352,6 +365,11 @@ def article_add():
                 slug += '-'
             
             article = Article(title, slug, category_id, author_id, summary, content, published)
+            # Why can't we just have a parameterless constructor so we don't
+            # have to add constructors for each new field
+            article.front_page = front_page
+            if article.published == True:
+                article.datetime = datetime.datetime.now()
             
             db.session.add(article)
             article.render_html()   # markdown to html
@@ -410,8 +428,11 @@ def article_edit(art_id):
         if published != False:
             published = True
         if article.published == False and published != None:
-            pass
-            # update datetime
+            article.datetime = datetime.datetime.now()
+        # front page
+        front_page = request.form.get('front_page', False)
+        if front_page != False:
+            front_page = True
 
         # summary
         summary = request.form.get('summary', "").strip()
@@ -435,6 +456,7 @@ def article_edit(art_id):
             article.published = published
             article.summary = summary
             article.content = content
+            article.front_page = front_page
             db.session.commit()
             article.render_html()
             db.session.commit()

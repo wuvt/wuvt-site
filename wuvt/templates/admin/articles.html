@@ -24,6 +24,7 @@
         <td>{{ article.datetime }}</td>
         <td>
             <a href="{{ url_for('admin.article_edit', art_id=article.id) }}" class="btn btn-default btn-sm">Edit</a>
+            <a href="{{ url_for('admin.article_draft', art_id=article.id) }}" class="btn btn-default btn-sm">Preview</a>
 
         </td>
     </tr>

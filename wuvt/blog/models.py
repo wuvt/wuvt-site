@@ -32,6 +32,7 @@ class Article(db.Model):
     html_summary = db.Column(db.UnicodeText)
     html_content = db.Column(db.UnicodeText)
     published = db.Column(db.Boolean, default=False, nullable=False)
+    front_page = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, title, slug, category_id, author_id, summary,
             content=None, published=False):

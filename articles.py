@@ -36,6 +36,7 @@ listen, listen, whoa, yeah, listen, ooooh consequuntur ut quis. We all have our
 nights though, don't be so ashamed impedit ab officiis autem odit you hate the
 fact that you bought the dream.
 """, published=True)
+article.front_page = True
 db.session.add(article)
 article.render_html()
 db.session.commit()
@@ -69,6 +70,7 @@ I'm still fucking wit ya quis. Odit voluptate energizer bunny omnis vero
 numquam est. Quia placeat go uptown, new york city biiitch oh, they lovin the
 crew but my mind didn't change you won't ever have to hide qui.
 """, published=True)
+article.front_page = True
 db.session.add(article)
 article.render_html()
 db.session.commit()
