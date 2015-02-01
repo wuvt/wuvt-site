@@ -1,42 +1,93 @@
 {% extends "admin/base.html" %}
-{% set page_title="Add New Article" %}
+{% set page_title="Create Article" %}
 {% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.articles') }}">Articles</a></li>{% endblock %}
 
 {% block content %}
-<h1>Add New Article</h1>
+<h1>Create Article</h1>
 
 <form action="{{ url_for('admin.article_add') }}" method="post"
     class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span>
+            Create Article
+        </button>
+
+        <a href="{{ url_for('admin.articles') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel
+        </a>
+    </div>
 
     <div class="form-group{% if 'title' in error_fields %} has-error{% endif %}">
-        <label for="id_name" class="col-sm-3 control-label">Title</label>
+        <label for="id_title" class="col-sm-3 control-label">Title</label>
         <div class="col-sm-9">
-            <input type="text" name="name" id="id_name"
-                value="" required="required" class="form-control" />
+            <input type="text" name="title" id="id_title"
+                   value="{{ article.title or "" }}" required="required" class="form-control" />
         </div>
     </div>
 
     <div class="form-group{% if 'slug' in error_fields %} has-error{% endif %}">
-        <label for="id_name" class="col-sm-3 control-label">slug</label>
+        <label for="id_slug" class="col-sm-3 control-label">Slug</label>
         <div class="col-sm-9">
-            <input type="text" name="name" id="id_name"
-                value="" required="required" class="form-control" />
+            <input type="text" name="slug" id="id_slug" name="title"
+                   value="{{ article.slug or "" }}" class="form-control" />
         </div>
     </div>
 
     <div class="form-group{% if 'category_id' in error_fields %} has-error{% endif %}">
-        <label for="id_name" class="col-sm-3 control-label">slug</label>
+        <label for="id_category_id" class="col-sm-3 control-label">Category</label>
         <div class="col-sm-9">
-            <input type="text" name="name" id="id_name"
-                value="" required="required" class="form-control" />
+            <select name="category_id" class="form-control">
+                {% for cat in categories %}
+                <option{% if cat.id == article.category_id %} selected="selected"{% endif %} value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
         </div>
     </div>
+    <div class="form-group{% if 'author_id' in error_fields %} has-error{% endif %}">
+        <label for="id_author_id" class="col-sm-3 control-label">Author</label>
+        <div class="col-sm-9">
+            <select name="author_id" class="form-control">
+                {% for author in authors %}
+                <option{% if author.id == article.author_id %} selected="selected"{% endif %} value="{{ author.id }}">{{ author.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group{% if 'published' in error_fields %} has-error{% endif %}">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-9 checkbox">
+            <input type="checkbox" name="published" id="id_published" value="{{ article.published }}" {% if article.published %}checked{% endif %}>
+                <strong>Publish article</strong>
+                </input>
+        </div>
+    </div>
+    <div class="form-group{% if 'summary' in error_fields %} has-error{% endif %}">
+        <label for="id_summary" class="col-sm-3 control-label">Summary</label>
+        <div class="col-sm-9">
+            <textarea type="text" name="summary" id="id_summary"
+                      required="required" rows=12 class="form-control">
 
+                {{ article.summary or "" }}
+            </textarea>
+        </div>
+    </div>
+    <div class="form-group{% if 'content' in error_fields %} has-error{% endif %}">
+        <label for="id_content" class="col-sm-3 control-label">Content</label>
+        <div class="col-sm-9">
+            <textarea type="text" name="content" id="id_content"
+                      required="required" rows=25 class="form-control">
+
+                {{ article.content or "" }}
+            </textarea>
+    </div>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
             <span class="glyphicon glyphicon-ok"></span>
-            Save Article
+            Create Article
         </button>
 
         <a href="{{ url_for('admin.articles') }}" class="btn btn-default">

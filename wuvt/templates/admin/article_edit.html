@@ -24,7 +24,7 @@
         <label for="id_title" class="col-sm-3 control-label">Title</label>
         <div class="col-sm-9">
             <input type="text" name="title" id="id_title"
-                   value="{{ article.title }}" required="required" class="form-control" />
+                   value="{{ article.title or "" }}" required="required" class="form-control" />
         </div>
     </div>
 
@@ -32,7 +32,7 @@
         <label for="id_slug" class="col-sm-3 control-label">Slug</label>
         <div class="col-sm-9">
             <input type="text" name="slug" id="id_slug" name="title"
-                   value="{{ article.slug }}" required="required" class="form-control" />
+                   value="{{ article.slug or "" }}" class="form-control" />
         </div>
     </div>
 
@@ -60,7 +60,7 @@
         <div class="col-sm-3">
         </div>
         <div class="col-sm-9 checkbox">
-            <input type="checkbox" name="published" id="id_published" value="{{ article.published }}" required="required"{% if article.published %}checked{% endif %}>
+            <input type="checkbox" name="published" id="id_published" value="{{ article.published }}" {% if article.published %}checked{% endif %}>
                 <strong>Publish article</strong>
                 </input>
         </div>
@@ -71,7 +71,7 @@
             <textarea type="text" name="summary" id="id_summary"
                       required="required" rows=12 class="form-control">
 
-                {{ article.summary }}
+                {{ article.summary or "" }}
             </textarea>
         </div>
     </div>
@@ -81,7 +81,7 @@
             <textarea type="text" name="content" id="id_content"
                       required="required" rows=25 class="form-control">
 
-                {{ article.content }}
+                {{ article.content or "" }}
             </textarea>
     </div>
     <div class="form-actions">

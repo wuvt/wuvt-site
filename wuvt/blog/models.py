@@ -40,3 +40,5 @@ class Article(db.Model):
         self.summary = summary
         self.content = content
         self.published = published
+    def __init__(self):
+        pass

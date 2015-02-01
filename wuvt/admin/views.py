@@ -192,26 +192,30 @@ def category_edit(cat_id):
 @bp.route('/articles')
 @login_required
 def articles():
-    return render_template('admin/articles.html')
+    articles = Article.query.all()
+    return render_template('admin/articles.html',
+                           articles=articles)
 
-@bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
+@bp.route('/article/add', methods=['GET', 'POST'])
 @login_required
-def article_edit(art_id):
-    article = Article.query.get_or_404(art_id)
+def article_add():
     error_fields = []
+    article = Article()
 
     if request.method == 'POST':
         # Title
-        title = request.form['title'].strip()
+        title = request.form.get('title', "").strip()
         if len(title) <= 0:
             error_fields.append('title')
 
         # Slug
-        slug = request.form['slug'].strip()
-        if slug != article.slug:
+        slug = request.form.get('slug', "")
+        if slug != "":
             slug = slugify(slug)
             if len(slug) <= 0 or slug == False:
                 error_fields.append('slug')
+        elif len(slug) <= 0 and len(title) > 0:
+            slug = slugify(title)
 
         # author_id
         author_id = request.form['author_id'].strip()
@@ -224,7 +228,7 @@ def article_edit(art_id):
             error_fields.append('category_id')
 
         # datetime (should update to published time)
-        published = request.form['published']
+        published = request.form.get('published', "False").strip()
         if published == "True":
             published = True
         else:
@@ -234,8 +238,8 @@ def article_edit(art_id):
             # update datetime
 
         # summary
-        summary = request.form['summary']
-        content = request.form['content']
+        summary = request.form.get('summary', "")
+        content = request.form.get('content', "")
 
         # markdown
 
@@ -243,6 +247,85 @@ def article_edit(art_id):
 
             # ensure slug is unique, add - until it is
             while Article.query.filter_by(slug=slug).count() > 0:
+                slug += '-'
+
+            article.title = title
+            article.slug = slug
+            article.category_id = category_id
+            article.author_id = author_id
+            article.published = published
+            article.summary = summary
+            article.content = content
+            db.session.add(article)
+            db.session.commit()
+
+            flash("Article Saved")
+            return redirect(url_for('admin.articles'))
+    elif request.method == 'DELETE':
+        db.session.delete(category)
+        db.session.commit()
+
+        return jsonify({
+            '_csrf_token': app.jinja_env.globals['csrf_token'](),
+        })
+
+    categories = Category.query.all()
+    authors = User.query.all()
+    return render_template('admin/article_add.html',
+                           article=article,
+                           categories=categories,
+                           authors=authors,
+                           error_fields=error_fields)
+
+@bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
+@login_required
+def article_edit(art_id):
+    article = Article.query.get_or_404(art_id)
+    error_fields = []
+
+    if request.method == 'POST':
+        # Title
+        title = request.form.get('title', "").strip()
+        if len(title) <= 0:
+            error_fields.append('title')
+
+        # Slug
+        slug = request.form.get('slug', "").strip()
+        if slug != "" or slug != article.slug:
+            slug = slugify(slug)
+            if len(slug) <= 0 or slug == False:
+                error_fields.append('slug')
+        elif len(slug) <= 0 and len(title) > 0:
+            slug = slugify(title)
+
+        # author_id
+        author_id = request.form.get('author_id', "").strip()
+        if User.query.filter_by(id=author_id).count() != 1:
+            error_fields.append('author_id')
+
+        # Category_id
+        category_id = request.form.get('category_id', "").strip()
+        if Category.query.filter_by(id=category_id).count() != 1:
+            error_fields.append('category_id')
+
+        # datetime (should update to published time)
+        published = request.form.get('published', False)
+        if published != False:
+            published = True
+        if article.published == False and published != None:
+            pass
+            # update datetime
+
+        # summary
+        summary = request.form.get('summary', "")
+        content = request.form.get('content', "")
+
+        # markdown
+
+        if len(error_fields) <= 0:
+
+            # ensure slug is unique, add - until it is
+            while Article.query.filter_by(slug=slug).filter(Article.id != article.id).count() > 0:
                 slug += '-'
 
             article.title = title

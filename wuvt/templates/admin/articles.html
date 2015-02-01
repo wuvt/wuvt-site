@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% set page_title="Articles" %}
+{% block nav_admin_users %}<li class="active"><a href="{{ url_for('admin.articles') }}">Articles</a></li>{% endblock %}
+
+{% block content %}
+<h1>Articles</h1>
+
+<table class="table table-striped table-hover">
+    <tr><strong>
+        <td>Title</td>
+        <td>Author</td>
+        <td>Slug</td>
+        <td>Published</td>
+        <td>Time</td>
+        <td>Edit</td>
+    </strong>
+    </tr>
+    {% for article in articles %}
+    <tr>
+        <td>{{ article.title }}</td>
+        <td>{{ article.author.name }}</td>
+        <td>{{ article.slug }}</td>
+        <td>{{ article.published }}</td>
+        <td>{{ article.datetime }}</td>
+        <td>
+            <a href="{{ url_for('admin.article_edit', art_id=article.id) }}" class="btn btn-default btn-sm">Edit</a>
+
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="5">
+            <a href="{{ url_for('admin.article_add') }}" class="btn btn-primary">Create New Article</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+{% block js %}
+{{ super() }}
+{% endblock %}
