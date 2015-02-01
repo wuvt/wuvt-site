@@ -1,5 +1,6 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
     request, url_for, Response
+from sqlalchemy import desc
 from urlparse import urljoin
 from werkzeug.contrib.atom import AtomFeed
 
@@ -30,7 +31,7 @@ def category(slug, page=1):
     categories = Category.query.order_by(Category.name).all()
     articles = Article.query.filter(Article.category_id == category.id).\
         filter_by(published=True).\
-        order_by(db.asc(Article.id)).paginate(page,
+        order_by(desc(Article.datetime)).paginate(page,
                                               app.config['POSTS_PER_PAGE'])
     return render_template('category.html',
                            category=category,
@@ -49,7 +50,7 @@ def category_feed(slug):
                     url=request.url_root)
 
     articles = Article.query.filter(Article.category_id == category.id).\
-        filter_by(published=True).order_by(db.asc(Article.id)).all()
+        filter_by(published=True).order_by(desc(Article.datetime)).all()
     for article in articles:
         feed.add(article.title, unicode(article.content),
                  content_type='html',
@@ -83,7 +84,7 @@ def all_feed():
                     url=request.url_root)
 
     articles = Article.query.filter_by(published=True).\
-        order_by(db.asc(Article.id)).limit(15).all()
+        order_by(desc(Article.datetime)).limit(15).all()
     for article in articles:
         feed.add(article.title, unicode(article.content or article.summary),
                  content_type='html',

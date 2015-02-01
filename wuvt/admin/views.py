@@ -1,4 +1,5 @@
 import re
+import datetime
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response, session, g
 from flask.ext.login import login_required, login_user, logout_user, current_user
@@ -410,8 +411,7 @@ def article_edit(art_id):
         if published != False:
             published = True
         if article.published == False and published != None:
-            pass
-            # update datetime
+            article.datetime = datetime.datetime.now()
 
         # summary
         summary = request.form.get('summary', "").strip()

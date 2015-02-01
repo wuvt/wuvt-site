@@ -1,6 +1,8 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
     request, url_for, Response
 
+from sqlalchemy import desc
+
 from wuvt import app
 from wuvt import db
 from wuvt import login_manager
@@ -36,7 +38,7 @@ def inject_menus():
 @app.route('/index/<int:page>')
 def index(page=1):
     articles = Article.query.filter_by(published=True).\
-        order_by(db.asc(Article.id)).paginate(page,
+        order_by(desc(Article.datetime)).paginate(page,
                                               app.config['POSTS_PER_PAGE'])
     return render_template('index.html', articles=articles)
 
