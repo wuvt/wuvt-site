@@ -41,6 +41,7 @@ class Page(db.Model):
         self.content = content
         self.published = published
         self.menu = menu
+        self.html = markdown(content)
 
     def update_content(self, content):
         self.content = content

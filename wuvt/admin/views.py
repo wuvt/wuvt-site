@@ -7,10 +7,13 @@ from wuvt import app
 from wuvt import db
 from wuvt import slugify
 from wuvt import redirect_back
+from wuvt import config
 from wuvt.admin import bp
 
-from wuvt.models import User
+from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
+
+from markdown import markdown
 
 @bp.route('/')
 @login_required
@@ -196,6 +199,53 @@ def articles():
     return render_template('admin/articles.html',
                            articles=articles)
 
+@bp.route('/page/add', methods=['GET', 'POST'])
+@login_required
+def page_add():
+    error_fields = []
+
+    if request.method == 'POST':
+        # Title
+        title = request.form.get('title', "").strip()
+        if len(title) <= 0:
+            error_fields.append('title')
+
+        # Slug
+        slug = request.form.get('slug', "")
+        if slug != "":
+            slug = slugify(slug)
+            if len(slug) <= 0 or slug == False:
+                error_fields.append('slug')
+        elif len(slug) <= 0 and len(title) > 0:
+            slug = slugify(title)
+
+        # Menu
+        section = request.form['section'].strip()
+        
+        content = request.form.get('content', "").strip()
+
+        if len(error_fields) <= 0:
+            # ensure slug is unique, add - until it is
+            while Page.query.filter_by(slug=slug).count() > 0:
+                slug += '-'
+            
+            page = Page(title, slug, content, True, section)
+            
+            db.session.add(page)
+            db.session.commit()
+
+            flash("Page Saved")
+            return redirect(url_for('admin.pages'))
+   
+    sections = config.NAV_TOP_SECTIONS
+    print(sections)
+
+    return render_template('admin/page_add.html',
+                           sections=sections,
+                           error_fields=error_fields)
+
+
+
 @bp.route('/article/add', methods=['GET', 'POST'])
 @login_required
 def article_add():
@@ -247,15 +297,7 @@ def article_add():
             # ensure slug is unique, add - until it is
             while Article.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
-            """
-            article.title = title
-            article.slug = slug
-            article.category_id = category_id
-            article.author_id = author_id
-            article.published = published
-            article.summary = summary
-            article.content = content
-            """
+            
             db.session.add(article)
             article.render_html()   # markdown to html
             db.session.commit()
