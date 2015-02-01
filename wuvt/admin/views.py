@@ -333,14 +333,9 @@ def article_add():
             error_fields.append('category_id')
 
         # datetime (should update to published time)
-        published = request.form.get('published', "False").strip()
-        if published == "True":
+        published = request.form.get('published', False)
+        if published != False:
             published = True
-        else:
-            published = False
-        #if article.published == False and published != None:
-        #    pass
-            # update datetime
 
         # summary
         summary = request.form.get('summary', "").strip()
@@ -353,6 +348,8 @@ def article_add():
                 slug += '-'
             
             article = Article(title, slug, category_id, author_id, summary, content, published)
+            if article.published == True:
+                article.datetime = datetime.datetime.now()
             
             db.session.add(article)
             article.render_html()   # markdown to html
