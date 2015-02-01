@@ -199,6 +199,60 @@ def articles():
     return render_template('admin/articles.html',
                            articles=articles)
 
+
+
+@bp.route('/page/<int:page_id>', methods=['GET', 'POST'])
+@login_required
+def page_edit(page_id):
+    page = Page.query.get_or_404(page_id)
+    error_fields = []
+
+    if request.method == 'POST':
+        # Title
+        title = request.form.get('title', "").strip()
+        if len(title) <= 0:
+            error_fields.append('title')
+
+        # Slug
+        slug = request.form.get('slug', "")
+        if slug != "":
+            slug = slugify(slug)
+            if len(slug) <= 0 or slug == False:
+                error_fields.append('slug')
+        elif len(slug) <= 0 and len(title) > 0:
+            slug = slugify(title)
+
+        # Menu
+        section = request.form['section'].strip()
+        
+        content = request.form.get('content', "").strip()
+
+        if len(error_fields) <= 0:
+            
+            # ensure slug is unique, add - until it is iff we are changing it
+            if slug != page.slug:
+                while Page.query.filter_by(slug=slug).count() > 0:
+                    slug += '-'
+
+            page.slug = slug
+            page.title = title
+            page.menu = section
+            page.content = content
+            
+            page.update_content(content)    # render HTML
+            db.session.commit()
+
+            flash("Page Saved")
+            return redirect(url_for('admin.pages'))
+   
+    sections = config.NAV_TOP_SECTIONS
+    print(sections)
+
+    return render_template('admin/page_edit.html',
+                           sections=sections,
+                           page=page,
+                           error_fields=error_fields)
+
 @bp.route('/page/add', methods=['GET', 'POST'])
 @login_required
 def page_add():
@@ -293,10 +347,11 @@ def article_add():
 
 
         if len(error_fields) <= 0:
-            article = Article(title, slug, category_id, author_id, summary, content, published)
             # ensure slug is unique, add - until it is
             while Article.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
+            
+            article = Article(title, slug, category_id, author_id, summary, content, published)
             
             db.session.add(article)
             article.render_html()   # markdown to html
@@ -368,9 +423,10 @@ def article_edit(art_id):
 
         if len(error_fields) <= 0:
 
-            # ensure slug is unique, add - until it is
-            while Article.query.filter_by(slug=slug).filter(Article.id != article.id).count() > 0:
-                slug += '-'
+            # ensure slug is unique, add - until it is (if we're changing the slug)
+            if article.slug != slug:
+                while Article.query.filter_by(slug=slug).filter(Article.id != article.id).count() > 1:
+                    slug += '-'
 
             article.title = title
             article.slug = slug
