@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 {% set page_title="Create Page" %}
-{% block nav_admin_pages %}<li class="active"><a href="{{ url_for('admin.pages') }}">Articles</a></li>{% endblock %}
+{% block nav_admin_pages %}<li class="active"><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}
 
 {% block content %}
 <h1>Create Page</h1>
@@ -55,10 +55,10 @@
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
             <span class="glyphicon glyphicon-ok"></span>
-            Create Article
+            Create Page
         </button>
 
-        <a href="{{ url_for('admin.articles') }}" class="btn btn-default">
+        <a href="{{ url_for('admin.pages') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>
