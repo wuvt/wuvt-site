@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% set page_title="Pages" %}
+{% block nav_admin_pages %}<li class="active"><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}
+
+{% block content %}
+<h1>Pages</h1>
+
+<table class="table table-striped table-hover">
+    <tr><strong>
+        <th>Title</th>
+        <th>Menu</th>
+        <th>Slug</th>
+        <th>Published</th>
+        <th>Actions</th>
+    </strong>
+    </tr>
+    {% for page in pages %}
+    <tr>
+        <td>{{ page.name }}</td>
+        <td>{{ page.menu }}</td>
+        <td>{{ page.slug }}</td>
+        <td>{{ page.published }}</td>
+        <td>
+            <a href="{{ url_for('admin.page_edit', page_id=page.id) }}" class="btn btn-default btn-sm">Edit</a>
+
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="5">
+            <a href="{{ url_for('admin.page_add') }}" class="btn btn-primary">Create New Page</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+{% block js %}
+{{ super() }}
+{% endblock %}

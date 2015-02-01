@@ -460,7 +460,8 @@ def article_edit(art_id):
 @bp.route('/pages')
 @login_required
 def pages():
-    return render_template('admin/pages.html')
+    pages = Page.query.all()
+    return render_template('admin/pages.html', pages=pages)
 
 
 @bp.route('/users')
