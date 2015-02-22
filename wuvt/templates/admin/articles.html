@@ -16,15 +16,16 @@
     </strong>
     </tr>
     {% for article in articles %}
-    <tr>
+    <tr data-edit-url="{{ url_for('admin.article_edit', art_id=article.id) }}">
         <td>{{ article.title }}</td>
         <td>{{ article.author.name }}</td>
         <td>{{ article.slug }}</td>
         <td>{{ article.published }}</td>
         <td>{{ article.datetime }}</td>
-        <td>
+        <td class="row-options">
             <a href="{{ url_for('admin.article_edit', art_id=article.id) }}" class="btn btn-default btn-sm">Edit</a>
             <a href="{{ url_for('admin.article_draft', art_id=article.id) }}" class="btn btn-default btn-sm">Preview</a>
+            <button class="btn btn-danger btn-sm delete-button">Delete</button>
 
         </td>
     </tr>
@@ -38,4 +39,25 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
+<script>
+var csrf_token = "{{ csrf_token() }}";
+
+$('button.delete-button').bind('click', function(ev) {
+    if(!confirm("Are you sure you want to delete this article?")) {
+        return;
+    }
+
+    $.ajax({
+        'type': "DELETE",
+        'url': $(this).closest('tr').attr('data-edit-url'),
+        'headers': {'X-CSRFToken': csrf_token},
+    }).done(function(msg) {
+        csrf_token = msg['_csrf_token']
+        $(ev.currentTarget).closest('tr').fadeTo('fast', 0, function() {
+            $(this).remove();
+        });
+    });
+    return false;
+});
+</script>
 {% endblock %}

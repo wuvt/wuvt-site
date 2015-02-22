@@ -215,7 +215,7 @@ def article_draft(art_id):
                            categories=categories,
                            article=article)
 
-@bp.route('/page/<int:page_id>', methods=['GET', 'POST'])
+@bp.route('/page/<int:page_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
 def page_edit(page_id):
     page = Page.query.get_or_404(page_id)
@@ -259,6 +259,15 @@ def page_edit(page_id):
             flash("Page Saved")
             return redirect(url_for('admin.pages'))
    
+    elif request.method == 'DELETE':
+        db.session.delete(page)
+        db.session.commit()
+
+        return jsonify({
+            '_csrf_token': app.jinja_env.globals['csrf_token'](),
+        })
+
+
     sections = config.NAV_TOP_SECTIONS
     print(sections)
 
@@ -311,8 +320,6 @@ def page_add():
     return render_template('admin/page_add.html',
                            sections=sections,
                            error_fields=error_fields)
-
-
 
 @bp.route('/article/add', methods=['GET', 'POST'])
 @login_required
@@ -464,7 +471,7 @@ def article_edit(art_id):
             flash("Article Saved")
             return redirect(url_for('admin.articles'))
     elif request.method == 'DELETE':
-        db.session.delete(category)
+        db.session.delete(article)
         db.session.commit()
 
         return jsonify({
