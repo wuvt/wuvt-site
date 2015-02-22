@@ -1,6 +1,6 @@
 uwsgi:
-    procname-prefix-spaced: wuvt
-    socket: /srv/http/wuvt-site/run/wuvt.socket
+    procname-prefix-spaced: wuvt-site
+    socket: /run/uwsgi/wuvt-site.sock
     master: true
     processes: 60
     gevent: 100
@@ -9,4 +9,4 @@ uwsgi:
     callable: app
     chmod-socket: 600
     disable-logging: 1
-    touch-reload: /srv/http/wuvt-site/run/reload.txt
+    touch-reload: /srv/http/wuvt-site/reload.txt
