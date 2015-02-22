@@ -2,7 +2,7 @@ uwsgi:
     procname-prefix-spaced: wuvt-site
     socket: /run/uwsgi/wuvt-site.sock
     master: true
-    processes: 60
+    processes: 30
     gevent: 100
     chdir: /srv/http/wuvt-site
     module: wuvt
