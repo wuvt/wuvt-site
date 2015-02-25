@@ -20,7 +20,7 @@ body {
     width: 1024px;
     margin: 0 auto;
     padding: 0;
-    background-color: #cfeeff;
+    background-color: #cfeeff; 
     background-image: url('/static/img/moon.svg');
     background-size: 1200px 42px;
     background-position: bottom center;
@@ -411,7 +411,9 @@ article,
 section {
     padding: 20px;
     margin: 0px 0px 60px 0px;
-    background-color: #bcccd3;
+  /*  background-color: #bcccd3; */
+		/* background-color: rgba(209, 223, 229, 0.5); */
+		background-color: #DAE5EA;
 }
 
 article h2,
