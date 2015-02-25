@@ -295,6 +295,7 @@ header nav li {
 
 header nav li a {
     display: block;
+    max-width: 140px;
     padding: 4px 8px;
     background-color: #cccccc;
     font-weight: bold;
