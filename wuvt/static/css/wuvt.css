@@ -449,6 +449,7 @@ section img {
 
 article footer,
 section footer {
+    clear: both;
     font-style: italic;
     color: #ffffff;
 }
