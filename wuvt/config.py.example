@@ -18,7 +18,7 @@ NAV_TOP_SECTIONS = [
      'name': 'Shows'},
     {'menu': 'contact',
      'name': 'Contact'},
-
+]
 
 AUTOMATION_PASSWORD = ""
 ICECAST_ADMIN = "http://user:password@engine.wuvt.vt.edu:8000/admin/"
