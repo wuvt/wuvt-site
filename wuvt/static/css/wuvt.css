@@ -412,17 +412,41 @@ article,
 section {
     padding: 20px;
     margin: 0px 0px 60px 0px;
-  /*  background-color: #bcccd3; */
-		/* background-color: rgba(209, 223, 229, 0.5); */
-		background-color: #DAE5EA;
+  /*  background-color: #bcccd3;
+		background-color: rgba(209, 223, 229, 0.5);
+		background-color: #DAE5EA; */
+		background-color: rgba(255,255,255,0.72);
+		border-width: thick;
+		border-color: #BCCCD3;
+		border-style: solid;
 }
+
+article p,
+section p {
+/*		font-family: serif; */
+		margin-bottom: 1.176em;
+		line-height: 1.5;
+}
+
+
+article p a,
+section p a {
+		color: rgb(0, 113, 188);
+		font-weight: bold;
+		text-decoration: none;
+		border-bottom-style: dashed;
+		border-bottom-width: thin;
+}
+
 
 article h2,
 section h2 {
     margin: 0px;
     padding: 0px;
-    border-bottom: 2px solid #fff;
+    border-bottom: 2px solid rgba(188, 204, 211, 0.75);
     font-size: 1.8em;
+		font-family: 'Gotham SSm',Helvetica,Arial,sans-serif;
+		font-weight: 500;
 }
 
 article h3,
