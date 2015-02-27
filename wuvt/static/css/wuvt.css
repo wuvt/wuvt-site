@@ -280,6 +280,9 @@ header nav {
     /*padding: 0 0 0 260px;
     font-size: 0.9em;*/
     padding: 0 0 0 180px;
+
+    /* disable wrapping */
+    white-space: nowrap;
 }
 
 header nav a {
@@ -291,6 +294,9 @@ header nav li {
     display: block;
     margin: 0;
     padding: 0;
+
+    /* restore normal wrapping */
+    white-space: normal;
 }
 
 header nav li a {
