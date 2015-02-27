@@ -280,6 +280,9 @@ header nav {
     /*padding: 0 0 0 260px;
     font-size: 0.9em;*/
     padding: 0 0 0 180px;
+
+    /* disable wrapping */
+    white-space: nowrap;
 }
 
 header nav a {
@@ -291,6 +294,9 @@ header nav li {
     display: block;
     margin: 0;
     padding: 0;
+
+    /* restore normal wrapping */
+    white-space: normal;
 }
 
 header nav li a {
@@ -504,6 +510,7 @@ section.pagination a {
 }
 /* }}} */
 
+/* Track list table {{{ */
 table.tracklist {
     width: 100%;
     border: 1px solid #ffffff;
@@ -524,6 +531,22 @@ table.tracklist td {
 table.tracklist tr:nth-child(odd) {
     background: #c5d5dc;
 }
+/* }}} */
+
+/* Donate button {{{ */
+a.donate {
+    display: inline-block;
+    padding: 8px;
+    border: 0;
+    background-color: #ec1c23;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+a.donate:hover {
+    text-decoration: underline;
+}
+/* }}} */
 
 /* Date picker {{{ */
 .ui-datepicker {

@@ -67,8 +67,12 @@ function updateLast15(track) {
 }
 
 function makeAjaxLink(item) {
-    href = $(item).attr('href');
-    if(!href || href.charAt(0) == '#') {
+    var absoluteRegex = new RegExp("^([a-z]+://|//)");
+    var domainRegex = new RegExp(location.host);
+    var href = $(item).attr('href');
+
+    if(!href || href.charAt(0) == '#' ||
+       (absoluteRegex.test(href) && !domainRegex.test(href))) {
         return;
     }
 
@@ -86,7 +90,7 @@ function loadPage(path) {
         'url': path,
         'dataType': 'html',
     }).done(function(data) {
-        doc = $('<div>').append($.parseHTML(data));
+        var doc = $('<div>').append($.parseHTML(data));
         $('title').text(doc.find('title').text());
         $('#side_primary').html(doc.find('#side_primary > *'));
         $('#content').html(doc.find('#content > *'));
@@ -110,7 +114,7 @@ function loadPage(path) {
             });
         }
     }).fail(function(data) {
-        doc = $('<div>').append($.parseHTML(data.responseText));
+        var doc = $('<div>').append($.parseHTML(data.responseText));
         $('title').text(doc.find('title').text());
         $('#side_primary').html(doc.find('#side_primary > *'));
         $('#content').html(doc.find('#content > *'));
