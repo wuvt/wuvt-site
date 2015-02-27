@@ -67,9 +67,12 @@ function updateLast15(track) {
 }
 
 function makeAjaxLink(item) {
+    var absoluteRegex = new RegExp("^([a-z]+://|//)");
     var domainRegex = new RegExp(location.host);
     var href = $(item).attr('href');
-    if(!href || href.charAt(0) == '#' || !domainRegex.test(href)) {
+
+    if(!href || href.charAt(0) == '#' ||
+       (absoluteRegex.test(href) && !domainRegex.test(href))) {
         return;
     }
 
