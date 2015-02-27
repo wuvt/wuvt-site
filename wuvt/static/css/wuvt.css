@@ -436,7 +436,9 @@ section p {
 
 
 article p a,
-section p a {
+section p a,
+article li a,
+section li a {
 		color: rgb(0, 113, 188);
 		font-weight: bold;
 		text-decoration: none;
