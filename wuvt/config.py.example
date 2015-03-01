@@ -19,7 +19,8 @@ NAV_TOP_SECTIONS = [
     {'menu': 'contact',
      'name': 'Contact'},
     {'menu': 'hidden',
-     'name': 'Hidden'},
+     'name': 'Hidden',
+     'hidden': True},
 ]
 
 AUTOMATION_PASSWORD = ""

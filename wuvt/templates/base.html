@@ -54,12 +54,13 @@
         {% block nav_top %}
         <ul>
             {% for section in config['NAV_TOP_SECTIONS'] -%}
+            {% if 'hidden' not in section or section['hidden'] == False -%}
             <li>
                 {% if section['menu'] == 'playlists' -%}
                 <a href="{{ url_for('playlists_date') }}">{{ section['name'] }}</a>
                 {% elif 'slug' in section -%}
                 <a href="{{ url_for('page', slug=section['slug']) }}">{{ section['name'] }}</a>
-                {% elif section['menu'] != 'hidden' -%}
+                {% else -%}
                 <a href="{{ url_for('page', slug=section['menu']) }}">{{ section['name'] }}</a>
                 {% endif -%}
                 <ul>
@@ -71,6 +72,7 @@
                     <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
                     {% endfor -%}
                 </ul></li>
+            {% endif -%}
             {% endfor %}
         </ul>
         {% endblock %}
