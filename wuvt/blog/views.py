@@ -52,7 +52,7 @@ def category_feed(slug):
     articles = Article.query.filter(Article.category_id == category.id).\
         filter_by(published=True).order_by(desc(Article.datetime)).all()
     for article in articles:
-        feed.add(article.title, unicode(article.content),
+        feed.add(article.title, unicode(article.html_content),
                  content_type='html',
                  author=article.author.name,
                  url=make_external(url_for('article', slug=article.slug)),
@@ -86,7 +86,7 @@ def all_feed():
     articles = Article.query.filter_by(published=True).\
         order_by(desc(Article.datetime)).limit(15).all()
     for article in articles:
-        feed.add(article.title, unicode(article.content or article.summary),
+        feed.add(article.title, unicode(article.html_content or article.html_summary),
                  content_type='html',
                  author=article.author.name,
                  url=make_external(url_for('article', slug=article.slug)),
