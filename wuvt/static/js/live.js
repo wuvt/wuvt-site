@@ -69,9 +69,10 @@ function updateLast15(track) {
 function makeAjaxLink(item) {
     var absoluteRegex = new RegExp("^([a-z]+://|//)");
     var domainRegex = new RegExp(location.host);
+    var staticRegex = new RegExp("/static/");
     var href = $(item).attr('href');
 
-    if(!href || href.charAt(0) == '#' ||
+    if(!href || href.charAt(0) == '#' || staticRegex.test(href) ||
        (absoluteRegex.test(href) && !domainRegex.test(href))) {
         return;
     }
