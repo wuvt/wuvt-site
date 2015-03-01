@@ -57,7 +57,7 @@
             {% if 'hidden' not in section or section['hidden'] == False -%}
             <li>
                 {% if section['menu'] == 'playlists' -%}
-                <a href="{{ url_for('playlists_date') }}">{{ section['name'] }}</a>
+                <a href="{{ url_for('last15') }}">{{ section['name'] }}</a>
                 {% elif 'slug' in section -%}
                 <a href="{{ url_for('page', slug=section['slug']) }}">{{ section['name'] }}</a>
                 {% else -%}
