@@ -59,7 +59,7 @@
                 <a href="{{ url_for('playlists_date') }}">{{ section['name'] }}</a>
                 {% elif 'slug' in section -%}
                 <a href="{{ url_for('page', slug=section['slug']) }}">{{ section['name'] }}</a>
-                {% else -%}
+                {% elif section['menu'] != 'hidden' -%}
                 <a href="{{ url_for('page', slug=section['menu']) }}">{{ section['name'] }}</a>
                 {% endif -%}
                 <ul>
