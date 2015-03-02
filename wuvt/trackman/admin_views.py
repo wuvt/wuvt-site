@@ -1,5 +1,6 @@
 from flask import abort, flash, jsonify, render_template, \
         render_template_string, redirect, request, url_for, Response, session
+from sqlalchemy import func, desc
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -9,18 +10,26 @@ import json
 import redis
 import smtplib
 import netaddr
+import dateutil.parser
 
 from wuvt import app
 from wuvt import db
+from wuvt import csrf
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track
-from wuvt.trackman.models import DJ, DJSet, Track
+from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog
+from wuvt.trackman.view_utils import localonly
 
+
+#############################################################################
+### Login
+#############################################################################
 
 @bp.route('/', methods=['GET', 'POST'])
+@localonly
 def login():
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
+#    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
+#        abort(403)
 
     red = redis.StrictRedis()
 
@@ -41,6 +50,9 @@ def login():
             trackman_name=app.config['TRACKMAN_NAME'],
             automation=automation, djs=djs)
 
+#############################################################################
+### Automation Control
+#############################################################################
 
 @bp.route('/automation/start', methods=['POST'])
 def start_automation():
@@ -52,11 +64,13 @@ def start_automation():
 
     return redirect(url_for('trackman.login'))
 
+#############################################################################
+### DJ Control
+#############################################################################
 
 @bp.route('/log/<int:setid>', methods=['GET', 'POST'])
+@localonly
 def log(setid):
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
 
     djset = DJSet.query.get_or_404(setid)
     errors = {}
@@ -89,8 +103,7 @@ def log(setid):
     else:
         email_playlist = False
 
-    tracks = Track.query.filter(Track.djset_id == djset.id).\
-            order_by(Track.datetime).all()
+    tracks = djset.tracks.order_by(TrackLog.played).all()
 
     return render_template('trackman/log.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
@@ -230,3 +243,252 @@ def register():
 
     return render_template('trackman/register.html',
             trackman_name=app.config['TRACKMAN_NAME'], errors=errors)
+
+#############################################################################
+### Trackman API
+#############################################################################
+
+@bp.route('/api/djset/<int:djset_id>', methods=['GET'])
+@localonly
+def get_djset(djset_id):
+    djset = DJSet.query.get(djset_id)
+    if not djset:
+        return jsonify(success=False, error="djset_id not found")
+
+    if request.args.get('merged', False):
+        logs = [i.full_serialize() for i in djset.tracks]
+        logs.extend([i.serialize() for i in djset.airlog])
+        logs = sorted(logs, key=lambda log: log.get('played', False) if log.get('airtime', False) else log.get('airtime', False))
+        return jsonify(success=True, logs=logs)
+    return jsonify(success=True, tracklog=[i.serialize() for i in djset.tracks], airlog=[i.serialize() for i in djset.airlog])
+
+
+@bp.route('/api/airlog/edit/<int:airlog_id>', methods=['DELETE', 'POST'])
+@localonly
+@csrf.exempt
+def edit_airlog(airlog_id):
+    airlog = AirLog.query.get(airlog_id)
+    if not airlog:
+        return jsonify(success=False, error="airlog_id not found")
+
+    if request.method is 'DELETE':
+        db.session.delete(airlog)
+        db.session.commit()
+        return jsonify(success=True)
+
+    # Update aired time
+    airtime = request.form.get('airtime', None)
+    if airtime is not None:
+        tracklog.airtime = dateutil.parser.parse(airtime)
+    # Update integers
+    logtype = request.form.get('logtype', None)
+    if logtype is not None:
+        airlog.request = bool(logtype)
+    logid = request.form.get('logid', None)
+    if logid is not None:
+        airlog.request = bool(logid)
+
+    db.session.commit()
+
+    return jsonify(success=True)
+
+@bp.route('/api/airlog', methods=['POST'])
+@localonly
+@csrf.exempt
+def add_airlog():
+    djset_id = int(request.form['djset_id'])
+    logtype = int(request.form['logtype'])
+    logid = int(request.form['logid'])
+
+    airlog = Airlog(djset_id, logtype, logid=logid)
+    db.session.add(airlog)
+    db.session.commit()
+
+    return jsonify(success=True, airlog_id=airlog.id)
+
+
+@bp.route('/api/tracklog/edit/<int:tracklog_id>', methods=['POST', 'DELETE'])
+@localonly
+@csrf.exempt
+def edit_tracklog(tracklog_id):
+    tracklog = TrackLog.query.get(tracklog_id)
+    if not tracklog:
+        return jsonify(success=False, error="tracklog_id not found")
+
+    if request.method is 'DELETE':
+        db.session.delete(tracklog)
+        db.session.commit()
+        return jsonify(success=True)
+
+    # Update track
+    track_id = request.form.get('track_id', None)
+    if track_id is not None:
+        track = Track.query.get(track_id)
+        if not track:
+            return jsonify(success=False, error="Track specified by track_id does not exist")
+        tracklog.track_id = int(track_id)
+    # Update played time
+    played = request.form.get('played', None)
+    if played is not None:
+        tracklog.played = dateutil.parser.parse(played)
+    # Update boolean information
+    is_request = request.form.get('request', None)
+    if is_request is not None:
+        tracklog.request = bool(is_request)
+    vinyl = request.form.get('vinyl', None)
+    if vinyl is not None:
+        tracklog.request = bool(vinyl)
+    new = request.form.get('new', None)
+    if new is not None:
+        tracklog.request = bool(new)
+    # Update rotation
+    rotation_id = request.form.get('rotation_id', None)
+    if rotation_id is not None:
+        rotation = Rotation.query.get(rotation_id)
+        if not rotation:
+            return jsonify(success=False, error="Rotation specified by rotation_id does not exist")
+        tracklog.rotation_id = rotation_id
+
+    return jsonify(success=True)
+
+@bp.route('/api/tracklog', methods=['POST'])
+@localonly
+@csrf.exempt
+def play_tracklog():
+    track_id = int(request.form['track_id'])
+    djset_id = int(request.form['djset_id'])
+
+    is_request = bool(request.form.get('request', False))
+    vinyl = bool(request.form.get('vinyl', False))
+    new = bool(request.form.get('new', False))
+
+    rotation = request.form.get('rotation', None)
+    if rotation is not None:
+        rotation = int(rotation)
+
+    # check to be sure the track and DJSet exist
+    track = Track.query.get(track_id)
+    djset = DJSet.query.get(djset_id)
+    if not track or not djset:
+        return jsonify(success=False)
+
+    tracklog = TrackLog(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
+    db.session.add(tracklog)
+    db.session.commit()
+
+    return jsonify(success=True, tracklog_id=tracklog.id)
+
+@bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
+@localonly
+@csrf.exempt
+def edit_track(track_id):
+    track = Track.query.get(track_id)
+    if not track:
+        return jsonify(success=False, error="track_id not found")
+
+    if request.method is 'DELETE':
+        db.session.delete(track)
+        db.session.commit()
+        return jsonify(success=True)
+
+    artist = request.form.get('artist', None)
+    if artist is not None:
+        track.artist = artist
+    album = request.form.get('album', None)
+    if album is not None:
+        track.album = album
+    title = request.form.get('title', None)
+    if title is not None:
+        track.title = title
+    label = request.form.get('label', None)
+    if label is not None:
+        track.label = label
+
+    db.session.commit()
+    return jsonify(success=True)
+
+
+@bp.route('/api/track', methods=['POST'])
+@localonly
+@csrf.exempt
+def add_track():
+    # TODO: sanitation and verification
+    title = request.form['title']
+    album = request.form['album']
+    artist = request.form['artist']
+    label = request.form['label']
+
+    track = Track(title, artist, album, label)
+    db.session.add(track)
+    db.session.commit()
+    return jsonify(success=True, track_id=track.id)
+
+
+@bp.route('/api/search', methods=['GET'])
+@localonly
+def search_tracks():
+    # To verify some data was searched for
+    somesearch = False
+    Track.query
+    # A join to sort the things
+    tracks = db.session.query(Track, func.count(Track.plays)).outerjoin(TrackLog).group_by(Track).order_by(desc(func.count(Track.plays)))
+    # Do as fuzzy as possible of a search
+    artist = request.args.get('artist', '').strip()
+    if len(artist) > 0:
+        somesearch = True
+        tracks = tracks.filter(func.lower(Track.artist) == func.lower(artist))
+
+    title = request.args.get('title', '').strip()
+    if len(title) > 0:
+        somesearch = True
+        tracks = tracks.filter(func.lower(Track.title) == func.lower(title))
+
+    album = request.args.get('album', '').strip()
+    if len(album) > 0:
+        somesearch = True
+        tracks = tracks.filter(func.lower(Track.album) == func.lower(album))
+
+    label = request.args.get('label', '').strip()
+    if len(label) > 0:
+        somesearch = True
+        tracks = tracks.filter(func.lower(Track.label) == func.lower(label))
+
+    # This means there was a bad search, stop searching
+    if somesearch == False:
+        app.logger.info("An empty search was submitted to the API")
+        return jsonify(success=False, error="No search entires")
+
+    # Check if results
+
+    tracks = tracks.limit(8).all()
+    if len(tracks) == 0:
+        tracks = db.session.query(Track, func.count(Track.plays)).outerjoin(TrackLog).group_by(Track).order_by(desc(func.count(Track.plays)))
+        # if there are too few results, append some similar results
+        artist = request.args.get('artist', '').strip()
+        if len(artist) > 0:
+            somesearch = True
+            tracks = tracks.filter(Track.artist.ilike(''.join(['%', artist, '%'])))
+
+        title = request.args.get('title', '').strip()
+        if len(title) > 0:
+            somesearch = True
+            tracks = tracks.filter(Track.title.ilike(''.join(['%', title, '%'])))
+
+        album = request.args.get('album', '').strip()
+        if len(album) > 0:
+            somesearch = True
+            tracks = tracks.filter(Track.album.ilike(''.join(['%', album, '%'])))
+
+        label = request.args.get('label', '').strip()
+        if len(label) > 0:
+            somesearch = True
+            tracks = tracks.filter(Track.label.ilike(''.join(['%', label, '%'])))
+
+        tracks = tracks.limit(8).all()
+        if len(tracks) == 0:
+            return jsonify(results = [])
+
+    return jsonify(results = [i[0].serialize() for i in tracks], success = True)
+
+
+

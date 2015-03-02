@@ -14,19 +14,23 @@ from wuvt import app
 from wuvt import csrf
 from wuvt import db
 from wuvt.trackman.lib import log_track
-from wuvt.trackman.models import DJ, DJSet, Track
+from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
 def trackinfo():
-    track = Track.query.order_by(db.desc(Track.id)).first()
+    track = TrackLog.query.order_by(db.desc(TrackLog.played)).first()
     if not track:
         return None
 
-    data = track.serialize()
+    data = track.track.serialize()
+    data['dj'] = track.djset.dj.airname
     data['description'] = app.config['STATION_NAME']
     data['contact'] = app.config['STATION_URL']
     return data
 
+#############################################################################
+### Playlist Information
+#############################################################################
 
 @app.context_processor
 def inject_nowplaying():
@@ -119,6 +123,10 @@ def playlist(set_id):
     tracks = Track.query.filter(Track.djset_id == djset.id).all()
     return render_template('playlist.html', djset=djset, tracks=tracks)
 
+
+#############################################################################
+### Automation
+#############################################################################
 
 @app.route('/trackman/automation/submit', methods=['POST'])
 @csrf.exempt

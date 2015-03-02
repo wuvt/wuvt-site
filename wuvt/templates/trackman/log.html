@@ -4,7 +4,7 @@
 <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
 
 {% if tracks %}
-<table class='table table-condensed table-striped table-hover'>
+<table class='table table-condensed table-striped table-hover' id="playlist">
     <thead>
         <tr>
             <th>Time</th>
@@ -17,29 +17,12 @@
         </tr>
     </thead>
     <tbody>
-        {% for track in tracks %}
-        <tr id="track-{{ track.id }}">
-            <td>{{ track.datetime|datetime("%H:%M:%S") }}</td>
-            <td>{{ track.artist }}</td>
-            <td>{{ track.title }}</td>
-            <td>{{ track.album }}</td>
-            <td>{{ track.label }}</td>
-            <td>{% if track.request %}REQ{% endif %}</td>
-            <td>{% if track.vinyl %}VIN{% endif %}</td>
-            <td class="buttons">
-                <a href="{{ url_for('trackman.edit', setid=djset.id,
-                    trackid=track.id) }}" class="btn btn-default btn-sm">Edit</a>
-                <button class="btn btn-danger btn-sm delete-track"
-                    type="button">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
     </tbody>
 </table>
 {% endif %}
 
 <form action="{{ url_for('trackman.log', setid=djset.id) }}" method="post"
-    class="form-horizontal">
+    class="form-horizontal" id="search-form">
     <h2>Add to Playlist</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
@@ -47,33 +30,33 @@
     <div class="row trackman-entry">
         <div class="col-md-6 trackman-controls">
             <div class="form-group">
-                <label for="id_artist" class="col-sm-3 control-label">Artist</label>
+                <label for="artist" class="col-sm-3 control-label">Artist</label>
                 <div class="col-sm-9">
-                    <input type="text" name="artist" id="id_artist" value=""
+                    <input type="text" name="artist" id="artist" value=""
                         required="required" class="form-control" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="id_title" class="col-sm-3 control-label">Title</label>
+                <label for="title" class="col-sm-3 control-label">Title</label>
                 <div class="col-sm-9">
-                    <input type="text" name="title" id="id_title" value=""
+                    <input type="text" name="title" id="title" value=""
                         required="required" class="form-control" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="id_album" class="col-sm-3 control-label">Album</label>
+                <label for="album" class="col-sm-3 control-label">Album</label>
                 <div class="col-sm-9">
-                    <input type="text" name="album" id="id_album" value=""
+                    <input type="text" name="album" id="album" value=""
                         required="required" class="form-control" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="id_label" class="col-sm-3 control-label">Label</label>
+                <label for="label" class="col-sm-3 control-label">Label</label>
                 <div class="col-sm-9">
-                    <input type="text" name="label" id="id_label" value=""
+                    <input type="text" name="label" id="label" value=""
                         required="required" class="form-control" />
                 </div>
             </div>
@@ -140,14 +123,48 @@
         </button>
     </div>
 </form>
+<button class="btn btn-md btn-default" id="search-button">Search</button>
 <form action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="email_playlist" value="0" />
 </form>
+<h3>Queue</h3>
+<table class='table table-condensed table-striped table-hover' id='queue'>
+    <thead>
+        <tr>
+            <th>Artist</th>
+            <th>Title</th>
+            <th>Album</th>
+            <th>Label</th>
+            <th colspan="3">Request/Vinyl/New</th>
+            <th>Rotation</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<h3>Search Results</h3>
+<table class='table table-condensed table-striped table-hover' id="search">
+    <thead>
+        <tr>
+            <th>Artist</th>
+            <th>Title</th>
+            <th>Album</th>
+            <th>Label</th>
+            <th colspan="3">Request/Vinyl/New</th>
+            <th>Rotation</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 {% endblock %}
 {% block js %}
 {{ super() }}
+<script src="/static/js/trackman.js"></script>
 <script>
 var csrf_token = "{{ csrf_token() }}";
 
@@ -176,5 +193,6 @@ $(function() {
         }
     });
 });
+var djset_id = {{ djset.id}};
 </script>
 {% endblock %}

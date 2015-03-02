@@ -2,25 +2,25 @@
 
 from wuvt import db
 from wuvt.blog.models import Category
-from wuvt.trackman.models import DJ
+from wuvt.trackman.models import DJ, Track
 from wuvt.models import User
 
 db.drop_all()
 
 db.create_all()
 
-#dj = DJ("Automation", "Automation")
-#db.session.add(dj)
-#db.session.commit()
+dj = DJ("Automation", "Automation")
+db.session.add(dj)
+db.session.commit()
 
 
 
 
-#cats = [Category("News", "news"), Category("Sports", "sports"),
-#        Category("Weather", "weather"),
-#        Category("Woove", "woove")]
-#for cat in cats:
-#    db.session.add(cat)
+cats = [Category("News", "news"), Category("Sports", "sports"),
+        Category("Weather", "weather"),
+        Category("Woove", "woove")]
+for cat in cats:
+    db.session.add(cat)
 
 
 
@@ -28,5 +28,8 @@ db.create_all()
 user = User("admin", "admin", "admin@wuvt.vt.edu")
 user.set_password("test")
 db.session.add(user)
+db.session.add(Track('The Divine Conspiracy', 'Epica', 'The Divine Conspiracy', 'Avalon'))
+db.session.add(Track('Second Stone', 'Epica', 'The Quantum Enigma', 'Nuclear Blast'))
+db.session.add(Track('Eva', 'Nightwish', 'Dark Passion Play', 'Nuclear Blast'))
 
 db.session.commit()

@@ -24,3 +24,4 @@ metalsmyth>=0.1.5
 python-frontmatter>=0.1.6
 Markdown>=2.5.2
 bleach>=1.4.1
+python-dateutil==2.4.0
