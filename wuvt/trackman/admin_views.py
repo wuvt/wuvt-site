@@ -358,9 +358,9 @@ def play_tracklog():
     track_id = int(request.form['track_id'])
     djset_id = int(request.form['djset_id'])
 
-    is_request = bool(request.form.get('request', False))
-    vinyl = bool(request.form.get('vinyl', False))
-    new = bool(request.form.get('new', False))
+    is_request = request.form.get('request', 'false') != 'false'
+    vinyl = request.form.get('vinyl', 'false') != 'false'
+    new = request.form.get('new', 'false') != 'false'
 
     rotation = request.form.get('rotation', None)
     if rotation is not None:

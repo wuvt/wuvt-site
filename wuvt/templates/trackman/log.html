@@ -12,7 +12,8 @@
             <th>Title</th>
             <th>Album</th>
             <th>Label</th>
-            <th colspan="2">Request/Vinyl</th>
+            <th colspan="3">Request/Vinyl/New</th>
+            <th>Rotation</th>
             <th></th>
         </tr>
     </thead>
@@ -56,7 +57,7 @@
             <div class="form-group">
                 <label for="label" class="col-sm-3 control-label">Label</label>
                 <div class="col-sm-9">
-                    <input type="text" name="label" id="label" value=""
+                    <input type="text" name="label" id="rlabel" value=""
                         required="required" class="form-control" />
                 </div>
             </div>
@@ -65,15 +66,21 @@
                 <div class="col-sm-9 col-sm-offset-3">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="request" />
+                            <input type="checkbox" name="request"/>
                             Request
                         </label>
                     </div>
 
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="vinyl" />
+                            <input type="checkbox" name="vinyl"/>
                             Vinyl
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="new"/>
+                            New
                         </label>
                     </div>
                 </div>
@@ -110,20 +117,53 @@
             </div>
         </div>
     </div>
-
-    <div class="row form-actions">
-        <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-list"></span>
-            Add to Playlist
+</form>
+<div class="control-panel">
+    <div class="row lookup-controls">
+        <button id="new-queue" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus"></span>
+            Queue New Track
         </button>
-
+        <button id="new-log" class="btn btn-default">
+            <span class="glyphicon glyphicon-play"></span>
+            Log New Track
+        </button>
+        <button id="new-delay" class="btn btn-default">
+            <span class="glyphicon glyphicon-time"></span>
+            Log after 30 Seconds
+        </button>
+    
         <button type="button" class="btn btn-default" id="trackman_logout_btn">
             <span class="glyphicon glyphicon-eject"></span>
             Logout
         </button>
     </div>
-</form>
-<button class="btn btn-md btn-default" id="search-button">Search</button>
+    <div class="row psa-controls">
+        <button id="new-queue" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus"></span>
+            Station ID
+        </button>
+        <button id="new-queue" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus"></span>
+            Statement of Ownership
+        </button>
+        <button id="new-log" class="btn btn-default">
+            <span class="glyphicon glyphicon-play"></span>
+            PSA
+        </button>
+        <button id="new-delay" class="btn btn-default">
+            <span class="glyphicon glyphicon-time"></span>
+            Underwriting
+        </button>
+        <button id="new-delay" class="btn btn-default">
+            <span class="glyphicon glyphicon-time"></span>
+            Promo
+        </button>
+        <button id="new-delay" class="btn btn-default">
+            <span class="glyphicon glyphicon-time"></span>
+            Weather
+        </button>
+    </div>
 <form action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
