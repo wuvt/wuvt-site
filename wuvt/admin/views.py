@@ -23,7 +23,7 @@ def index():
 
 @bp.route('/upload')
 @login_required
-def index():
+def upload():
     return render_template('admin/upload.html')
 
 @bp.route('/categories')
