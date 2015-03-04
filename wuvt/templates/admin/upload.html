@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block nav_admin_index %}<li class="active"><a href="{{ url_for('admin.upload') }}">Upload</a></li>{% endblock %}
+
+{% block content %}
+<h1>File Upload</h1>
+<img src="{{ url_for('static', filename='img/robot.svg') }}" alt="" />
+
+<div id="fileupload">
+
+    <div id="html5">
+        <div class="clear"></div>
+
+        <form action="upload/html" method="POST" enctype="multipart/form-data">
+
+            <div id="file-uploader" style="min-width: 400px;">
+                    <br />
+                    <input type="file" name="file" id="file_upload" name="file_upload"><br/ ><br/ >
+                    <input id ="upload_btn" type="submit" value="Upload">
+                    <br /><br />
+            </div>
+            <div id="choices">
+                <div id="expiry">
+                    <label>Destination: 
+                    <select name="destination" id="destination" onchange="uploader.setParams({destination: $('#destination').val()})">
+                    </label>
+                        <option value="default">default</option>
+                    </select>
+                </div>
+
+            </div>
+
+        </form>
+
+        <div style="clear:both;"></div>
+
+    </div>
+</div>
+
+
+
+{% endblock %}

@@ -33,6 +33,7 @@
                     {% block nav_admin_articles %}<li><a href="{{ url_for('admin.articles') }}">Articles</a></li>{% endblock %}
                     {% block nav_admin_pages %}<li><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}
                     {% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
+                    {% block nav_admin_upload %}<li><a href="{{ url_for('admin.upload') }}">Upload</a></li>{% endblock %}
                     <li><a href="{{ url_for('admin.logout') }}">
                         <span class="glyphicon glyphicon-off"></span>
                         Logout</a></li>

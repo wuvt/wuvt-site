@@ -21,6 +21,10 @@ from markdown import markdown
 def index():
     return render_template('admin/index.html')
 
+@bp.route('/upload')
+@login_required
+def index():
+    return render_template('admin/upload.html')
 
 @bp.route('/categories')
 @login_required
