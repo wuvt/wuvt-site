@@ -16,6 +16,7 @@ from wuvt.blog.models import Category, Article
 
 from markdown import markdown
 from werkzeug import secure_filename
+import os
 
 @bp.route('/')
 @login_required
@@ -32,12 +33,17 @@ def upload():
         file = request.files['file']
         dir = request.form['destination'] 
 
+        if dir == 'default':
+            dir = ''
+
         if file:
             filename = secure_filename(file.filename)
-            newpath = os.path.join(config.UPLOAD_DIR, filename)
+            newpath = os.path.join(config.UPLOAD_DIR, dir, filename)
+            webroot_path = os.path.join('/static/media', dir, filename)
             file.save(newpath)
-            flash(newpath)
-        return redirect(url_for('admin.index'))
+            flash('Your file has been uploaded to: ' + webroot_path)
+
+        return render_template('admin/upload.html')
 
 @bp.route('/categories')
 @login_required
