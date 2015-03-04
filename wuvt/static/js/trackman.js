@@ -19,8 +19,10 @@ var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='new'>{8}</td>" +
 "<td class='rotation'>{9}</td>" +
 "<td>" +
-"<button class='btn btn-default btn-sm'><img src='/static/img/trackman/edit.png'></button>" +
-"<button class='btn btn-danger btn-sm'><img src='/static/img/trackman/trash.png'></button>" +
+"<div class='btn-group' role='group'>" +
+"<button class='btn btn-default btn-sm'><span class='glyphicon glyphicon-pencil'></span></button>" +
+"<button class='btn btn-danger btn-sm'><span class='glyphicon glyphicon-trash'></span></button>" +
+"</div>" +
 "</td>" +
 "</tr>"
 
@@ -39,12 +41,12 @@ var searchrow = "<tr class='search-row' id='s{0}'>" +
 "<td class='request'><input type='checkbox' name='request'></td>" + 
 "<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
 "<td class='new'><input type='checkbox' name='new'></td>" +
-"<td class='rotation'>Rotation</td>" +
-"<td>" +
-"<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><img src='/static/img/trackman/add.png'></button>" +
-"<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><img src='/static/img/trackman/play-arrow-16.png'></button>" +
-"<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><img src='/static/img/trackman/clock-16.png'></button>" +
-"</td>" +
+"<td class='rotation'><select class='rotation'></select></td>" +
+"<td><div class='btn-group'>" +
+"<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>" +
+"<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>" +
+"<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
+"</div></td>" +
 "</tr>"
 
 var queuerow = "<tr class='queue-row' id='q{0}'>" + 
@@ -55,42 +57,33 @@ var queuerow = "<tr class='queue-row' id='q{0}'>" +
 "<td class='request'><input type='checkbox' name='request'></td>" + 
 "<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
 "<td class='new'><input type='checkbox' name='new'></td>" +
-"<td class='rotation'>Rotation</td>" +
-"<td>" +
-"<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><img src='/static/img/trackman/play-arrow-16.png'></button>" +
-"<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><img src='/static/img/trackman/clock-16.png'></button>" +
-"<button class='btn btn-default btn-sm queue-delete' type='button' title='Remove from the queue.'><img src='/static/img/trackman/delete.png'></button>" +
-"</td>" +
+"<td class='rotation'><select class='rotation'></select></td>" +
+"<td><div class='btn-group'>" +
+"<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>" +
+"<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
+"<button class='btn btn-danger btn-sm queue-delete' type='button' title='Remove from the queue.'><span class='glyphicon glyphicon-remove'></span></button>" +
+"</div></td>" +
 "</tr>"
 
 // The data is the same origin indicates 0 if newly entered, 1 if from history
-search_results = [];
-queue = [];
-playlist = [];
+var search_results = [];
+var queue = [];
+var playlist = [];
 
 function log_search(element) {
     var elem = element;
     var id = element.prop("id").substring(1);
     var track = search_results[id];
-    $.ajax({
-        url: "/trackman/api/tracklog",
-        data: { "track_id": track['id'],
-                "djset_id": djset_id,
-                "vinyl":    track['vinyl'],
-                "request":  track['request'],
-                "new":      track['new'],
-        },
-        type: "POST",
-        success: function (data) {
-            if (data['success'] == false) {
-                alert(data['error']);
-            }
-            update_playlist();
-        },
-    });
+    function post_log(data) {
+        if (data['success'] == false) {
+            alert(data['error']);
+        }
+        update_playlist();
+    };
+    log_track(track, post_log);
 }
 
-function log_track(track, id) {
+function log_track(track, callback) {
     $.ajax({
         url: "/trackman/api/tracklog",
         data: { "track_id": track['id'],
@@ -98,18 +91,10 @@ function log_track(track, id) {
                 "vinyl":    track['vinyl'],
                 "request":  track['request'],
                 "new":      track['new'],
+                "rotation": track['rotation']
         },
         type: "POST",
-        success: function (data) {
-            if (data['success'] == false) {
-                alert(data['error']);
-            };
-            if (typeof id != "undefined") {
-                queue.splice(id, 1);
-                update_queue();
-            };
-            update_playlist();
-        },
+        success: callback,
     });
 }
 
@@ -117,18 +102,26 @@ function log_track(track, id) {
 function log_queue(element) {
     var elem = element;
     var id = element.prop("id").substring(1);
-    var track = queue[id];
+    var track = queue[id]
+    function post_log(data) {
+        if (data['success'] == false) {
+            alert(data['error']);
+        };
+        queue.splice(id, 1);
+        update_queue();
+        update_playlist();
+    };
 
     // Delete it from the queue if it's there
     if (track['origin'] == 1) {
-        log_track(track, id);
+        log_track(track, post_log);
     }
     else if (track['origin'] == 0) {
-        create_track(track, id);
+        create_track(track, post_log);
     }
 }
 
-function create_track(track, id) {
+function create_track(track, callback) {
     $.ajax({
         url: "/trackman/api/track",
         data: { "artist": track['artist'],
@@ -142,7 +135,7 @@ function create_track(track, id) {
                 alert(data['error']);
             }
             track['id'] = data['track_id'];
-            log_track(track, id);
+            log_track(track, callback);
         },
     });
 }
@@ -175,8 +168,14 @@ function queue_new_track() {
 function log_new_track() {
     var track = get_form_data();
     track['origin'] = 0;
-    create_track(track);
-    clear_form();
+    function post_log(data) {
+        if (data['success'] == false) {
+            alert(data['error']);
+        }
+        clear_form();
+        update_playlist();
+    }
+    create_track(track, post_log);
 }
 function clear_form() {
     $(".trackman-entry input").val("");
@@ -205,6 +204,7 @@ function update_queue() {
         row.find(".request input").prop("checked", result['request']);
         row.find(".vinyl input").prop("checked", result['vinyl']);
         row.find(".new input").prop("checked", result['new']);
+        render_rotation(row.find("select.rotation"), result['rotation']);
     }
     queue_listeners();
 }
@@ -237,8 +237,19 @@ function update_history() {
         row.find(".request input").prop("checked", result['request']);
         row.find(".vinyl input").prop("checked", result['vinyl']);
         row.find(".new input").prop("checked", result['new']);
+        render_rotation(row.find("select.rotation"), result['rotation']);
+
     }
     search_listeners();
+}
+
+// Generates the select content, if an id is provided it chooses the option
+function render_rotation(selement, id) {
+    console.log(selement);
+    $(selement).append(rotationoptions);
+    if (typeof id != "undefined") {
+        $(selement).val(id);
+    }
 }
 
 function update_playlist() {
@@ -266,20 +277,36 @@ function render_playlist() {
         if ('logid' in p) {
         }
         else {
+            // Generate a date string
             var played = new Date(p['played']);
+            console.log(played);
             played = "{0}:{1}:{2}".format(played.getHours(), played.getMinutes(), played.getSeconds());
-            var row = playlistrow.format(p['id'], played, p['track']['artist'], p['track']['title'], p['track']['album'], p['track']['label'], p['request'], p['vinyl'], p['new'], p['rotation']['rotation']);
+            // Generate the rotation string
+            var rotation = rotations[p['rotation_id']];
+            if (typeof rotation == "undefined") {
+                rotation = rotations[1];
+            }
+            var row = playlistrow.format(p['tracklog_id'], played,
+                    p['track']['artist'], p['track']['title'],
+                    p['track']['album'], p['track']['label'], p['request'],
+                    p['vinyl'], p['new'], rotation);
             $("table#playlist tbody").append(row);
         }
     }
+    //$("table#playlist").
 }
 
 function update_search_results(event) {
     search_results[$(event.target).parents(".search-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
 }
-
+function update_search_rotation(event) {
+    search_results[$(event.target).parents(".search-row").prop("id").substring(1)]['rotation'] = $(event.target).val();
+}
 function update_queue_data(event) {
     queue[$(event.target).parents(".queue-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
+}
+function update_queue_rotation(event) {
+    queue[$(event.target).parents(".queue-row").prop("id").substring(1)]['rotation'] = $(event.target).val();
 }
 
 // Event listener code
@@ -291,10 +318,12 @@ function search_listeners() {
         log_search($(event.target).parents(".search-row"));
     })
     $("table#search input[type=checkbox]").change(update_search_results);
+    $("table#search select.rotation").change(update_search_rotation);
 }
 
 function queue_listeners() {
     $("table#queue input[type=checkbox]").change(update_queue_data);
+    $("table#queue select.rotation").change(update_queue_rotation);
     $("button.queue-log").click(function (event) { 
         log_queue($(event.target).parents(".queue-row"));
     });
@@ -317,7 +346,7 @@ function search_form() {
 // Test code to be removed
 $( document ).ready(function() {
     var thread = null;
-    $("form#search-form input").keyup(function () {
+    $(".trackman-entry input").keyup(function () {
         clearTimeout(thread);
         var target = $(this);
         thread = setTimeout(function() {search_form();}, 350);

@@ -11,7 +11,7 @@ class DJ(db.Model):
     phone = db.Column(db.Unicode(10))
     email = db.Column(db.Unicode(255))
     genres = db.Column(db.Unicode(255))
-    time_added = db.Column(db.DateTime, default=datetime.datetime.now)
+    time_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     visible = db.Column(db.Boolean, default=True)
 
     def __init__(self, airname, name, visible=True):
@@ -26,7 +26,7 @@ class DJSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('sets', lazy='dynamic'))
-    dtstart = db.Column(db.DateTime, default=datetime.datetime.now)
+    dtstart = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     dtend = db.Column(db.DateTime)
 
     def __init__(self, dj_id):
@@ -40,6 +40,13 @@ class Rotation(db.Model):
     def __init__(self, rotation):
         self.rotation = rotation
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'rotation': self.rotation,
+        }
+
+
 class AirLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # 0 - Station ID
@@ -51,7 +58,7 @@ class AirLog(db.Model):
     logtype = db.Column(db.Integer)
     # This is to be filled with the PSA/Promo ID
     logid = db.Column(db.Integer, nullable=True)
-    airtime = db.Column(db.DateTime, default=datetime.datetime.now)
+    airtime = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     djset_id = db.Column(db.Integer, db.ForeignKey('set.id'))
     djset = db.relationship('DJSet', backref=db.backref('airlog', lazy='dynamic'))
 
@@ -63,7 +70,7 @@ class AirLog(db.Model):
     def serialize(self):
         return {
             'airlog_id': self.id,
-            'airtime': str(self.airtime),
+            'airtime': self.airtime,
             'djset': self.djset_id,
             'logtype': self.logtype,
             'logid': self.logid,
@@ -77,7 +84,7 @@ class TrackLog(db.Model):
     track_id = db.Column(db.Integer, db.ForeignKey('track.id'))
     track = db.relationship('Track', backref=db.backref('plays', lazy='dynamic'))
     # When the track was entered (does not count edits)
-    played = db.Column(db.DateTime, default=datetime.datetime.now)
+    played = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     # Relationship with the playlist
     djset_id = db.Column(db.Integer, db.ForeignKey('set.id'))
     djset = db.relationship('DJSet', backref=db.backref('tracks', lazy='dynamic'))
@@ -106,7 +113,7 @@ class TrackLog(db.Model):
         return {
             'tracklog_id': self.id,
             'track_id': self.track_id,
-            'played': str(self.played),
+            'played': self.played,
             'djset': self.djset_id,
             'dj_id': self.dj_id,
             'request': self.request,
@@ -119,13 +126,13 @@ class TrackLog(db.Model):
             'tracklog_id': self.id,
             'track_id': self.track_id,
             'track': Track.query.get(self.track_id).serialize(),
-            'played': str(self.played),
+            'played': self.played,
             'djset': self.djset_id,
             'dj_id': self.dj_id,
             'request': self.request,
             'vinyl': self.vinyl,
             'new': self.new,
-            'rotation': "" if self.rotation_id is None else Rotation.query.get(self.rotation_id).serialize(),
+            'rotation_id': self.rotation_id,
             'listeners': self.listeners,
         }
 
@@ -139,7 +146,7 @@ class Track(db.Model):
     artist = db.Column(db.Unicode(255))
     album = db.Column(db.Unicode(255))
     label = db.Column(db.Unicode(255))
-    added = db.Column(db.DateTime, default=datetime.datetime.now)
+    added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def __init__(self, title, artist, album, label):
         self.title = title

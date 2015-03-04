@@ -2,7 +2,7 @@
 
 from wuvt import db
 from wuvt.blog.models import Category
-from wuvt.trackman.models import DJ, Track
+from wuvt.trackman.models import DJ, Track, Rotation
 from wuvt.models import User
 
 db.drop_all()
@@ -28,8 +28,11 @@ for cat in cats:
 user = User("admin", "admin", "admin@wuvt.vt.edu")
 user.set_password("test")
 db.session.add(user)
+# The first Rotation must be the default
+db.session.add(Rotation("None"));
+# Test data
 db.session.add(Track('The Divine Conspiracy', 'Epica', 'The Divine Conspiracy', 'Avalon'))
 db.session.add(Track('Second Stone', 'Epica', 'The Quantum Enigma', 'Nuclear Blast'))
-db.session.add(Track('Eva', 'Nightwish', 'Dark Passion Play', 'Nuclear Blast'))
+map(db.session.add, map(Rotation, ["Metal", "New Music", "Jazz", "Rock", "Americana"]))
 
 db.session.commit()

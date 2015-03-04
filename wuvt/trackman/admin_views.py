@@ -17,7 +17,7 @@ from wuvt import db
 from wuvt import csrf
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track
-from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog
+from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation
 from wuvt.trackman.view_utils import localonly
 
 
@@ -105,9 +105,13 @@ def log(setid):
 
     tracks = djset.tracks.order_by(TrackLog.played).all()
 
+    # TODO rotation listing
+    rotations = {}
+    for i in Rotation.query.order_by(Rotation.id).all():
+        rotations[i.id] = i.rotation
     return render_template('trackman/log.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
-            tracks=tracks, email_playlist=email_playlist, errors=errors)
+            rotations=rotations, email_playlist=email_playlist)
 
 
 @bp.route('/log/<int:setid>/<int:trackid>',
@@ -258,7 +262,7 @@ def get_djset(djset_id):
     if request.args.get('merged', False):
         logs = [i.full_serialize() for i in djset.tracks]
         logs.extend([i.serialize() for i in djset.airlog])
-        logs = sorted(logs, key=lambda log: log.get('played', False) if log.get('airtime', False) else log.get('airtime', False))
+        logs = sorted(logs, key=lambda log: log.get('airtime', False) if log.get('airtime', False) else log.get('played', False), reverse=True)
         return jsonify(success=True, logs=logs)
     return jsonify(success=True, tracklog=[i.serialize() for i in djset.tracks], airlog=[i.serialize() for i in djset.airlog])
 
@@ -364,13 +368,13 @@ def play_tracklog():
 
     rotation = request.form.get('rotation', None)
     if rotation is not None:
-        rotation = int(rotation)
+        rotation = Rotation.query.get(int(rotation))
 
     # check to be sure the track and DJSet exist
     track = Track.query.get(track_id)
     djset = DJSet.query.get(djset_id)
     if not track or not djset:
-        return jsonify(success=False)
+        return jsonify(success=False, error="Track or DJSet do not exist")
 
     tracklog = TrackLog(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
     db.session.add(tracklog)
