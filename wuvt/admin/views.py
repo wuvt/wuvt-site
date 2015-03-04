@@ -14,7 +14,7 @@ from wuvt.admin import bp
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
 
-from markdown import markdownA
+from markdown import markdown
 from werkzeug import secure_filename
 
 @bp.route('/')
