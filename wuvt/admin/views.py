@@ -30,7 +30,7 @@ def upload():
         return render_template('admin/upload.html')
     else:
         file = request.files['file']
-        dir = request.files['destination'] 
+        dir = request.form['destination'] 
 
         if file:
             filename = secure_filename(file.filename)
