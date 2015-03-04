@@ -14,17 +14,30 @@ from wuvt.admin import bp
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
 
-from markdown import markdown
+from markdown import markdownA
+from werkzeug import secure_filename
 
 @bp.route('/')
 @login_required
 def index():
     return render_template('admin/index.html')
 
-@bp.route('/upload')
+@bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-    return render_template('admin/upload.html')
+
+    if request.method == 'GET':
+        return render_template('admin/upload.html')
+    else:
+        file = request.files['file']
+        dir = request.files['destination'] 
+
+        if file:
+            filename = secure_filename(file.filename)
+            newpath = os.path.join(config.UPLOAD_DIR, filename)
+            file.save(newpath)
+            flash(newpath)
+        return redirect(url_for('admin.index'))
 
 @bp.route('/categories')
 @login_required

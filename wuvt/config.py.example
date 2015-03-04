@@ -42,3 +42,5 @@ LASTFM_APIKEY = ""
 LASTFM_SECRET = ""
 LASTFM_USERNAME = "wuvtfm"
 LASTFM_PASSWORD = ""
+
+UPLOAD_DIR = "/srv/http/media"
