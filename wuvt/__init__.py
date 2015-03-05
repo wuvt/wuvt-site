@@ -1,3 +1,4 @@
+from dateutil import tz
 from wuvt import config
 from wuvt import session
 from flask import Flask, Request, redirect, request, url_for
@@ -25,8 +26,11 @@ def slugify(text, delim=u'-'):
         result.extend(unidecode.unidecode(word).split())
     return unicode(delim.join(result))
 
+def localize_datetime(fromtime):
+    return value.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
 
 def format_datetime(value, format=None):
+    value = localize_datetime(value)
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
 
 
