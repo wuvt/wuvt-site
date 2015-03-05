@@ -532,7 +532,7 @@ table.tracklist th,
 table.tracklist td {
     padding: 4px;
 }
-table.tracklist td img {
+table.tracklist td span {
     margin: 0 auto 0 20%;
 }
 

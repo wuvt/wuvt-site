@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }} - {{ djset.dj.airname }} - Playlist Archive - {{ super() }}{% endblock %}
-
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/glyphiconstrap.css') }}" />
+{% endblock %}
 {% block content %}
 <section>
 <hgroup>
@@ -22,12 +24,12 @@
         {% for track in tracklogs %}
         <tr>
             <td>{{ track.played|datetime("%H:%M:%S") }}</td>
-            <td>{% if track.new %}NEW{% endif %}</td>
+            <td>{% if track.new %}<span style="color: red;" class="glyphicon glyphicon-fire"></span>{% endif %}</td>
             <td>{{ track.track.artist }}</td>
             <td>{{ track.track.title }}</td>
             <td>{{ track.track.album }}</td>
-            <td>{% if track.request %}<img class="table-img" src='/static/img/trackman/check.png'/>{% endif %}</td>
-            <td>{% if track.vinyl %}<img class="table-img" src='/static/img/trackman/check.png'/>{% endif %}</td>
+            <td>{% if track.request %}<span class="glyphicon glyphicon-earphone"></span>{% endif %}</td>
+            <td>{% if track.vinyl %}<span class="glyphicon glyphicon-cd"></span>{% endif %}</td>
         </tr>
         {% endfor %}
     </tbody>
