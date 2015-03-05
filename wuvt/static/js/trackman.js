@@ -8,7 +8,11 @@ String.prototype.format = function() {
     return s;
 };
 
+var timerlength = 30;
+
 var clockspan = "<span class='glyphicon glyphicon-time'></span>";
+var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
+var playlistfalse = "<span class='glyphicon glyphicon-remove red'></span>";
 
 var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='airtime'>{1}</td>" +
@@ -71,9 +75,12 @@ var queuerow = "<tr class='queue-row' id='q{0}'>" +
 var search_results = [];
 var queue = [];
 var playlist = [];
+var delayinterval;
+var delaybutton;
 
 function log_search(element) {
     var elem = element;
+    console.log(element);
     var id = element.prop("id").substring(1);
     var track = search_results[id];
     function post_log(data) {
@@ -225,6 +232,7 @@ function get_form_data () {
 
 }
 function update_queue() {
+    clear_timer("queue");
     $("table#queue tbody tr").remove()
     for (var i = 0; i < queue.length; i++) {
         var result = queue[i];
@@ -256,6 +264,7 @@ function process_history(data, status, jqXHR) {
     update_history();
 }
 function update_history() {
+    clear_timer("search");
     // Remove old history results
     $("table#search tbody tr").remove();
     // Add new results
@@ -274,7 +283,6 @@ function update_history() {
 
 // Generates the select content, if an id is provided it chooses the option
 function render_rotation(selement, id) {
-    console.log(selement);
     $(selement).append(rotationoptions);
     if (typeof id != "undefined") {
         $(selement).val(id);
@@ -299,6 +307,7 @@ function update_playlist() {
 }
 
 function render_playlist() {
+    // Empty the old playlist
     $("table#playlist tbody tr").remove();
     for (var i = 0; i < playlist.length; i++) {
         var p = playlist[i];
@@ -308,21 +317,22 @@ function render_playlist() {
         else {
             // Generate a date string
             var played = new Date(p['played']);
-            console.log(played);
             played = "{0}:{1}:{2}".format(played.getHours(), played.getMinutes(), played.getSeconds());
             // Generate the rotation string
             var rotation = rotations[p['rotation_id']];
             if (typeof rotation == "undefined") {
                 rotation = rotations[1];
             }
+            var request = p['request'] ? playlisttrue : playlistfalse;
+            var vinyl = p['vinyl'] ? playlisttrue : playlistfalse;
+            var new_track = p['new'] ? playlisttrue : playlistfalse;
             var row = playlistrow.format(p['tracklog_id'], played,
                     p['track']['artist'], p['track']['title'],
-                    p['track']['album'], p['track']['label'], p['request'],
-                    p['vinyl'], p['new'], rotation);
+                    p['track']['album'], p['track']['label'], request, vinyl,
+                    new_track, rotation);
             $("table#playlist tbody").append(row);
         }
     }
-    //$("table#playlist").
 }
 
 function update_search_results(event) {
@@ -348,11 +358,13 @@ function search_listeners() {
     })
     $("table#search input[type=checkbox]").change(update_search_results);
     $("table#search select.rotation").change(update_search_rotation);
+    $("table#search button.search-delay").click(log_timer);
 }
 
 function queue_listeners() {
     $("table#queue input[type=checkbox]").change(update_queue_data);
     $("table#queue select.rotation").change(update_queue_rotation);
+    $("table#queue button.queue-delay").click(log_timer);
     $("button.queue-log").click(function (event) { 
         log_queue($(event.target).parents(".queue-row"));
     });
@@ -361,14 +373,69 @@ function queue_listeners() {
     });
 }
 
+function ret_undefined() {
+    return;
+}
+
+
+function clear_timer(tableclass) {
+    if (typeof tableclass != "undefined") {
+        if (typeof delaybutton != "undefined") {
+            if (delaybutton.parents("table").prop("id") == tableclass) {
+                delaybutton.html(clockspan);
+                // This is a massive hax but really the best way
+                clearInterval(delayinterval);
+            }
+        }
+    }
+    else {
+        if (typeof delayinterval != "undefined") {
+            clearInterval(delayinterval);
+        }
+        if (typeof delaybutton != "undefined") {
+            delaybutton.html(clockspan);
+        }
+    }
+    delaybutton = ret_undefined();
+    delayinterval = ret_undefined();
+}
+
 function log_timer(event) {
-    var span = $(event.target)
+    clear_timer();
+    // Sometimes it triggers on the span itself
+    if ($(event.target).prop("tagName") == "SPAN") {
+        delaybutton = $(event.target).parent();
+    }
+    else {
+        delaybutton = $(event.target);
+    }
+    delaybutton.find("span").remove();
+    delaybutton.html(timerlength);
+    var seconds = timerlength;
+    delayinterval = setInterval(function () {
+        seconds--;
+        if (seconds == 0) {
+            var button = delaybutton;
+            clear_timer();
+            if (button.parents("table").prop("id") == "queue") {
+                log_queue(button.parents("tr.queue-row"));
+            }
+            else {
+                log_search(button.parents("tr.search-row"));
+            }
+            return 0;
+        }
+        delaybutton.html(seconds);
+    }, 1000);
+}
+
+function increment_timer(button) {
 }
 
 function search_form() {
     $(".trackman-entry input.form-control").each(
             function(index) {
-                if ($(this).val().length >= 3) {
+                if ($(this).val().length >= 2) {
                     search_history();
                     return false;
                 }

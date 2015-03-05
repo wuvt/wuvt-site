@@ -27,6 +27,12 @@ td.row-options {
 .blue {
     color: blue;
 }
+.green {
+    color: green;
+}
+.red {
+    color: red;
+}
 .row-table {
     height: 240px;
     overflow-y: auto;
