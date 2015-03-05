@@ -12,7 +12,7 @@ var timerlength = 30;
 
 var clockspan = "<span class='glyphicon glyphicon-time'></span>";
 var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
-var playlistfalse = "<span class='glyphicon glyphicon-remove red'></span>";
+var playlistfalse = "";
 
 var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='airtime'>{1}</td>" +
