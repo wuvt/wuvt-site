@@ -317,7 +317,10 @@ function render_playlist() {
         else {
             // Generate a date string
             var played = new Date(p['played']);
-            played = "{0}:{1}:{2}".format(played.getHours(), played.getMinutes(), played.getSeconds());
+            function pad(value) {
+                return ("00" + value).slice(-2);
+            }
+            played = "{0}:{1}:{2}".format(pad(played.getHours()), pad(played.getMinutes()), pad(played.getSeconds()));
             // Generate the rotation string
             var rotation = rotations[p['rotation_id']];
             if (typeof rotation == "undefined") {
