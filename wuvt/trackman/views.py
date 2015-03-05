@@ -20,7 +20,8 @@ from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 def trackinfo():
     track = TrackLog.query.order_by(db.desc(TrackLog.played)).first()
     if not track:
-        return None
+        return {'artist': "", 'title': "", 'album': "", 'label': "", 'dj': "",
+                'description': app.config['STATION_NAME'], 'contact': app.config['STATION_URL']}
 
     data = track.track.serialize()
     data['dj'] = track.djset.dj.airname
