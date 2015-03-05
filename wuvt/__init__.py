@@ -27,7 +27,7 @@ def slugify(text, delim=u'-'):
     return unicode(delim.join(result))
 
 def localize_datetime(fromtime):
-    return value.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
+    return fromtime.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
 
 def format_datetime(value, format=None):
     value = localize_datetime(value)
