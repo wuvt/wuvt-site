@@ -116,10 +116,8 @@ def log(setid):
 
 @bp.route('/log/<int:setid>/<int:trackid>',
         methods=['DELETE', 'GET', 'POST'])
+@localonly
 def edit(setid, trackid):
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
-
     djset = DJSet.query.get_or_404(setid)
     track = Track.query.get_or_404(trackid)
     if track.djset_id != djset.id:
@@ -165,10 +163,8 @@ def edit(setid, trackid):
 
 
 @bp.route('/log/<int:setid>/end', methods=['POST'])
+@localonly
 def logout(setid):
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
-
     djset = DJSet.query.get_or_404(setid)
     djset.dtend = datetime.datetime.now()
     db.session.commit()
@@ -207,10 +203,8 @@ def logout(setid):
 
 
 @bp.route('/register', methods=['GET', 'POST'])
+@localonly
 def register():
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
-
     errors = {}
 
     if request.method == 'POST':
@@ -319,9 +313,8 @@ def edit_tracklog(tracklog_id):
     if not tracklog:
         return jsonify(success=False, error="tracklog_id not found")
 
-    print("editing!")
     if request.method == 'DELETE':
-        print("deleting!")
+        # TODO: Check if the currently playing track changed
         db.session.delete(tracklog)
         db.session.commit()
         return jsonify(success=True)
@@ -380,9 +373,7 @@ def play_tracklog():
     if not track or not djset:
         return jsonify(success=False, error="Track or DJSet do not exist")
 
-    tracklog = TrackLog(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
-    db.session.add(tracklog)
-    db.session.commit()
+    tracklog = log_track(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
 
     return jsonify(success=True, tracklog_id=tracklog.id)
 
