@@ -3,11 +3,14 @@ import lxml.etree
 import requests
 import urllib
 import urlparse
+from dateutil import tz
+from flask.json import JSONEncoder
 
 from wuvt import app
 from wuvt import db
 from wuvt import sse
-from wuvt.trackman.models import Track
+from wuvt import localize_datetime
+from wuvt.trackman.models import TrackLog
 
 
 def stream_listeners(url):
@@ -19,14 +22,16 @@ def stream_listeners(url):
     return int(listeners)
 
 
-def log_track(dj_id, djset_id, title, artist, album, label, request=False,
-              vinyl=False):
-    track = Track(dj_id=dj_id, djset_id=djset_id, title=title, artist=artist,
-                  album=album, label=label, request=request, vinyl=vinyl,
+def log_track(track_id, djset_id, request=False, vinyl=False, new=False, rotation=None):
+    track = TrackLog(track_id, djset_id, request=request, vinyl=vinyl, new=new, rotation=rotation,
                   listeners=stream_listeners(app.config['ICECAST_ADMIN']))
     db.session.add(track)
     db.session.commit()
 
+    artist = track.track.artist
+    title = track.track.title
+    album = track.track.album
+    played = localize_datetime(track.played)
     # update stream metadata
     for mount in app.config['ICECAST_MOUNTS']:
         song = '{artist} - {title}'.format(artist=artist, title=title)
@@ -44,8 +49,8 @@ def log_track(dj_id, djset_id, title, artist, album, label, request=False,
                 partner_id=urllib.quote(app.config['TUNEIN_PARTNERID']),
                 partner_key=urllib.quote(app.config['TUNEIN_PARTNERKEY']),
                 station_id=urllib.quote(app.config['TUNEIN_STATIONID']),
-                artist=urllib.quote(track.artist),
-                title=urllib.quote(track.title)
+                artist=urllib.quote(artist),
+                title=urllib.quote(title)
             ))
 
     # update last.fm (yay!)
@@ -65,15 +70,15 @@ def log_track(dj_id, djset_id, title, artist, album, label, request=False,
                 username=app.config['LASTFM_USERNAME'],
                 password_hash=password_hash)
             network.scrobble(
-                artist=track.artist,
-                title=track.title,
-                timestamp=int(time.mktime(track.datetime.timetuple())),
-                album=track.album)
+                artist=artist,
+                title=title,
+                timestamp=int(time.mktime(played.timetuple())),
+                album=album)
         except Exception as e:
             print(e)
 
     # send server-sent event
     sse.send(json.dumps({'event': "track_change",
-                         'track': track.serialize()}))
+                         'track': track.serialize()}, cls=JSONEncoder))
 
     return track

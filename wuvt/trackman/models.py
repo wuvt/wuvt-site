@@ -100,7 +100,7 @@ class TrackLog(db.Model):
     # This should be recorded at the start of the song probably
     listeners = db.Column(db.Integer)
 
-    def __init__(self, track_id, djset_id, request=False, vinyl=False, new=False, rotation=None):
+    def __init__(self, track_id, djset_id, request=False, vinyl=False, new=False, rotation=None, listeners=0):
         self.track_id = track_id
         self.djset_id = djset_id
         self.dj_id = DJSet.query.get(djset_id).dj_id
@@ -108,6 +108,7 @@ class TrackLog(db.Model):
         self.vinyl = vinyl
         self.new = new
         self.rotation = rotation
+        self.listeners = listeners
 
     def serialize(self):
         return {
