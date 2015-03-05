@@ -1,5 +1,10 @@
 {% extends "trackman/base.html" %}
 {% block content %}
+<form style="display: none;" action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
+    id="trackman_logout_form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="email_playlist" value="0" />
+</form>
 <div class="row">
     <div class="col-md-3">
         <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
