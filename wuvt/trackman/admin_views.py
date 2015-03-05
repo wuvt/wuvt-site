@@ -68,35 +68,12 @@ def start_automation():
 ### DJ Control
 #############################################################################
 
-@bp.route('/log/<int:setid>', methods=['GET', 'POST'])
+@bp.route('/log/<int:setid>', methods=['GET'])
 @localonly
 def log(setid):
 
     djset = DJSet.query.get_or_404(setid)
     errors = {}
-
-    if 'artist' in request.form:
-        session['email_playlist'] = 'email_playlist' in request.form
-
-        artist = request.form['artist'].strip()
-        if len(artist) <= 0:
-            errors['artist'] = "You must enter an artist."
-
-        title = request.form['title'].strip()
-        if len(title) <= 0:
-            errors['title'] = "You must enter a song title."
-
-        album = request.form['album'].strip()
-        if len(album) <= 0:
-            errors['album'] = "You must enter an album."
-
-        label = request.form['label'].strip()
-        if len(label) <= 0:
-            errors['label'] = "You must enter a label."
-
-        if len(errors.items()) <= 0:
-            log_track(djset.dj_id, djset.id, title, artist, album, label,
-                    'request' in request.form, 'vinyl' in request.form)
 
     if 'email_playlist' in session:
         email_playlist = session['email_playlist']
@@ -105,7 +82,6 @@ def log(setid):
 
     tracks = djset.tracks.order_by(TrackLog.played).all()
 
-    # TODO rotation listing
     rotations = {}
     for i in Rotation.query.order_by(Rotation.id).all():
         rotations[i.id] = i.rotation
@@ -114,52 +90,18 @@ def log(setid):
             rotations=rotations, email_playlist=email_playlist)
 
 
-@bp.route('/log/<int:setid>/<int:trackid>',
-        methods=['DELETE', 'GET', 'POST'])
+@bp.route('/edit/<int:tracklog_id>', methods=['GET'])
 @localonly
-def edit(setid, trackid):
-    djset = DJSet.query.get_or_404(setid)
-    track = Track.query.get_or_404(trackid)
-    if track.djset_id != djset.id:
-        abort(404)
+def edit(tracklog_id):
+    track = TrackLog.query.get_or_404(tracklog_id)
 
-    errors = {}
-
-    if request.method == 'DELETE':
-        db.session.delete(track)
-        db.session.commit()
-        return Response("deleted")
-    elif request.method == 'POST':
-        artist = request.form['artist'].strip()
-        if len(artist) <= 0:
-            errors['artist'] = "You must enter an artist."
-
-        title = request.form['title'].strip()
-        if len(title) <= 0:
-            errors['title'] = "You must enter a song title."
-
-        album = request.form['album'].strip()
-        if len(album) <= 0:
-            errors['album'] = "You must enter an album."
-
-        label = request.form['label'].strip()
-        if len(label) <= 0:
-            errors['label'] = "You must enter a label."
-
-        if len(errors.items()) <= 0:
-            track.artist = artist
-            track.title = title
-            track.album = album
-            track.label = label
-            track.request = 'request' in request.form
-            track.vinyl = 'vinyl' in request.form
-            db.session.commit()
-
-            return redirect(url_for('trackman.log', setid=djset.id))
+    rotations = {}
+    for i in Rotation.query.order_by(Rotation.id).all():
+        rotations[i.id] = i.rotation
 
     return render_template('trackman/edit.html',
-            trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
-            track=track, errors=errors)
+                           trackman_name=app.config['TRACKMAN_NAME'],
+                           rotations=rotations, track=track)
 
 
 @bp.route('/log/<int:setid>/end', methods=['POST'])
@@ -319,34 +261,45 @@ def edit_tracklog(tracklog_id):
         db.session.commit()
         return jsonify(success=True)
 
-    # Update track
-    track_id = request.form.get('track_id', None)
-    if track_id is not None:
-        track = Track.query.get(track_id)
-        if not track:
-            return jsonify(success=False, error="Track specified by track_id does not exist")
-        tracklog.track_id = int(track_id)
+    # This is a post time to do data sanitation!
+    artist = request.form.get("artist", "")
+    title = request.form.get("title", "")
+    album = request.form.get("album", "")
+    label = request.form.get("label", "")
+    is_request = request.form.get('request', 'false') != 'false'
+    vinyl = request.form.get('vinyl', 'false') != 'false'
+    new = request.form.get('new', 'false') != 'false'
+    rotation = request.form.get("rotation", 1);
+
+    # Validate
+    if (artist == "" or title == "" or album == "" or label == ""):
+        return jsonfiy(success=False, error="Must fill out artist, title, album, and label field")
+
+    # First check if the artist et. al. are the same
+    if (artist != tracklog.track.artist or
+        title  != tracklog.track.title or
+        album  != tracklog.track.album or
+        label  != tracklog.track.label):
+        # This means we try to create a new track
+        track = Track(title, artist, album, label)
+        db.session.add(track)
+        db.session.commit()
+        tracklog.track_id = track.id
+
     # Update played time
     played = request.form.get('played', None)
     if played is not None:
         tracklog.played = dateutil.parser.parse(played)
     # Update boolean information
-    is_request = request.form.get('request', None)
-    if is_request is not None:
-        tracklog.request = bool(is_request)
-    vinyl = request.form.get('vinyl', None)
-    if vinyl is not None:
-        tracklog.request = bool(vinyl)
-    new = request.form.get('new', None)
-    if new is not None:
-        tracklog.request = bool(new)
+    tracklog.request = is_request
+    tracklog.new     = new
+    tracklog.vinyl   = vinyl
+
     # Update rotation
-    rotation_id = request.form.get('rotation_id', None)
-    if rotation_id is not None:
-        rotation = Rotation.query.get(rotation_id)
-        if not rotation:
-            return jsonify(success=False, error="Rotation specified by rotation_id does not exist")
-        tracklog.rotation_id = rotation_id
+    rotation = Rotation.query.get(rotation)
+    if not rotation:
+        return jsonify(success=False, error="Rotation specified by rotation_id does not exist")
+    tracklog.rotation_id = rotation.id
 
     db.session.commit()
 

@@ -161,7 +161,8 @@ function add_to_queue(element) {
     var queue_entry = $.extend(true, {}, search_results[id]);
     queue.push(queue_entry);
     //search_results.splice(id, 1);
-    update_history();
+    clear_timer();
+    //update_history();
     update_queue();
 }
 
@@ -228,7 +229,19 @@ function get_form_data () {
             "new": $(".trackman-entry input[name=new]").prop("checked"),
             "rotation": $(".trackman-entry select.rotation").val(),
     };
+}
 
+function search_edit(element) {
+    var id = element.prop("id").substring(1);
+    var track = search_results[id];
+    $(".trackman-entry input#artist").val(track['artist']);
+    $(".trackman-entry input#title").val(track['title']);
+    $(".trackman-entry input#album").val(track['album']);
+    $(".trackman-entry input#rlabel").val(track['label']);
+    $(".trackman-entry input[name=request]").prop("checked", track['request']);
+    $(".trackman-entry input[name=vinyl]").prop("checked", track['vinyl']);
+    $(".trackman-entry input[name=new]").prop("checked", track['new']);
+    $(".trackman-entry select.rotation").val(track['rotation']);
 }
 // This takes the row 
 function delete_track(element) {
@@ -365,6 +378,18 @@ function render_playlist() {
     }
 }
 
+function open_edit_window(event) {
+    var url;
+    var id = $(event.target).parents(".playlist-row").prop("id");
+    if (id.substring(0,1) == "p") {
+        url = "/trackman/edit/" + id.slice(1);
+    }
+    else {
+        // TODO Set edit url for airlog
+    }
+    var edit_win = window.open(url, "editWindow", "height=600,width=1200");
+    edit_win = update_parent = update_playlist();
+}
 
 function update_search_results(event) {
     search_results[$(event.target).parents(".search-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
@@ -384,6 +409,7 @@ function playlist_listeners() {
     $("button.playlist-delete").click(function (event) {
         delete_track($(event.target).parents(".playlist-row"));
     });
+    $("button.playlist-edit").click(open_edit_window)
 }
 function search_listeners() {
     $("button.search-queue").click(function (event) { 
@@ -471,6 +497,37 @@ function log_timer(event) {
     delaybutton.click(function () {clear_timer()});
 }
 
+function edit_track() {
+    var track = get_form_data();
+    if (!validate_track(track)) {
+        return false;
+    }
+    $.ajax({
+        url: "/trackman/api/tracklog/edit/" + tracklog_id,
+        data: { "artist":   track['artist'],
+                "album":    track['album'],
+                "title":    track['title'],
+                "label":    track['label'],
+                "vinyl":    track['vinyl'],
+                "request":  track['request'],
+                "new":      track['new'],
+                "rotation": track['rotation']
+        },
+        dataType: "json",
+        type: "POST",
+        success: complete_edit,
+    });
+}
+
+function complete_edit(data) {
+    if (data['success'] == false) {
+        alert(data['error']);
+        return;
+    }
+    opener.update_playlist();
+    window.close();
+}
+
 function search_form() {
     $(".trackman-entry input.form-control").each(
             function(index) {
@@ -481,15 +538,3 @@ function search_form() {
             });
 }
 
-$( document ).ready(function() {
-    var thread = null;
-    $(".trackman-entry input").keyup(function () {
-        clearTimeout(thread);
-        var target = $(this);
-        thread = setTimeout(function() {search_form();}, 350);
-
-    });
-    $("button#new-queue").click(queue_new_track);
-    $("button#new-log").click(log_new_track);
-    update_playlist();
-})

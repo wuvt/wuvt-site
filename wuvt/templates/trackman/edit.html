@@ -1,134 +1,172 @@
 {% extends "trackman/base.html" %}
 {% set page_title="Edit Track" %}
 {% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <h1>Edit Track: {{ track.djset.dj.airname }}</h1>
+    </div>
+    <div class="col-md-7 text-center">
+        <h4>
+            <span class="glyphicon glyphicon-flag"></span>
+            If you can't fill in the blanks, you can't play it.
+        </h4>
 
-<h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
+        You may find these sites helpful to find missing information:
+        <ul class="list-inline">
+            <li><a href="http://www.allmusic.com/"
+                rel="external" target="_blank">AllMusic</a></li>
+            <li><a href="http://www.amazon.com/music/"
+                rel="external" target="_blank">Amazon.com Music</a></li>
+            <li><a href="http://www.discogs.com/"
+                rel="external" target="_blank">Discogs</a></li>
+            <li><a href="http://musicbrainz.org/search.html"
+                rel="external" target="_blank">MusicBrainz</a></li>
+            <li><a href="http://metal-archives.com" 
+                rel="external" target="_blank">Metal Archives</a></li>
+        </ul>
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>
 
-<form action="{{ url_for('trackman.edit', setid=djset.id, trackid=track.id)
-    }}" method="post" class="form-horizontal">
-    <h2>Edit Track</h2>
-
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-
-    <div class="row trackman-entry">
-        <div class="col-md-6 trackman-controls">
-            <div class="form-group">
-                <label for="id_artist" class="col-sm-3 control-label">Artist</label>
-                <div class="col-sm-9">
-                    <input type="text" name="artist" id="id_artist"
-                        value="{{ track.artist }}" required="required"
-                        class="form-control" />
-                </div>
+<div class="trackman-entry">
+    <div class="row">
+        <div class="form-group col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Artist</span>
+                <input type="test" name="artist" id="artist" value="{{ track.track.artist }}" class="form-control">
             </div>
-
-            <div class="form-group">
-                <label for="id_title" class="col-sm-3 control-label">Title</label>
-                <div class="col-sm-9">
-                    <input type="text" name="title" id="id_title"
-                        value="{{ track.title }}" required="required"
-                        class="form-control" />
-                </div>
+        </div>
+        <div class="form-group col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Title</span>
+                <input type="test" name="title" id="title" value="{{ track.track.title }}" class="form-control">
             </div>
-
-            <div class="form-group">
-                <label for="id_album" class="col-sm-3 control-label">Album</label>
-                <div class="col-sm-9">
-                    <input type="text" name="album" id="id_album"
-                        value="{{ track.album }}" required="required"
-                        class="form-control" />
-                </div>
+        </div>
+        <div class="form-group col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Album</span>
+                <input type="test" name="album" id="album" value="{{ track.track.album }}" class="form-control">
+    
             </div>
-
-            <div class="form-group">
-                <label for="id_label" class="col-sm-3 control-label">Label</label>
-                <div class="col-sm-9">
-                    <input type="text" name="label" id="id_label"
-                        value="{{ track.label }}" required="required"
-                        class="form-control" />
-                </div>
+        </div>
+        <div class="form-group col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Label</span>
+                <input type="test" name="rlabel" id="rlabel" value="{{ track.track.label }}" class="form-control">
             </div>
-
-            <div class="form-group">
-                <div class="col-sm-9 col-sm-offset-3">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="request"
-                                {% if track.request %}checked="checked"{% endif %} />
-                            Request
-                        </label>
-                    </div>
-
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="vinyl"
-                                {% if track.vinyl %}checked="checked"{% endif %} />
-                            Vinyl
-                        </label>
+        </div>
+    </div>
+    <div class="row lookup-controls">
+        <div class="col-md-4 text-center">
+            <div class="form-inline">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="checkbox">
+                            <label for="">
+                                Request
+                                <input type="checkbox" {% if track.request %}value="true" {% endif %}class="request" name="request"/>
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label for="">
+                                Vinyl
+                                <input type="checkbox" {% if track.vinyl %}value="true" {% endif %}class="vinyl" name="vinyl"/>
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label for="">
+                                New
+                                <input type="checkbox" {% if track.new %}value="true" {% endif %}class="new" name="new"/>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-5 col-md-offset-1 trackman-help">
-            <h4>
-                <span class="glyphicon glyphicon-flag"></span>
-                If you can't fill in the blanks, you can't play it.
-            </h4>
-
-            You may find these sites helpful to find missing information:
-            <ul>
-                <li><a href="http://www.allmusic.com/"
-                    rel="external">AllMusic</a></li>
-                <li><a href="http://www.amazon.com/music/"
-                    rel="external">Amazon.com Music</a></li>
-                <li><a href="http://www.discogs.com/"
-                    rel="external">Discogs</a></li>
-                <li><a href="http://musicbrainz.org/search.html"
-                    rel="external">MusicBrainz</a></li>
-            </ul>
+        <div class="col-md-4">
+            <div class="form-inline">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">Rotation</span>
+                        <select class="rotation form-control">{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'{% if track.rotation_id == id %} selected{% endif %}>{{ rotation }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="btn-group">
+                <button id="edit-log" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Edit Track
+                </button>
+            </div>
         </div>
     </div>
-
-    <div class="form-actions">
-        <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-edit"></span>
-            Edit Track
-        </button>
-
-        <a href="{{ url_for('trackman.log', setid=djset.id) }}"
-            class="btn btn-default">
-            <span class="glyphicon glyphicon-remove"></span>
-            Cancel
-        </a>
-    </div>
-</form>
-<form action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
-    id="trackman_logout_form">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-</form>
+</div>
+<div class="row row-table" style="height: 340px;">
+<h4>Search Results</h4>
+    <table class='table table-condensed table-striped table-hover' id="search">
+        <thead>
+            <tr>
+                <th>Artist</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Label</th>
+                <th colspan="3">Request/Vinyl/New</th>
+                <th>Rotation</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
 {% endblock %}
 {% block js %}
 {{ super() }}
+<script src="/static/js/trackman.js"></script>
 <script>
 var csrf_token = "{{ csrf_token() }}";
 
-$(function() {
-    $('#trackman_logout_btn').click(function() {
-        $('#trackman_logout_form').submit();
-    });
+// dynamic javascript vars
+var djset_id = {{ track.djset.id }};
+var tracklog_id = {{ track.id }};
+// Dictionary mapping rotation_ids to strings
+var rotations = {{ rotations|tojson|safe }};
+var rotationoptions = "{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}";
+$( document ).ready(function() {
+    var thread = null;
+    $(".trackman-entry input").keyup(function () {
+        clearTimeout(thread);
+        var target = $(this);
+        thread = setTimeout(function() {search_form();}, 350);
 
-    $('button.delete-track').bind('click', function(ev) {
-        $.ajax({
-            'type': "DELETE",
-            'url': "/trackman/log/{{ djset.id }}/" + $(this).closest('tr').attr('id').replace("track-", "") + "?_csrf_token=" + csrf_token,
-        }).done(function(msg) {
-            csrf_token = msg['_csrf_token'];
-            $(ev.currentTarget).closest('tr').
-                fadeTo('fast', 0, function() {
-                    $(this).remove();
-                });
-        });
     });
-});
+    $("button#edit-log").click(edit_track);
+
+})
+// Override searchrow
+var searchrow = "<tr class='search-row' id='s{0}'>" + 
+"<td class='artist'>{1}</td>" + 
+"<td class='title'>{2}</td>" + 
+"<td class='album'>{3}</td>" + 
+"<td class='rlabel'>{4}</td>" + 
+"<td class='request'><input type='checkbox' name='request'></td>" + 
+"<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
+"<td class='new'><input type='checkbox' name='new'></td>" +
+"<td class='rotation'><select class='rotation'></select></td>" +
+"<td><div class='btn-group'>" +
+"<button class='btn btn-default btn-md search-edit' type='button' title='Replace track with this one'><span class='glyphicon glyphicon-time'></span></button>" +
+"</div></td>" +
+"</tr>";
+// Override search_listeners()
+function search_listeners() {
+    $("button.search-edit").click(function (event) {
+        search_edit($(event.target).parents(".search-row"));
+    });
+    $("table#search input[type=checkbox]").change(update_search_results);
+}
 </script>
 {% endblock %}
