@@ -80,7 +80,6 @@ var delaybutton;
 
 function log_search(element) {
     var elem = element;
-    console.log(element);
     var id = element.prop("id").substring(1);
     var track = search_results[id];
     function post_log(data) {
@@ -338,7 +337,8 @@ function render_playlist() {
     }
     // Scroll to bottom
     var pos = $("table#playlist tbody tr:last").position();
-    $("table#playlist").parent().scrollTop(pos.top);
+    var scrollwindow = $("table#playlist").parent();
+    scrollwindow.scrollTop(scrollwindow.scrollTop() + pos.top);
 }
 
 function update_search_results(event) {
