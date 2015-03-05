@@ -356,11 +356,13 @@ function render_playlist() {
             $("table#playlist tbody").append(row);
         }
     }
-    playlist_listeners();
-    // Scroll to bottom
-    var pos = $("table#playlist tbody tr:last").position();
-    var scrollwindow = $("table#playlist").parent();
-    scrollwindow.scrollTop(scrollwindow.scrollTop() + pos.top);
+    if (playlist.length > 1) {
+        playlist_listeners();
+        // Scroll to bottom
+        var pos = $("table#playlist tbody tr:last").position();
+        var scrollwindow = $("table#playlist").parent();
+        scrollwindow.scrollTop(scrollwindow.scrollTop() + pos.top);
+    }
 }
 
 
@@ -417,7 +419,8 @@ function clear_timer(tableclass) {
         if (typeof delaybutton != "undefined") {
             if (delaybutton.parents("table").prop("id") == tableclass) {
                 delaybutton.html(clockspan);
-                // This is a massive hax but really the best way
+                delaybutton.off("click");
+                delaybutton.click(log_timer);
                 clearInterval(delayinterval);
             }
         }
@@ -428,6 +431,8 @@ function clear_timer(tableclass) {
         }
         if (typeof delaybutton != "undefined") {
             delaybutton.html(clockspan);
+            delaybutton.off("click");
+            delaybutton.click(log_timer);
         }
     }
     delaybutton = ret_undefined();
@@ -461,6 +466,9 @@ function log_timer(event) {
         }
         delaybutton.html(seconds);
     }, 1000);
+    // Replce the click listener with clear_timer
+    delaybutton.off("click");
+    delaybutton.click(function () {clear_timer()});
 }
 
 function search_form() {
