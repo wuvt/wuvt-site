@@ -1,4 +1,4 @@
-var streamUrl = "http://engine.collegemedia.vt.edu:8000/wuvt.ogg";
+var streamUrl = "http://engine.wuvt.vt.edu:8000/wuvt.ogg";
 var streamPlaying = false;
 
 function initPlayer() {
