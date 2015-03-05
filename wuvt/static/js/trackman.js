@@ -26,8 +26,8 @@ var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='rotation'>{9}</td>" +
 "<td>" +
 "<div class='btn-group' role='group'>" +
-"<button class='btn btn-default btn-sm'><span class='glyphicon glyphicon-pencil'></span></button>" +
-"<button class='btn btn-danger btn-sm'><span class='glyphicon glyphicon-trash'></span></button>" +
+"<button class='btn btn-default btn-sm playlist-edit'><span class='glyphicon glyphicon-pencil'></span></button>" +
+"<button class='btn btn-danger btn-sm playlist-delete'><span class='glyphicon glyphicon-trash'></span></button>" +
 "</div>" +
 "</td>" +
 "</tr>";
@@ -230,6 +230,27 @@ function get_form_data () {
     };
 
 }
+// This takes the row 
+function delete_track(element) {
+    var id = $(element).prop("id");
+    if (id.substring(0,1) == "p") {
+        id = id.substring(1);
+        $.ajax({
+            url: "/trackman/api/tracklog/edit/" + id,
+            type: "DELETE",
+            dataType: "json",
+            success: function(data) {
+                if (data['success'] == false) {
+                    alert(data['error']);
+                }
+                update_playlist();
+            },
+        });
+    }
+    else {
+        // This is an airlog
+    }
+}
 function update_queue() {
     clear_timer("queue");
     $("table#queue tbody tr").remove()
@@ -335,11 +356,13 @@ function render_playlist() {
             $("table#playlist tbody").append(row);
         }
     }
+    playlist_listeners();
     // Scroll to bottom
     var pos = $("table#playlist tbody tr:last").position();
     var scrollwindow = $("table#playlist").parent();
     scrollwindow.scrollTop(scrollwindow.scrollTop() + pos.top);
 }
+
 
 function update_search_results(event) {
     search_results[$(event.target).parents(".search-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
@@ -355,6 +378,11 @@ function update_queue_rotation(event) {
 }
 
 // Event listener code
+function playlist_listeners() {
+    $("button.playlist-delete").click(function (event) {
+        delete_track($(event.target).parents(".playlist-row"));
+    });
+}
 function search_listeners() {
     $("button.search-queue").click(function (event) { 
         add_to_queue($(event.target).parents(".search-row"));
@@ -435,9 +463,6 @@ function log_timer(event) {
     }, 1000);
 }
 
-function increment_timer(button) {
-}
-
 function search_form() {
     $(".trackman-entry input.form-control").each(
             function(index) {
@@ -448,8 +473,6 @@ function search_form() {
             });
 }
 
-
-// Test code to be removed
 $( document ).ready(function() {
     var thread = null;
     $(".trackman-entry input").keyup(function () {

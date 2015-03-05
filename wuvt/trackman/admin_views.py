@@ -319,7 +319,9 @@ def edit_tracklog(tracklog_id):
     if not tracklog:
         return jsonify(success=False, error="tracklog_id not found")
 
-    if request.method is 'DELETE':
+    print("editing!")
+    if request.method == 'DELETE':
+        print("deleting!")
         db.session.delete(tracklog)
         db.session.commit()
         return jsonify(success=True)
@@ -352,6 +354,8 @@ def edit_tracklog(tracklog_id):
         if not rotation:
             return jsonify(success=False, error="Rotation specified by rotation_id does not exist")
         tracklog.rotation_id = rotation_id
+
+    db.session.commit()
 
     return jsonify(success=True)
 
