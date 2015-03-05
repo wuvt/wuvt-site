@@ -262,7 +262,7 @@ def get_djset(djset_id):
     if request.args.get('merged', False):
         logs = [i.full_serialize() for i in djset.tracks]
         logs.extend([i.serialize() for i in djset.airlog])
-        logs = sorted(logs, key=lambda log: log.get('airtime', False) if log.get('airtime', False) else log.get('played', False), reverse=True)
+        logs = sorted(logs, key=lambda log: log.get('airtime', False) if log.get('airtime', False) else log.get('played', False), reverse=False)
         return jsonify(success=True, logs=logs)
     return jsonify(success=True, tracklog=[i.serialize() for i in djset.tracks], airlog=[i.serialize() for i in djset.airlog])
 

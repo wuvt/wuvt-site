@@ -333,6 +333,9 @@ function render_playlist() {
             $("table#playlist tbody").append(row);
         }
     }
+    // Scroll to bottom
+    var pos = $("table#playlist tbody tr:last").position();
+    $("table#playlist").parent().scrollTop(pos.top);
 }
 
 function update_search_results(event) {
