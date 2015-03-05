@@ -8,6 +8,8 @@ String.prototype.format = function() {
     return s;
 };
 
+var clockspan = "<span class='glyphicon glyphicon-time'></span>";
+
 var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='airtime'>{1}</td>" +
 "<td class='artist'>{2}</td>" +
@@ -24,13 +26,13 @@ var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<button class='btn btn-danger btn-sm'><span class='glyphicon glyphicon-trash'></span></button>" +
 "</div>" +
 "</td>" +
-"</tr>"
+"</tr>";
 
 var airlogrow = "<tr class='playlist-row airlog-row' id='a{0}'>" + 
 "<td class='airtime'>{1}</td>" +
 "<td class='logtype'>{2}</td>" + 
 "<td class='logid'>{3}</td>" +
-"</tr>"
+"</tr>";
 
 
 var searchrow = "<tr class='search-row' id='s{0}'>" + 
@@ -47,7 +49,7 @@ var searchrow = "<tr class='search-row' id='s{0}'>" +
 "<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>" +
 "<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
 "</div></td>" +
-"</tr>"
+"</tr>";
 
 var queuerow = "<tr class='queue-row' id='q{0}'>" + 
 "<td class='artist'>{1}</td>" + 
@@ -63,7 +65,7 @@ var queuerow = "<tr class='queue-row' id='q{0}'>" +
 "<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
 "<button class='btn btn-danger btn-sm queue-delete' type='button' title='Remove from the queue.'><span class='glyphicon glyphicon-remove'></span></button>" +
 "</div></td>" +
-"</tr>"
+"</tr>";
 
 // The data is the same origin indicates 0 if newly entered, 1 if from history
 var search_results = [];
@@ -157,8 +159,31 @@ function add_to_queue(element) {
     update_queue();
 }
 
+function validate_track(track) {
+    if (track['artist'] == "") {
+        alert("Must fill out the artist field");
+        return false;
+    }
+    if (track['title'] == "") {
+        alert("Must fill out the title field");
+        return false;
+    }
+    if (track['album'] == "") {
+        alert("Must fill out the album field");
+        return false;
+    }
+    if (track['label'] == "") {
+        alert("Must fill out the label field");
+        return false;
+    }
+    return true;
+}
+
 function queue_new_track() {
     var track = get_form_data();
+    if (!validate_track(track)) {
+        return false;
+    }
     track['origin'] = 0;
     queue.push(track);
     update_queue();
@@ -167,6 +192,9 @@ function queue_new_track() {
 
 function log_new_track() {
     var track = get_form_data();
+    if (!validate_track(track)) {
+        return false;
+    }
     track['origin'] = 0;
     function post_log(data) {
         if (data['success'] == false) {
@@ -180,6 +208,7 @@ function log_new_track() {
 function clear_form() {
     $(".trackman-entry input").val("");
     $(".trackman-entry input[type=checkbox]").prop("checked", false);
+    $(".trackman-entry select.rotation").val(1);
     search_results = [];
     update_history();
 }
@@ -191,7 +220,7 @@ function get_form_data () {
             "request": $(".trackman-entry input[name=request]").prop("checked"),
             "vinyl": $(".trackman-entry input[name=vinyl]").prop("checked"),
             "new": $(".trackman-entry input[name=new]").prop("checked"),
-            // Will need rotation here TODO
+            "rotation": $(".trackman-entry select.rotation").val(),
     };
 
 }
@@ -330,6 +359,10 @@ function queue_listeners() {
     $("table#queue button.queue-delete").click(function (event) {
         remove_from_queue($(event.target).parents(".queue-row"));
     });
+}
+
+function log_timer(event) {
+    var span = $(event.target)
 }
 
 function search_form() {

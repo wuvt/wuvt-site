@@ -27,3 +27,7 @@ td.row-options {
 .blue {
     color: blue;
 }
+.row-table {
+    height: 240px;
+    overflow-y: auto;
+}
