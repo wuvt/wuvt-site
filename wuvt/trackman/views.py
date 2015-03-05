@@ -49,14 +49,14 @@ def inject_nowplaying():
 
 @app.route('/last15')
 def last15():
-    tracks = Track.query.order_by(db.desc(Track.id)).limit(15).all()
-    
+    tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
+
     if request.wants_json():
         return jsonify({
-            'tracks': [t.serialize() for t in tracks],
+            'tracks': [t.full_serialize() for t in tracks],
         })
 
-    return render_template('last15.html', tracks=tracks)
+    return render_template('last15.html', tracklogs=tracks)
 
 
 @app.route('/playlists/latest_track')
@@ -117,11 +117,9 @@ def playlists_dj_sets(dj_id):
 
 @app.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
-    djset = DJSet.query.get(set_id)
-    if not djset:
-        abort(404)
-    tracks = Track.query.filter(Track.djset_id == djset.id).all()
-    return render_template('playlist.html', djset=djset, tracks=tracks)
+    djset = DJSet.query.get_or_404(set_id)
+    tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(TrackLog.played).all()
+    return render_template('playlist.html', djset=djset, tracklogs=tracks)
 
 
 #############################################################################

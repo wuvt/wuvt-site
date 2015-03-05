@@ -520,6 +520,9 @@ table.tracklist {
     font-size: 0.8em;
 }
 
+table.tracklist thead {
+    text-align: left;
+}
 table.tracklist thead th {
     background: #ffffff;
     font-weight: bold;
@@ -528,6 +531,9 @@ table.tracklist thead th {
 table.tracklist th,
 table.tracklist td {
     padding: 4px;
+}
+table.tracklist td img {
+    margin: 0 auto 0 20%;
 }
 
 table.tracklist tr:nth-child(odd) {

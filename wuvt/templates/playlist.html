@@ -12,19 +12,22 @@
     <thead>
         <th>Time Aired</th>
         <th>New?</th>
+        <th>Artist</th>
         <th>Track</th>
         <th>Album</th>
-        <th colspan="2">Request/Vinyl</th>
+        <th>Request</th>
+        <th>Vinyl</th>
     </thead>
     <tbody>
-        {% for track in tracks %}
+        {% for track in tracklogs %}
         <tr>
-            <td>{{ track.datetime|datetime("%H:%M:%S") }}</td>
+            <td>{{ track.played|datetime("%H:%M:%S") }}</td>
             <td>{% if track.new %}NEW{% endif %}</td>
-            <td>{{ track.artist }} - {{ track.title }}</td>
-            <td>{{ track.album }}</td>
-            <td>{% if track.request %}REQ{% endif %}</td>
-            <td>{% if track.vinyl %}VIN{% endif %}</td>
+            <td>{{ track.track.artist }}</td>
+            <td>{{ track.track.title }}</td>
+            <td>{{ track.track.album }}</td>
+            <td>{% if track.request %}<img class="table-img" src='/static/img/trackman/check.png'/>{% endif %}</td>
+            <td>{% if track.vinyl %}<img class="table-img" src='/static/img/trackman/check.png'/>{% endif %}</td>
         </tr>
         {% endfor %}
     </tbody>
