@@ -210,7 +210,7 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="/static/js/trackman.js"></script>
+<script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
 <script>
 var csrf_token = "{{ csrf_token() }}";
 

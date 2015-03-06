@@ -122,6 +122,7 @@ class TrackLog(db.Model):
             'new': self.new,
             'listeners': self.listeners,
         }
+
     def full_serialize(self):
         return {
             'tracklog_id': self.id,
@@ -130,6 +131,7 @@ class TrackLog(db.Model):
             'played': self.played,
             'djset': self.djset_id,
             'dj_id': self.dj_id,
+            'dj': self.dj.airname,
             'request': self.request,
             'vinyl': self.vinyl,
             'new': self.new,

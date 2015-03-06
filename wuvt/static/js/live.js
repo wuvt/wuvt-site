@@ -8,33 +8,40 @@ function wuvtLive(liveurl) {
     source.onmessage = function(ev) {
         msg = JSON.parse(ev.data);
         if(msg['event'] == "track_change") {
-            $('#current_track').text(msg['track']['artist'] + " - " +
-                    msg['track']['title']);
-            $('#current_dj').text(msg['track']['dj']);
+            var track = msg['tracklog']['track'];
+            $('#current_track').text(track['artist'] + " - " +
+                    track['title']);
+            $('#current_dj').text(msg['tracklog']['dj']);
 
             if($('#trackable')) {
-                updateLast15(msg['track'], msg['datetime']);
+                updateLast15(msg['tracklog']);
             }
         }
     };
 }
 
-function updateLast15(track, datetime) {
+function updateLast15(tracklog) {
     if($('#tracktable tbody tr').length >= 15) {
         // remove last item if already 15 tracks
         $('#tracktable tbody tr:last-child').remove();
     }
 
+    function pad(value) {
+        return ("00" + value).slice(-2);
+    }
+
+    var track = tracklog['track'];
     var tr = document.createElement('tr');
 
     var td = document.createElement('td');
-    var playtime = datetime.split(' ')[1];
-    playtime = playtime.split('.')[0];
-    $(td).text(playtime);
+    var played = new Date(tracklog['played']);
+    $(td).text("{0}:{1}:{2}".format(pad(played.getHours()),
+                                    pad(played.getMinutes()),
+                                    pad(played.getSeconds())));
     $(tr).append(td);
 
     var td = document.createElement('td');
-    if(track['new'] == "true") {
+    if(tracklog['new'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-fire new-track";
         $(td).append(span);
@@ -42,7 +49,11 @@ function updateLast15(track, datetime) {
     $(tr).append(td);
 
     var td = document.createElement('td');
-    $(td).text(track['artist'] + " - " + track['title']);
+    $(td).text(track['artist']);
+    $(tr).append(td);
+
+    var td = document.createElement('td');
+    $(td).text(track['title']);
     $(tr).append(td);
 
     var td = document.createElement('td');
@@ -50,11 +61,11 @@ function updateLast15(track, datetime) {
     $(tr).append(td);
 
     var td = document.createElement('td');
-    $(td).text(track['dj']);
+    $(td).text(tracklog['dj']);
     $(tr).append(td);
 
     var td = document.createElement('td');
-    if(track['request'] == "true") {
+    if(tracklog['request'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-earphone";
         $(td).append(span);
@@ -62,7 +73,7 @@ function updateLast15(track, datetime) {
     $(tr).append(td);
 
     var td = document.createElement('td');
-    if(track['vinyl'] == "true") {
+    if(tracklog['vinyl'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-cd";
         $(td).append(span);
