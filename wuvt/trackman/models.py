@@ -103,7 +103,13 @@ class TrackLog(db.Model):
     def __init__(self, track_id, djset_id, request=False, vinyl=False, new=False, rotation=None, listeners=0):
         self.track_id = track_id
         self.djset_id = djset_id
-        self.dj_id = DJSet.query.get(djset_id).dj_id if djset_id is not None else None
+
+        if djset_id is not None:
+            self.dj_id = DJSet.query.get(djset_id).dj_id
+        else:
+            # default to automation
+            self.dj_id = 1
+
         self.request = request
         self.vinyl = vinyl
         self.new = new
