@@ -24,7 +24,11 @@ def trackinfo():
                 'description': app.config['STATION_NAME'], 'contact': app.config['STATION_URL']}
 
     data = track.track.serialize()
-    data['dj'] = track.djset.dj.airname
+    if track.djset == None:
+        dj = DJ.query.filter_by(name="Automation").first()
+        data['dj'] = dj.airname
+    else:
+        data['dj'] = track.djset.dj.airname
     data['description'] = app.config['STATION_NAME']
     data['contact'] = app.config['STATION_URL']
     return data
@@ -154,17 +158,39 @@ def submit_automation_track():
     else:
         album = "Not Available"
 
-    if 'label' in request.form and len(request.form['label']) > 0:
-        label = request.form['label'].strip()
-    else:
-        label = "Not Available"
-
     if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr",
             "ua"):
         # ignore PSAs and other traffic
         return Response("Will not log traffic\n", mimetype="text/plain")
 
+    if 'label' in request.form and len(request.form['label']) > 0:
+        label = request.form['label'].strip()
+        tracks = Track.query.filter(Track.title == title).filter(Track.artist == artist).filter(Track.album == album).filter(Track.label == label)
+        if len(tracks.all()) == 0:
+            track = Track(title, artist, album, label)
+            db.session.add(track)
+            db.session.commit()
+        else:
+            track = tracks.one()
+
+    else:
+        # Handle automation not providing a label
+        label = "Not Available"
+        tracks = Track.query.filter(Track.title == title).filter(Track.artist == artist).filter(Track.album == album)
+        if len(tracks.all()) == 0:
+            track = Track(title, artist, album, label)
+            db.session.add(track)
+            db.session.commit()
+        else:
+            notauto = tracks.filter(Track.label != "Not Available")
+            if len(notauto.all()) == 0:
+                # The only option is "not available label"
+                track = tracks.one()
+            else:
+                track = notauto.one()
+
     dj = DJ.query.filter_by(name="Automation").first()
-    log_track(dj.id, None, title, artist, album, label)
+
+    log_track(track.id, None)
 
     return Response("Logged\n", mimetype="text/plain")
