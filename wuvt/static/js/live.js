@@ -13,13 +13,13 @@ function wuvtLive(liveurl) {
             $('#current_dj').text(msg['track']['dj']);
 
             if($('#trackable')) {
-                updateLast15(msg['track']);
+                updateLast15(msg['track'], msg['datetime']);
             }
         }
     };
 }
 
-function updateLast15(track) {
+function updateLast15(track, datetime) {
     if($('#tracktable tbody tr').length >= 15) {
         // remove last item if already 15 tracks
         $('#tracktable tbody tr:last-child').remove();
@@ -28,14 +28,16 @@ function updateLast15(track) {
     var tr = document.createElement('tr');
 
     var td = document.createElement('td');
-    var playtime = track['datetime'].split(' ')[1];
+    var playtime = datetime.split(' ')[1];
     playtime = playtime.split('.')[0];
     $(td).text(playtime);
     $(tr).append(td);
 
     var td = document.createElement('td');
     if(track['new'] == "true") {
-        $(td).text("NEw");
+        var span = document.createElement('span');
+        span.className = "glyphicon glyphicon-fire new-track";
+        $(td).append(span);
     }
     $(tr).append(td);
 
@@ -53,13 +55,17 @@ function updateLast15(track) {
 
     var td = document.createElement('td');
     if(track['request'] == "true") {
-        $(td).text("REQ");
+        var span = document.createElement('span');
+        span.className = "glyphicon glyphicon-earphone";
+        $(td).append(span);
     }
     $(tr).append(td);
 
     var td = document.createElement('td');
     if(track['vinyl'] == "true") {
-        $(td).text("VIN");
+        var span = document.createElement('span');
+        span.className = "glyphicon glyphicon-cd";
+        $(td).append(span);
     }
     $(tr).append(td);
 
