@@ -79,6 +79,6 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False, rotatio
 
     # send server-sent event
     sse.send(json.dumps({'event': "track_change",
-                         'track': track.serialize()}, cls=JSONEncoder))
+                         'track': track.track.serialize()}, cls=JSONEncoder))
 
     return track
