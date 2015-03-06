@@ -539,6 +539,10 @@ table.tracklist td span {
 table.tracklist tr:nth-child(odd) {
     background: #c5d5dc;
 }
+
+.new-track {
+    color: #ff0000;
+}
 /* }}} */
 
 /* Donate button {{{ */
