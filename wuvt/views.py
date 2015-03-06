@@ -33,6 +33,9 @@ def inject_menus():
 
     return {'menus': menus}
 
+@app.route('/index.php')
+def redir_index():
+    return redirect(url_for('index'))
 
 @app.route('/')
 @app.route('/index/<int:page>')
