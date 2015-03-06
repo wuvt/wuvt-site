@@ -24,7 +24,7 @@
         {% for track in tracklogs %}
         <tr>
             <td>{{ track.played|datetime("%H:%M:%S") }}</td>
-            <td>{% if track.new %}<span style="color: red;" class="glyphicon glyphicon-fire"></span>{% endif %}</td>
+            <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track"></span>{% endif %}</td>
             <td>{{ track.track.artist }}</td>
             <td>{{ track.track.title }}</td>
             <td>{{ track.track.album }}</td>

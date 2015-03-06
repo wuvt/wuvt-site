@@ -108,7 +108,7 @@ def edit(tracklog_id):
 @localonly
 def logout(setid):
     djset = DJSet.query.get_or_404(setid)
-    djset.dtend = datetime.datetime.now()
+    djset.dtend = datetime.datetime.utcnow()
     db.session.commit()
 
     # email playlist

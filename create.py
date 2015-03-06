@@ -9,7 +9,7 @@ db.drop_all()
 
 db.create_all()
 
-dj = DJ("Automation", "Automation")
+dj = DJ("Automation", "Automation", False)
 db.session.add(dj)
 db.session.commit()
 
