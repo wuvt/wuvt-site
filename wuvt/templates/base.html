@@ -23,7 +23,11 @@
         {% block now_playing %}
         <ul>
             <li><strong>Currently on air:</strong> <span id="current_track">{{ current_track }}</span></li>
-            <li><strong>Current DJ:</strong> <span id="current_dj">{{ current_dj }}</span></li>
+            <li><strong>Current DJ:</strong> <span id="current_dj">{% if current_dj_id > 0 -%}
+<a href="{{ url_for('playlists_dj_sets', dj_id=current_dj_id) }}">{{ current_dj }}</a>
+{% else -%}
+{{ current_dj }}{% endif -%}
+</span></li>
         </ul>
         {% endblock %}
     </div>
@@ -128,6 +132,7 @@
 $(function() {
     wuvtLive("{{ url_for('livestream') }}");
 
+    makeAjaxLink($('#nowplaying a'));
     makeAjaxLink($('header #mainheader h1 a'));
     $.each($('#bubble a'), function(i, item){makeAjaxLink(item);});
     $.each($('nav a'), function(i, item){makeAjaxLink(item);});

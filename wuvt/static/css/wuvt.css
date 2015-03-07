@@ -59,6 +59,13 @@ body {
     text-transform: uppercase;
     font-weight: bold;
 }
+
+#nowplaying a:link,
+#nowplaying a:visited,
+#nowplaying a:active {
+    color: #000;
+    text-decoration: underline;
+}
 /* }}} */
 
 /* Header: logo and robot {{{ */

@@ -13,7 +13,16 @@ function wuvtLive(liveurl) {
             var track = msg['tracklog']['track'];
             $('#current_track').text(track['artist'] + " - " +
                     track['title']);
-            $('#current_dj').text(msg['tracklog']['dj']);
+
+            if(msg['tracklog']['dj_visible']) {
+                var link = document.createElement('a');
+                link.href = '/playlists/dj/' + msg['tracklog']['dj_id'];
+                $(link).text(msg['tracklog']['dj']);
+                $('#current_dj').html(link);
+            }
+            else {
+                $('#current_dj').text(msg['tracklog']['dj']);
+            }
 
             if($('#tracktable')) {
                 updateLast15(msg['tracklog']);

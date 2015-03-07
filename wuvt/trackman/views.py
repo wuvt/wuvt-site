@@ -24,11 +24,18 @@ def trackinfo():
                 'description': app.config['STATION_NAME'], 'contact': app.config['STATION_URL']}
 
     data = track.track.serialize()
+
     if track.djset == None:
         dj = DJ.query.filter_by(name="Automation").first()
         data['dj'] = dj.airname
+        data['dj_id'] = 0
     else:
         data['dj'] = track.djset.dj.airname
+        if track.djset.dj.visible:
+            data['dj_id'] = track.djset.dj_id
+        else:
+            data['dj_id'] = 0
+
     data['description'] = app.config['STATION_NAME']
     data['contact'] = app.config['STATION_URL']
     return data
@@ -43,12 +50,14 @@ def inject_nowplaying():
     if not track:
         return {
             'current_track': u"Not Available",
-            'current_dj': u"Not Available"
+            'current_dj': u"Not Available",
+            'current_dj_id': 0,
         }
 
     return {
         'current_track': u"{artist} - {title}".format(**track),
         'current_dj': track['dj'],
+        'current_dj_id': track['dj_id']
     }
 
 

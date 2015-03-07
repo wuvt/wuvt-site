@@ -137,6 +137,7 @@ class TrackLog(db.Model):
             'played': self.played,
             'djset': self.djset_id,
             'dj_id': self.dj_id,
+            'dj_visible': self.dj.visible,
             'dj': self.dj.airname,
             'request': self.request,
             'vinyl': self.vinyl,
