@@ -13,16 +13,7 @@ function wuvtLive(liveurl) {
             var track = msg['tracklog']['track'];
             $('#current_track').text(track['artist'] + " - " +
                     track['title']);
-
-            if(msg['tracklog']['dj_visible']) {
-                var link = document.createElement('a');
-                link.href = '/playlists/dj/' + msg['tracklog']['dj_id'];
-                $(link).text(msg['tracklog']['dj']);
-                $('#current_dj').html(link);
-            }
-            else {
-                $('#current_dj').text(msg['tracklog']['dj']);
-            }
+            addDJLink('#current_dj', msg['tracklog']);
 
             if($('#last15tracks').length) {
                 updateLast15(msg['tracklog']);
@@ -38,6 +29,20 @@ function wuvtLive(liveurl) {
             }, 15000);
         }
     };
+}
+
+function addDJLink(elem, tracklog) {
+    if(tracklog['dj_visible']) {
+        var link = document.createElement('a');
+        link.href = '/playlists/dj/' + tracklog['dj_id'];
+        $(link).text(tracklog['dj']);
+        makeAjaxLink(link);
+
+        $(elem).html(link);
+    }
+    else {
+        $(elem).text(tracklog['dj']);
+    }
 }
 
 function updateLast15(tracklog) {
@@ -81,7 +86,7 @@ function updateLast15(tracklog) {
     $(tr).append(td);
 
     var td = document.createElement('td');
-    $(td).text(tracklog['dj']);
+    addDJLink(td, tracklog);
     $(tr).append(td);
 
     var td = document.createElement('td');
@@ -137,7 +142,7 @@ function loadPage(path) {
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
         // build date picker
-        if($('#datepicker')) {
+        if($('#datepicker').length) {
             $('#datepicker').datepicker({
                 'dateFormat': "yy/mm/dd",
                 'minDate': "2007/01/01",

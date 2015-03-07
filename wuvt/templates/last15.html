@@ -27,7 +27,13 @@
             <td>{{ track.track.artist }}</td>
             <td>{{ track.track.title }}</td>
             <td>{{ track.track.album }}</td>
-            <td>{{ track.dj.airname }}</td>
+            <td>
+                {% if track.dj.visible -%}
+                <a href="{{ url_for('playlists_dj_sets', dj_id=track.dj_id) }}">{{ track.dj.airname }}</a>
+                {% else -%}
+                {{ track.dj.airname }}
+                {% endif -%}
+            </td>
             <td>{% if track.request %}<span class="glyphicon glyphicon-earphone"></span>{% endif %}</td>
             <td>{% if track.vinyl %}<span class="glyphicon glyphicon-cd"></span>{% endif %}</td>
         </tr>

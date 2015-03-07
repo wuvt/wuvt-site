@@ -547,6 +547,13 @@ table.tracklist tr:nth-child(odd) {
     background: #c5d5dc;
 }
 
+table.tracklist a:link,
+table.tracklist a:visited,
+table.tracklist a:active {
+    color: #000;
+    text-decoration: underline;
+}
+
 .new-track {
     color: #ff0000;
 }
