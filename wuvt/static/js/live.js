@@ -24,7 +24,7 @@ function wuvtLive(liveurl) {
                 $('#current_dj').text(msg['tracklog']['dj']);
             }
 
-            if($('#tracktable')) {
+            if($('#last15tracks').length) {
                 updateLast15(msg['tracklog']);
             }
         }
@@ -41,9 +41,9 @@ function wuvtLive(liveurl) {
 }
 
 function updateLast15(tracklog) {
-    if($('#tracktable tbody tr').length >= 15) {
+    if($('#last15tracks tbody tr').length >= 15) {
         // remove last item if already 15 tracks
-        $('#tracktable tbody tr:last-child').remove();
+        $('#last15tracks tbody tr:last-child').remove();
     }
 
     function pad(value) {
@@ -100,7 +100,7 @@ function updateLast15(tracklog) {
     }
     $(tr).append(td);
 
-    $('#tracktable tbody').prepend(tr);
+    $('#last15tracks tbody').prepend(tr);
 }
 
 function makeAjaxLink(item) {
