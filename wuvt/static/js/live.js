@@ -1,3 +1,5 @@
+var liveReconnectTimer;
+
 function wuvtLive(liveurl) {
     if(typeof EventSource == 'undefined') {
         // cannot use server-sent events, boo
@@ -13,9 +15,18 @@ function wuvtLive(liveurl) {
                     track['title']);
             $('#current_dj').text(msg['tracklog']['dj']);
 
-            if($('#trackable')) {
+            if($('#tracktable')) {
                 updateLast15(msg['tracklog']);
             }
+        }
+    };
+    source.onerror = function(e) {
+        if(liveReconnectTimer == null) {
+            // attempt to reconnect after 15 seconds
+            liveReconnectTimer = setTimeout(function() {
+                liveReconnectTimer = null;
+                wuvtLive(liveurl);
+            }, 15000);
         }
     };
 }
