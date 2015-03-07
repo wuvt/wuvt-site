@@ -3,10 +3,10 @@
 {% block content %}
 
 <article>
-    <hgroup>
+    <header>
         <h2>{{ article.title }}</h2>
         <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
-    </hgroup>
+    </header>
 
 {{ article.html_summary|safe }}
 {# {{ article.html_content|safe or article.html_summary|safe }} #}

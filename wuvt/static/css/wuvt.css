@@ -480,8 +480,8 @@ article h2 a {
     text-decoration: none;
 }
 
-article hgroup,
-section hgroup {
+article header,
+section header {
     margin-bottom: 25px;
 }
 
