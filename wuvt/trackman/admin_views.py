@@ -114,7 +114,7 @@ def logout(setid):
 
     # email playlist
 
-    if 'email_playlist' in request.form and request.form.get('email_playlist'):
+    if 'email_playlist' in request.form and request.form.get('email_playlist') == 'true':
         msg = MIMEMultipart('alternative')
         msg['Date'] = email.utils.formatdate()
         msg['From'] = app.config['MAIL_FROM']
