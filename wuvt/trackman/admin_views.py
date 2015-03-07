@@ -36,6 +36,11 @@ def login():
 
     if 'dj' in request.form:
         red.set("automation_enabled", "false")
+        automation_set_id = red.get("automation_set")
+        if automation_set_id is not None:
+            automation_set = DJSet.query.get(int(automation_set_id))
+            automation_set.dtend = datetime.datetime.utcnow()
+            db.session.commit()
 
         dj = DJ.query.get(request.form['dj'])
         djset = DJSet(dj.id)
@@ -56,14 +61,86 @@ def login():
 #############################################################################
 
 @bp.route('/automation/start', methods=['POST'])
+@localonly
 def start_automation():
-    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
-        abort(403)
-
     red = redis.StrictRedis()
     red.set('automation_enabled', "true")
 
+    # Create automation set for automation to log to
+    automation_set = DJSet(1)
+    db.session.add(automation_set)
+    db.session.commit()
+    red.set('automation_set', str(automation_set.id))
+
     return redirect(url_for('trackman.login'))
+
+@bp.route('/api/automation/log', methods=['POST'])
+@localonly
+@csrf.exempt
+def automation_log():
+    if 'password' not in request.form or \
+        request.form['password'] != app.config['AUTOMATION_PASSWORD']:
+        return jsonify(success=False, error="Invalid password")
+
+    red = redis.StrictRedis()
+    automation = red.get('automation_enabled') == "true"
+    if not automation:
+        return jsonify(success=False, error="Automation not enabled")
+
+    if 'title' in request.form and len(request.form['title']) > 0:
+        title = request.form['title'].strip()
+    else:
+        title = "Not Available"
+
+    if 'artist' in request.form and len(request.form['artist']) > 0:
+        artist = request.form['artist'].strip()
+    else:
+        artist = "Not Available"
+
+    if 'album' in request.form and len(request.form['album']) > 0:
+        album = request.form['album'].strip()
+    else:
+        album = "Not Available"
+
+    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr",
+            "ua"):
+        # ignore PSAs and other traffic for now!
+        return jsonify(success=False, error='AirLog logging not yet implemented')
+
+    if 'label' in request.form and len(request.form['label']) > 0:
+        label = request.form['label'].strip()
+        tracks = Track.query.filter(Track.title == title).filter(Track.artist == artist).filter(Track.album == album).filter(Track.label == label)
+        if len(tracks.all()) == 0:
+            track = Track(title, artist, album, label)
+            db.session.add(track)
+            db.session.commit()
+        else:
+            track = tracks.one()
+
+    else:
+        # Handle automation not providing a label
+        label = "Not Available"
+        tracks = Track.query.filter(Track.title == title).filter(Track.artist == artist).filter(Track.album == album)
+        if len(tracks.all()) == 0:
+            track = Track(title, artist, album, label)
+            db.session.add(track)
+            db.session.commit()
+        else:
+            notauto = tracks.filter(Track.label != "Not Available")
+            if len(notauto.all()) == 0:
+                # The only option is "not available label"
+                track = tracks.one()
+            else:
+                track = notauto.one()
+
+    dj = DJ.query.filter_by(name="Automation").first()
+
+    djset_id = red.get('automation_set')
+    if djset_id != None:
+        djset_id = int(djset_id)
+    log_track(track.id, djset_id)
+
+    return jsonify(success=True)
 
 #############################################################################
 ### DJ Control
