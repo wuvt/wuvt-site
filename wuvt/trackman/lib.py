@@ -10,7 +10,7 @@ from flask.json import JSONEncoder
 from wuvt import app
 from wuvt import db
 from wuvt import sse
-from wuvt import format_datetime
+from wuvt import format_datetime, localize_datetime
 from wuvt.trackman.models import TrackLog
 
 def perdelta(start, end, td):
