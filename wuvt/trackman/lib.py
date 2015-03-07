@@ -3,9 +3,15 @@ import lxml.etree
 import requests
 import urllib
 import urlparse
+import smtplib
 from datetime import timedelta
 from dateutil import tz
 from flask.json import JSONEncoder
+from flask import render_template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+import email.utils
 
 from wuvt import app
 from wuvt import db
@@ -26,6 +32,33 @@ def list_archives(djset):
         yield (app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
+
+def email_playlist(djset):
+    msg = MIMEMultipart('alternative')
+    msg['Date'] = email.utils.formatdate()
+    msg['From'] = app.config['MAIL_FROM']
+    msg['To'] = djset.dj.email
+    msg['Message-Id'] = email.utils.make_msgid()
+    msg['X-Mailer'] = "Trackman"
+    msg['Subject'] = "[{name}] {djname} - Playlist from {dtend}".format(
+        name=app.config['TRACKMAN_NAME'],
+        djname=djset.dj.airname,
+        dtend=format_datetime(djset.dtend, "%Y-%m-%d"))
+
+    tracks = djset.tracks
+
+    msg.attach(MIMEText(
+        render_template('email/playlist.txt',
+                        djset=djset, tracks=tracks).encode('utf-8'),
+        'text'))
+    msg.attach(MIMEText(
+        render_template('email/playlist.html',
+                        djset=djset, tracks=tracks).encode('utf-8'),
+        'html'))
+
+    s = smtplib.SMTP(app.config['SMTP_SERVER'])
+    s.sendmail(msg['From'], [msg['To']], msg.as_string())
+    s.quit()
 
 
 def stream_listeners(url):
