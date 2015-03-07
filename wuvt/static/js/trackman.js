@@ -16,8 +16,8 @@ var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='rotation'>{9}</td>" +
 "<td>" +
 "<div class='btn-group playlist-actions' role='group'>" +
-"<button class='btn btn-default btn-sm playlist-edit'><span class='glyphicon glyphicon-pencil'></span></button>" +
-"<button class='btn btn-danger btn-sm playlist-delete'><span class='glyphicon glyphicon-trash'></span></button>" +
+"<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>" +
+"<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>" +
 "</div>" +
 "</td>" +
 "</tr>";
