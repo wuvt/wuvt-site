@@ -30,6 +30,8 @@ ICECAST_MOUNTS = ['/wuvt-hq.ogg', '/wuvt.ogg', '/wuvt-lb.ogg', '/wuvt-hq.aac',
 INTERNAL_IPS = ['192.168.0.0/16']
 TRACKMAN_NAME = "WUVT-FM"
 
+ARCHIVE_BASE_URL = "https://archive.org/details/WUVTFM_"
+
 ADMINS = ['WUVT-IT@listserv.vt.edu']
 MAIL_FROM = "noreply@wuvt.vt.edu"
 SMTP_SERVER = "localhost"
@@ -44,3 +46,4 @@ LASTFM_USERNAME = "wuvtfm"
 LASTFM_PASSWORD = ""
 
 UPLOAD_DIR = "/srv/http/media"
+# vim: syntax=python

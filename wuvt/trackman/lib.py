@@ -23,7 +23,7 @@ def list_archives(djset):
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
     end = djset.dtend.replace(minute=0, second=0, microsecond=0)
     for loghour in perdelta(start, end, timedelta(hours=1)):
-        yield ("https://archive.org/details/WUVTFM_" + format_datetime(loghour, "%Y%m%d%H"),
+        yield (app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
