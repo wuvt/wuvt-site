@@ -1,6 +1,7 @@
 DEBUG = False
 SQLALCHEMY_DATABASE_URI = ''
 SECRET_KEY = ''
+REDIS_URL = 'redis://localhost:6379'
 REDIS_CHANNEL = "wuvt"
 POSTS_PER_PAGE = 5
 

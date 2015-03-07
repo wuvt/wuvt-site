@@ -5,14 +5,16 @@ from flask import Flask, Request, redirect, request, url_for
 from flask.ext.login import LoginManager
 from flask.ext.seasurf import SeaSurf
 from flask.ext.sqlalchemy import SQLAlchemy
-import urlparse
 import re
+import redis
 import unidecode
+import urlparse
 
 
 json_mimetypes = ['application/json']
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 _slug_pattern = re.compile(r"[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._~:/?#\[\]@!$&'()*+,;=\-]*")
+
 
 def slugify(text, delim=u'-'):
     """Generates an ASCII-only slug and validates that it is an acceptable
@@ -26,8 +28,10 @@ def slugify(text, delim=u'-'):
         result.extend(unidecode.unidecode(word).split())
     return unicode(delim.join(result))
 
+
 def localize_datetime(fromtime):
     return fromtime.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
+
 
 def format_datetime(value, format=None):
     value = localize_datetime(value)
@@ -62,10 +66,12 @@ class JSONRequest(Request):
 app = Flask(__name__)
 app.config.from_object(config)
 app.request_class = JSONRequest
-app.session_interface = session.RedisSessionInterface()
 app.jinja_env.filters['datetime'] = format_datetime
-csrf = SeaSurf(app)
 
+redis_conn = redis.from_url(app.config['REDIS_URL'])
+app.session_interface = session.RedisSessionInterface(redis_conn)
+
+csrf = SeaSurf(app)
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()

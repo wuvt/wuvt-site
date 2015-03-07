@@ -7,7 +7,6 @@ from email.mime.text import MIMEText
 import email.utils
 import datetime
 import json
-import redis
 import smtplib
 import netaddr
 import dateutil.parser
@@ -16,6 +15,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import csrf
 from wuvt import format_datetime
+from wuvt import redis_conn
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track, email_playlist
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation
@@ -32,11 +32,9 @@ def login():
 #    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
 #        abort(403)
 
-    red = redis.StrictRedis()
-
     if 'dj' in request.form:
-        red.set("automation_enabled", "false")
-        automation_set_id = red.get("automation_set")
+        redis_conn.set("automation_enabled", "false")
+        automation_set_id = redis_conn.get("automation_set")
         if automation_set_id is not None:
             automation_set = DJSet.query.get(int(automation_set_id))
             automation_set.dtend = datetime.datetime.utcnow()
@@ -49,7 +47,7 @@ def login():
 
         return redirect(url_for('trackman.log', setid=djset.id))
 
-    automation = red.get('automation_enabled') == "true"
+    automation = redis_conn.get('automation_enabled') == "true"
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
     return render_template('trackman/login.html',
@@ -63,14 +61,13 @@ def login():
 @bp.route('/automation/start', methods=['POST'])
 @localonly
 def start_automation():
-    red = redis.StrictRedis()
-    red.set('automation_enabled', "true")
+    redis_conn.set('automation_enabled', "true")
 
     # Create automation set for automation to log to
     automation_set = DJSet(1)
     db.session.add(automation_set)
     db.session.commit()
-    red.set('automation_set', str(automation_set.id))
+    redis_conn.set('automation_set', str(automation_set.id))
 
     return redirect(url_for('trackman.login'))
 
@@ -82,8 +79,7 @@ def automation_log():
         request.form['password'] != app.config['AUTOMATION_PASSWORD']:
         return jsonify(success=False, error="Invalid password")
 
-    red = redis.StrictRedis()
-    automation = red.get('automation_enabled') == "true"
+    automation = redis_conn.get('automation_enabled') == "true"
     if not automation:
         return jsonify(success=False, error="Automation not enabled")
 
@@ -135,7 +131,7 @@ def automation_log():
 
     dj = DJ.query.filter_by(name="Automation").first()
 
-    djset_id = red.get('automation_set')
+    djset_id = redis_conn.get('automation_set')
     if djset_id != None:
         djset_id = int(djset_id)
     log_track(track.id, djset_id)

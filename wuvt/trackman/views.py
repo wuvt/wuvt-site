@@ -8,11 +8,11 @@ from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
 import datetime
 import json
-import redis
 
 from wuvt import app
 from wuvt import csrf
 from wuvt import db
+from wuvt import redis_conn
 from wuvt.trackman.lib import log_track, list_archives
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
@@ -148,8 +148,7 @@ def submit_automation_track():
         request.form['password'] != app.config['AUTOMATION_PASSWORD']:
         abort(403)
 
-    red = redis.StrictRedis()
-    automation = red.get('automation_enabled') == "true"
+    automation = redis_conn.get('automation_enabled') == "true"
     if not automation:
         return Response("Automation is off\n", mimetype="text/plain")
 
