@@ -9,6 +9,14 @@
     <h2>Playlist Archive</h2>
     <h3>{{ djset.dj.airname }} / {{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</h3>
 </hgroup>
+<div class="links">
+    <h4>Listen Online</h4>
+    <ol>
+        {% for link, text in archives %}
+        <li><a target="_blank" href='{{ link }}'>{{ text }}</a></li>
+        {% endfor %}
+    </ol>
+</div>
 
 <table id="tracktable" class="tracklist">
     <thead>

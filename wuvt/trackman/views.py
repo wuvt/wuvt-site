@@ -13,7 +13,7 @@ import redis
 from wuvt import app
 from wuvt import csrf
 from wuvt import db
-from wuvt.trackman.lib import log_track
+from wuvt.trackman.lib import log_track, list_archives
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
@@ -133,7 +133,8 @@ def playlists_dj_sets(dj_id):
 def playlist(set_id):
     djset = DJSet.query.get_or_404(set_id)
     tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(TrackLog.played).all()
-    return render_template('playlist.html', djset=djset, tracklogs=tracks)
+    archives = list_archives(djset)
+    return render_template('playlist.html', archives=archives, djset=djset, tracklogs=tracks)
 
 
 #############################################################################

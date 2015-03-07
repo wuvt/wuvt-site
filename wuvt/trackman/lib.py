@@ -3,14 +3,29 @@ import lxml.etree
 import requests
 import urllib
 import urlparse
+from datetime import timedelta
 from dateutil import tz
 from flask.json import JSONEncoder
 
 from wuvt import app
 from wuvt import db
 from wuvt import sse
-from wuvt import localize_datetime
+from wuvt import format_datetime
 from wuvt.trackman.models import TrackLog
+
+def perdelta(start, end, td):
+    current = start
+    while current <= end:
+        yield current
+        current += td
+
+def list_archives(djset):
+    start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
+    end = djset.dtend.replace(minute=0, second=0, microsecond=0)
+    for loghour in perdelta(start, end, timedelta(hours=1)):
+        yield ("https://archive.org/details/WUVTFM_" + format_datetime(loghour, "%Y%m%d%H"),
+               "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
+                        format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
 
 def stream_listeners(url):
