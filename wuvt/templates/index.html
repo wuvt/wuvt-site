@@ -4,10 +4,10 @@
 {% if articles.items %}
 {% for article in articles.items %}
 <article>
-    <hgroup>
+    <header>
         <h2><a href="{{ url_for('article', slug=article.slug) }}">{{ article.title }}</a></h2>
         <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
-    </hgroup>
+    </header>
 
 {{ article.html_summary|safe }}
 
@@ -30,9 +30,9 @@
 {% endif -%}
 {% else %}
 <section>
-    <hgroup>
+    <header>
         <h2>No articles to display</h2>
-    </hgroup>
+    </header>
 
     <p>There are no articles in this category.</p>
 </section>
