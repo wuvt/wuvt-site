@@ -57,7 +57,8 @@ def page(slug):
 
 @app.route('/live')
 def livestream():
-    response = Response(sse.event_stream(), mimetype="text/event-stream")
+    response = Response(sse.event_stream(), direct_passthrough=True,
+                        mimetype="text/event-stream")
     response.headers['Cache-Control'] = "no-cache"
     response.headers['Connection'] = "keep-alive"
     response.headers['X-Accel-Buffering'] = "no"
