@@ -19,10 +19,10 @@
         <tbody>
             {% for track in tracks %}
             <tr>
-                <td>{{ track.datetime|datetime("%H:%M:%S") }}</td>
+                <td>{{ track.played|datetime("%H:%M:%S") }}</td>
                 <td>{% if track.new %}NEW{% endif %}</td>
-                <td>{{ track.artist }} - {{ track.title }}</td>
-                <td>{{ track.album }}</td>
+                <td>{{ track.track.artist }} - {{ track.track.title }}</td>
+                <td>{{ track.track.album }}</td>
                 <td>{% if track.request %}REQ{% endif %}</td>
                 <td>{% if track.vinyl %}VIN{% endif %}</td>
             </tr>

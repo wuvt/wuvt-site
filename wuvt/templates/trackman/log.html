@@ -216,7 +216,7 @@ var csrf_token = "{{ csrf_token() }}";
 
 $(function() {
     $('#trackman_logout_btn').click(function() {
-        var email = ($('#id_email_playlist:checked').val() == "on") ? 1 : 0;
+        var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
         $("#trackman_logout_form input[name='email_playlist']").val(email);
 
         $('#trackman_logout_form').submit();

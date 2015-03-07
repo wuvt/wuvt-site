@@ -15,6 +15,7 @@ import dateutil.parser
 from wuvt import app
 from wuvt import db
 from wuvt import csrf
+from wuvt import format_datetime
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation
@@ -112,7 +113,8 @@ def logout(setid):
     db.session.commit()
 
     # email playlist
-    if 'email_playlist' in session and session['email_playlist']:
+
+    if 'email_playlist' in request.form and request.form.get('email_playlist'):
         msg = MIMEMultipart('alternative')
         msg['Date'] = email.utils.formatdate()
         msg['From'] = app.config['MAIL_FROM']
@@ -122,9 +124,9 @@ def logout(setid):
         msg['Subject'] = "[{name}] {djname} - Playlist from {dtend}".format(
             name=app.config['TRACKMAN_NAME'],
             djname=djset.dj.airname,
-            dtend=datetime.datetime.strftime(djset.dtend, "%Y-%m-%d"))
+            dtend=format_datetime(djset.dtend, "%Y-%m-%d"))
 
-        tracks = Track.query.filter(Track.djset_id == djset.id).all()
+        tracks = djset.tracks
 
         msg.attach(MIMEText(
             render_template('email/playlist.txt',
@@ -139,7 +141,6 @@ def logout(setid):
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
 
-    session['email_playlist'] = False
 
     return redirect(url_for('trackman.login'))
 
