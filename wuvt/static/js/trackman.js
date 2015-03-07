@@ -15,7 +15,7 @@ var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td class='new'>{8}</td>" +
 "<td class='rotation'>{9}</td>" +
 "<td>" +
-"<div class='btn-group' role='group'>" +
+"<div class='btn-group playlist-actions' role='group'>" +
 "<button class='btn btn-default btn-sm playlist-edit'><span class='glyphicon glyphicon-pencil'></span></button>" +
 "<button class='btn btn-danger btn-sm playlist-delete'><span class='glyphicon glyphicon-trash'></span></button>" +
 "</div>" +
@@ -38,7 +38,7 @@ var searchrow = "<tr class='search-row' id='s{0}'>" +
 "<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
 "<td class='new'><input type='checkbox' name='new'></td>" +
 "<td class='rotation'><select class='rotation'></select></td>" +
-"<td><div class='btn-group'>" +
+"<td><div class='btn-group search-actions'>" +
 "<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>" +
 "<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>" +
 "<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
@@ -54,7 +54,7 @@ var queuerow = "<tr class='queue-row' id='q{0}'>" +
 "<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
 "<td class='new'><input type='checkbox' name='new'></td>" +
 "<td class='rotation'><select class='rotation'></select></td>" +
-"<td><div class='btn-group'>" +
+"<td><div class='btn-group queue-actions'>" +
 "<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>" +
 "<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
 "<button class='btn btn-danger btn-sm queue-delete' type='button' title='Remove from the queue.'><span class='glyphicon glyphicon-remove'></span></button>" +

@@ -37,3 +37,13 @@ td.row-options {
     height: 240px;
     overflow-y: auto;
 }
+/* These have to be hardcoded to handle nasty length fields */
+.playlist-actions {
+    min-width: 70px;
+}
+.queue-actions {
+    min-width: 100px;
+}
+.search-actions {
+    min-width: 100px;
+}
