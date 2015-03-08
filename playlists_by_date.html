@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>playlists by date</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 100%;
+        }
+
+        #scroller {
+            height: 500px;
+            overflow: auto;
+        }
+
+        #playlists_by_date header {
+            margin: 2em 0 0 0;
+            padding: 2px;
+            background: #000;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        #playlists_by_date ul {
+            /*margin: 0;
+            padding: 0;
+            list-style: none;*/
+        }
+    </style>
+</head>
+<body>
+    <div id="scroller">
+        <div id="playlists_by_date">
+        </div>
+    </div>
+
+    <script src="wuvt/static/js/jquery.js"></script>
+    <script src="wuvt/static/js/moment.min.js"></script>
+<script>
+var spacePerDay = 527;
+//var displayDays = 30;
+
+// number of days to display each time we scroll
+var displayDays = 5;
+
+// days of overlap on each side
+var overlapDays = 1;
+
+// we subtract these so the current day is really the last overlap day
+var absoluteEnd = moment().endOf('day').subtract(overlapDays, 'days');
+var absoluteStart = moment("2014-12-05");
+//var start = moment("2007-09-07");
+
+var displayEnd = absoluteEnd;
+var displayStart = null;
+
+var padTop = 0;
+var padBottom = 0;
+
+function updateData(end, displayDays, overlapDays, direction) {
+    direction = typeof direction !== 'undefined' ? direction : 'down';
+
+    var dates = [];
+    for(var i = -overlapDays; i < displayDays + overlapDays; i++) {
+        var dt = moment(end).subtract(i, 'days');
+
+        // don't display days earlier than the start
+        if(dt >= absoluteStart) {
+            dates.push(dt.startOf('day'));
+        }
+    }
+
+    displayStart = dates[dates.length - 1];
+    displayEnd = dates[0].endOf('day');
+
+    console.log("displayStart: " + displayStart.format());
+    console.log("displayEnd: " + displayEnd.format());
+
+    // TODO: these should be associated with Dates and have more
+    // metadata
+    var entries = [
+        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
+        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
+        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
+        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
+        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
+        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
+        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
+        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
+        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
+        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
+        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
+        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
+        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
+        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
+        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
+        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
+        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
+        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
+        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
+        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
+        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
+        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
+        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
+        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
+    ];
+
+    if(direction == 'down') {
+        // save current height and add it to top padding
+        console.log("direction: down");
+        padTop += $('#playlists_by_date').height();
+        
+        // deal with overlapping days
+        for(var i = 0; i < overlapDays; i++) {
+            padTop -= $('#playlists_by_date section').eq(-i).height();
+        }
+    }
+
+    // remove existing data
+    $('#playlists_by_date').html('');
+
+    for(i in dates) {
+        var head = document.createElement('header');
+        $(head).text(dates[i].format('dddd, MMMM D, YYYY'));
+
+        var list = document.createElement('ul');
+        $.each(entries, function(index, value) {
+            //var li = $('<li/>', {'text': value});
+            var li = $('<li/>', {'html': value});
+            $(list).append(li);
+        });
+
+        /*var foot = document.createElement('footer');
+        var utcDate = new Date(dates[i].getTime() + dates[i].getTimezoneOffset() * 60000);
+        $(foot).text(utcDate.toISOString());*/
+
+        var section = document.createElement('section');
+        $(section).append(head);
+        $(section).append(list);
+        //$(section).append(foot);
+        $('#playlists_by_date').append(section);
+    }
+
+    if(direction == 'up') {
+        // subtract current height from top padding
+        console.log("direction: up");
+        console.log("old padTop: " + padTop);
+        padTop -= $('#playlists_by_date').height();
+
+        // deal with overlapping days
+        for(var i = 0; i < overlapDays; i++) {
+            padTop += $('#playlists_by_date section').eq(i).height();
+        }
+
+        if(padTop < 0) {
+            padTop = 0;
+        }
+
+        console.log("new padTop: " + padTop);
+    }
+
+    $('#playlists_by_date').css('padding-top', padTop + 'px');
+}
+
+updateData(displayEnd, displayDays, overlapDays);
+
+// TODO: add a timeout for these bits
+$('#scroller').bind('scroll', function() {
+    var newEnd;
+
+    if($(this).scrollTop() < padTop) {
+        console.log("top");
+
+        newEnd = moment(displayStart).add(displayDays * 2 + overlapDays, 'days');
+        if(newEnd >= absoluteEnd) {
+            newEnd = absoluteEnd;
+        }
+
+        console.log("new end: " + newEnd.format());
+        updateData(newEnd, displayDays, overlapDays, 'up');
+    }
+    else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
+        // FIXME: we should load while on overlapDays, not at the end of them
+        // (subtract that from above)
+        console.log("bottom");
+
+        // XXX: we need to deal with overlapDays
+        newEnd = moment(displayStart).subtract(1, 'days');
+        if(newEnd > absoluteStart) {
+            console.log("new end: " + newEnd.format());
+            updateData(newEnd, displayDays, overlapDays, 'down');
+        }
+    }
+});
+</script>
+</body>
+</html>
