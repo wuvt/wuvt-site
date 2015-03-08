@@ -38,8 +38,8 @@
     <script src="wuvt/static/js/jquery.js"></script>
     <script src="wuvt/static/js/moment.min.js"></script>
 <script>
+// an estimate of how much space each day takes
 var spacePerDay = 527;
-//var displayDays = 30;
 
 // number of days to display each time we scroll
 var displayDays = 5;
@@ -49,12 +49,12 @@ var overlapDays = 1;
 
 // we subtract these so the current day is really the last overlap day
 var absoluteEnd = moment().endOf('day').subtract(overlapDays, 'days');
-var absoluteStart = moment("2014-12-05");
-//var start = moment("2007-09-07");
+//var absoluteStart = moment("2014-12-05");
+var absoluteStart = moment("2007-09-07");
 
+// leave these alone
 var displayEnd = absoluteEnd;
 var displayStart = null;
-
 var padTop = 0;
 var padBottom = 0;
 
