@@ -5,7 +5,7 @@ from wuvt.blog.models import Category
 from wuvt.trackman.models import DJ, Track, Rotation
 from wuvt.models import User
 
-db.drop_all()
+#db.drop_all()
 
 db.create_all()
 
