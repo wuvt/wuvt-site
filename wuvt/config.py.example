@@ -24,6 +24,9 @@ NAV_TOP_SECTIONS = [
      'hidden': True},
 ]
 
+# DJ activity timer for automation/DJ logout
+DJ_TIMEOUT = 15 * 60
+
 AUTOMATION_PASSWORD = ""
 ICECAST_ADMIN = "http://user:password@engine.wuvt.vt.edu:8000/admin/"
 ICECAST_MOUNTS = ['/wuvt-hq.ogg', '/wuvt.ogg', '/wuvt-lb.ogg', '/wuvt-hq.aac',

@@ -17,9 +17,10 @@ from wuvt import csrf
 from wuvt import format_datetime
 from wuvt import redis_conn
 from wuvt.trackman import bp
-from wuvt.trackman.lib import log_track, email_playlist
+from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
+        enable_automation
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation
-from wuvt.trackman.view_utils import localonly
+from wuvt.trackman.view_utils import local_only, dj_interact
 
 
 #############################################################################
@@ -27,18 +28,14 @@ from wuvt.trackman.view_utils import localonly
 #############################################################################
 
 @bp.route('/', methods=['GET', 'POST'])
-@localonly
+@local_only
+@dj_interact
 def login():
 #    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
 #        abort(403)
 
     if 'dj' in request.form:
-        redis_conn.set("automation_enabled", "false")
-        automation_set_id = redis_conn.get("automation_set")
-        if automation_set_id is not None:
-            automation_set = DJSet.query.get(int(automation_set_id))
-            automation_set.dtend = datetime.datetime.utcnow()
-            db.session.commit()
+        disable_automation()
 
         dj = DJ.query.get(request.form['dj'])
         djset = DJSet(dj.id)
@@ -59,20 +56,14 @@ def login():
 #############################################################################
 
 @bp.route('/automation/start', methods=['POST'])
-@localonly
+@local_only
 def start_automation():
-    redis_conn.set('automation_enabled', "true")
-
-    # Create automation set for automation to log to
-    automation_set = DJSet(1)
-    db.session.add(automation_set)
-    db.session.commit()
-    redis_conn.set('automation_set', str(automation_set.id))
+    enable_automation()
 
     return redirect(url_for('trackman.login'))
 
 @bp.route('/api/automation/log', methods=['POST'])
-@localonly
+@local_only
 @csrf.exempt
 def automation_log():
     if 'password' not in request.form or \
@@ -142,8 +133,9 @@ def automation_log():
 ### DJ Control
 #############################################################################
 
+# Deprecated
 @bp.route('/log/<int:setid>', methods=['GET'])
-@localonly
+@local_only
 def log(setid):
 
     djset = DJSet.query.get_or_404(setid)
@@ -164,8 +156,9 @@ def log(setid):
             rotations=rotations, email_playlist=email_playlist)
 
 
+# Deprecated
 @bp.route('/edit/<int:tracklog_id>', methods=['GET'])
-@localonly
+@local_only
 def edit(tracklog_id):
     track = TrackLog.query.get_or_404(tracklog_id)
 
@@ -179,7 +172,7 @@ def edit(tracklog_id):
 
 
 @bp.route('/log/<int:setid>/end', methods=['POST'])
-@localonly
+@local_only
 def logout(setid):
     djset = DJSet.query.get_or_404(setid)
     djset.dtend = datetime.datetime.utcnow()
@@ -194,7 +187,7 @@ def logout(setid):
 
 
 @bp.route('/register', methods=['GET', 'POST'])
-@localonly
+@local_only
 def register():
     errors = {}
 
@@ -238,7 +231,8 @@ def register():
 #############################################################################
 
 @bp.route('/api/djset/<int:djset_id>', methods=['GET'])
-@localonly
+@local_only
+@dj_interact
 def get_djset(djset_id):
     djset = DJSet.query.get(djset_id)
     if not djset:
@@ -253,8 +247,9 @@ def get_djset(djset_id):
 
 
 @bp.route('/api/airlog/edit/<int:airlog_id>', methods=['DELETE', 'POST'])
-@localonly
+@local_only
 @csrf.exempt
+@dj_interact
 def edit_airlog(airlog_id):
     airlog = AirLog.query.get(airlog_id)
     if not airlog:
@@ -282,8 +277,9 @@ def edit_airlog(airlog_id):
     return jsonify(success=True)
 
 @bp.route('/api/airlog', methods=['POST'])
-@localonly
+@local_only
 @csrf.exempt
+@dj_interact
 def add_airlog():
     djset_id = int(request.form['djset_id'])
     logtype = int(request.form['logtype'])
@@ -297,8 +293,9 @@ def add_airlog():
 
 
 @bp.route('/api/tracklog/edit/<int:tracklog_id>', methods=['POST', 'DELETE'])
-@localonly
+@local_only
 @csrf.exempt
+@dj_interact
 def edit_tracklog(tracklog_id):
     tracklog = TrackLog.query.get(tracklog_id)
     if not tracklog:
@@ -355,8 +352,9 @@ def edit_tracklog(tracklog_id):
     return jsonify(success=True)
 
 @bp.route('/api/tracklog', methods=['POST'])
-@localonly
+@local_only
 @csrf.exempt
+@dj_interact
 def play_tracklog():
     track_id = int(request.form['track_id'])
     djset_id = int(request.form['djset_id'])
@@ -380,8 +378,9 @@ def play_tracklog():
     return jsonify(success=True, tracklog_id=tracklog.id)
 
 @bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
-@localonly
+@local_only
 @csrf.exempt
+@dj_interact
 def edit_track(track_id):
     track = Track.query.get(track_id)
     if not track:
@@ -410,8 +409,9 @@ def edit_track(track_id):
 
 
 @bp.route('/api/track', methods=['POST'])
-@localonly
+@local_only
 @csrf.exempt
+@dj_interact
 def add_track():
     # TODO: sanitation and verification
     title = request.form['title']
@@ -426,7 +426,8 @@ def add_track():
 
 
 @bp.route('/api/search', methods=['GET'])
-@localonly
+@local_only
+@dj_interact
 def search_tracks():
     # To verify some data was searched for
     somesearch = False

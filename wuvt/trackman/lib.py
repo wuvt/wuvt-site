@@ -17,7 +17,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import sse
 from wuvt import format_datetime, localize_datetime
-from wuvt.trackman.models import TrackLog
+from wuvt.trackman.models import TrackLog, DJSet
 
 def perdelta(start, end, td):
     current = start
@@ -37,6 +37,23 @@ def list_archives(djset):
         yield (app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
+
+def disable_automation()
+    redis_conn.set("automation_enabled", "false")
+    automation_set_id = redis_conn.get("automation_set")
+    if automation_set_id is not None:
+        automation_set = DJSet.query.get(int(automation_set_id))
+        automation_set.dtend = datetime.datetime.utcnow()
+        db.session.commit()
+
+def enable_automation():
+    redis_conn.set('automation_enabled', "true")
+
+    # Create automation set for automation to log to
+    automation_set = DJSet(1)
+    db.session.add(automation_set)
+    db.session.commit()
+    redis_conn.set('automation_set', str(automation_set.id))
 
 def email_playlist(djset):
     msg = MIMEMultipart('alternative')
