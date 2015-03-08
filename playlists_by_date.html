@@ -181,11 +181,8 @@ $('#scroller').bind('scroll', function() {
         updateData(newEnd, displayDays, overlapDays, 'up');
     }
     else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
-        // FIXME: we should load while on overlapDays, not at the end of them
-        // (subtract that from above)
         console.log("bottom");
 
-        // XXX: we need to deal with overlapDays
         newEnd = moment(displayStart).subtract(1, 'days');
         if(newEnd > absoluteStart) {
             console.log("new end: " + newEnd.format());
