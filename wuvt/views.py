@@ -1,5 +1,5 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
-    request, url_for, Response
+    request, url_for, Response, send_from_directory
 
 from sqlalchemy import desc
 
@@ -37,6 +37,10 @@ def inject_menus():
 def redir_index():
     return redirect(url_for('index'))
 
+@app.route('/robots.txt')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
 @app.route('/')
 @app.route('/index/<int:page>')
 def index(page=1):
@@ -62,6 +66,7 @@ def livestream():
     response.headers['Connection'] = "keep-alive"
     response.headers['X-Accel-Buffering'] = "no"
     return response
+
 
 
 @app.errorhandler(403)
