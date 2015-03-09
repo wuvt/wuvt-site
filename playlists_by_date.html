@@ -185,7 +185,7 @@ function handleScroll(ev) {
 
     var newEnd;
 
-    if($(this).scrollTop() < padTop) {
+    if($(this).scrollTop() < padTop - $(this).height() / 4) {
         console.log("top");
 
         newEnd = moment(displayStart).add(displayDays * 2 + overlapDays, 'days');
