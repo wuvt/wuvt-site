@@ -421,95 +421,94 @@ header nav,
 }
 
 /* Article/section {{{ */
-article,
-section {
+#content > article,
+#content > section {
     padding: 20px;
     margin: 0px 0px 60px 0px;
-  /*  background-color: #bcccd3;
-		background-color: rgba(209, 223, 229, 0.5);
-		background-color: #DAE5EA; */
-		background-color: rgba(255,255,255,0.72);
-		border-width: thick;
-		border-color: #BCCCD3;
-		border-style: solid;
+    /*background-color: #bcccd3;
+    background-color: rgba(209, 223, 229, 0.5);
+    background-color: #DAE5EA; */
+    background-color: rgba(255,255,255,0.72);
+    border-width: thick;
+    border-color: #BCCCD3;
+    border-style: solid;
 }
 
-article p,
-section p {
-/*		font-family: serif; */
-		margin-bottom: 1.176em;
-		line-height: 1.5;
+#content > article p,
+#content > section p {
+    /*font-family: serif; */
+    margin-bottom: 1.176em;
+    line-height: 1.5;
 }
 
-
-article p a,
-section p a,
-article li a,
-section li a {
-		color: rgb(0, 113, 188);
-		font-weight: bold;
-		text-decoration: none;
-		border-bottom-style: dashed;
-		border-bottom-width: thin;
+#content > article p a,
+#content > section p a,
+#content > article li a,
+#content > section li a {
+        color: rgb(0, 113, 188);
+        font-weight: bold;
+        text-decoration: none;
+        border-bottom-style: dashed;
+        border-bottom-width: thin;
 }
 
-
-article h2,
-section h2 {
+#content > article h2,
+#content > section h2 {
     margin: 0px;
     padding: 0px;
     border-bottom: 2px solid rgba(188, 204, 211, 0.75);
     font-size: 1.8em;
-		font-family: 'Gotham SSm',Helvetica,Arial,sans-serif;
-		font-weight: 500;
+    font-family: 'Gotham SSm',Helvetica,Arial,sans-serif;
+    font-weight: 500;
 }
 
-article h3,
-section h3 {
+#content > article h3,
+#content > section h3 {
     margin: 0px;
     /*padding: 0px;*/
-		padding-top: 5px;
+    padding-top: 5px;
     font-size: 0.8em;
     font-style: italic;
     font-weight: normal;
-		color: gray;
+    color: gray;
 }
 
-article h2 a {
+#content > article h2 a,
+#content > section h2 a {
     color: #000000;
     text-decoration: none;
 }
 
-article header,
-section header {
+#content > article header,
+#content > section header {
     margin-bottom: 25px;
 }
 
-article img,
-section img {
+#content > article img,
+#content > section img {
     float: left;
     margin: 0px 20px 10px 0px;
 }
 
-article footer,
-section footer {
+#content > article footer,
+#content > section footer {
     clear: both;
     font-style: italic;
     color: #0071BC;
 }
 
-article footer a,
-section footer a {
+#content > article footer a,
+#content > section footer a {
     color: #0071BC;
 }
 
-article footer span,
-section footer span {
+#content > article footer span,
+#content > section footer span {
     font-weight: bold;
 }
 
-article:last-child,
-section:last-child {
+#content > article:last-child,
+#content > section:last-child {
     margin-bottom: 0px;
 }
 
@@ -574,99 +573,16 @@ a.donate:hover {
 }
 /* }}} */
 
-/* Date picker {{{ */
-.ui-datepicker {
-    width: 17em;
-    padding: 0;
-    border: 1px solid #ffffff;
+/* Playlists by date {{{ */
+#playlists_by_date_wrapper {
+    height: 500px;
+    overflow: auto;
 }
 
-.ui-datepicker .ui-datepicker-header {
-    position: relative;
-    padding: 0.2em 0;
-    background: #ffffff;
-}
-
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
-    position: absolute;
-    top: 2px;
-    width: 1.8em;
-    height: 1.8em;
-    color: #777777;
-    cursor: pointer;
-}
-
-.ui-datepicker-prev { left: 2px; }
-.ui-datepicker-next { right: 2px; }
-
-.ui-datepicker .ui-datepicker-prev span,
-.ui-datepicker .ui-datepicker-next span {
-    display: block;
-    position: absolute;
-    left: 50%;
-    margin-left: -4px;
-    top: 50%;
-    margin-top: -8px;
-}
-
-.ui-datepicker .ui-datepicker-prev:hover,
-.ui-datepicker .ui-datepicker-next:hover {
-    color: #000000;
-}
-
-.ui-datepicker .ui-datepicker-title {
-    margin: 0 2.3em;
-    line-height: 1.98em;
-    text-align: center;
-}
-
-.ui-datepicker .ui-datepicker-title select {
-    font-size: 1em;
-    margin: 1px 0;
-}
-
-.ui-datepicker select.ui-datepicker-month,
-.ui-datepicker select.ui-datepicker-year {
-    width: 49%;
-}
-
-.ui-datepicker table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0 0 0.4em;
-    font-size: 0.9em;
-}
-
-.ui-datepicker th {
-    padding: 0.7em 0.3em;
-    border: 0;
-    background: #ffffff;
-    text-align: center;
-    font-weight: bold;
-}
-
-.ui-datepicker td {
-    border: 0;
-    padding: 1px;
-}
-
-.ui-datepicker td span,
-.ui-datepicker td a {
-    display: block;
-    padding: 0.2em;
-    text-align: right;
-    text-decoration: none;
-}
-
-.ui-datepicker-row-break {
-    clear: both;
-    width: 100%;
-    font-size: 0em;
-}
-
-.ui-datepicker .ui-state-active {
-    background: #ffffff;
+#playlists_by_date section header {
+    margin: 0;
+    padding: 2px;
+    font-size: 1.1em;
 }
 /* }}} */
 

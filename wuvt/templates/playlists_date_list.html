@@ -10,28 +10,17 @@
 <section>
     <noscript>Sorry, but you need to enable JavaScript to use the date
     picker.</noscript>
-    <div id="datepicker"></div>
+
+    <div id="playlists_by_date_wrapper">
+        <div id="playlists_by_date"></div>
+    </div>
 </section>
 {% endblock %}
 
 {% block js %}
 {{ super() }}
 <script>
-// <![CDATA[
-$(function() {
-    $('#datepicker').datepicker({
-        'dateFormat': "yy/mm/dd",
-        'minDate': "2007/01/01",
-        'maxDate': 0,
-        'changeMonth': true,
-        'changeYear': true,
-        'prevText': "«",
-        'nextText': "»",
-        'onSelect': function(dt) {
-            loadPage("/playlists/date/" + dt);
-        },
-    });
-});
-// ]]>
+var p = new PlaylistsByDate('#playlists_by_date_wrapper', '#playlists_by_date');
+p.init();
 </script>
 {% endblock %}

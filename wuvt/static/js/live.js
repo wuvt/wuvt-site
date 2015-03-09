@@ -141,20 +141,10 @@ function loadPage(path) {
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
-        // build date picker
-        if($('#datepicker').length) {
-            $('#datepicker').datepicker({
-                'dateFormat': "yy/mm/dd",
-                'minDate': "2007/01/01",
-                'maxDate': 0,
-                'changeMonth': true,
-                'changeYear': true,
-                'prevText': "«",
-                'nextText': "»",
-                'onSelect': function(dt) {
-                    loadPage("/playlists/date/" + dt);
-                },
-            });
+        if($('#playlists_by_date_wrapper').length) {
+            var p = new PlaylistsByDate('#playlists_by_date_wrapper',
+                                        '#playlists_by_date');
+            p.init();
         }
     }).fail(function(data) {
         var doc = $('<div>').append($.parseHTML(data.responseText));
