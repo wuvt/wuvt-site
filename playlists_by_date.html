@@ -14,18 +14,12 @@
             overflow: auto;
         }
 
-        #playlists_by_date header {
-            margin: 2em 0 0 0;
+        #playlists_by_date section header {
+            margin: 0;
             padding: 2px;
             background: #000;
             color: #fff;
             font-size: 1em;
-        }
-
-        #playlists_by_date ul {
-            /*margin: 0;
-            padding: 0;
-            list-style: none;*/
         }
     </style>
 </head>
@@ -34,12 +28,16 @@
         <div id="playlists_by_date">
         </div>
     </div>
+    <form>
+        <input type="text" name="date" id="date_entry" value="" placeholder="yyyy-mm-dd" />
+        <button type="submit" id="jump_btn">Jump to Date</button>
+    </form>
 
     <script src="wuvt/static/js/jquery.js"></script>
     <script src="wuvt/static/js/moment.min.js"></script>
 <script>
 // an estimate of how much space each day takes
-var spacePerDay = 527;
+var spacePerDay = 535;
 
 // number of days to display each time we scroll
 var displayDays = 5;
@@ -59,7 +57,7 @@ var padTop = 0;
 var padBottom = 0;
 
 function updateData(end, displayDays, overlapDays, direction) {
-    direction = typeof direction !== 'undefined' ? direction : 'down';
+    direction = typeof direction !== 'undefined' ? direction : null;
 
     var dates = [];
     for(var i = -overlapDays; i < displayDays + overlapDays; i++) {
@@ -126,9 +124,11 @@ function updateData(end, displayDays, overlapDays, direction) {
 
         var list = document.createElement('ul');
         $.each(entries, function(index, value) {
-            //var li = $('<li/>', {'text': value});
-            var li = $('<li/>', {'html': value});
-            $(list).append(li);
+            if(Math.random() > 0.4) {
+                //var li = $('<li/>', {'text': value});
+                var li = $('<li/>', {'html': value});
+                $(list).append(li);
+            }
         });
 
         /*var foot = document.createElement('footer');
@@ -163,10 +163,23 @@ function updateData(end, displayDays, overlapDays, direction) {
     $('#playlists_by_date').css('padding-top', padTop + 'px');
 }
 
-updateData(displayEnd, displayDays, overlapDays);
+function jumpToDate(dt) {
+    padTop = moment(absoluteEnd).diff(dt, 'days') * spacePerDay;
+    updateData(dt, displayDays, overlapDays);
 
-// TODO: add a timeout for these bits
-$('#scroller').bind('scroll', function() {
+    $('#scroller').unbind('scroll');
+    $('#scroller').animate(
+        {
+            'scrollTop': $('#playlists_by_date section:eq(1)').offset().top,
+        },
+        500, function() {
+            $('#scroller').bind('scroll', handleScroll);
+        });
+}
+
+function handleScroll(ev) {
+    // TODO: add a timeout for these bits
+
     var newEnd;
 
     if($(this).scrollTop() < padTop) {
@@ -189,7 +202,16 @@ $('#scroller').bind('scroll', function() {
             updateData(newEnd, displayDays, overlapDays, 'down');
         }
     }
+}
+
+$('#scroller').bind('scroll', handleScroll);
+$('#jump_btn').click(function(ev) {
+    jumpToDate(moment($('#date_entry').val()));
+    return false;
 });
+
+updateData(displayEnd, displayDays, overlapDays);
+//jumpToDate(moment("2015-01-02"));
 </script>
 </body>
 </html>
