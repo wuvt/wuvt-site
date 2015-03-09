@@ -44,92 +44,81 @@ PlaylistsByDate.prototype.updateData = function(end, direction) {
     //console.log("displayStart: " + this.displayStart.format());
     //console.log("displayEnd: " + this.displayEnd.format());
 
-    // TODO: these should be associated with Dates and have more metadata
-    var entries = [
-        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
-        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
-        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
-        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
-        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
-        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
-        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
-        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
-        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
-        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
-        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
-        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
-        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
-        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
-        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
-        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
-        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
-        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
-        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
-        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
-        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
-        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
-        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
-        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
-    ];
+    $.ajax({
+        'url': '/playlists/date/data?start=' + this.displayStart.toISOString() + '&end=' + this.displayEnd.toISOString(),
+        'dataType': 'json',
+        'context': this,
+    }).done(function(data) {
+        var sets = data['sets'];
+        var days = {};
 
-    if(direction == 'down') {
-        // save current height and add it to top padding
-        //console.log("direction: down");
-        this.padTop += $(this.content).height();
-        
-        // deal with overlapping days
-        for(var i = 0; i < this.overlapDays; i++) {
-            this.padTop -= $(this.content + ' section').eq(-i).height();
-        }
-    }
-
-    // remove existing data
-    $(this.content).html('');
-
-    for(i in dates) {
-        var head = document.createElement('header');
-        $(head).text(dates[i].format('dddd, MMMM D, YYYY'));
-
-        var list = document.createElement('ul');
-        $.each(entries, function(index, value) {
-            if(Math.random() > 0.4) {
-                //var li = $('<li/>', {'text': value});
-                var li = $('<li/>', {'html': value});
-                $(list).append(li);
+        for(i in sets) {
+            var key = moment(sets[i]['dtstart']).startOf('day');
+            if(key in days) {
+                days[key].push(sets[i]);
             }
-        });
-
-        /*var foot = document.createElement('footer');
-        var utcDate = new Date(dates[i].getTime() + dates[i].getTimezoneOffset() * 60000);
-        $(foot).text(utcDate.toISOString());*/
-
-        var section = document.createElement('section');
-        $(section).append(head);
-        $(section).append(list);
-        //$(section).append(foot);
-        $(this.content).append(section);
-    }
-
-    if(direction == 'up') {
-        // subtract current height from top padding
-        //console.log("direction: up");
-        this.padTop -= $(this.content).height();
-
-        // deal with overlapping days
-        for(var i = 0; i < this.overlapDays; i++) {
-            this.padTop += $(this.content + ' section').eq(i).height();
+            else {
+                days[key] = [sets[i]];
+            }
         }
 
-        if(this.padTop < 0) {
-            this.padTop = 0;
-            this.scrollTop = 0;
-        }
-        else {
-            this.scrollTop = this.padTop;
-        }
-    }
+        if(direction == 'down') {
+            // save current height and add it to top padding
+            //console.log("direction: down");
+            this.padTop += $(this.content).height();
 
-    $(this.content).css('padding-top', this.padTop + 'px');
+            // deal with overlapping days
+            for(var i = 0; i < this.overlapDays; i++) {
+                this.padTop -= $(this.content + ' section').eq(-i).height();
+            }
+        }
+
+        // remove existing data
+        $(this.content).html('');
+
+        for(date in days) {
+            var head = document.createElement('header');
+            $(head).text(moment(date).format('dddd, MMMM D, YYYY'));
+
+            var list = document.createElement('ul');
+            $.each(days[date], function(index, value) {
+                var link = document.createElement('a');
+                link.href = '/playlists/set/' + value['id'];
+                $(link).text(moment(value['dtstart']).format('HH:mm') + "-" + moment(value['dtend']).format('HH:mm') + ": " + value['dj']['airname']);
+                makeAjaxLink(link);
+
+                var li = document.createElement('li');
+                $(li).append(link);
+                $(list).append(li);
+            });
+
+            var section = document.createElement('section');
+            $(section).append(head);
+            $(section).append(list);
+            $(this.content).append(section);
+        }
+
+        if(direction == 'up') {
+            // subtract current height from top padding
+            //console.log("direction: up");
+            this.padTop -= $(this.content).height();
+
+            // deal with overlapping days
+            for(var i = 0; i < this.overlapDays; i++) {
+                this.padTop += $(this.content + ' section').eq(i).height();
+            }
+
+            if(this.padTop < 0) {
+                this.padTop = 0;
+                this.scrollTop = 0;
+            }
+            else {
+                this.scrollTop = this.padTop;
+            }
+        }
+
+        $(this.content).css('padding-top', this.padTop + 'px');
+    });
 }
 
 PlaylistsByDate.prototype.jumpToDate = function(dt) {
