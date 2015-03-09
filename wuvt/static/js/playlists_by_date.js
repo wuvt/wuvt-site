@@ -133,36 +133,40 @@ PlaylistsByDate.prototype.jumpToDate = function(dt) {
     }
 
     this.padTop = moment(this.absoluteEnd).diff(dt, 'days') * this.spacePerDay;
+
+    // our jump to date is the end of the current day, minus overlapping days
+    dt = dt.endOf('day').subtract(this.overlapDays, 'days');
     this.updateData(dt);
 
-    $(this.wrapper).unbind('scroll');
     $(this.wrapper).animate(
         {
-            'scrollTop': this.padTop + $(this.content + ' section:first').height(),
+            'scrollTop': this.padTop,
         },
-        500, function() {
-            $(this.wrapper).bind('scroll', {'instance': this}, this.handleScroll);
+        500, function(ev) {
+            console.log(this);
         });
 }
 
 PlaylistsByDate.prototype.handleScroll = function(ev) {
-    // TODO: add a timeout for these bits
-
     var newEnd;
     var inst = ev.data.instance;
 
-    if($(this).scrollTop() < inst.padTop - $(this).height() / 4) {
-        newEnd = moment(inst.displayStart).add(inst.displayDays * 2 + inst.overlapDays, 'days');
-        if(newEnd >= inst.absoluteEnd) {
-            newEnd = inst.absoluteEnd;
-        }
+    // TODO: add a timeout for these bits
 
-        inst.updateData(newEnd, 'up');
-    }
-    else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
-        newEnd = moment(inst.displayStart).subtract(1, 'days');
-        if(newEnd > inst.absoluteStart) {
-            inst.updateData(newEnd, 'down');
+    if(!$(this).is(':animated')) {
+        if($(this).scrollTop() < inst.padTop) {
+            newEnd = moment(inst.displayStart).add(inst.displayDays * 2 + inst.overlapDays, 'days');
+            if(newEnd >= inst.absoluteEnd) {
+                newEnd = inst.absoluteEnd;
+            }
+
+            inst.updateData(newEnd, 'up');
+        }
+        else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
+            newEnd = moment(inst.displayStart).subtract(1, 'days');
+            if(newEnd > inst.absoluteStart) {
+                inst.updateData(newEnd, 'down');
+            }
         }
     }
 }
