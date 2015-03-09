@@ -27,7 +27,12 @@ def perdelta(start, end, td):
 
 def list_archives(djset):
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
-    end = djset.dtend.replace(minute=0, second=0, microsecond=0)
+
+    if djset.dtend is None:
+        end = start
+    else:
+        end = djset.dtend.replace(minute=0, second=0, microsecond=0)
+
     for loghour in perdelta(start, end, timedelta(hours=1)):
         yield (app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
