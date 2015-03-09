@@ -138,7 +138,7 @@ PlaylistsByDate.prototype.jumpToDate = function(dt) {
     $(this.wrapper).unbind('scroll');
     $(this.wrapper).animate(
         {
-            'scrollTop': $(this.content + ' section:eq(1)').offset().top,
+            'scrollTop': this.padTop + $(this.content + ' section:first').height(),
         },
         500, function() {
             $(this.wrapper).bind('scroll', {'instance': this}, this.handleScroll);
