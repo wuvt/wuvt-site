@@ -8,7 +8,7 @@
             font-size: 100%;
         }
 
-        #scroller {
+        #playlists_by_date_wrapper {
             height: 500px;
             overflow: auto;
         }
@@ -23,7 +23,7 @@
     </style>
 </head>
 <body>
-    <div id="scroller">
+    <div id="playlists_by_date_wrapper">
         <div id="playlists_by_date">
         </div>
     </div>
@@ -34,177 +34,10 @@
 
     <script src="wuvt/static/js/jquery.js"></script>
     <script src="wuvt/static/js/moment.min.js"></script>
+    <script src="wuvt/static/js/playlists_by_date.js"></script>
 <script>
-// an estimate of how much space each day takes
-var spacePerDay = 535;
-
-// number of days to display each time we scroll
-var displayDays = 5;
-
-// days of overlap on each side
-var overlapDays = 1;
-
-// we subtract these so the current day is really the last overlap day
-var absoluteEnd = moment().endOf('day').subtract(overlapDays, 'days');
-//var absoluteStart = moment("2014-12-05");
-var absoluteStart = moment("2007-09-07");
-
-// leave these alone
-var displayEnd = absoluteEnd;
-var displayStart = null;
-var padTop = 0;
-var padBottom = 0;
-
-function updateData(end, displayDays, overlapDays, direction) {
-    direction = typeof direction !== 'undefined' ? direction : null;
-
-    var dates = [];
-    for(var i = -overlapDays; i < displayDays + overlapDays; i++) {
-        var dt = moment(end).subtract(i, 'days');
-
-        // don't display days earlier than the start
-        if(dt >= absoluteStart) {
-            dates.push(dt.startOf('day'));
-        }
-    }
-
-    displayStart = dates[dates.length - 1];
-    displayEnd = dates[0].endOf('day');
-
-    //console.log("displayStart: " + displayStart.format());
-    //console.log("displayEnd: " + displayEnd.format());
-
-    // TODO: these should be associated with Dates and have more
-    // metadata
-    var entries = [
-        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
-        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
-        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
-        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
-        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
-        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
-        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
-        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
-        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
-        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
-        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
-        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
-        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
-        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
-        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
-        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
-        "17:37-18:19: <a href='https://www.wuvt.vt.edu/'>Charles in Charge</a>",
-        "15:41-16:01: <a href='https://www.wuvt.vt.edu/'>Cheebee/Doctor House</a>",
-        "12:11-13:42: <a href='https://www.wuvt.vt.edu/'>Pierce Sprague</a>",
-        "09:29-11:17: <a href='https://www.wuvt.vt.edu/'>Bryan Hunt</a>",
-        "07:14-08:40: <a href='https://www.wuvt.vt.edu/'>Jim Dubinsky</a>",
-        "02:56-03:22: <a href='https://www.wuvt.vt.edu/'>The Wiggity Wack Swaggy Stack Show</a>",
-        "02:47-02:49: <a href='https://www.wuvt.vt.edu/'>Easy-E</a>",
-        "02:34-02:44: <a href='https://www.wuvt.vt.edu/'>Automation</a>",
-    ];
-
-    if(direction == 'down') {
-        // save current height and add it to top padding
-        //console.log("direction: down");
-        padTop += $('#playlists_by_date').height();
-        
-        // deal with overlapping days
-        for(var i = 0; i < overlapDays; i++) {
-            padTop -= $('#playlists_by_date section').eq(-i).height();
-        }
-    }
-
-    // remove existing data
-    $('#playlists_by_date').html('');
-
-    for(i in dates) {
-        var head = document.createElement('header');
-        $(head).text(dates[i].format('dddd, MMMM D, YYYY'));
-
-        var list = document.createElement('ul');
-        $.each(entries, function(index, value) {
-            if(Math.random() > 0.4) {
-                //var li = $('<li/>', {'text': value});
-                var li = $('<li/>', {'html': value});
-                $(list).append(li);
-            }
-        });
-
-        /*var foot = document.createElement('footer');
-        var utcDate = new Date(dates[i].getTime() + dates[i].getTimezoneOffset() * 60000);
-        $(foot).text(utcDate.toISOString());*/
-
-        var section = document.createElement('section');
-        $(section).append(head);
-        $(section).append(list);
-        //$(section).append(foot);
-        $('#playlists_by_date').append(section);
-    }
-
-    if(direction == 'up') {
-        // subtract current height from top padding
-        //console.log("direction: up");
-        padTop -= $('#playlists_by_date').height();
-
-        // deal with overlapping days
-        for(var i = 0; i < overlapDays; i++) {
-            padTop += $('#playlists_by_date section').eq(i).height();
-        }
-
-        if(padTop < 0) {
-            padTop = 0;
-        }
-    }
-
-    $('#playlists_by_date').css('padding-top', padTop + 'px');
-}
-
-function jumpToDate(dt) {
-    if(dt < absoluteStart) {
-        dt = absoluteStart;
-    }
-
-    padTop = moment(absoluteEnd).diff(dt, 'days') * spacePerDay;
-    updateData(dt, displayDays, overlapDays);
-
-    $('#scroller').unbind('scroll');
-    $('#scroller').animate(
-        {
-            'scrollTop': $('#playlists_by_date section:eq(1)').offset().top,
-        },
-        500, function() {
-            $('#scroller').bind('scroll', handleScroll);
-        });
-}
-
-function handleScroll(ev) {
-    // TODO: add a timeout for these bits
-
-    var newEnd;
-
-    if($(this).scrollTop() < padTop - $(this).height() / 4) {
-        newEnd = moment(displayStart).add(displayDays * 2 + overlapDays, 'days');
-        if(newEnd >= absoluteEnd) {
-            newEnd = absoluteEnd;
-        }
-
-        updateData(newEnd, displayDays, overlapDays, 'up');
-    }
-    else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
-        newEnd = moment(displayStart).subtract(1, 'days');
-        if(newEnd > absoluteStart) {
-            updateData(newEnd, displayDays, overlapDays, 'down');
-        }
-    }
-}
-
-$('#scroller').bind('scroll', handleScroll);
-$('#date_jump_form').submit(function(ev) {
-    jumpToDate(moment($('#date_entry').val()));
-    return false;
-});
-
-updateData(displayEnd, displayDays, overlapDays);
+var p = new PlaylistsByDate('#playlists_by_date_wrapper', '#playlists_by_date');
+p.init();
 </script>
 </body>
 </html>
