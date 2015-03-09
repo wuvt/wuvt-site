@@ -19,6 +19,7 @@ function PlaylistsByDate(wrapper, content) {
     this.displayStart = null;
     this.padTop = 0;
     this.padBottom = 0;
+    this.scrollTop = 0;
 
     this.wrapper = wrapper;
     this.content = content;
@@ -121,6 +122,10 @@ PlaylistsByDate.prototype.updateData = function(end, direction) {
 
         if(this.padTop < 0) {
             this.padTop = 0;
+            this.scrollTop = 0;
+        }
+        else {
+            this.scrollTop = this.padTop;
         }
     }
 
@@ -133,18 +138,13 @@ PlaylistsByDate.prototype.jumpToDate = function(dt) {
     }
 
     this.padTop = moment(this.absoluteEnd).diff(dt, 'days') * this.spacePerDay;
+    this.scrollTop = this.padTop;
 
     // our jump to date is the end of the current day, minus overlapping days
     dt = dt.endOf('day').subtract(this.overlapDays, 'days');
     this.updateData(dt);
 
-    $(this.wrapper).animate(
-        {
-            'scrollTop': this.padTop,
-        },
-        500, function(ev) {
-            console.log(this);
-        });
+    $(this.wrapper).animate({'scrollTop': this.padTop}, 500);
 }
 
 PlaylistsByDate.prototype.handleScroll = function(ev) {
@@ -154,7 +154,7 @@ PlaylistsByDate.prototype.handleScroll = function(ev) {
     // TODO: add a timeout for these bits
 
     if(!$(this).is(':animated')) {
-        if($(this).scrollTop() < inst.padTop) {
+        if($(this).scrollTop() + $(this).innerHeight() < inst.scrollTop) {
             newEnd = moment(inst.displayStart).add(inst.displayDays * 2 + inst.overlapDays, 'days');
             if(newEnd >= inst.absoluteEnd) {
                 newEnd = inst.absoluteEnd;
@@ -162,10 +162,11 @@ PlaylistsByDate.prototype.handleScroll = function(ev) {
 
             inst.updateData(newEnd, 'up');
         }
-        else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
+        else if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
             newEnd = moment(inst.displayStart).subtract(1, 'days');
             if(newEnd > inst.absoluteStart) {
                 inst.updateData(newEnd, 'down');
+                inst.scrollTop = $(this).scrollTop() - 1;
             }
         }
     }
