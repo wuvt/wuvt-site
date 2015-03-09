@@ -71,8 +71,8 @@ function updateData(end, displayDays, overlapDays, direction) {
     displayStart = dates[dates.length - 1];
     displayEnd = dates[0].endOf('day');
 
-    console.log("displayStart: " + displayStart.format());
-    console.log("displayEnd: " + displayEnd.format());
+    //console.log("displayStart: " + displayStart.format());
+    //console.log("displayEnd: " + displayEnd.format());
 
     // TODO: these should be associated with Dates and have more
     // metadata
@@ -105,7 +105,7 @@ function updateData(end, displayDays, overlapDays, direction) {
 
     if(direction == 'down') {
         // save current height and add it to top padding
-        console.log("direction: down");
+        //console.log("direction: down");
         padTop += $('#playlists_by_date').height();
         
         // deal with overlapping days
@@ -143,8 +143,7 @@ function updateData(end, displayDays, overlapDays, direction) {
 
     if(direction == 'up') {
         // subtract current height from top padding
-        console.log("direction: up");
-        console.log("old padTop: " + padTop);
+        //console.log("direction: up");
         padTop -= $('#playlists_by_date').height();
 
         // deal with overlapping days
@@ -155,8 +154,6 @@ function updateData(end, displayDays, overlapDays, direction) {
         if(padTop < 0) {
             padTop = 0;
         }
-
-        console.log("new padTop: " + padTop);
     }
 
     $('#playlists_by_date').css('padding-top', padTop + 'px');
@@ -186,22 +183,16 @@ function handleScroll(ev) {
     var newEnd;
 
     if($(this).scrollTop() < padTop - $(this).height() / 4) {
-        console.log("top");
-
         newEnd = moment(displayStart).add(displayDays * 2 + overlapDays, 'days');
         if(newEnd >= absoluteEnd) {
             newEnd = absoluteEnd;
         }
 
-        console.log("new end: " + newEnd.format());
         updateData(newEnd, displayDays, overlapDays, 'up');
     }
     else if($(this).scrollTop() + $(this).innerHeight() == $(this)[0].scrollHeight) {
-        console.log("bottom");
-
         newEnd = moment(displayStart).subtract(1, 'days');
         if(newEnd > absoluteStart) {
-            console.log("new end: " + newEnd.format());
             updateData(newEnd, displayDays, overlapDays, 'down');
         }
     }
