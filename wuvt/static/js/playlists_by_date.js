@@ -29,11 +29,9 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
 
     if(direction == 'up' && dateToLoad > this.absoluteEnd) {
         this.topReached = true;
-        console.log("top reached");
     }
     else if(direction == 'down' && start < this.absoluteStart) {
         this.bottomReached = true;
-        console.log("bottom reached");
     }
 
     $.ajax({
@@ -81,7 +79,6 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
         }
 
         if(direction == 'up' || direction == 'jump') {
-            console.log($(inst.cdiv2).position().top);
             $(inst.wrapper).scrollTop($(inst.cdiv2).position().top);
         }
     });
@@ -104,7 +101,6 @@ PlaylistsByDate.prototype.jumpToDate = function(dt) {
 
 PlaylistsByDate.prototype.scrollUp = function() {
     if(this.topReached) {
-        console.log("top reached!");
         return;
     }
 
@@ -124,7 +120,6 @@ PlaylistsByDate.prototype.scrollUp = function() {
 
 PlaylistsByDate.prototype.scrollDown = function() {
     if(this.bottomReached) {
-        console.log("bottom reached!");
         return;
     }
 
