@@ -27,7 +27,7 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
     this.topReached = false;
     this.bottomReached = false;
     var inst = this;
-    var start = moment(dateToLoad).subtract(this.displayDays - 1, 'days').startOf('day');
+    var start = moment(dateToLoad).subtract(this.displayDays, 'days');
 
     if(direction == 'up' && dateToLoad > this.absoluteEnd) {
         this.topReached = true;
@@ -103,11 +103,13 @@ PlaylistsByDate.prototype.jumpToDate = function(dt) {
         dt = this.absoluteEnd;
     }
 
-    this.activeDate = this.absoluteEnd;
+    this.activeDate = moment(dt).endOf('day');
 
-    this.loadDateSet(moment(dt).add(this.displayDays, 'days'), this.cdiv1);
-    this.loadDateSet(dt, this.cdiv2, 'jump');
-    this.loadDateSet(moment(dt).subtract(this.displayDays, 'days'), this.cdiv3);
+    this.loadDateSet(
+        moment(this.activeDate).add(this.displayDays, 'days'), this.cdiv1);
+    this.loadDateSet(this.activeDate, this.cdiv2, 'jump');
+    this.loadDateSet(
+        moment(this.activeDate).subtract(this.displayDays, 'days'), this.cdiv3);
 }
 
 PlaylistsByDate.prototype.scrollUp = function() {
