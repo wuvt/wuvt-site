@@ -8,6 +8,7 @@ from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
 import datetime
 import json
+import re
 
 from wuvt import app
 from wuvt import csrf
@@ -81,6 +82,20 @@ def latest_track():
 
     return Response(u"{artist} - {title}".format(**trackinfo()),
             mimetype="text/plain")
+
+
+@app.route('/playlists/latest_track_clean')
+@app.route('/playlists/latest_track_clean.php')
+def latest_track_clean():
+    if request.wants_json():
+        return jsonify(trackinfo())
+
+    naughty_word_re = re.compile(
+        r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole')
+    output = u"{artist} - {title}".format(**trackinfo())
+    output = naughty_word_re.sub(u'****', output)
+
+    return Response(output, mimetype="text/plain")
 
 
 @app.route('/playlists/latest_track_stream')
