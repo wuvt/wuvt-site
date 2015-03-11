@@ -92,7 +92,7 @@ def latest_track_clean():
 
     naughty_word_re = re.compile(
         r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole')
-    output = u"{artist} - {title}".format(**trackinfo())
+    output = u"{artist} - {title} [DJ: {dj}]".format(**trackinfo())
     output = naughty_word_re.sub(u'****', output)
 
     return Response(output, mimetype="text/plain")
