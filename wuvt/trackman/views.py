@@ -91,7 +91,8 @@ def latest_track_clean():
         return jsonify(trackinfo())
 
     naughty_word_re = re.compile(
-        r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole')
+        r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole',
+        re.IGNORECASE)
     output = u"{artist} - {title} [DJ: {dj}]".format(**trackinfo())
     output = naughty_word_re.sub(u'****', output)
 
