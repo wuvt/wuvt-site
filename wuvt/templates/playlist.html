@@ -7,7 +7,7 @@
 <section>
 <header>
     <h2>Playlist Archive</h2>
-    <h3>{{ djset.dj.airname }} / {{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</h3>
+    <h3><a href="/playlists/dj/{{ djset.dj.id }}">{{ djset.dj.airname }}</a> / {{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</h3>
 </header>
 <div class="links">
     <h4>Listen Online</h4>

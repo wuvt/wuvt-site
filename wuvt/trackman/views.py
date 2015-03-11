@@ -8,6 +8,7 @@ from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
 import datetime
 import json
+import re
 
 from wuvt import app
 from wuvt import csrf
@@ -83,6 +84,20 @@ def latest_track():
             mimetype="text/plain")
 
 
+@app.route('/playlists/latest_track_clean')
+@app.route('/playlists/latest_track_clean.php')
+def latest_track_clean():
+    if request.wants_json():
+        return jsonify(trackinfo())
+
+    naughty_word_re = re.compile(
+        r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole')
+    output = u"{artist} - {title}".format(**trackinfo())
+    output = naughty_word_re.sub(u'****', output)
+
+    return Response(output, mimetype="text/plain")
+
+
 @app.route('/playlists/latest_track_stream')
 @app.route('/playlists/latest_track_stream.php')
 def latest_track_stream():
@@ -123,7 +138,9 @@ def playlists_date_sets(year, month, day):
     dtstart = dtstart - datetime.timedelta(seconds=30)
     dtend = datetime.datetime(year, month, day, 23, 59, 59)
     sets = DJSet.query.filter(DJSet.dtstart >= dtstart).\
-            filter(DJSet.dtend <= dtend).all()
+            filter(DJSet.dtend <= dtend).join(DJSet.dj).\
+            filter(DJ.visible == True).all()
+
     return render_template('playlists_date_sets.html', date=dtend, sets=sets)
 # }}}
 

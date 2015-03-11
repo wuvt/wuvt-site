@@ -27,7 +27,12 @@ def perdelta(start, end, td):
 
 def list_archives(djset):
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
-    end = djset.dtend.replace(minute=0, second=0, microsecond=0)
+
+    if djset.dtend is None:
+        end = start
+    else:
+        end = djset.dtend.replace(minute=0, second=0, microsecond=0)
+
     for loghour in perdelta(start, end, timedelta(hours=1)):
         yield (app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
@@ -82,23 +87,23 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False, rotatio
     played = localize_datetime(track.played)
     # update stream metadata
     for mount in app.config['ICECAST_MOUNTS']:
-        song = '{artist} - {title}'.format(artist=artist, title=title)
+        song = u'{artist} - {title}'.format(artist=artist, title=title)
         requests.get(app.config['ICECAST_ADMIN'] +
-                     'metadata?mount={mount}&mode=updinfo&song={song}'
+                     u'metadata?mount={mount}&mode=updinfo&song={song}'
                      .format(mount=urllib.quote(mount),
-                             song=urllib.quote(song)))
+                             song=urllib.quote(song.encode('utf-8'))))
 
     # update tunein
     if len(app.config['TUNEIN_PARTNERID']) > 0:
         requests.get(
-            'http://air.radiotime.com/Playing.ashx?partnerId={partner_id}'
-            '&partnerKey={partner_key}&id={station_id}&title={title}'
-            '&artist={artist}'.format(
+            u'http://air.radiotime.com/Playing.ashx?partnerId={partner_id}'
+            u'&partnerKey={partner_key}&id={station_id}&title={title}'
+            u'&artist={artist}'.format(
                 partner_id=urllib.quote(app.config['TUNEIN_PARTNERID']),
                 partner_key=urllib.quote(app.config['TUNEIN_PARTNERKEY']),
                 station_id=urllib.quote(app.config['TUNEIN_STATIONID']),
-                artist=urllib.quote(artist),
-                title=urllib.quote(title)
+                artist=urllib.quote(artist.encode('utf-8')),
+                title=urllib.quote(title.encode('utf-8'))
             ))
 
     # update last.fm (yay!)
