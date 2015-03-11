@@ -11,8 +11,7 @@
     <noscript>Sorry, but you need to enable JavaScript to use the date
     picker.</noscript>
 
-    <div id="playlists_by_date_wrapper">
-        <div id="playlists_by_date"></div>
+    <div id="playlists_by_date">
     </div>
 
     <form id="date_jump_form">
@@ -25,7 +24,7 @@
 {% block js %}
 {{ super() }}
 <script>
-var p = new PlaylistsByDate('#playlists_by_date_wrapper', '#playlists_by_date');
+var p = new PlaylistsByDate('#playlists_by_date');
 p.init();
 </script>
 {% endblock %}

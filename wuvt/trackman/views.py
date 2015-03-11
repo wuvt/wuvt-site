@@ -108,7 +108,7 @@ def playlists_date_data():
 
     sets = DJSet.query.filter(db.and_(DJSet.dtstart >= start,
                                       DJSet.dtend <= end)).\
-            order_by(db.desc(DJSet.dtstart)).limit(120).all()
+            order_by(db.desc(DJSet.dtstart)).limit(300).all()
 
     if request.wants_json():
         return jsonify({'sets': [s.serialize() for s in sets]})

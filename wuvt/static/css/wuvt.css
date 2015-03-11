@@ -574,9 +574,14 @@ a.donate:hover {
 /* }}} */
 
 /* Playlists by date {{{ */
-#playlists_by_date_wrapper {
+#playlists_by_date {
+    position: relative;
     height: 500px;
-    overflow: auto;
+    overflow-y: auto;
+}
+
+#playlists_by_date div {
+    border: 1px solid #000;
 }
 
 #playlists_by_date section header {

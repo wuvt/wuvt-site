@@ -1,56 +1,48 @@
-function PlaylistsByDate(wrapper, content) {
-    // an estimate of how much space each day takes
-    this.spacePerDay = 535;
-
+function PlaylistsByDate(wrapper) {
     // number of days to display each time we scroll
-    this.displayDays = 5;
-
-    // days of overlap on each side
-    this.overlapDays = 1;
+    this.displayDays = 10;
 
     // we subtract these so the current day is really the last overlap day
-    this.absoluteEnd = moment().endOf('day').subtract(this.overlapDays, 'days');
+    this.absoluteEnd = moment().endOf('day');
 
     // TODO: pull this from the database?
     this.absoluteStart = moment("2007-09-07");
 
-    // leave these alone
-    this.displayEnd = this.absoluteEnd;
-    this.displayStart = null;
-    this.padTop = 0;
-    this.padBottom = 0;
-    this.scrollTop = 0;
-
     this.wrapper = wrapper;
-    this.content = content;
+
+    // create content divs
+    this.cdiv1 = document.createElement('div');
+    $(this.wrapper).append(this.cdiv1);
+    this.cdiv2 = document.createElement('div');
+    $(this.wrapper).append(this.cdiv2);
+    this.cdiv3 = document.createElement('div');
+    $(this.wrapper).append(this.cdiv3);
 }
 
-PlaylistsByDate.prototype.updateData = function(end, direction) {
+PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction) {
     direction = typeof direction !== 'undefined' ? direction : null;
 
-    var dates = [];
-    for(var i = -this.overlapDays; i < this.displayDays + this.overlapDays; i++) {
-        var dt = moment(end).subtract(i, 'days');
+    this.topReached = false;
+    this.bottomReached = false;
+    var inst = this;
+    var start = moment(dateToLoad).subtract(this.displayDays - 1, 'days').startOf('day');
 
-        // don't display days earlier than the start
-        if(dt >= this.absoluteStart) {
-            dates.push(dt.startOf('day'));
-        }
+    if(direction == 'up' && dateToLoad > this.absoluteEnd) {
+        this.topReached = true;
+        console.log("top reached");
+    }
+    else if(direction == 'down' && start < this.absoluteStart) {
+        this.bottomReached = true;
+        console.log("bottom reached");
     }
 
-    this.displayStart = dates[dates.length - 1];
-    this.displayEnd = dates[0].endOf('day');
-
-    //console.log("displayStart: " + this.displayStart.format());
-    //console.log("displayEnd: " + this.displayEnd.format());
-
     $.ajax({
-        'url': '/playlists/date/data?start=' + this.displayStart.toISOString() + '&end=' + this.displayEnd.toISOString(),
+        'url': '/playlists/date/data?start=' + start.toISOString() + '&end=' + dateToLoad.toISOString(),
         'dataType': 'json',
-        'context': this,
     }).done(function(data) {
         var sets = data['sets'];
         var days = {};
+        var daysLoaded = 0;
 
         for(i in sets) {
             var key = moment(sets[i]['dtstart']).startOf('day');
@@ -59,22 +51,12 @@ PlaylistsByDate.prototype.updateData = function(end, direction) {
             }
             else {
                 days[key] = [sets[i]];
-            }
-        }
-
-        if(direction == 'down') {
-            // save current height and add it to top padding
-            //console.log("direction: down");
-            this.padTop += $(this.content).height();
-
-            // deal with overlapping days
-            for(var i = 0; i < this.overlapDays; i++) {
-                this.padTop -= $(this.content + ' section').eq(-i).height();
+                daysLoaded++;
             }
         }
 
         // remove existing data
-        $(this.content).html('');
+        $(destDiv).html('');
 
         for(date in days) {
             var head = document.createElement('header');
@@ -95,29 +77,13 @@ PlaylistsByDate.prototype.updateData = function(end, direction) {
             var section = document.createElement('section');
             $(section).append(head);
             $(section).append(list);
-            $(this.content).append(section);
+            $(destDiv).append(section);
         }
 
-        if(direction == 'up') {
-            // subtract current height from top padding
-            //console.log("direction: up");
-            this.padTop -= $(this.content).height();
-
-            // deal with overlapping days
-            for(var i = 0; i < this.overlapDays; i++) {
-                this.padTop += $(this.content + ' section').eq(i).height();
-            }
-
-            if(this.padTop < 0) {
-                this.padTop = 0;
-                this.scrollTop = 0;
-            }
-            else {
-                this.scrollTop = this.padTop;
-            }
+        if(direction == 'up' || direction == 'jump') {
+            console.log($(inst.cdiv2).position().top);
+            $(inst.wrapper).scrollTop($(inst.cdiv2).position().top);
         }
-
-        $(this.content).css('padding-top', this.padTop + 'px');
     });
 }
 
@@ -125,15 +91,56 @@ PlaylistsByDate.prototype.jumpToDate = function(dt) {
     if(dt < this.absoluteStart) {
         dt = this.absoluteStart;
     }
+    else if(dt > this.absoluteEnd) {
+        dt = this.absoluteEnd;
+    }
 
-    this.padTop = moment(this.absoluteEnd).diff(dt, 'days') * this.spacePerDay;
-    this.scrollTop = this.padTop;
+    this.activeDate = this.absoluteEnd;
 
-    // our jump to date is the end of the current day, minus overlapping days
-    dt = dt.endOf('day').subtract(this.overlapDays, 'days');
-    this.updateData(dt);
+    this.loadDateSet(moment(dt).add(this.displayDays, 'days'), this.cdiv1);
+    this.loadDateSet(dt, this.cdiv2, 'jump');
+    this.loadDateSet(moment(dt).subtract(this.displayDays, 'days'), this.cdiv3);
+}
 
-    $(this.wrapper).animate({'scrollTop': this.padTop}, 500);
+PlaylistsByDate.prototype.scrollUp = function() {
+    if(this.topReached) {
+        console.log("top reached!");
+        return;
+    }
+
+    $(this.cdiv3).remove();
+    this.cdiv3 = this.cdiv2;
+    this.cdiv2 = this.cdiv1;
+
+    this.cdiv1 = document.createElement('div');
+    $(this.wrapper).prepend(this.cdiv1);
+
+    // activeDate business
+    this.activeDate = moment(this.activeDate).add(this.displayDays, 'days');
+    this.loadDateSet(
+        moment(this.activeDate).add(this.displayDays, 'days'),
+        this.cdiv1, 'up');
+}
+
+PlaylistsByDate.prototype.scrollDown = function() {
+    if(this.bottomReached) {
+        console.log("bottom reached!");
+        return;
+    }
+
+    $(this.cdiv1).remove();
+    this.cdiv1 = this.cdiv2;
+    this.cdiv2 = this.cdiv3;
+
+    this.cdiv3 = document.createElement('div');
+    $(this.wrapper).append(this.cdiv3);
+
+    // activeDate business
+    this.activeDate = moment(this.activeDate).subtract(
+        this.displayDays, 'days');
+    this.loadDateSet(
+        moment(this.activeDate).subtract(this.displayDays, 'days'),
+        this.cdiv3, 'down');
 }
 
 PlaylistsByDate.prototype.handleScroll = function(ev) {
@@ -143,20 +150,11 @@ PlaylistsByDate.prototype.handleScroll = function(ev) {
     // TODO: add a timeout for these bits
 
     if(!$(this).is(':animated')) {
-        if($(this).scrollTop() + $(this).innerHeight() < inst.scrollTop) {
-            newEnd = moment(inst.displayStart).add(inst.displayDays * 2 + inst.overlapDays, 'days');
-            if(newEnd >= inst.absoluteEnd) {
-                newEnd = inst.absoluteEnd;
-            }
-
-            inst.updateData(newEnd, 'up');
+        if($(this).scrollTop() <= $(this.cdiv1).height()) {
+            inst.scrollUp();
         }
         else if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
-            newEnd = moment(inst.displayStart).subtract(1, 'days');
-            if(newEnd > inst.absoluteStart) {
-                inst.updateData(newEnd, 'down');
-                inst.scrollTop = $(this).scrollTop() - 1;
-            }
+            inst.scrollDown();
         }
     }
 }
@@ -168,5 +166,5 @@ PlaylistsByDate.prototype.init = function() {
         return false;
     });
 
-    this.updateData(this.absoluteEnd);
+    this.jumpToDate(this.absoluteEnd);
 }
