@@ -64,7 +64,14 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
             $.each(days[date], function(index, value) {
                 var link = document.createElement('a');
                 link.href = '/playlists/set/' + value['id'];
-                $(link).text(moment(value['dtstart']).format('HH:mm') + "-" + moment(value['dtend']).format('HH:mm') + ": " + value['dj']['airname']);
+
+                if(value['dtend'] != null) {
+                    $(link).text(moment(value['dtstart']).format('HH:mm') + "-" + moment(value['dtend']).format('HH:mm') + ": " + value['dj']['airname']);
+                }
+                else {
+                    $(link).text(moment(value['dtstart']).format('HH:mm') + "-: " + value['dj']['airname']);
+                }
+
                 makeAjaxLink(link);
 
                 var li = document.createElement('li');
