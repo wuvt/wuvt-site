@@ -8,6 +8,7 @@ function PlaylistsByDate(wrapper) {
     // TODO: pull this from the database?
     this.absoluteStart = moment("2007-09-07");
 
+    this.loading = false;
     this.wrapper = wrapper;
 
     // create content divs
@@ -22,6 +23,7 @@ function PlaylistsByDate(wrapper) {
 PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction) {
     direction = typeof direction !== 'undefined' ? direction : null;
 
+    this.loading = true;
     this.topReached = false;
     this.bottomReached = false;
     var inst = this;
@@ -88,6 +90,8 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
         if(direction == 'up' || direction == 'jump') {
             $(inst.wrapper).scrollTop($(inst.cdiv2).position().top);
         }
+
+        inst.loading = false;
     });
 }
 
@@ -151,7 +155,7 @@ PlaylistsByDate.prototype.handleScroll = function(ev) {
 
     // TODO: add a timeout for these bits
 
-    if(!$(this).is(':animated')) {
+    if(!$(this).is(':animated') && !inst.loading) {
         if($(this).scrollTop() <= $(this.cdiv1).height()) {
             inst.scrollUp();
         }
