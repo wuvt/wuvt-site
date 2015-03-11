@@ -580,10 +580,6 @@ a.donate:hover {
     overflow-y: auto;
 }
 
-#playlists_by_date div {
-    border: 1px solid #000;
-}
-
 #playlists_by_date section header {
     margin: 0;
     padding: 2px;
