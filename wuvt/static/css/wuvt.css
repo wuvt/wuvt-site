@@ -577,7 +577,7 @@ a.donate {
 }
 
 a.donate:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
 }
 /* }}} */
 
