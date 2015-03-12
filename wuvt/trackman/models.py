@@ -19,6 +19,13 @@ class DJ(db.Model):
         self.name = name
         self.visible = visible
 
+    def serialize(self):
+        return {
+            'airname': self.airname,
+            'name': self.name,
+            'visible': self.visible,
+        }
+
 
 class DJSet(db.Model):
     __tablename__ = "set"
@@ -31,6 +38,16 @@ class DJSet(db.Model):
 
     def __init__(self, dj_id):
         self.dj_id = dj_id
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'dj_id': self.dj_id,
+            'dj': self.dj.serialize(),
+            'dtstart': self.dtstart,
+            'dtend': self.dtend,
+        }
+
 
 class Rotation(db.Model):
     __tablename__ = "rotation"

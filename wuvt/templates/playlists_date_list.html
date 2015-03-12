@@ -10,28 +10,21 @@
 <section>
     <noscript>Sorry, but you need to enable JavaScript to use the date
     picker.</noscript>
-    <div id="datepicker"></div>
+
+    <div id="playlists_by_date">
+    </div>
+
+    <form id="date_jump_form">
+        <input type="text" name="date" id="date_entry" value="" placeholder="yyyy-mm-dd" />
+        <button type="submit">Jump to Date</button>
+    </form>
 </section>
 {% endblock %}
 
 {% block js %}
 {{ super() }}
 <script>
-// <![CDATA[
-$(function() {
-    $('#datepicker').datepicker({
-        'dateFormat': "yy/mm/dd",
-        'minDate': "2007/01/01",
-        'maxDate': 0,
-        'changeMonth': true,
-        'changeYear': true,
-        'prevText': "«",
-        'nextText': "»",
-        'onSelect': function(dt) {
-            loadPage("/playlists/date/" + dt);
-        },
-    });
-});
-// ]]>
+var p = new PlaylistsByDate('#playlists_by_date');
+p.init();
 </script>
 {% endblock %}

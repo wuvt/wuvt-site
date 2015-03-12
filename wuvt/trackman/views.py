@@ -117,6 +117,22 @@ def playlists_date():
     return render_template('playlists_date_list.html')
 
 
+@app.route('/playlists/date/data')
+def playlists_date_data():
+    start = datetime.datetime.strptime(request.args['start'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.datetime.strptime(request.args['end'], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    sets = DJSet.query.filter(db.and_(DJSet.dtstart >= start,
+                                      DJSet.dtstart <= end)).\
+            order_by(db.desc(DJSet.dtstart)).limit(300).all()
+
+    if request.wants_json():
+        return jsonify({'sets': [s.serialize() for s in sets]})
+
+    return Response("{start} {end}".format(start=start, end=end))
+
+
+
 @app.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
     dtstart = datetime.datetime(year, month, day, 0, 0, 0)
