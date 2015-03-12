@@ -479,12 +479,8 @@ header nav,
     color: gray;
 }
 
-#content > article h3 a:link,
-#content > article h3 a:visited,
-#content > article h3 a:active,
-#content > section h3 a:link,
-#content > section h3 a:visited,
-#content > section h3 a:active {
+#content > article h3 a,
+#content > section h3 a {
     color: gray;
     text-decoration: underline;
 }
@@ -574,8 +570,10 @@ a.donate {
     padding: 8px;
     border: 0;
     background-color: #ec1c23;
-    color: #ffffff;
-    text-decoration: none;
+    /* it seems these get overwritten by the section/article rules above, so
+     * we add !important to avoid that */
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 
 a.donate:hover {
