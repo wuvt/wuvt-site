@@ -566,12 +566,12 @@ table.tracklist a:active {
 
 /* Donate button {{{ */
 a.donate {
-    display: inline-block;
-    padding: 8px;
-    border: 0;
-    background-color: #ec1c23;
     /* it seems these get overwritten by the section/article rules above, so
      * we add !important to avoid that */
+    display: inline-block;
+    padding: 8px !important;
+    border: 0 !important;
+    background-color: #ec1c23;
     color: #ffffff !important;
     text-decoration: none !important;
 }
