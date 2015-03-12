@@ -136,7 +136,6 @@ def playlists_date_data():
 @app.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
     dtstart = datetime.datetime(year, month, day, 0, 0, 0)
-    dtstart = dtstart - datetime.timedelta(seconds=30)
     sets = DJSet.query.filter(DJSet.dtstart >= dtstart).all()
 
     return render_template('playlists_date_sets.html', date=dtstart, sets=sets)
