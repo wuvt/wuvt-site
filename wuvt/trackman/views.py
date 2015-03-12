@@ -139,7 +139,7 @@ def playlists_date_sets(year, month, day):
     dtstart = dtstart - datetime.timedelta(seconds=30)
     sets = DJSet.query.filter(DJSet.dtstart >= dtstart).all()
 
-    return render_template('playlists_date_sets.html', sets=sets)
+    return render_template('playlists_date_sets.html', date=dtstart, sets=sets)
 # }}}
 
 
