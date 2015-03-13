@@ -18,7 +18,7 @@ from wuvt import format_datetime
 from wuvt import redis_conn
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
-        enable_automation
+        enable_automation, logout_recent
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation
 from wuvt.trackman.view_utils import local_only, dj_interact
 
@@ -33,6 +33,7 @@ from wuvt.trackman.view_utils import local_only, dj_interact
 def login():
 #    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
 #        abort(403)
+    logout_recent()
 
     if 'dj' in request.form:
         disable_automation()
@@ -58,6 +59,7 @@ def login():
 @bp.route('/automation/start', methods=['POST'])
 @local_only
 def start_automation():
+    logout_recent()
     enable_automation()
 
     return redirect(url_for('trackman.login'))
@@ -177,6 +179,8 @@ def logout(setid):
     djset = DJSet.query.get_or_404(setid)
     djset.dtend = datetime.datetime.utcnow()
     db.session.commit()
+    # Reset the dj activity timeout period
+    redis_conn.set('dj_timeout', app.config('DJ_TIMEOUT'))
 
     # email playlist
 

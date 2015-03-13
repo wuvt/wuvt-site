@@ -5,19 +5,26 @@ import urllib
 import urlparse
 import smtplib
 from datetime import timedelta
+from datetime import datetime
 from dateutil import tz
 from flask.json import JSONEncoder
 from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
 import email.utils
 
 from wuvt import app
 from wuvt import db
 from wuvt import sse
+from wuvt import redis_conn
 from wuvt import format_datetime, localize_datetime
 from wuvt.trackman.models import TrackLog, DJSet
+
+def logout_recent():
+    last_djset = DJSet.query.order_by(DJSet.dtstart.desc()).first()
+    if last_djset.dtend is None:
+        last_djset.dtend = datetime.utcnow()
+        db.session.commit()
 
 def perdelta(start, end, td):
     current = start
@@ -38,12 +45,12 @@ def list_archives(djset):
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
-def disable_automation()
+def disable_automation():
     redis_conn.set("automation_enabled", "false")
     automation_set_id = redis_conn.get("automation_set")
     if automation_set_id is not None:
         automation_set = DJSet.query.get(int(automation_set_id))
-        automation_set.dtend = datetime.datetime.utcnow()
+        automation_set.dtend = datetime.utcnow()
         db.session.commit()
 
 def enable_automation():
