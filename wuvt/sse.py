@@ -1,7 +1,6 @@
-import gevent
-import gevent.monkey
 from wuvt import app
 from wuvt import redis_conn
+
 
 def event_stream():
     pubsub = redis_conn.pubsub()
