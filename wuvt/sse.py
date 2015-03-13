@@ -3,9 +3,6 @@ import gevent.monkey
 from wuvt import app
 from wuvt import redis_conn
 
-gevent.monkey.patch_all()
-
-
 def event_stream():
     pubsub = redis_conn.pubsub()
     pubsub.subscribe(app.config['REDIS_CHANNEL'])
