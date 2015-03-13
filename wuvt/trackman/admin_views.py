@@ -106,7 +106,7 @@ def automation_log():
             db.session.add(track)
             db.session.commit()
         else:
-            track = tracks.one()
+            track = tracks.first()
 
     else:
         # Handle automation not providing a label
@@ -120,9 +120,9 @@ def automation_log():
             notauto = tracks.filter(Track.label != "Not Available")
             if len(notauto.all()) == 0:
                 # The only option is "not available label"
-                track = tracks.one()
+                track = tracks.first()
             else:
-                track = notauto.one()
+                track = notauto.first()
 
     dj = DJ.query.filter_by(name="Automation").first()
 
