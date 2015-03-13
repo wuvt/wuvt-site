@@ -39,11 +39,11 @@ td.row-options {
 }
 /* These have to be hardcoded to handle nasty length fields */
 .playlist-actions {
-    min-width: 70px;
+    min-width: 100px;
 }
 .queue-actions {
     min-width: 100px;
 }
 .search-actions {
-    min-width: 100px;
+    min-width: 133px;
 }

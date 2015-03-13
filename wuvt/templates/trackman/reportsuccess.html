@@ -1,0 +1,41 @@
+{% extends "trackman/base.html" %}
+{% set page_title="Report Track" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <h1>Report Track: {{ dj.airname }}</h1>
+    </div>
+    <div class="col-md-8 text-center">
+        <h4>
+            <span class="glyphicon glyphicon-flag"></span>
+            If you can't fill in the blanks, you can't play it.
+        </h4>
+
+        You may find these sites helpful to find missing information:
+        <ul class="list-inline">
+            <li><a href="http://www.allmusic.com/"
+                rel="external" target="_blank">AllMusic</a></li>
+            <li><a href="http://www.amazon.com/music/"
+                rel="external" target="_blank">Amazon.com Music</a></li>
+            <li><a href="http://www.discogs.com/"
+                rel="external" target="_blank">Discogs</a></li>
+            <li><a href="http://musicbrainz.org/search.html"
+                rel="external" target="_blank">MusicBrainz</a></li>
+            <li><a href="http://metal-archives.com" 
+                rel="external" target="_blank">Metal Archives</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row text-center">
+    <div class="col-md-6 col-md-offset-3">
+        Thank you for helping us curate WUVT's database. It could be some time
+        before we can respond to this as we migrate the old database into the
+        new system, but we will let you know once we can start processing
+        requests.
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+{{ super() }}
+{% endblock %}

@@ -230,6 +230,7 @@ $(function() {
 
 // dynamic javascript vars
 var djset_id = {{ djset.id }};
+var dj_id = {{ djset.dj.id }};
 // Dictionary mapping rotation_ids to strings
 var rotations = {{ rotations|tojson|safe }};
 var rotationoptions = "{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}"

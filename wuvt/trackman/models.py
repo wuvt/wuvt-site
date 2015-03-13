@@ -190,3 +190,22 @@ class Track(db.Model):
             'label': self.label,
             'added': str(self.added),
         }
+
+
+class TrackReport(db.Model):
+    __tablename__ = "trackreport"
+    id = db.Column(db.Integer, primary_key=True)
+    reason = db.Column(db.UnicodeText(length=2**31))
+    resolution = db.Column(db.UnicodeText(length=2**31))
+    open = db.Column(db.Boolean, default=True)
+    # Track being reported
+    track_id = db.Column(db.Integer, db.ForeignKey('track.id'))
+    track = db.relationship('Track', backref=db.backref('reports', lazy='dynamic'))
+    # DJ who reported the track
+    dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
+    dj = db.relationship('DJ', backref=db.backref('reports', lazy='dynamic'))
+
+    def __init__(self, dj_id, track_id, reason):
+        self.track_id = track_id
+        self.dj_id = dj_id
+        self.reason = reason

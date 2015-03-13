@@ -17,6 +17,7 @@ var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
 "<td>" +
 "<div class='btn-group playlist-actions' role='group'>" +
 "<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>" +
+"<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>" +
 "<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>" +
 "</div>" +
 "</td>" +
@@ -42,6 +43,7 @@ var searchrow = "<tr class='search-row' id='s{0}'>" +
 "<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>" +
 "<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>" +
 "<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
+"<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>" +
 "</div></td>" +
 "</tr>";
 
@@ -226,6 +228,7 @@ function get_form_data () {
 }
 
 function search_edit(element) {
+    console.log(element)
     var id = element.prop("id").substring(1);
     var track = search_results[id];
     $(".trackman-entry input#artist").val(track['artist']);
@@ -235,7 +238,11 @@ function search_edit(element) {
     $(".trackman-entry input[name=request]").prop("checked", track['request']);
     $(".trackman-entry input[name=vinyl]").prop("checked", track['vinyl']);
     $(".trackman-entry input[name=new]").prop("checked", track['new']);
-    $(".trackman-entry select.rotation").val(track['rotation']);
+    var track_rotation = 1;
+    if (typeof track['rotation'] != "undefined") {
+        track_rotation = track['rotation'];
+    }
+    $(".trackman-entry select.rotation").val(track_rotation);
 }
 // This takes the row 
 function delete_track(element) {
@@ -280,7 +287,7 @@ function search_history() {
         success: process_history,
     })
 }
-function process_history(data, status, jqXHR) {
+function process_history(data) {
     if (data['success'] == false) { 
         alert(data['error']);
         return;
@@ -402,12 +409,24 @@ function update_queue_rotation(event) {
     queue[$(event.target).parents(".queue-row").prop("id").substring(1)]['rotation'] = $(event.target).val();
 }
 
+function report_track(id) {
+    url = "/trackman/report/" + dj_id + "/" + id;
+    var report_win = window.open(url, "reportWindow", "height=600,width=1200");
+}
+
+
 // Event listener code
 function playlist_listeners() {
     $("button.playlist-delete").click(function (event) {
         delete_track($(event.target).parents(".playlist-row"));
     });
-    $("button.playlist-edit").click(open_edit_window)
+    $("button.playlist-edit").click(open_edit_window);
+    $("table#playlist button.report").click(function (event) {
+        playlist_id = $(event.target).parents("tr").prop("id").slice(1);
+        tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
+        id = tracklog['track_id'];
+        report_track(id);
+    })
 }
 function search_listeners() {
     $("button.search-queue").click(function (event) { 
@@ -419,6 +438,11 @@ function search_listeners() {
     $("table#search input[type=checkbox]").change(update_search_results);
     $("table#search select.rotation").change(update_search_rotation);
     $("table#search button.search-delay").click(log_timer);
+    $("table#search button.report").click(function (event) {
+        search_id = $(event.target).parents("tr").prop("id").slice(1);
+        id = search_results[search_id]['id']
+        report_track(id);
+    })
 }
 
 function queue_listeners() {

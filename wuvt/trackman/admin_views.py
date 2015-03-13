@@ -19,7 +19,8 @@ from wuvt import redis_conn
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
         enable_automation, logout_recent
-from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation
+from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
+        TrackReport
 from wuvt.trackman.view_utils import local_only, dj_interact
 
 
@@ -155,7 +156,6 @@ def log(setid):
             rotations=rotations)
 
 
-# Deprecated
 @bp.route('/edit/<int:tracklog_id>', methods=['GET'])
 @local_only
 def edit(tracklog_id):
@@ -168,6 +168,35 @@ def edit(tracklog_id):
     return render_template('trackman/edit.html',
                            trackman_name=app.config['TRACKMAN_NAME'],
                            rotations=rotations, track=track)
+
+
+@bp.route('/report/<int:dj_id>/<int:track_id>', methods=['GET', 'POST'])
+@local_only
+@csrf.exempt
+@dj_interact
+def report_track(dj_id, track_id):
+    track = Track.query.get_or_404(track_id)
+    dj = DJ.query.get_or_404(dj_id)
+    if request.method == 'GET':
+        return render_template('trackman/report.html', track=track, dj=dj,
+                               trackman_name=app.config['TRACKMAN_NAME'])
+    else:
+        # This is a POST
+        if 'reason' not in request.form:
+            return render_template('trackman/report.html', track=track, dj=dj,
+                                   trackman_name=app.config['TRACKMAN_NAME'],
+                                   error="A reason is required")
+
+        reason = request.form['reason'].strip()
+        if len(reason) == 0:
+            return render_template('trackman/report.html', track=track, dj=dj,
+                                   trackman_name=app.config['TRACKMAN_NAME'],
+                                   error="A reason is required")
+
+        report = TrackReport(dj_id, track_id, reason)
+        db.session.add(report)
+        db.session.commit()
+        return render_template('trackman/reportsuccess.html', dj=dj)
 
 
 @bp.route('/log/<int:setid>/end', methods=['POST'])
@@ -307,7 +336,7 @@ def edit_tracklog(tracklog_id):
     tracklog = TrackLog.query.get(tracklog_id)
     if not tracklog:
         return jsonify(success=False, error="tracklog_id not found")
-    if tracklog.DJSet.dtend is not None:
+    if tracklog.djset.dtend is not None:
         return jsonify(success=False, error="Session expired, please login again")
 
     if request.method == 'DELETE':
