@@ -480,7 +480,8 @@ header nav,
 }
 
 #content > article h3 a,
-#content > section h3 a {
+#content > section h3 a,
+body > footer > a {
     color: gray;
     text-decoration: underline;
 }
