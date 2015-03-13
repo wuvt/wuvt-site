@@ -24,8 +24,13 @@ NAV_TOP_SECTIONS = [
      'hidden': True},
 ]
 
-# DJ activity timer for automation/DJ logout
+# DJ activity timer for automation/DJ logout in seconds
 DJ_TIMEOUT = 15 * 60
+EXTENDED_DJ_TIMEOUT = 60 * 60
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_TIMEZONE = 'America/New_York'
 
 AUTOMATION_PASSWORD = ""
 ICECAST_ADMIN = "http://user:password@engine.wuvt.vt.edu:8000/admin/"

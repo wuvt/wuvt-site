@@ -40,6 +40,10 @@
             <input type="checkbox" name="email_playlist"
                 id="id_email_playlist"
                 {% if email_playlist %}checked="checked"{% endif %} />
+        <button type="button" class="btn btn-danger pull-right" id="trackman-autologout" title="Disable autologout to prevent logging out for tracks over 15 minutes">
+            <span class="glyphicon glyphicon-exclamation-sign"></span>
+            <span id="trackman-autologout-text">Disable autologout</span>
+        </button>
     </div>
 </div>
 <div class="row row-table">
@@ -213,6 +217,7 @@
 <script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
 <script>
 var csrf_token = "{{ csrf_token() }}";
+var autologout_enabled = false;
 
 $(function() {
     $('#trackman_logout_btn').click(function() {
@@ -236,6 +241,12 @@ $( document ).ready(function() {
         thread = setTimeout(function() {search_form();}, 350);
 
     });
+    $.ajax({
+        url: "/trackman/api/autologout",
+        dataType: "json",
+        success: update_autologout,
+    });
+    $("button#trackman-autologout").click(set_autologout);
     $("button#new-queue").click(queue_new_track);
     $("button#new-log").click(log_new_track);
     update_playlist();

@@ -7,16 +7,19 @@ from wuvt import app
 
 def local_only(f):
     @wraps(f)
-    def _wrapper(*args, **kwargs):
+    def local_wrapper(*args, **kwargs):
         if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
             abort(403)
         else:
             return f(*args, **kwargs)
-    return _wrapper
+    return local_wrapper
 
 def dj_interact(f):
     @wraps(f)
-    def _wrapper(*args, **kwargs):
+    def dj_wrapper(*args, **kwargs):
+        # Call in the function first incase it changes the timeout
+        ret = f(*args, **kwargs)
+
         redis_conn.set('dj_active', 'true')
         # logout/login must delete this dj_timeout
         expire = redis_conn.get('dj_timeout')
@@ -25,5 +28,5 @@ def dj_interact(f):
 
         redis_conn.expire('dj_active', int(expire))
 
-        return f(*args, **kwargs)
-    return _wrapper
+        return ret
+    return dj_wrapper

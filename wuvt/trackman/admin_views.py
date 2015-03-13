@@ -43,6 +43,8 @@ def login():
         db.session.add(djset)
         db.session.commit()
 
+        redis_conn.delete('dj_timeout')
+
         return redirect(url_for('trackman.log', setid=djset.id))
 
     automation = redis_conn.get('automation_enabled') == "true"
@@ -141,21 +143,16 @@ def automation_log():
 def log(setid):
 
     djset = DJSet.query.get_or_404(setid)
-    errors = {}
-
-    if 'email_playlist' in session:
-        email_playlist = session['email_playlist']
-    else:
-        email_playlist = False
-
-    tracks = djset.tracks.order_by(TrackLog.played).all()
+    if djset.dtend is not None:
+        # This is a logged out DJSet
+        return redirect(url_for('trackman.login'))
 
     rotations = {}
     for i in Rotation.query.order_by(Rotation.id).all():
         rotations[i.id] = i.rotation
     return render_template('trackman/log.html',
             trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
-            rotations=rotations, email_playlist=email_playlist)
+            rotations=rotations)
 
 
 # Deprecated
@@ -177,13 +174,17 @@ def edit(tracklog_id):
 @local_only
 def logout(setid):
     djset = DJSet.query.get_or_404(setid)
-    djset.dtend = datetime.datetime.utcnow()
+    if djset.dtend is None:
+        djset.dtend = datetime.datetime.utcnow()
+    else:
+        # This has already been logged out
+        return redirect(url_for('trackman.login'))
     db.session.commit()
+
     # Reset the dj activity timeout period
-    redis_conn.set('dj_timeout', app.config('DJ_TIMEOUT'))
+    redis_conn.delete('dj_timeout')
 
     # email playlist
-
     if 'email_playlist' in request.form and request.form.get('email_playlist') == 'true':
         email_playlist(djset)
 
@@ -241,6 +242,8 @@ def get_djset(djset_id):
     djset = DJSet.query.get(djset_id)
     if not djset:
         return jsonify(success=False, error="djset_id not found")
+    if djset.dtend is not None:
+        return jsonify(success=False, error="Session expired, please login again")
 
     if request.args.get('merged', False):
         logs = [i.full_serialize() for i in djset.tracks]
@@ -304,6 +307,8 @@ def edit_tracklog(tracklog_id):
     tracklog = TrackLog.query.get(tracklog_id)
     if not tracklog:
         return jsonify(success=False, error="tracklog_id not found")
+    if tracklog.DJSet.dtend is not None:
+        return jsonify(success=False, error="Session expired, please login again")
 
     if request.method == 'DELETE':
         # TODO: Check if the currently playing track changed
@@ -376,6 +381,8 @@ def play_tracklog():
     djset = DJSet.query.get(djset_id)
     if not track or not djset:
         return jsonify(success=False, error="Track or DJSet do not exist")
+    if djset.dtend is not None:
+        return jsonify(success=False, error="Session expired, please login again")
 
     tracklog = log_track(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
 
@@ -427,6 +434,29 @@ def add_track():
     db.session.add(track)
     db.session.commit()
     return jsonify(success=True, track_id=track.id)
+
+
+@bp.route('/api/autologout', methods=['GET', 'POST'])
+@local_only
+@csrf.exempt
+@dj_interact
+def change_autologout():
+    if request.method == 'GET':
+        dj_timeout = redis_conn.get('dj_timeout')
+        if dj_timeout is None:
+            return jsonify(success=True, autologout=True)
+        else:
+            return jsonify(success=True, autologout=False)
+    elif request.method == 'POST':
+        if 'autologout' not in request.form:
+            return jsonify(success=False, error='No autologout field given in POST')
+        if request.form['autologout'] == 'enable':
+            redis_conn.delete('dj_timeout')
+            # This needs to be reexpired now since dj_timeout changed after dj_interact
+            return jsonify(success=True, autologout=True)
+        else:
+            redis_conn.set('dj_timeout', app.config['EXTENDED_DJ_TIMEOUT'])
+            return jsonify(success=True, autologout=False)
 
 
 @bp.route('/api/search', methods=['GET'])

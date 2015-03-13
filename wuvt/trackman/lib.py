@@ -25,6 +25,7 @@ def logout_recent():
     if last_djset.dtend is None:
         last_djset.dtend = datetime.utcnow()
         db.session.commit()
+        redis_conn.delete('dj_timeout')
 
 def perdelta(start, end, td):
     current = start

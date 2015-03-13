@@ -75,6 +75,7 @@ function log_search(element) {
     function post_log(data) {
         if (data['success'] == false) {
             alert(data['error']);
+            return;
         }
         update_playlist();
     };
@@ -104,6 +105,7 @@ function log_queue(element) {
     function post_log(data) {
         if (data['success'] == false) {
             alert(data['error']);
+            return;
         };
         queue.splice(id, 1);
         update_queue();
@@ -131,6 +133,7 @@ function create_track(track, callback) {
         success: function(data) {
             if (data['success'] == false) {
                 alert(data['error']);
+                return;
             }
             track['id'] = data['track_id'];
             log_track(track, callback);
@@ -196,6 +199,7 @@ function log_new_track() {
     function post_log(data) {
         if (data['success'] == false) {
             alert(data['error']);
+            return;
         }
         clear_form();
         update_playlist();
@@ -277,7 +281,10 @@ function search_history() {
     })
 }
 function process_history(data, status, jqXHR) {
-    if (data['success'] == false) return false;
+    if (data['success'] == false) { 
+        alert(data['error']);
+        return;
+    }
     results = data['results'];
     search_results = [];
     for (var i = 0; i < results.length; i++) {
@@ -322,6 +329,7 @@ function update_playlist() {
         success: function(data) {
             if (data['success'] == false) {
                 alert(data['error']);
+                return;
             }
             playlist = data['logs'];
             render_playlist();
@@ -516,6 +524,40 @@ function complete_edit(data) {
     }
     opener.update_playlist();
     window.close();
+}
+
+function set_autologout(button) {
+    formdata = {};
+    if (autologout_enabled) {
+        formdata['autologout'] = 'enable';
+    }
+    else {
+        formdata['autologout'] = 'disable';
+    }
+    $.ajax({
+        url: "/trackman/api/autologout",
+        data: formdata,
+        dataType: "json",
+        type: "POST",
+        success: update_autologout,
+    });
+}
+
+function update_autologout(data) {
+    if (data['success'] == false) {
+        alert(data['error']);
+        return;
+    }
+    if (data['autologout']) {
+        $("#trackman-autologout-text").text("Disable autologout");
+        $("#trackman-autologout").removeClass("active");
+        autologout_enabled = false;
+    }
+    else {
+        $("#trackman-autologout-text").text("Enable autologout");
+        $("#trackman-autologout").addClass("active");
+        autologout_enabled = true;
+    }
 }
 
 function search_form() {
