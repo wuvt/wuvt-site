@@ -144,3 +144,16 @@ function loadPage(path) {
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
     });
 }
+
+function initAjaxLinks() {
+    makeAjaxLink($('#nowplaying a'));
+    makeAjaxLink($('header #mainheader h1 a'));
+    $.each($('#bubble a'), function(i, item){makeAjaxLink(item);});
+    $.each($('nav a'), function(i, item){makeAjaxLink(item);});
+    $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+    $.each($('body > footer a'), function(i, item){makeAjaxLink(item);});
+
+    window.onpopstate = function(ev) {
+        loadPage(ev.state.path);
+    };
+}
