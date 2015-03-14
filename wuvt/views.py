@@ -66,11 +66,10 @@ def page(slug):
 def livestream():
     if request.headers.get('accept') == 'text/event-stream':
         response = Response(sse.event_stream(), mimetype="text/event-stream",
-                            headers={'Transfer-Encoding': "identity",
-                                     'X-Accel-Buffering': "no"})
+                            headers={'X-Accel-Buffering': "no"})
         return response
     else:
-        return redirect(url_for('index'))
+        abort(400)
 
 
 @app.errorhandler(400)
