@@ -603,6 +603,7 @@ a.donate:hover {
 
 body > footer {
     clear: both;
+    padding: 15px;
     color: #666666;
     font-size: 0.7em;
     text-align: center;
