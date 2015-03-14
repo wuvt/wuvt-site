@@ -3,6 +3,8 @@ from wuvt import redis_conn
 
 
 def event_stream():
+    yield 'event: ping\n\n'
+
     pubsub = redis_conn.pubsub()
     pubsub.subscribe(app.config['REDIS_CHANNEL'])
     for msg in pubsub.listen():

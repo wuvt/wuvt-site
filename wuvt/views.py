@@ -33,13 +33,16 @@ def inject_menus():
 
     return {'menus': menus}
 
+
 @app.route('/index.php')
 def redir_index():
     return redirect(url_for('index'))
 
+
 @app.route('/robots.txt')
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
+
 
 @app.route('/')
 @app.route('/index/<int:page>')
@@ -61,11 +64,12 @@ def page(slug):
 
 @app.route('/live')
 def livestream():
-    response = Response(sse.event_stream(), mimetype="text/event-stream")
-    response.headers['Cache-Control'] = "no-cache"
-    response.headers['Connection'] = "keep-alive"
-    response.headers['X-Accel-Buffering'] = "no"
-    return response
+    if request.headers.get('accept') == 'text/event-stream':
+        response = Response(sse.event_stream(), mimetype="text/event-stream",
+                            headers={'X-Accel-Buffering': "no"})
+        return response
+    else:
+        return redirect(url_for('index'))
 
 
 @app.errorhandler(400)
