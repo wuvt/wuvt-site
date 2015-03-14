@@ -119,8 +119,11 @@ def playlists_date():
 
 @app.route('/playlists/date/data')
 def playlists_date_data():
-    start = datetime.datetime.strptime(request.args['start'], "%Y-%m-%dT%H:%M:%S.%fZ")
-    end = datetime.datetime.strptime(request.args['end'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    try:
+        start = datetime.datetime.strptime(request.args['start'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        end = datetime.datetime.strptime(request.args['end'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    except ValueError:
+        abort(400)
 
     sets = DJSet.query.filter(db.and_(DJSet.dtstart >= start,
                                       DJSet.dtstart <= end)).\
