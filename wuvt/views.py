@@ -68,6 +68,10 @@ def livestream():
     return response
 
 
+@app.errorhandler(400)
+def error400(error):
+    return render_template('error400.html'), 400
+
 
 @app.errorhandler(403)
 def error403(error):
