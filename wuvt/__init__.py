@@ -82,6 +82,9 @@ login_manager.init_app(app)
 from wuvt import admin
 app.register_blueprint(admin.bp, url_prefix='/admin')
 
+from wuvt import donate
+app.register_blueprint(donate.bp, url_prefix='/donate-online')
+
 from wuvt import trackman
 app.register_blueprint(trackman.bp, url_prefix='/trackman')
 
