@@ -84,5 +84,5 @@ def error404(error):
 
 
 @app.errorhandler(405)
-def error404(error):
+def error405(error):
     return render_template('error405.html'), 405
