@@ -1,12 +1,10 @@
 import json
 import lxml.etree
 import requests
-import urllib
 import urlparse
 import smtplib
 from datetime import timedelta
 from datetime import datetime
-from dateutil import tz
 from flask.json import JSONEncoder
 from flask import render_template
 from email.mime.multipart import MIMEMultipart
@@ -20,6 +18,7 @@ from wuvt import redis_conn
 from wuvt import format_datetime, localize_datetime
 from wuvt.trackman.models import TrackLog, DJSet
 
+
 def logout_recent():
     last_djset = DJSet.query.order_by(DJSet.dtstart.desc()).first()
     if last_djset.dtend is None:
@@ -27,11 +26,13 @@ def logout_recent():
         db.session.commit()
         redis_conn.delete('dj_timeout')
 
+
 def perdelta(start, end, td):
     current = start
     while current <= end:
         yield current
         current += td
+
 
 def list_archives(djset):
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
@@ -46,6 +47,7 @@ def list_archives(djset):
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
+
 def disable_automation():
     redis_conn.set("automation_enabled", "false")
     automation_set_id = redis_conn.get("automation_set")
@@ -53,6 +55,7 @@ def disable_automation():
         automation_set = DJSet.query.get(int(automation_set_id))
         automation_set.dtend = datetime.utcnow()
         db.session.commit()
+
 
 def enable_automation():
     redis_conn.set('automation_enabled', "true")
@@ -62,6 +65,7 @@ def enable_automation():
     db.session.add(automation_set)
     db.session.commit()
     redis_conn.set('automation_set', str(automation_set.id))
+
 
 def email_playlist(djset):
     msg = MIMEMultipart('alternative')
@@ -100,9 +104,11 @@ def stream_listeners(url):
     return int(listeners)
 
 
-def log_track(track_id, djset_id, request=False, vinyl=False, new=False, rotation=None):
-    track = TrackLog(track_id, djset_id, request=request, vinyl=vinyl, new=new, rotation=rotation,
-                  listeners=stream_listeners(app.config['ICECAST_ADMIN']))
+def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
+              rotation=None):
+    track = TrackLog(track_id, djset_id, request=request, vinyl=vinyl, new=new,
+                     rotation=rotation,
+                     listeners=stream_listeners(app.config['ICECAST_ADMIN']))
     db.session.add(track)
     db.session.commit()
 
@@ -110,50 +116,11 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False, rotatio
     title = track.track.title
     album = track.track.album
     played = localize_datetime(track.played)
-    # update stream metadata
-    for mount in app.config['ICECAST_MOUNTS']:
-        song = u'{artist} - {title}'.format(artist=artist, title=title)
-        requests.get(app.config['ICECAST_ADMIN'] +
-                     u'metadata?mount={mount}&mode=updinfo&song={song}'
-                     .format(mount=urllib.quote(mount),
-                             song=urllib.quote(song.encode('utf-8'))))
 
-    # update tunein
-    if len(app.config['TUNEIN_PARTNERID']) > 0:
-        requests.get(
-            u'http://air.radiotime.com/Playing.ashx?partnerId={partner_id}'
-            u'&partnerKey={partner_key}&id={station_id}&title={title}'
-            u'&artist={artist}'.format(
-                partner_id=urllib.quote(app.config['TUNEIN_PARTNERID']),
-                partner_key=urllib.quote(app.config['TUNEIN_PARTNERKEY']),
-                station_id=urllib.quote(app.config['TUNEIN_STATIONID']),
-                artist=urllib.quote(artist.encode('utf-8')),
-                title=urllib.quote(title.encode('utf-8'))
-            ))
-
-    # update last.fm (yay!)
-    if len(app.config['LASTFM_APIKEY']) > 0:
-        import pylast
-        import hashlib
-        import time
-
-        h = hashlib.md5()
-        h.update(app.config['LASTFM_PASSWORD'])
-        password_hash = h.hexdigest()
-
-        try:
-            network = pylast.LastFMNetwork(
-                api_key=app.config['LASTFM_APIKEY'],
-                api_secret=app.config['LASTFM_SECRET'],
-                username=app.config['LASTFM_USERNAME'],
-                password_hash=password_hash)
-            network.scrobble(
-                artist=artist,
-                title=title,
-                timestamp=int(time.mktime(played.timetuple())),
-                album=album)
-        except Exception as e:
-            print(e)
+    from wuvt.trackman import tasks
+    tasks.update_stream.delay(artist, title)
+    tasks.update_tunein.delay(artist, title)
+    tasks.update_lastfm.delay(artist, title, album, played)
 
     # send server-sent event
     sse.send(json.dumps({'event': "track_change",
