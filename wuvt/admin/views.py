@@ -1,7 +1,6 @@
-import re
 import datetime
 from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response, session, g
+        request, url_for, session
 from flask.ext.login import login_required, login_user, logout_user, current_user
 
 from wuvt import app
@@ -14,24 +13,24 @@ from wuvt.admin import bp
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
 
-from markdown import markdown
 from werkzeug import secure_filename
 import os
+
 
 @bp.route('/')
 @login_required
 def index():
     return render_template('admin/index.html')
 
+
 @bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-
     if request.method == 'GET':
         return render_template('admin/upload.html')
     else:
         file = request.files['file']
-        dir = request.form['destination'] 
+        dir = request.form['destination']
 
         if dir == 'default':
             dir = ''
@@ -45,12 +44,14 @@ def upload():
 
         return render_template('admin/upload.html')
 
+
 @bp.route('/categories')
 @login_required
 def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
                            categories=categories)
+
 
 @bp.route('/categories/add', methods=['GET', 'POST'])
 @login_required
@@ -79,19 +80,18 @@ def category_add():
                            error_fields=error_fields)
 
 
-
 @bp.route('/users/new', methods=['GET', 'POST'])
 @login_required
 def user_add():
     error_fields = []
-    if (current_user.username != 'admin'):
-        abort(401)
+    if current_user.username != 'admin':
+        abort(403)
 
     if request.method == 'POST':
         username = request.form['username'].strip()
 
         if len(username) <= 2:
-            error_fields.append('username') 
+            error_fields.append('username')
 
         if len(username) > 8:
             error_fields.append('username')
@@ -103,21 +103,20 @@ def user_add():
             error_fields.append('username')
 
         name = request.form['name'].strip()
-        
+
         if len(name) <= 0:
             error_fields.append('name')
 
         email = request.form['email'].strip()
 
-        if len(email) <= 3: 
+        if len(email) <= 3:
             error_fields.append('email')
-       
+
         password = request.form['password'].strip()
 
         if len(password) <= 0:
             error_fields.append('password')
 
-   
         # Create user if no errors
         if len(error_fields) <= 0:
             db.session.add(User(username, name, email))
@@ -130,7 +129,7 @@ def user_add():
             return redirect(url_for('admin.users'))
 
     return render_template('admin/user_add.html', error_fields=error_fields)
-        
+
 
 @bp.route('/users/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -139,31 +138,30 @@ def user_edit(id):
     error_fields = []
 
     # Only admins can edit users other than themselves
-    if (current_user.username != 'admin') and (current_user.id != id) :
-        abort(401)
-
+    if current_user.username != 'admin' and current_user.id != id:
+        abort(403)
 
     if request.method == 'POST':
         name = request.form['name'].strip()
         if len(name) <= 0:
             error_fields.append('name')
-       
+
         # You can't change a username or ID
-        
+
         pw = request.form['newpass'].strip()
 
         email = request.form['email'].strip()
         if len(email) <= 0:
             error_fields.append('email')
-        
+
         # TODO allow users to be disabled
- 
+
         if len(error_fields) == 0:
-            # update user's: name, email 
+            # update user's: name, email
             user.name = name
             user.email = email
-            
-            # if user entered a new pw 
+
+            # if user entered a new pw
             if len(pw) > 0:
                 user.set_password(pw)
             # TODO reset password to pw
@@ -175,6 +173,7 @@ def user_edit(id):
 
     else:
         return render_template('admin/user_edit.html', user=user, error_fields=error_fields)
+
 
 @bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -216,12 +215,14 @@ def category_edit(cat_id):
                            category=category,
                            error_fields=error_fields)
 
+
 @bp.route('/articles')
 @login_required
 def articles():
     articles = Article.query.all()
     return render_template('admin/articles.html',
                            articles=articles)
+
 
 @bp.route('/articles/draft/<int:art_id>')
 @login_required
@@ -237,6 +238,7 @@ def article_draft(art_id):
     return render_template('article.html',
                            categories=categories,
                            article=article)
+
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -254,18 +256,17 @@ def page_edit(page_id):
         slug = request.form.get('slug', "")
         if slug != "":
             slug = slugify(slug)
-            if len(slug) <= 0 or slug == False:
+            if len(slug) <= 0 or slug is None:
                 error_fields.append('slug')
         elif len(slug) <= 0 and len(title) > 0:
             slug = slugify(title)
 
         # Menu
         section = request.form['section'].strip()
-        
+
         content = request.form.get('content', "").strip()
 
         if len(error_fields) <= 0:
-            
             # ensure slug is unique, add - until it is iff we are changing it
             if slug != page.slug:
                 while Page.query.filter_by(slug=slug).count() > 0:
@@ -275,13 +276,13 @@ def page_edit(page_id):
             page.name = title
             page.menu = section
             page.content = content
-            
+
             page.update_content(content)    # render HTML
             db.session.commit()
 
             flash("Page Saved")
             return redirect(url_for('admin.pages'))
-   
+
     elif request.method == 'DELETE':
         db.session.delete(page)
         db.session.commit()
@@ -290,7 +291,6 @@ def page_edit(page_id):
             '_csrf_token': app.jinja_env.globals['csrf_token'](),
         })
 
-
     sections = config.NAV_TOP_SECTIONS
     print(sections)
 
@@ -298,6 +298,7 @@ def page_edit(page_id):
                            sections=sections,
                            page=page,
                            error_fields=error_fields)
+
 
 @bp.route('/page/add', methods=['GET', 'POST'])
 @login_required
@@ -314,35 +315,36 @@ def page_add():
         slug = request.form.get('slug', "")
         if slug != "":
             slug = slugify(slug)
-            if len(slug) <= 0 or slug == False:
+            if len(slug) <= 0 or slug is None:
                 error_fields.append('slug')
         elif len(slug) <= 0 and len(title) > 0:
             slug = slugify(title)
 
         # Menu
         section = request.form['section'].strip()
-        
+
         content = request.form.get('content', "").strip()
 
         if len(error_fields) <= 0:
             # ensure slug is unique, add - until it is
             while Page.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
-            
+
             page = Page(title, slug, content, True, section)
-            
+
             db.session.add(page)
             db.session.commit()
 
             flash("Page Saved")
             return redirect(url_for('admin.pages'))
-   
+
     sections = config.NAV_TOP_SECTIONS
     print(sections)
 
     return render_template('admin/page_add.html',
                            sections=sections,
                            error_fields=error_fields)
+
 
 @bp.route('/article/add', methods=['GET', 'POST'])
 @login_required
@@ -360,7 +362,7 @@ def article_add():
         slug = request.form.get('slug', "")
         if slug != "":
             slug = slugify(slug)
-            if len(slug) <= 0 or slug == False:
+            if len(slug) <= 0 or slug is None:
                 error_fields.append('slug')
         elif len(slug) <= 0 and len(title) > 0:
             slug = slugify(title)
@@ -377,43 +379,35 @@ def article_add():
 
         # datetime (should update to published time)
         published = request.form.get('published', False)
-        if published != False:
+        if published is not False:
             published = True
         # front page
         front_page = request.form.get('front_page', False)
-        if front_page != False:
+        if front_page is not False:
             front_page = True
 
         # summary
         summary = request.form.get('summary', "").strip()
         content = request.form.get('content', "").strip()
 
-
         if len(error_fields) <= 0:
             # ensure slug is unique, add - until it is
             while Article.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
-            
+
             article = Article(title, slug, category_id, author_id, summary, content, published)
             # Why can't we just have a parameterless constructor so we don't
             # have to add constructors for each new field
             article.front_page = front_page
-            if article.published == True:
+            if article.published is True:
                 article.datetime = datetime.datetime.now()
-            
+
             db.session.add(article)
             article.render_html()   # markdown to html
             db.session.commit()
 
             flash("Article Saved")
             return redirect(url_for('admin.articles'))
-    elif request.method == 'DELETE':
-        db.session.delete(category)
-        db.session.commit()
-
-        return jsonify({
-            '_csrf_token': app.jinja_env.globals['csrf_token'](),
-        })
 
     categories = Category.query.all()
     authors = User.query.all()
@@ -421,6 +415,7 @@ def article_add():
                            categories=categories,
                            authors=authors,
                            error_fields=error_fields)
+
 
 @bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -438,7 +433,7 @@ def article_edit(art_id):
         slug = request.form.get('slug', "").strip()
         if slug != "" or slug != article.slug:
             slug = slugify(slug)
-            if len(slug) <= 0 or slug == False:
+            if len(slug) <= 0 or slug is None:
                 error_fields.append('slug')
         elif len(slug) <= 0 and len(title) > 0:
             slug = slugify(title)
@@ -455,13 +450,13 @@ def article_edit(art_id):
 
         # datetime (should update to published time)
         published = request.form.get('published', False)
-        if published != False:
+        if published is not False:
             published = True
-        if article.published == False and published != None:
+        if article.published is False and published is not None:
             article.datetime = datetime.datetime.now()
         # front page
         front_page = request.form.get('front_page', False)
-        if front_page != False:
+        if front_page is not False:
             front_page = True
 
         # summary
@@ -509,6 +504,7 @@ def article_edit(art_id):
                            authors=authors,
                            error_fields=error_fields)
 
+
 @bp.route('/pages')
 @login_required
 def pages():
@@ -521,13 +517,10 @@ def pages():
 def users():
     if current_user.username == 'admin':
         users = User.query.order_by('name').all()
-
     else:
         users = User.query.filter(User.username == current_user.username).order_by('name').all()
-    
-    return render_template('admin/users.html', users=users)
 
-#        return 'you are not authorized to modify users' # TODO 401
+    return render_template('admin/users.html', users=users)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
