@@ -15,8 +15,11 @@ function initPlayer() {
         }
     }
 
-    $('#stream_btn').hide();
-    $('#volume_btn').hide();
+    $('#stream_btn').addClass('disabled');
+    $('#stream_btn').click(warnBrokenPlayer);
+
+    $('#volume_btn').addClass('disabled');
+    $('#volume_btn').click(warnBrokenPlayer);
 }
 
 function initStream(streamUrl) {
@@ -120,4 +123,8 @@ function initVolume() {
                 $('#wuvt_stream').prop('volume'));
         }
     });
+}
+
+function warnBrokenPlayer() {
+    alert("Sorry, the WUVT live stream player is not supported by your browser. Please see the Listen Live page for other options, or switch to Google Chrome or Mozilla Firefox.");
 }

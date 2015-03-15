@@ -145,7 +145,8 @@ header #mainheader #robot #stream_btn {
     background-image: url('/static/img/play.svg');
 }
 
-header #mainheader #robot #stream_btn:disabled {
+header #mainheader #robot button:disabled,
+header #mainheader #robot button.disabled {
     opacity: 0.5;
 
     -webkit-transition: all 0.5s ease-in-out;
