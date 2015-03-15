@@ -135,7 +135,7 @@ header #mainheader #robot > button {
     margin-top: 24px;
     width: 45px;
     height: 45px;
-    background-position: 15px 15px;
+    background-position: 50% 50%;
     border-radius: 30px;
 }
 
