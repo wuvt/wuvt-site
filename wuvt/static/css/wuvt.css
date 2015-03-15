@@ -292,7 +292,8 @@ header nav {
     white-space: nowrap;
 }
 
-header nav a {
+header nav .menu-heading,
+header nav li a {
     margin-left: 0px;
     margin-right: 0px;
 }
@@ -306,6 +307,11 @@ header nav li {
     white-space: normal;
 }
 
+header nav li .menu-heading {
+    cursor: default;
+}
+
+header nav li .menu-heading,
 header nav li a {
     display: block;
     max-width: 140px;

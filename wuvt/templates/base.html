@@ -63,11 +63,11 @@
             {% if 'hidden' not in section or section['hidden'] == False -%}
             <li>
                 {% if section['menu'] == 'playlists' -%}
-                <a>{{ section['name'] }}</a>
+                <span class="menu-heading">{{ section['name'] }}</span>
                 {% elif 'slug' in section -%}
-                <a>{{ section['name'] }}</a>
+                <span class="menu-heading">{{ section['name'] }}</span>
                 {% else -%}
-                <a>{{ section['name'] }}</a>
+                <span class="menu-heading">{{ section['name'] }}</span>
                 {% endif -%}
                 <ul>
                     {% if section['menu'] == 'playlists' -%}
