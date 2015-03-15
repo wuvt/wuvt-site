@@ -24,7 +24,7 @@ def load_user(userid):
 def inject_menus():
     menus = {}
     pages = db.session.query(Page.name, Page.slug, Page.menu).\
-        filter(Page.menu is not None).all()
+        filter(Page.menu is not None).order_by(Page.name).all()
     for page in pages:
         menu = str(page.menu)
         if menu not in menus:
