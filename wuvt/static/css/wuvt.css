@@ -106,13 +106,18 @@ header #mainheader h1 .sub2 {
 }
 
 header #mainheader #robot {
+    position: relative;
     z-index: 999;
     /*margin-bottom: -86px;
     height: 238px;*/
-    margin-bottom: -68px;
+    margin: 0 0 -64px 200px;
     width: 160px;
     height: 148px;
     border: 0;
+    background-color: transparent;
+    background-image: url('/static/img/robot.svg');
+    background-repeat: no-repeat;
+    background-size: 160px, 148px;
 }
 /* }}} */
 
@@ -125,9 +130,8 @@ header #mainheader button {
     text-indent: -99999px;
 }
 
-header #mainheader > button {
+header #mainheader #robot > button {
     position: absolute;
-    z-index: 9999;
     margin-top: 24px;
     width: 45px;
     height: 45px;
@@ -135,17 +139,12 @@ header #mainheader > button {
     border-radius: 30px;
 }
 
-header #mainheader #volume_box button {
-    width: 15px;
-    height: 15px;
-}
-
-header #mainheader #stream_btn {
-    margin-left: -121px;
+header #mainheader #robot #stream_btn {
+    margin-left: 39px;
     background-image: url('/static/img/play.svg');
 }
 
-header #mainheader #stream_btn:disabled {
+header #mainheader #robot #stream_btn:disabled {
     opacity: 0.5;
 
     -webkit-transition: all 0.5s ease-in-out;
@@ -154,20 +153,27 @@ header #mainheader #stream_btn:disabled {
             transition: all 0.5s ease-in-out;
 }
 
-header #mainheader #stream_btn.playing {
+header #mainheader #robot #stream_btn.playing {
     background-image: url('/static/img/stop.svg');
 }
 
-header #mainheader #volume_btn {
-    margin-left: -67px;
+header #mainheader #robot #volume_btn {
+    margin-left: 93px;
     background-image: url('/static/img/volume.svg');
 }
 
 header #mainheader #volume_box {
     position: absolute;
+    z-index: 9999;
+    margin-top: -12px;
     padding: 20px 12px 12px 12px;
     background: #808080;
     opacity: 0;
+}
+
+header #mainheader #volume_box button {
+    width: 15px;
+    height: 15px;
 }
 
 header #mainheader #volume_box.visible {
