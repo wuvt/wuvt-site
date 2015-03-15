@@ -1,14 +1,25 @@
-var streamUrl = "http://engine.wuvt.vt.edu:8000/wuvt.ogg";
+var streams = [
+    ['audio/ogg', "http://engine.wuvt.vt.edu:8000/wuvt.ogg"],
+    ['audio/aac', "http://engine.wuvt.vt.edu:8000/wuvt.aac"]
+]
 var streamPlaying = false;
 
 function initPlayer() {
     var audioTag = document.createElement('audio');
-    if(!audioTag.canPlayType('audio/ogg')) {
-        $('#stream_btn').hide();
-        $('#volume_btn').hide();
-        return;
+
+    for(i in streams) {
+        var stream = streams[i];
+        if(audioTag.canPlayType(stream[0])) {
+            initStream(stream[1]);
+            return;
+        }
     }
 
+    $('#stream_btn').hide();
+    $('#volume_btn').hide();
+}
+
+function initStream(streamUrl) {
     $('#stream_btn').click(function() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
