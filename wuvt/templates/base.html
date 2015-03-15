@@ -62,13 +62,7 @@
             {% for section in config['NAV_TOP_SECTIONS'] -%}
             {% if 'hidden' not in section or section['hidden'] == False -%}
             <li>
-                {% if section['menu'] == 'playlists' -%}
                 <span class="menu-heading">{{ section['name'] }}</span>
-                {% elif 'slug' in section -%}
-                <span class="menu-heading">{{ section['name'] }}</span>
-                {% else -%}
-                <span class="menu-heading">{{ section['name'] }}</span>
-                {% endif -%}
                 <ul>
                     {% if section['menu'] == 'playlists' -%}
                     <li><a href="{{ url_for('last15') }}">Last 15</a></li>
