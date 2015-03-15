@@ -117,24 +117,31 @@ header #mainheader #robot {
 /* }}} */
 
 /* Header: live stream player {{{ */
-header #mainheader > button {
-    position: absolute;
-    z-index: 9999;
-    margin-top: 39px;
-}
-
 header #mainheader button {
-    width: 15px;
-    height: 15px;
+    border: 0;
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 15px, 15px;
-    border: 0;
     text-indent: -99999px;
 }
 
+header #mainheader > button {
+    position: absolute;
+    z-index: 9999;
+    margin-top: 24px;
+    width: 45px;
+    height: 45px;
+    background-position: 15px 15px;
+    border-radius: 30px;
+}
+
+header #mainheader #volume_box button {
+    width: 15px;
+    height: 15px;
+}
+
 header #mainheader #stream_btn {
-    margin-left: -106px;
+    margin-left: -121px;
     background-image: url('/static/img/play.svg');
 }
 
@@ -152,7 +159,7 @@ header #mainheader #stream_btn.playing {
 }
 
 header #mainheader #volume_btn {
-    margin-left: -51px;
+    margin-left: -67px;
     background-image: url('/static/img/volume.svg');
 }
 
