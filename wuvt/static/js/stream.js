@@ -1,7 +1,7 @@
 var streams = [
     ['audio/ogg', "http://engine.wuvt.vt.edu:8000/wuvt.ogg"],
     ['audio/aac', "http://engine.wuvt.vt.edu:8000/wuvt.aac"]
-]
+];
 var streamPlaying = false;
 
 function initPlayer() {
