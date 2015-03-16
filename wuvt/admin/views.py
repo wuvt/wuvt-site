@@ -7,7 +7,6 @@ from wuvt import app
 from wuvt import db
 from wuvt import slugify
 from wuvt import redirect_back
-from wuvt import config
 from wuvt.admin import bp
 
 from wuvt.models import User, Page
@@ -37,7 +36,7 @@ def upload():
 
         if file:
             filename = secure_filename(file.filename)
-            newpath = os.path.join(config.UPLOAD_DIR, dir, filename)
+            newpath = os.path.join(app.config['UPLOAD_DIR'], dir, filename)
             webroot_path = os.path.join('/static/media', dir, filename)
             file.save(newpath)
             flash('Your file has been uploaded to: ' + webroot_path)
@@ -291,8 +290,7 @@ def page_edit(page_id):
             '_csrf_token': app.jinja_env.globals['csrf_token'](),
         })
 
-    sections = config.NAV_TOP_SECTIONS
-    print(sections)
+    sections = app.config['NAV_TOP_SECTIONS']
 
     return render_template('admin/page_edit.html',
                            sections=sections,
@@ -338,8 +336,7 @@ def page_add():
             flash("Page Saved")
             return redirect(url_for('admin.pages'))
 
-    sections = config.NAV_TOP_SECTIONS
-    print(sections)
+    sections = app.config['NAV_TOP_SECTIONS']
 
     return render_template('admin/page_add.html',
                            sections=sections,
