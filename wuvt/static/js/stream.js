@@ -23,6 +23,9 @@ function initPlayer() {
 }
 
 function initStream(streamUrl) {
+    // This doesn't work on Chrome for Android:
+    // https://code.google.com/p/chromium/issues/detail?id=178297
+
     $('#stream_btn').click(function() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
@@ -45,6 +48,7 @@ function initStream(streamUrl) {
             });
 
             // chrome workaround for the same thing
+            // https://code.google.com/p/chromium/issues/detail?id=175281
             stream.addEventListener("error", function() {
                 $('#wuvt_stream').attr('src', "");
                 $('#wuvt_stream').attr('src', streamUrl);
