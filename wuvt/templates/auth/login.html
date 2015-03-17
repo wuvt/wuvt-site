@@ -8,7 +8,7 @@
 <div class="alert alert-danger">{{ msg }}</div>
 {% endfor %}
 
-<form action="{{ url_for('admin.login') }}" method="post" class="form-signin">
+<form action="{{ url_for('auth.login') }}" method="post" class="form-signin">
     <h2 class="form-signin-heading">WUVT Login</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
