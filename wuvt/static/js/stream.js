@@ -31,7 +31,6 @@ function initStream(streamUrl) {
             var stream = document.createElement('audio');
             $(stream).attr('id', "wuvt_stream");
             $(stream).attr('src', streamUrl);
-            $(stream).attr('autoplay', "autoplay");
             $('body').append(stream);
 
             stream.addEventListener('play', function() {
@@ -45,6 +44,7 @@ function initStream(streamUrl) {
             stream.addEventListener("ended", function() {
                 $('#wuvt_stream').attr('src', "");
                 $('#wuvt_stream').attr('src', streamUrl);
+                $('#wuvt_stream').trigger('play');
             });
 
             // chrome workaround for the same thing
@@ -54,6 +54,8 @@ function initStream(streamUrl) {
                 $('#wuvt_stream').attr('src', streamUrl);
                 $('#wuvt_stream').trigger('play');
             });
+
+            $('#wuvt_stream').trigger('play');
 
             streamPlaying = true;
             $('#stream_btn').attr('title', "Buffering...");
