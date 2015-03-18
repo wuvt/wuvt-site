@@ -7,6 +7,7 @@ from wuvt import db
 from wuvt import redirect_back
 from wuvt.auth import bp
 from wuvt.auth import build_dn
+from wuvt.auth import ldap_group_test
 from wuvt.models import User
 
 
@@ -48,6 +49,10 @@ def login():
 
                 login_user(user)
                 session['username'] = user.username
+                session['is_admin'] = ldap_group_test(
+                    client, app.config['LDAP_GROUPS_ADMIN'], user.username)
+                session['is_missioncontrol'] = ldap_group_test(
+                    client, app.config['LDAP_GROUPS_RADIOTHON'], user.username)
 
                 client.unbind()
 
@@ -58,6 +63,8 @@ def login():
             if user and user.check_password(request.form['password']):
                 login_user(user)
                 session['username'] = user.username
+                session['is_admin'] = True
+                session['is_missioncontrol'] = True
 
                 return redirect_back('admin.index')
             else:
