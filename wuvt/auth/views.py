@@ -1,5 +1,5 @@
 from flask import flash, redirect, render_template, request, url_for, session
-from flask.ext.login import login_required, login_user, logout_user, current_user
+from flask.ext.login import login_required, login_user, logout_user
 import ldap
 
 from wuvt import app
@@ -54,6 +54,9 @@ def login():
                 session['access_missioncontrol'] = ldap_group_test(
                     client, app.config['LDAP_GROUPS_RADIOTHON'], user.username)
 
+                app.logger.warning("LDAP user {} logged in.".format(
+                    user.username))
+
                 client.unbind()
 
                 return redirect_back('admin.index')
@@ -65,6 +68,9 @@ def login():
                 session['username'] = user.username
                 session['access_admin'] = True
                 session['access_missioncontrol'] = True
+
+                app.logger.warning("Database user {} logged in.".format(
+                    user.username))
 
                 return redirect_back('admin.index')
             else:
