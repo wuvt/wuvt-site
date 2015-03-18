@@ -4,7 +4,6 @@ SECRET_KEY = ''
 REDIS_URL = 'redis://localhost:6379'
 REDIS_CHANNEL = "wuvt"
 POSTS_PER_PAGE = 5
-
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"
 NAV_TOP_SECTIONS = [
@@ -54,6 +53,7 @@ LASTFM_SECRET = ""
 LASTFM_USERNAME = "wuvtfm"
 LASTFM_PASSWORD = ""
 
+MIN_PASSWORD_LENGTH = 4
 LDAP_AUTH = True
 LDAP_URI = 'ldap://127.0.0.1:389'
 LDAP_BASE_DN = "dc=wuvt,dc=vt,dc=edu"
