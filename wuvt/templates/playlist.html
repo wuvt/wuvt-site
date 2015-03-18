@@ -1,8 +1,5 @@
 {% extends "base.html" %}
 {% block title %}{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }} - {{ djset.dj.airname }} - Playlist Archive - {{ super() }}{% endblock %}
-{% block css %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/glyphiconstrap.css') }}" />
-{% endblock %}
 {% block content %}
 <section>
 <header>
