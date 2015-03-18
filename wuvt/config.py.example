@@ -54,5 +54,12 @@ LASTFM_SECRET = ""
 LASTFM_USERNAME = "wuvtfm"
 LASTFM_PASSWORD = ""
 
+LDAP_AUTH = True
+LDAP_URI = 'ldap://127.0.0.1:389'
+LDAP_BASE_DN = "dc=wuvt,dc=vt,dc=edu"
+LDAP_AUTH_DN = "uid={},ou=Users,dc=wuvt,dc=vt,dc=edu"
+LDAP_GROUPS_ADMIN = ['sudoers', 'webmasters']
+LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
+
 UPLOAD_DIR = "/srv/http/media"
 # vim: syntax=python
