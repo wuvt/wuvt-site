@@ -49,9 +49,9 @@ def login():
 
                 login_user(user)
                 session['username'] = user.username
-                session['is_admin'] = ldap_group_test(
+                session['access_admin'] = ldap_group_test(
                     client, app.config['LDAP_GROUPS_ADMIN'], user.username)
-                session['is_missioncontrol'] = ldap_group_test(
+                session['access_missioncontrol'] = ldap_group_test(
                     client, app.config['LDAP_GROUPS_RADIOTHON'], user.username)
 
                 client.unbind()
@@ -63,8 +63,8 @@ def login():
             if user and user.check_password(request.form['password']):
                 login_user(user)
                 session['username'] = user.username
-                session['is_admin'] = True
-                session['is_missioncontrol'] = True
+                session['access_admin'] = True
+                session['access_missioncontrol'] = True
 
                 return redirect_back('admin.index')
             else:

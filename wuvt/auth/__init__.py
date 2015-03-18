@@ -1,5 +1,6 @@
-from flask import Blueprint
-from flask.ext.login import UserMixin
+from flask import abort, Blueprint, session
+from flask.ext.login import current_user, UserMixin
+from functools import wraps
 import ldap
 
 from wuvt import app
@@ -8,6 +9,11 @@ from wuvt.models import User
 
 
 bp = Blueprint('auth', __name__)
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.query.get(userid)
 
 
 def build_dn(username):
@@ -34,9 +40,19 @@ def ldap_group_test(client, groups, username):
     return False
 
 
-@login_manager.user_loader
-def load_user(userid):
-    return User.query.get(userid)
+def check_access(section):
+    def access_decorator(f):
+        @wraps(f)
+        def access_wrapper(*args, **kwargs):
+            if not current_user.is_authenticated():
+                return app.login_manager.unauthorized()
+
+            if not session.get('access_' + section, False):
+                abort(403)
+
+            return f(*args, **kwargs)
+        return access_wrapper
+    return access_decorator
 
 
 from wuvt.auth import views
