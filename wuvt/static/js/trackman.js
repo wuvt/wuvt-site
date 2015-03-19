@@ -228,7 +228,6 @@ function get_form_data () {
 }
 
 function search_edit(element) {
-    console.log(element)
     var id = element.prop("id").substring(1);
     var track = search_results[id];
     $(".trackman-entry input#artist").val(track['artist']);
@@ -374,7 +373,7 @@ function render_playlist() {
             $("table#playlist tbody").append(row);
         }
     }
-    if (playlist.length > 1) {
+    if (playlist.length > 0) {
         playlist_listeners();
         // Scroll to bottom
         var pos = $("table#playlist tbody tr:last").position();
@@ -420,7 +419,7 @@ function playlist_listeners() {
     $("button.playlist-delete").click(function (event) {
         delete_track($(event.target).parents(".playlist-row"));
     });
-    $("button.playlist-edit").click(open_edit_window);
+    $("table#playlist button.playlist-edit").click(open_edit_window);
     $("table#playlist button.report").click(function (event) {
         playlist_id = $(event.target).parents("tr").prop("id").slice(1);
         tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
