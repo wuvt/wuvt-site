@@ -17,53 +17,57 @@ def login():
 
     if 'username' in request.form:
         if app.config['LDAP_AUTH']:
-            dn = build_dn(request.form['username'])
+            if len(request.form['password']) > 0:
+                dn = build_dn(request.form['username'])
 
-            try:
-                client = ldap.initialize(app.config['LDAP_URI'])
-                client.set_option(ldap.OPT_REFERRALS, 0)
+                try:
+                    client = ldap.initialize(app.config['LDAP_URI'])
+                    client.set_option(ldap.OPT_REFERRALS, 0)
 
-                if app.config['LDAP_STARTTLS']:
-                    client.start_tls_s()
+                    if app.config['LDAP_STARTTLS']:
+                        client.start_tls_s()
 
-                client.simple_bind_s(dn, request.form['password'])
-            except ldap.INVALID_CREDENTIALS:
-                client.unbind()
-                errors.append("Invalid username or password.")
-            except ldap.SERVER_DOWN:
-                errors.append("Could not contact the LDAP server.")
-            else:
-                result = client.search_s(dn, ldap.SCOPE_SUBTREE)
-                user = User.query.filter(
-                    User.username == result[0][1]['uid'][0]).first()
-
-                if user is None:
-                    # create new user in the database, since one does not
-                    # already exist for this LDAP user
-                    user = User(result[0][1]['uid'][0],
-                                result[0][1]['cn'][0],
-                                result[0][1]['mail'][0])
-                    db.session.add(user)
-                    db.session.commit()
+                    client.simple_bind_s(dn, request.form['password'])
+                except ldap.INVALID_CREDENTIALS:
+                    client.unbind()
+                    errors.append("Invalid username or password.")
+                except ldap.SERVER_DOWN:
+                    errors.append("Could not contact the LDAP server.")
                 else:
-                    # update existing user data in database
-                    user.name = result[0][1]['cn'][0]
-                    user.email = result[0][1]['mail'][0]
-                    db.session.commit()
+                    result = client.search_s(dn, ldap.SCOPE_SUBTREE)
+                    user = User.query.filter(
+                        User.username == result[0][1]['uid'][0]).first()
 
-                login_user(user)
-                session['username'] = user.username
-                session['access_admin'] = ldap_group_test(
-                    client, app.config['LDAP_GROUPS_ADMIN'], user.username)
-                session['access_missioncontrol'] = ldap_group_test(
-                    client, app.config['LDAP_GROUPS_RADIOTHON'], user.username)
+                    if user is None:
+                        # create new user in the database, since one does not
+                        # already exist for this LDAP user
+                        user = User(result[0][1]['uid'][0],
+                                    result[0][1]['cn'][0],
+                                    result[0][1]['mail'][0])
+                        db.session.add(user)
+                        db.session.commit()
+                    else:
+                        # update existing user data in database
+                        user.name = result[0][1]['cn'][0]
+                        user.email = result[0][1]['mail'][0]
+                        db.session.commit()
 
-                app.logger.warning("LDAP user {} logged in.".format(
-                    user.username))
+                    login_user(user)
+                    session['username'] = user.username
+                    session['access_admin'] = ldap_group_test(
+                        client, app.config['LDAP_GROUPS_ADMIN'], user.username)
+                    session['access_missioncontrol'] = ldap_group_test(
+                        client, app.config['LDAP_GROUPS_RADIOTHON'],
+                        user.username)
 
-                client.unbind()
+                    app.logger.warning("LDAP user {} logged in.".format(
+                        user.username))
 
-                return redirect_back('admin.index')
+                    client.unbind()
+
+                    return redirect_back('admin.index')
+            else:
+                errors.append("Invalid username or password.")
         else:
             user = User.query.filter(
                 User.username == request.form['username']).first()
