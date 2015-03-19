@@ -11,7 +11,7 @@
 <section>
     <ul>
         {% for set in sets %}
-        <li><a href="{{ url_for('playlist', set_id=set.id) }}">{{ set.dtstart|datetime("%H:%S") }}-{% if set.dtend %}{{ set.dtend|datetime("%H:%S") }}{% endif %}: {{ set.dj.airname }}</a></li>
+        <li><a href="{{ url_for('playlist', set_id=set.id) }}">{{ set.dtstart|datetime("%H:%M") }}-{% if set.dtend %}{{ set.dtend|datetime("%H:%M") }}{% endif %}: {{ set.dj.airname }}</a></li>
         {% endfor %}
     </ul>
 </section>
