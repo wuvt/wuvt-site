@@ -557,15 +557,21 @@ table.tracklist {
 table.tracklist thead {
     text-align: left;
 }
+
 table.tracklist thead th {
     background: #ffffff;
     font-weight: bold;
+}
+
+table.tracklist thead th.dj-column {
+    min-width: 9%;
 }
 
 table.tracklist th,
 table.tracklist td {
     padding: 4px;
 }
+
 table.tracklist td span {
     margin: 0 auto 0 20%;
 }
