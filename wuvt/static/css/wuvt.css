@@ -567,6 +567,10 @@ table.tracklist thead th.dj-column {
     min-width: 9%;
 }
 
+table.tracklist thead th.icon-column {
+    width: 3%;
+}
+
 table.tracklist th,
 table.tracklist td {
     padding: 4px;
