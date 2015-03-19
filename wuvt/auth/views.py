@@ -22,6 +22,10 @@ def login():
             try:
                 client = ldap.initialize(app.config['LDAP_URI'])
                 client.set_option(ldap.OPT_REFERRALS, 0)
+
+                if app.config['LDAP_STARTTLS']:
+                    client.start_tls_s()
+
                 client.simple_bind_s(dn, request.form['password'])
             except ldap.INVALID_CREDENTIALS:
                 client.unbind()
