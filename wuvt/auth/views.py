@@ -33,6 +33,7 @@ def login():
                     errors.append("Invalid username or password.")
                 except ldap.SERVER_DOWN:
                     errors.append("Could not contact the LDAP server.")
+                    app.logger.error("Could not contact the LDAP server.")
                 else:
                     result = client.search_s(dn, ldap.SCOPE_SUBTREE)
                     user = User.query.filter(
