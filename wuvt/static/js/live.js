@@ -58,6 +58,7 @@ function updateLast15(tracklog) {
     if(tracklog['new'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-fire new-track";
+        span.title = "New";
         $(td).append(span);
     }
     $(tr).append(td);
@@ -82,6 +83,7 @@ function updateLast15(tracklog) {
     if(tracklog['request'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-earphone";
+        span.title = "Request";
         $(td).append(span);
     }
     $(tr).append(td);
@@ -90,6 +92,7 @@ function updateLast15(tracklog) {
     if(tracklog['vinyl'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-cd";
+        span.title = "Vinyl";
         $(td).append(span);
     }
     $(tr).append(td);

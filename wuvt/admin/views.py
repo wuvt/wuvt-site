@@ -7,6 +7,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import slugify
 from wuvt.admin import bp
+from wuvt.auth import check_access
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
@@ -16,13 +17,13 @@ import os
 
 
 @bp.route('/')
-@login_required
+@check_access('admin')
 def index():
     return render_template('admin/index.html')
 
 
 @bp.route('/upload', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def upload():
     if request.method == 'GET':
         return render_template('admin/upload.html')
@@ -44,7 +45,7 @@ def upload():
 
 
 @bp.route('/categories')
-@login_required
+@check_access('admin')
 def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
@@ -52,7 +53,7 @@ def categories():
 
 
 @bp.route('/categories/add', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def category_add():
     error_fields = []
 
@@ -79,7 +80,7 @@ def category_add():
 
 
 @bp.route('/users/new', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def user_add():
     error_fields = []
     if current_user.username != 'admin':
@@ -130,7 +131,7 @@ def user_add():
 
 
 @bp.route('/users/<int:id>', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def user_edit(id):
     user = User.query.get_or_404(id)
     error_fields = []
@@ -174,7 +175,7 @@ def user_edit(id):
 
 
 @bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
-@login_required
+@check_access('admin')
 def category_edit(cat_id):
     category = Category.query.get_or_404(cat_id)
     error_fields = []
@@ -215,7 +216,7 @@ def category_edit(cat_id):
 
 
 @bp.route('/articles')
-@login_required
+@check_access('admin')
 def articles():
     articles = Article.query.all()
     return render_template('admin/articles.html',
@@ -223,7 +224,7 @@ def articles():
 
 
 @bp.route('/articles/draft/<int:art_id>')
-@login_required
+@check_access('admin')
 def article_draft(art_id):
     article = Article.query.filter(Article.id == art_id).first()
     if not article:
@@ -239,7 +240,7 @@ def article_draft(art_id):
 
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST', 'DELETE'])
-@login_required
+@check_access('admin')
 def page_edit(page_id):
     page = Page.query.get_or_404(page_id)
     error_fields = []
@@ -298,7 +299,7 @@ def page_edit(page_id):
 
 
 @bp.route('/page/add', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def page_add():
     error_fields = []
 
@@ -343,7 +344,7 @@ def page_add():
 
 
 @bp.route('/article/add', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def article_add():
     error_fields = []
     # article = Article()
@@ -414,7 +415,7 @@ def article_add():
 
 
 @bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
-@login_required
+@check_access('admin')
 def article_edit(art_id):
     article = Article.query.get_or_404(art_id)
     error_fields = []
@@ -502,14 +503,14 @@ def article_edit(art_id):
 
 
 @bp.route('/pages')
-@login_required
+@check_access('admin')
 def pages():
     pages = Page.query.all()
     return render_template('admin/pages.html', pages=pages)
 
 
 @bp.route('/users')
-@login_required
+@check_access('admin')
 def users():
     if current_user.username == 'admin':
         users = User.query.order_by('name').all()
