@@ -10,6 +10,7 @@ from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
+import logging
 
 from wuvt import app
 from wuvt import db
@@ -51,6 +52,7 @@ def list_archives(djset):
 def disable_automation():
     redis_conn.set("automation_enabled", "false")
     automation_set_id = redis_conn.get("automation_set")
+    app.logger.info("Automation disabled with DJSet.id = {}".format(automation_set_id))
     if automation_set_id is not None:
         automation_set = DJSet.query.get(int(automation_set_id))
         automation_set.dtend = datetime.utcnow()
@@ -64,6 +66,7 @@ def enable_automation():
     automation_set = DJSet(1)
     db.session.add(automation_set)
     db.session.commit()
+    app.logger.info("Automation enabled with DJSet.id = {}".format(automation_set.id))
     redis_conn.set('automation_set', str(automation_set.id))
 
 
