@@ -17,11 +17,12 @@ from wuvt import db
 from wuvt import sse
 from wuvt import redis_conn
 from wuvt import format_datetime, localize_datetime
-from wuvt.trackman.models import TrackLog, DJSet
+from wuvt.trackman.models import TrackLog, DJSet, DJ
 
 
 def logout_recent():
-    last_djset = DJSet.query.order_by(DJSet.dtstart.desc()).first()
+    automation_dj = DJ.query.filter(DJ.name == "Automation").first()
+    last_djset = DJSet.query.filter(DJSet.dj_id == automation_dj.id).order_by(DJSet.dtstart.desc()).first()
     if last_djset.dtend is None:
         last_djset.dtend = datetime.utcnow()
         db.session.commit()

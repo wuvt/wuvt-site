@@ -34,9 +34,8 @@ from wuvt.trackman.view_utils import local_only, dj_interact
 def login():
 #    if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
 #        abort(403)
-    logout_recent()
-
     if 'dj' in request.form:
+        logout_recent()
         disable_automation()
 
         dj = DJ.query.get(request.form['dj'])
