@@ -82,6 +82,9 @@ def category_add():
 @bp.route('/users/new', methods=['GET', 'POST'])
 @check_access('admin')
 def user_add():
+    if app.config['LDAP_AUTH']:
+        abort(404)
+
     error_fields = []
     if current_user.username != 'admin':
         abort(403)
@@ -133,6 +136,9 @@ def user_add():
 @bp.route('/users/<int:id>', methods=['GET', 'POST'])
 @check_access('admin')
 def user_edit(id):
+    if app.config['LDAP_AUTH']:
+        abort(404)
+
     user = User.query.get_or_404(id)
     error_fields = []
 
@@ -512,6 +518,9 @@ def pages():
 @bp.route('/users')
 @check_access('admin')
 def users():
+    if app.config['LDAP_AUTH']:
+        abort(404)
+
     if current_user.username == 'admin':
         users = User.query.order_by('name').all()
     else:

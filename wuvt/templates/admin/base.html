@@ -32,7 +32,7 @@
                     {% block nav_admin_categories %}<li><a href="{{ url_for('admin.categories') }}">Categories</a></li>{% endblock %}
                     {% block nav_admin_articles %}<li><a href="{{ url_for('admin.articles') }}">Articles</a></li>{% endblock %}
                     {% block nav_admin_pages %}<li><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}
-                    {% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
+                    {% if not config.LDAP_AUTH %}{% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}{% endif %}
                     {% block nav_admin_upload %}<li><a href="{{ url_for('admin.upload') }}">Upload</a></li>{% endblock %}
                     <li><a href="{{ url_for('auth.logout') }}">
                         <span class="glyphicon glyphicon-off"></span>
