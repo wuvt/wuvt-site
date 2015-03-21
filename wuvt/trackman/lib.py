@@ -51,13 +51,16 @@ def list_archives(djset):
 
 
 def disable_automation():
-    redis_conn.set("automation_enabled", "false")
-    automation_set_id = redis_conn.get("automation_set")
-    app.logger.info("Automation disabled with DJSet.id = {}".format(automation_set_id))
-    if automation_set_id is not None:
-        automation_set = DJSet.query.get(int(automation_set_id))
-        automation_set.dtend = datetime.utcnow()
-        db.session.commit()
+    automation_enabled = redis_conn.get("automation_enabled")
+    # Make sure automation is actually enabled before changing the end time
+    if automation_enabled is not None and automation_enabled == 'true':
+        redis_conn.set("automation_enabled", "false")
+        automation_set_id = redis_conn.get("automation_set")
+        app.logger.info("Automation disabled with DJSet.id = {}".format(automation_set_id))
+        if automation_set_id is not None:
+            automation_set = DJSet.query.get(int(automation_set_id))
+            automation_set.dtend = datetime.utcnow()
+            db.session.commit()
 
 
 def enable_automation():
