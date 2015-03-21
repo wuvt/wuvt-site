@@ -5,7 +5,7 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="email_playlist" value="0" />
 </form>
-<div class="row">
+<div class="row trackman-header">
     <div class="col-md-3">
         <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
     </div>
@@ -34,12 +34,12 @@
             <span class="glyphicon glyphicon-eject"></span>
             Logout
         </button>
-        <label for="id_email_playlist">
+        <label>
             Email me my playlist
-        </label>
             <input type="checkbox" name="email_playlist"
                 id="id_email_playlist"
                 {% if email_playlist %}checked="checked"{% endif %} />
+        </label>
         <button type="button" class="btn btn-warning pull-right" id="trackman-autologout" title="Disable autologout to prevent logging out for tracks over 15 minutes">
             <span class="glyphicon glyphicon-exclamation-sign"></span>
             <span id="trackman-autologout-text">Extend autologout</span>

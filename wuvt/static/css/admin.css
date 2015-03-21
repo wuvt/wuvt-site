@@ -33,10 +33,19 @@ td.row-options {
 .red {
     color: red;
 }
+
+.trackman-header h1 {
+    font-size: 28px;
+    margin: 4px 0;
+    max-height: 123px;
+    overflow: hidden;
+}
+
 .row-table {
     height: 240px;
     overflow-y: auto;
 }
+
 /* These have to be hardcoded to handle nasty length fields */
 .playlist-actions {
     min-width: 100px;
