@@ -596,7 +596,11 @@ table.tracklist a:active {
     text-decoration: underline;
 }
 
-.new-track {
+table.tracklist .glyphicon {
+    cursor: default;
+}
+
+table.tracklist .new-track {
     color: #ff0000;
 }
 /* }}} */
