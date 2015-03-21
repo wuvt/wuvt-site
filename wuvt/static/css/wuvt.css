@@ -271,6 +271,11 @@ header #bubble ul li.active a {
 /* }}} */
 
 /* Navigation: common elements {{{ */
+nav {
+    position: relative;
+    z-index: 20;
+}
+
 nav ul {
     margin: 0;
     padding: 0;
