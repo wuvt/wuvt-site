@@ -572,12 +572,10 @@ function update_autologout(data) {
         return;
     }
     if (data['autologout']) {
-        $("#trackman-autologout-text").text("Extend autologout");
         $("#trackman-autologout").removeClass("active");
         autologout_enabled = false;
     }
     else {
-        $("#trackman-autologout-text").text("Normal autologout");
         $("#trackman-autologout").addClass("active");
         autologout_enabled = true;
     }
