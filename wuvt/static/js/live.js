@@ -156,6 +156,10 @@ function initAjaxLinks() {
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});
     $.each($('body > footer a'), function(i, item){makeAjaxLink(item);});
 
+    // replace state in history, so going back to the first page works
+    window.history.replaceState({'path': location.pathname}, window.title,
+                                location.pathname);
+
     window.onpopstate = function(ev) {
         loadPage(ev.state.path);
     };
