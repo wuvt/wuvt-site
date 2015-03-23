@@ -70,6 +70,7 @@
             Ship my premiums to me (+${{ config.DONATE_SHIPPING_COST }})
         </label>
 
+        <div id="shipping_fields">
         <label>
             Address:
             <input type="text" name="address_1" id="id_address_1" value="" />
@@ -99,6 +100,7 @@
             ZIP/Postal Code:
             <input type="text" name="zipcode" id="id_zipcode" value="" />
         </label>
+        </div>
         {% endif %}
 
         <button id="checkout_btn">Checkout</button>
@@ -148,6 +150,15 @@ $('#checkout_btn').on('click', function(e) {
         bitcoin: true,
     });
     e.preventDefault();
+});
+
+$('#id_ship_premiums').click(function() {
+    if($('#id_ship_premiums:checked').length) {
+        $('#shipping_fields').show('fast');
+    }
+    else {
+        $('#shipping_fields').hide('fast');
+    }
 });
 
 // Close Checkout on page navigation

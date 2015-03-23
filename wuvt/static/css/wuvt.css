@@ -630,6 +630,10 @@ label {
     display: block;
 }
 
+#donate_form #shipping_fields {
+    display: none;
+}
+
 /* Playlists by date {{{ */
 #playlists_by_date {
     position: relative;
