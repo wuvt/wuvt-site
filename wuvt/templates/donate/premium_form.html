@@ -7,20 +7,152 @@
         <h2>Donate Online</h2>
     </header>
 
-    <form action="{{ url_for('donate.process') }}" method="post">
-        <label for="id_name">Preferred Name:</label>
-        <input type="text" name="name" id="id_name" value="" />
+    <form action="{{ url_for('donate.process') }}" method="post"
+            id="donate_form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
 
-        <label for="id_dj">DJ to Credit:</label>
-        <input type="text" name="dj" id="id_dj" value="" />
+        <label>
+            Amount to Donate:
+            <input type="text" name="amount" id="id_amount" value=""
+                required="required" />
+        </label>
 
-        <label for="id_tshirt_size">T-Shirt Size:</label>
-        <select name="tshirt_size" id="id_tshirt_size">
-            <option value="any">(no preference)</option>
-            {% for size in config['PREMIUMS_TSHIRT_SIZES']
-        </select>
+        <label>
+            Email Address:
+            <input type="text" name="email" id="id_email" value=""
+                required="required" />
+        </label>
+
+        <label>
+            Preferred Name:
+            <input type="text" name="name" id="id_name" value="" />
+        </label>
+
+        <label>
+            DJ to Credit:
+            <input type="text" name="dj" id="id_dj" value="" />
+        </label>
+
+        <label>
+            Comment:
+            <input type="text" name="comment" id="id_comment" value="" />
+        </label>
+
+        <label>
+            May we thank you on air?
+            <select name="onair" id="id_onair">
+                <option value="y">Yes</option>
+                <option value="n">No</option>
+            </select>
+        </label>
+
+        <label>
+            First time donor?
+            <select name="first_time" id="id_first_time">
+                <option value="y">Yes</option>
+                <option value="n">No</option>
+            </select>
+        </label>
+
+        <label>
+            Year born:
+            <input type="text" name="year_born" id="id_year_born"
+                value="" />
+        </label>
+
+        <!-- TODO: make premium stuff configurable here -->
+        <!-- maybe disable premium section only during radiothon? -->
+        {% if config.DONATE_PREMIUMS %}
+        <label>
+            <input type="checkbox" name="ship_premiums" id="id_ship_premiums"
+                value="true" />
+            Ship my premiums to me (+${{ config.DONATE_SHIPPING_COST }})
+        </label>
+
+        <label>
+            Address:
+            <input type="text" name="address_1" id="id_address_1" value="" />
+        </label>
+
+        <label>
+            Address 2:
+            <input type="text" name="address_2" id="id_address_2" value="" />
+        </label>
+
+        <label>
+            City:
+            <input type="text" name="city" id="id_city" value="" />
+        </label>
+
+        <label>
+            State:
+            <input type="text" name="state" id="id_state" value="" />
+        </label>
+
+        <label>
+            Country:
+            <input type="text" name="country" id="id_country" value="" />
+        </label>
+
+        <label>
+            ZIP/Postal Code:
+            <input type="text" name="zipcode" id="id_zipcode" value="" />
+        </label>
+        {% endif %}
+
+        <button id="checkout_btn">Checkout</button>
     </form>
 
     <footer></footer>
 </section>
+{% endblock %}
+{# FIXME: this will not work with AJAX loading #}
+{% block js %}
+{{ super() }}
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<script>
+var handler = StripeCheckout.configure({
+    key: "{{ config.STRIPE_PUBLIC_KEY }}",
+    image: '/static/img/icon.png',
+    token: function(token) {
+        $('#id_stripe_token').val(token.id);
+        $.ajax({
+            'url': $('#donate_form')[0].action,
+            'type': 'post',
+            'data': $('#donate_form').serialize(),
+        }).done(function(data) {
+            console.log(data);
+        }).fail(function(data) {
+            console.log(data);
+        });
+    }
+});
+
+$('#checkout_btn').on('click', function(e) {
+    // TODO: ensure email and amount are filled in
+
+    var amount = parseFloat($('#id_amount').val()) * 100;
+    if($('#id_ship_premiums:checked').length) {
+        amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
+    }
+
+    // Open Checkout with further options
+    handler.open({
+        name: "{{ config.STRIPE_NAME }}",
+        description: "Donate Online",
+        amount: amount,
+        currency: "usd",
+        panelLabel: "Pay {{ '{{amount}}' }}",
+        email: $('#id_email').val(),
+        bitcoin: true,
+    });
+    e.preventDefault();
+});
+
+// Close Checkout on page navigation
+$(window).on('popstate', function() {
+    handler.close();
+});
+</script>
 {% endblock %}

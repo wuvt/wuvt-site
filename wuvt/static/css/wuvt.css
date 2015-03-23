@@ -622,6 +622,14 @@ a.donate:hover {
 }
 /* }}} */
 
+label {
+    display: inline-block;
+}
+
+#donate_form label {
+    display: block;
+}
+
 /* Playlists by date {{{ */
 #playlists_by_date {
     position: relative;
