@@ -76,11 +76,14 @@ csrf = SeaSurf(app)
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
-login_manager.login_view = "admin.login"
+login_manager.login_view = "auth.login"
 login_manager.init_app(app)
 
 from wuvt import admin
 app.register_blueprint(admin.bp, url_prefix='/admin')
+
+from wuvt import auth
+app.register_blueprint(auth.bp, url_prefix='/auth')
 
 from wuvt import donate
 app.register_blueprint(donate.bp, url_prefix='/donate-online')

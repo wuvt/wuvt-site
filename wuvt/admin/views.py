@@ -1,14 +1,13 @@
 import datetime
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, session
-from flask.ext.login import login_required, login_user, logout_user, current_user
+from flask.ext.login import login_required, current_user
 
 from wuvt import app
 from wuvt import db
 from wuvt import slugify
-from wuvt import redirect_back
-from wuvt import config
 from wuvt.admin import bp
+from wuvt.auth import check_access
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
@@ -18,13 +17,13 @@ import os
 
 
 @bp.route('/')
-@login_required
+@check_access('admin')
 def index():
     return render_template('admin/index.html')
 
 
 @bp.route('/upload', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def upload():
     if request.method == 'GET':
         return render_template('admin/upload.html')
@@ -37,7 +36,7 @@ def upload():
 
         if file:
             filename = secure_filename(file.filename)
-            newpath = os.path.join(config.UPLOAD_DIR, dir, filename)
+            newpath = os.path.join(app.config['UPLOAD_DIR'], dir, filename)
             webroot_path = os.path.join('/static/media', dir, filename)
             file.save(newpath)
             flash('Your file has been uploaded to: ' + webroot_path)
@@ -46,7 +45,7 @@ def upload():
 
 
 @bp.route('/categories')
-@login_required
+@check_access('admin')
 def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
@@ -54,7 +53,7 @@ def categories():
 
 
 @bp.route('/categories/add', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def category_add():
     error_fields = []
 
@@ -81,8 +80,11 @@ def category_add():
 
 
 @bp.route('/users/new', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def user_add():
+    if app.config['LDAP_AUTH']:
+        abort(404)
+
     error_fields = []
     if current_user.username != 'admin':
         abort(403)
@@ -132,8 +134,11 @@ def user_add():
 
 
 @bp.route('/users/<int:id>', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def user_edit(id):
+    if app.config['LDAP_AUTH']:
+        abort(404)
+
     user = User.query.get_or_404(id)
     error_fields = []
 
@@ -176,7 +181,7 @@ def user_edit(id):
 
 
 @bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
-@login_required
+@check_access('admin')
 def category_edit(cat_id):
     category = Category.query.get_or_404(cat_id)
     error_fields = []
@@ -217,7 +222,7 @@ def category_edit(cat_id):
 
 
 @bp.route('/articles')
-@login_required
+@check_access('admin')
 def articles():
     articles = Article.query.all()
     return render_template('admin/articles.html',
@@ -225,7 +230,7 @@ def articles():
 
 
 @bp.route('/articles/draft/<int:art_id>')
-@login_required
+@check_access('admin')
 def article_draft(art_id):
     article = Article.query.filter(Article.id == art_id).first()
     if not article:
@@ -241,7 +246,7 @@ def article_draft(art_id):
 
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST', 'DELETE'])
-@login_required
+@check_access('admin')
 def page_edit(page_id):
     page = Page.query.get_or_404(page_id)
     error_fields = []
@@ -291,8 +296,7 @@ def page_edit(page_id):
             '_csrf_token': app.jinja_env.globals['csrf_token'](),
         })
 
-    sections = config.NAV_TOP_SECTIONS
-    print(sections)
+    sections = app.config['NAV_TOP_SECTIONS']
 
     return render_template('admin/page_edit.html',
                            sections=sections,
@@ -301,7 +305,7 @@ def page_edit(page_id):
 
 
 @bp.route('/page/add', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def page_add():
     error_fields = []
 
@@ -338,8 +342,7 @@ def page_add():
             flash("Page Saved")
             return redirect(url_for('admin.pages'))
 
-    sections = config.NAV_TOP_SECTIONS
-    print(sections)
+    sections = app.config['NAV_TOP_SECTIONS']
 
     return render_template('admin/page_add.html',
                            sections=sections,
@@ -347,7 +350,7 @@ def page_add():
 
 
 @bp.route('/article/add', methods=['GET', 'POST'])
-@login_required
+@check_access('admin')
 def article_add():
     error_fields = []
     # article = Article()
@@ -418,7 +421,7 @@ def article_add():
 
 
 @bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
-@login_required
+@check_access('admin')
 def article_edit(art_id):
     article = Article.query.get_or_404(art_id)
     error_fields = []
@@ -506,45 +509,21 @@ def article_edit(art_id):
 
 
 @bp.route('/pages')
-@login_required
+@check_access('admin')
 def pages():
     pages = Page.query.all()
     return render_template('admin/pages.html', pages=pages)
 
 
 @bp.route('/users')
-@login_required
+@check_access('admin')
 def users():
+    if app.config['LDAP_AUTH']:
+        abort(404)
+
     if current_user.username == 'admin':
         users = User.query.order_by('name').all()
     else:
         users = User.query.filter(User.username == current_user.username).order_by('name').all()
 
     return render_template('admin/users.html', users=users)
-
-
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
-    errors = []
-
-    if 'username' in request.form:
-        user = User.query.filter(User.username == request.form['username']).first()
-        if user and user.check_password(request.form['password']):
-            login_user(user)
-            session['username'] = request.form['username']
-            return redirect_back('admin.index')
-        else:
-            errors.append("Invalid username or password.")
-
-    return render_template('admin/login.html',
-                           next=request.values.get('next') or "",
-                           errors=errors)
-
-
-@bp.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    session.pop('userrname', None)
-    flash("You have been logged out.")
-    return redirect(url_for('.login'))

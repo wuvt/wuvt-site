@@ -5,7 +5,7 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="email_playlist" value="0" />
 </form>
-<div class="row">
+<div class="row trackman-header">
     <div class="col-md-3">
         <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
     </div>
@@ -34,15 +34,15 @@
             <span class="glyphicon glyphicon-eject"></span>
             Logout
         </button>
-        <label for="id_email_playlist">
+        <label>
             Email me my playlist
-        </label>
             <input type="checkbox" name="email_playlist"
                 id="id_email_playlist"
                 {% if email_playlist %}checked="checked"{% endif %} />
-        <button type="button" class="btn btn-danger pull-right" id="trackman-autologout" title="Disable autologout to prevent logging out for tracks over 15 minutes">
+        </label>
+        <button type="button" class="btn btn-warning pull-right" id="trackman-autologout" title="Disable autologout to prevent logging out for tracks over 15 minutes">
             <span class="glyphicon glyphicon-exclamation-sign"></span>
-            <span id="trackman-autologout-text">Disable autologout</span>
+            <span id="trackman-autologout-text">Extend autologout</span>
         </button>
     </div>
 </div>
@@ -101,19 +101,19 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="checkbox">
-                            <label for="">
+                            <label>
                                 Request
                                 <input type="checkbox" class="request" name="request"/>
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label for="">
+                            <label>
                                 Vinyl
                                 <input type="checkbox" class="vinyl" name="vinyl"/>
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label for="">
+                            <label>
                                 New
                                 <input type="checkbox" class="new" name="new"/>
                             </label>
@@ -122,7 +122,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-2">
             <div class="form-inline">
                 <div class="form-group">
                     <div class="input-group">
@@ -133,16 +133,20 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="btn-group">
-            <button id="new-queue" class="btn btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-                Queue New Track
-            </button>
-            <button id="new-log" class="btn btn-default">
-                <span class="glyphicon glyphicon-play"></span>
-                Log New Track
-            </button>
+                <button id="new-queue" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Queue New Track
+                </button>
+                <button id="new-log" class="btn btn-default">
+                    <span class="glyphicon glyphicon-play"></span>
+                    Log New Track
+                </button>
+                <button id="clear-form" class="btn btn-default">
+                    <span class="glyphicon glyphicon-erase"></span>
+                    Clear Form
+                </button>
             </div>
         </div>
     </div>
@@ -250,6 +254,7 @@ $( document ).ready(function() {
     $("button#trackman-autologout").click(set_autologout);
     $("button#new-queue").click(queue_new_track);
     $("button#new-log").click(log_new_track);
+    $("button#clear-form").click(clear_form);
     update_playlist();
 })
 </script>

@@ -26,7 +26,7 @@ for cat in cats:
 
 # There must be a user called 'admin'. This is hardcoded in everything to be the superuser.
 user = User("admin", "admin", "admin@wuvt.vt.edu")
-user.set_password("test")
+user.set_password("Password1!")
 db.session.add(user)
 # The first Rotation must be the default
 db.session.add(Rotation("None"));

@@ -1,8 +1,5 @@
 {% extends "base.html" %}
 {% block title %}{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }} - {{ djset.dj.airname }} - Playlist Archive - {{ super() }}{% endblock %}
-{% block css %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/glyphiconstrap.css') }}" />
-{% endblock %}
 {% block content %}
 <section>
 <header>
@@ -20,24 +17,24 @@
 
 <table id="tracktable" class="tracklist">
     <thead>
-        <th>Time Aired</th>
-        <th>New</th>
+        <th>Time</th>
+        <th></th>
         <th>Artist</th>
         <th>Track</th>
         <th>Album</th>
-        <th>Request</th>
-        <th>Vinyl</th>
+        <th></th>
+        <th></th>
     </thead>
     <tbody>
         {% for track in tracklogs %}
         <tr>
             <td>{{ track.played|datetime("%H:%M:%S") }}</td>
-            <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track"></span>{% endif %}</td>
+            <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track" title="New"></span>{% endif %}</td>
             <td>{{ track.track.artist }}</td>
             <td>{{ track.track.title }}</td>
             <td>{{ track.track.album }}</td>
-            <td>{% if track.request %}<span class="glyphicon glyphicon-earphone"></span>{% endif %}</td>
-            <td>{% if track.vinyl %}<span class="glyphicon glyphicon-cd"></span>{% endif %}</td>
+            <td>{% if track.request %}<span class="glyphicon glyphicon-earphone" title="Request"></span>{% endif %}</td>
+            <td>{% if track.vinyl %}<span class="glyphicon glyphicon-cd" title="Vinyl"></span>{% endif %}</td>
         </tr>
         {% endfor %}
     </tbody>

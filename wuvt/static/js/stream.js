@@ -23,6 +23,9 @@ function initPlayer() {
 }
 
 function initStream(streamUrl) {
+    // This doesn't work on Chrome for Android:
+    // https://code.google.com/p/chromium/issues/detail?id=178297
+
     $('#stream_btn').click(function() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
@@ -45,11 +48,19 @@ function initStream(streamUrl) {
             });
 
             // chrome workaround for the same thing
+            // https://code.google.com/p/chromium/issues/detail?id=175281
             stream.addEventListener("error", function() {
                 $('#wuvt_stream').attr('src', "");
                 $('#wuvt_stream').attr('src', streamUrl);
                 $('#wuvt_stream').trigger('play');
             });
+
+            // display an alert after 5 seconds if the stream hasn't started
+            window.setTimeout(function() {
+                if(streamPlaying && !$('#stream_btn').hasClass('playing')) {
+                    alert("Streaming problems? Check the Listen Live page for other ways to listen to WUVT!");
+                }
+            }, 5000);
 
             streamPlaying = true;
             $('#stream_btn').attr('title', "Buffering...");
@@ -126,5 +137,5 @@ function initVolume() {
 }
 
 function warnBrokenPlayer() {
-    alert("Sorry, the WUVT live stream player is not supported by your browser. Please see the Listen Live page for other options, or switch to Google Chrome or Mozilla Firefox.");
+    alert("Sorry, the WUVT live stream player is not supported by your browser. Please see the Listen Live page for other ways to listen to WUVT, or switch to Google Chrome or Mozilla Firefox.");
 }

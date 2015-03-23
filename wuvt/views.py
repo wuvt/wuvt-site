@@ -5,7 +5,6 @@ from sqlalchemy import desc
 
 from wuvt import app
 from wuvt import db
-from wuvt import login_manager
 from wuvt import sse
 
 from wuvt.models import User, Page
@@ -13,11 +12,6 @@ from wuvt.blog.models import Article, Category
 
 from wuvt.blog.views import *
 from wuvt.trackman.views import *
-
-
-@login_manager.user_loader
-def load_user(userid):
-    return User.query.get(userid)
 
 
 @app.context_processor

@@ -10,17 +10,19 @@ from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
+import logging
 
 from wuvt import app
 from wuvt import db
 from wuvt import sse
 from wuvt import redis_conn
 from wuvt import format_datetime, localize_datetime
-from wuvt.trackman.models import TrackLog, DJSet
+from wuvt.trackman.models import TrackLog, DJSet, DJ
 
 
 def logout_recent():
-    last_djset = DJSet.query.order_by(DJSet.dtstart.desc()).first()
+    automation_dj = DJ.query.filter(DJ.name == "Automation").first()
+    last_djset = DJSet.query.filter(DJSet.dj_id == automation_dj.id).order_by(DJSet.dtstart.desc()).first()
     if last_djset.dtend is None:
         last_djset.dtend = datetime.utcnow()
         db.session.commit()
@@ -49,12 +51,16 @@ def list_archives(djset):
 
 
 def disable_automation():
-    redis_conn.set("automation_enabled", "false")
-    automation_set_id = redis_conn.get("automation_set")
-    if automation_set_id is not None:
-        automation_set = DJSet.query.get(int(automation_set_id))
-        automation_set.dtend = datetime.utcnow()
-        db.session.commit()
+    automation_enabled = redis_conn.get("automation_enabled")
+    # Make sure automation is actually enabled before changing the end time
+    if automation_enabled is not None and automation_enabled == 'true':
+        redis_conn.set("automation_enabled", "false")
+        automation_set_id = redis_conn.get("automation_set")
+        app.logger.info("Automation disabled with DJSet.id = {}".format(automation_set_id))
+        if automation_set_id is not None:
+            automation_set = DJSet.query.get(int(automation_set_id))
+            automation_set.dtend = datetime.utcnow()
+            db.session.commit()
 
 
 def enable_automation():
@@ -64,6 +70,7 @@ def enable_automation():
     automation_set = DJSet(1)
     db.session.add(automation_set)
     db.session.commit()
+    app.logger.info("Automation enabled with DJSet.id = {}".format(automation_set.id))
     redis_conn.set('automation_set', str(automation_set.id))
 
 

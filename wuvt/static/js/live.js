@@ -58,6 +58,7 @@ function updateLast15(tracklog) {
     if(tracklog['new'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-fire new-track";
+        span.title = "New";
         $(td).append(span);
     }
     $(tr).append(td);
@@ -82,6 +83,7 @@ function updateLast15(tracklog) {
     if(tracklog['request'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-earphone";
+        span.title = "Request";
         $(td).append(span);
     }
     $(tr).append(td);
@@ -90,6 +92,7 @@ function updateLast15(tracklog) {
     if(tracklog['vinyl'] == true) {
         var span = document.createElement('span');
         span.className = "glyphicon glyphicon-cd";
+        span.title = "Vinyl";
         $(td).append(span);
     }
     $(tr).append(td);
@@ -152,6 +155,10 @@ function initAjaxLinks() {
     $.each($('nav a'), function(i, item){makeAjaxLink(item);});
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});
     $.each($('body > footer a'), function(i, item){makeAjaxLink(item);});
+
+    // replace state in history, so going back to the first page works
+    window.history.replaceState({'path': location.pathname}, window.title,
+                                location.pathname);
 
     window.onpopstate = function(ev) {
         loadPage(ev.state.path);

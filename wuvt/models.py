@@ -1,3 +1,4 @@
+from wuvt import app
 from wuvt import db
 from flask.ext.login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
@@ -21,7 +22,10 @@ class User(db.Model, UserMixin):
         self.pw_hash = django_pbkdf2_sha256.encrypt(password)
 
     def check_password(self, password):
-        return django_pbkdf2_sha256.verify(password, self.pw_hash)
+        if len(password) >= app.config['MIN_PASSWORD_LENGTH']:
+            return django_pbkdf2_sha256.verify(password, self.pw_hash)
+        else:
+            return False
 
 
 class Page(db.Model):

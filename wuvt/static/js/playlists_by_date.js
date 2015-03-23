@@ -5,8 +5,9 @@ function PlaylistsByDate(wrapper) {
     // we subtract these so the current day is really the last overlap day
     this.absoluteEnd = moment().endOf('day');
 
-    // TODO: pull this from the database?
-    this.absoluteStart = moment("2007-09-07");
+    // start date for playlists by date viewer
+    //this.absoluteStart = moment("2007-09-07");
+    this.absoluteStart = moment("2015-03-05");
 
     this.loading = false;
     this.wrapper = wrapper;
