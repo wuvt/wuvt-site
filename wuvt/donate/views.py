@@ -60,3 +60,8 @@ def process():
     # TODO: send thank you email
 
     return Response("yes")
+
+
+@bp.route('/thanks')
+def thanks():
+    return render_template('donate/thanks.html')

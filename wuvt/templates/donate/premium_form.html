@@ -12,8 +12,6 @@
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
         <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
 
-        <!-- TODO: redesign this form -->
-
         <label>
             Your Name
             <input type="text" name="name" id="id_name" value="" />
@@ -44,8 +42,6 @@
             <input type="text" name="show" id="id_show" value="" />
         </label>
 
-        <!-- TODO: make premium stuff configurable here -->
-        <!-- maybe disable premium section only during radiothon? -->
         {% if config.DONATE_PREMIUMS %}
         <label>
             Would you like any premiums?
@@ -173,15 +169,18 @@ var handler = StripeCheckout.configure({
             'type': 'post',
             'data': $('#donate_form').serialize(),
         }).done(function(data) {
-            console.log(data);
+            var path = "{{ url_for('donate.thanks') }}";
+            window.history.replaceState({'path': path}, "Donate Online", path);
+            loadPage(path);
         }).fail(function(data) {
+            alert("There was a problem donating!");
             console.log(data);
         });
     }
 });
 
 $('#checkout_btn').on('click', function(e) {
-    // TODO: ensure email and amount are filled in
+    // TODO: client-side validation
 
     var amount = parseFloat($('#id_amount').val()) * 100;
     if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
