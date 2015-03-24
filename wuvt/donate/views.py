@@ -8,7 +8,6 @@ from wuvt.donate.models import Order
 
 @bp.route('/')
 def donate():
-    # TODO: we need to recurring donations separately
     return render_template('donate/premium_form.html')
 
 
@@ -17,21 +16,9 @@ def process():
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
     premiums = request.form.get('premiums', 'no')
-
     amount = int(float(request.form['amount']) * 100)
     if premiums == "ship" and amount >= app.config['DONATE_SHIPPING_MINIMUM']:
         amount += int(app.config['DONATE_SHIPPING_COST']) * 100
-
-    # FIXME: uncomment
-    #try:
-    #    charge = stripe.Charge.create(
-    #        amount=amount,
-    #        currency="usd",
-    #        source=request.form['stripe_token'],
-    #        description=app.config['STRIPE_DESCRIPTION'])
-    #except stripe.CardError, e:
-    #    int("Card declined!")
-    #    print(e)
 
     order = Order(request.form['name'], request.form['email'],
                   request.form.get('show', ''),
@@ -52,6 +39,17 @@ def process():
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
+    # FIXME: uncomment
+    #try:
+    #    charge = stripe.Charge.create(
+    #        amount=amount,
+    #        currency="usd",
+    #        source=request.form['stripe_token'],
+    #        description=app.config['STRIPE_DESCRIPTION'])
+    #except stripe.CardError, e:
+    #    int("Card declined!")
+    #    print(e)
+
     #order.set_paid('stripe')
 
     db.session.add(order)
@@ -59,7 +57,7 @@ def process():
 
     # TODO: send thank you email
 
-    return Response("yes")
+    return Response("Order created with ID #{}".format(order.id))
 
 
 @bp.route('/thanks')
