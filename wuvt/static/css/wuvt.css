@@ -624,12 +624,14 @@ a.donate:hover {
 
 label {
     display: inline-block;
+    max-width: 100%;
 }
 
 #donate_form label {
     display: block;
 }
 
+#donate_form #premium_fields,
 #donate_form #shipping_fields {
     display: none;
 }

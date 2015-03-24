@@ -12,63 +12,96 @@
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
         <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
 
+        <!-- TODO: redesign this form -->
+
         <label>
-            Amount to Donate:
-            <input type="text" name="amount" id="id_amount" value=""
-                required="required" />
+            Your Name
+            <input type="text" name="name" id="id_name" value="" />
         </label>
 
         <label>
-            Email Address:
+            Pledge Amount
+            <input type="text" name="amount" id="id_amount" value=""
+                placeholder="20.00" required="required" />
+        </label>
+
+        <label>
+            Is this a one-time or monthly donation?
+            <select name="recurrence" id="id_recurrence">
+                <option value="once">One-time</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </label>
+
+        <label>
+            Email Address
             <input type="text" name="email" id="id_email" value=""
                 required="required" />
         </label>
 
         <label>
-            Preferred Name:
-            <input type="text" name="name" id="id_name" value="" />
-        </label>
-
-        <label>
-            DJ to Credit:
-            <input type="text" name="dj" id="id_dj" value="" />
-        </label>
-
-        <label>
-            Comment:
-            <input type="text" name="comment" id="id_comment" value="" />
-        </label>
-
-        <label>
-            May we thank you on air?
-            <select name="onair" id="id_onair">
-                <option value="y">Yes</option>
-                <option value="n">No</option>
-            </select>
-        </label>
-
-        <label>
-            First time donor?
-            <select name="first_time" id="id_first_time">
-                <option value="y">Yes</option>
-                <option value="n">No</option>
-            </select>
-        </label>
-
-        <label>
-            Year born:
-            <input type="text" name="year_born" id="id_year_born"
-                value="" />
+            Show to Credit
+            <input type="text" name="show" id="id_show" value="" />
         </label>
 
         <!-- TODO: make premium stuff configurable here -->
         <!-- maybe disable premium section only during radiothon? -->
         {% if config.DONATE_PREMIUMS %}
         <label>
-            <input type="checkbox" name="ship_premiums" id="id_ship_premiums"
-                value="true" />
-            Ship my premiums to me (+${{ config.DONATE_SHIPPING_COST }})
+            Would you like any premiums?
         </label>
+
+        <label>
+            <input type="radio" name="premiums" id="id_premiums_no"
+                value="no" />
+            No, I'd like my entire donation to go towards WUVT
+        </label>
+
+        <label>
+            <input type="radio" name="premiums" id="id_premiums_pickup"
+                value="pickup" />
+            Yes, I'll pick them up in 350 Squires Student Center
+        </label>
+
+        <label>
+            <input type="radio" name="premiums" id="id_premiums_ship"
+                value="ship" />
+            Yes, ship them to me (+${{ config.DONATE_SHIPPING_COST }}, US only)
+        </label>
+
+        <div id="premium_fields">
+        <label>
+            T-Shirt Size:
+            <select id="id_tshirtsize" name="tshirtsize">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+            </select>
+        </label>
+
+        <label>
+            T-Shirt Color:
+            <select id="id_tshirtcolor" name="tshirtcolor">
+                <option value="Orange">Orange</option>
+                <option value="Black">Black</option>
+                <option value="Kiwi">Kiwi</option>
+                <option value="Berry">Berry</option>
+            </select>
+        </label>
+
+        <label>
+            Sweatshirt Size:
+            <select id="id_sweatshirtsize" name="sweatshirtsize">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+            </select>
+        </label>
+        </div>
 
         <div id="shipping_fields">
         <label>
@@ -92,16 +125,27 @@
         </label>
 
         <label>
-            Country:
-            <input type="text" name="country" id="id_country" value="" />
-        </label>
-
-        <label>
-            ZIP/Postal Code:
+            ZIP Code:
             <input type="text" name="zipcode" id="id_zipcode" value="" />
         </label>
         </div>
         {% endif %}
+
+        <label>
+            May we thank you on-air?
+            <select name="onair" id="id_onair">
+                <option value="y">Yes</option>
+                <option value="n">No</option>
+            </select>
+        </label>
+
+        <label>
+            Is this your first time contributing?
+            <select name="firsttime" id="id_firsttime">
+                <option value="y">Yes</option>
+                <option value="n" selected="selected">No</option>
+            </select>
+        </label>
 
         <button id="checkout_btn">Checkout</button>
     </form>
@@ -114,6 +158,11 @@
 {{ super() }}
 <script src="https://checkout.stripe.com/checkout.js"></script>
 <script>
+// make sure any existing stripe_token is cleared
+$('#id_stripe_token').val('');
+
+var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
+
 var handler = StripeCheckout.configure({
     key: "{{ config.STRIPE_PUBLIC_KEY }}",
     image: '/static/img/icon.png',
@@ -135,7 +184,7 @@ $('#checkout_btn').on('click', function(e) {
     // TODO: ensure email and amount are filled in
 
     var amount = parseFloat($('#id_amount').val()) * 100;
-    if($('#id_ship_premiums:checked').length) {
+    if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
         amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
     }
 
@@ -152,14 +201,28 @@ $('#checkout_btn').on('click', function(e) {
     e.preventDefault();
 });
 
-$('#id_ship_premiums').click(function() {
-    if($('#id_ship_premiums:checked').length) {
+$('#donate_form input[name=premiums]').change(function() {
+    if($('#id_premiums_pickup').is(':checked')) {
+        $('#premium_fields').show('fast');
+        $('#shipping_fields').hide('fast');
+    }
+    else if($('#id_premiums_ship').is(':checked')) {
+        $('#premium_fields').show('fast');
         $('#shipping_fields').show('fast');
     }
     else {
+        $('#premium_fields').hide('fast');
         $('#shipping_fields').hide('fast');
     }
 });
+
+if($('#id_premiums_pickup').is(':checked')) {
+    $('#premium_fields').show('fast');
+}
+else if($('#id_premiums_ship').is(':checked')) {
+    $('#premium_fields').show('fast');
+    $('#shipping_fields').show('fast');
+}
 
 // Close Checkout on page navigation
 $(window).on('popstate', function() {
