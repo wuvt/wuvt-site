@@ -17,15 +17,13 @@ def process():
 
     premiums = request.form.get('premiums', 'no')
     amount = int(float(request.form['amount']) * 100)
-    if premiums == "ship" and amount >= app.config['DONATE_SHIPPING_MINIMUM']:
-        amount += int(app.config['DONATE_SHIPPING_COST']) * 100
+    recurring = request.form.get('recurrence', 'once') == 'monthly'
 
     order = Order(request.form['name'], request.form['email'],
                   request.form.get('show', ''),
                   request.form.get('onair', 'n') == 'y',
                   request.form.get('firsttime', 'n') == 'y',
-                  amount,
-                  request.form.get('recurrence', 'once') == 'monthly')
+                  amount, recurring)
 
     if premiums != "no":
         order.set_premiums(premiums,
@@ -35,29 +33,65 @@ def process():
                            request.form.get('sweatshirtcolor', None))
 
     if premiums == "ship":
+        # add shipping cost, if our order exceeds the minimum amount for
+        # shipping cost (e.g., lowest tier has free shipping)
+        if amount >= app.config['DONATE_SHIPPING_MINIMUM']:
+            amount += int(app.config['DONATE_SHIPPING_COST']) * 100
+
         order.set_address(request.form['address_1'], request.form['address_2'],
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
-    # FIXME: uncomment
-    #try:
-    #    charge = stripe.Charge.create(
-    #        amount=amount,
-    #        currency="usd",
-    #        source=request.form['stripe_token'],
-    #        description=app.config['STRIPE_DESCRIPTION'])
-    #except stripe.CardError, e:
-    #    int("Card declined!")
-    #    print(e)
+    if recurring:
+        # create the plan
+        stripe.Plan.create(
+            amount=order.amount,
+            interval="month",
+            name=order.name,
+            currency='usd',
+            statement_description=app.config['STRIPE_DESCRIPTION'],
+            id=str(order.id)
+        )
 
-    #order.set_paid('stripe')
+        # create the customer using stripe_token
+        customer = stripe.Customer.create(
+            card=request.form['stripe_token'],
+            email=order.email
+        )
+
+        order.custid = customer.id
+
+        # bill for shipping, if applicable
+        if premiums == "ship":
+            stripe.InvoiceItem.create(
+                customer=order.custid,
+                amount=int(app.config['DONATE_SHIPPING_COST']) * 100,
+                currency="usd",
+                description="One-time shipping fee")
+
+        # create the subscription
+        cust = stripe.Customer.retrieve(order.custid)
+        cust.subscriptions.create(plan=str(order.id))
+    else:
+        try:
+            # charge the customer using stripe_token
+            charge = stripe.Charge.create(
+                amount=amount,
+                currency="usd",
+                source=request.form['stripe_token'],
+                description="Order #{}".format(order.id))
+        except stripe.CardError, e:
+            return Response("Your card was declined. Please try again with "\
+                            "a different method of payment.")
+
+        order.set_paid('stripe')
 
     db.session.add(order)
     db.session.commit()
 
     # TODO: send thank you email
 
-    return Response("Order created with ID #{}".format(order.id))
+    return Response("Thanks for your order.")
 
 
 @bp.route('/thanks')
