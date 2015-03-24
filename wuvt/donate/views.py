@@ -52,7 +52,7 @@ def process():
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
-    order.set_paid('stripe')
+    #order.set_paid('stripe')
 
     db.session.add(order)
     db.session.commit()
