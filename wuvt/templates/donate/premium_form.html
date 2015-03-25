@@ -138,7 +138,7 @@
             </select>
         </label>
 
-        <button id="checkout_btn" class="btn-primary">Donate Now</button>
+        <button type="submit" class="btn-primary">Donate Now</button>
     </form>
 
     <footer></footer>
@@ -174,9 +174,7 @@ var handler = StripeCheckout.configure({
     }
 });
 
-$('#checkout_btn').on('click', function(e) {
-    // TODO: client-side validation
-
+$('#donate_form').submit(function(ev) {
     var amount = parseFloat($('#id_amount').val()) * 100;
     if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
         amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
@@ -192,7 +190,8 @@ $('#checkout_btn').on('click', function(e) {
         email: $('#id_email').val(),
         bitcoin: true,
     });
-    e.preventDefault();
+
+    ev.preventDefault();
 });
 
 // Close Checkout on page navigation
