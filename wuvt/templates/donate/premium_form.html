@@ -49,7 +49,7 @@
 
         <label>
             <input type="radio" name="premiums" id="id_premiums_no"
-                value="no" />
+                value="no" checked="checked" />
             No, I'd like my entire donation to go towards WUVT
         </label>
 
@@ -67,61 +67,56 @@
 
         <div id="premium_fields">
         <label>
-            T-Shirt Size:
+            T-Shirt Size
             <select id="id_tshirtsize" name="tshirtsize">
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
+                {% for size in config.DONATE_TSHIRTSIZES %}
+                <option value="{{ size }}">{{ size }}</option>
+                {% endfor %}
             </select>
         </label>
 
         <label>
-            T-Shirt Color:
+            T-Shirt Color
             <select id="id_tshirtcolor" name="tshirtcolor">
-                <option value="Orange">Orange</option>
-                <option value="Black">Black</option>
-                <option value="Kiwi">Kiwi</option>
-                <option value="Berry">Berry</option>
+                {% for color in config.DONATE_TSHIRTCOLORS %}
+                <option value="{{ color }}">{{ color }}</option>
+                {% endfor %}
             </select>
         </label>
 
         <label>
-            Sweatshirt Size:
+            Sweatshirt Size
             <select id="id_sweatshirtsize" name="sweatshirtsize">
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
+                {% for size in config.DONATE_SWEATSHIRTSIZES %}
+                <option value="{{ size }}">{{ size }}</option>
+                {% endfor %}
             </select>
         </label>
         </div>
 
         <div id="shipping_fields">
         <label>
-            Address:
+            Address
             <input type="text" name="address_1" id="id_address_1" value="" />
         </label>
 
         <label>
-            Address 2:
+            Address 2
             <input type="text" name="address_2" id="id_address_2" value="" />
         </label>
 
         <label>
-            City:
+            City
             <input type="text" name="city" id="id_city" value="" />
         </label>
 
         <label>
-            State:
+            State
             <input type="text" name="state" id="id_state" value="" />
         </label>
 
         <label>
-            ZIP Code:
+            ZIP Code
             <input type="text" name="zipcode" id="id_zipcode" value="" />
         </label>
         </div>
@@ -152,12 +147,12 @@
 {# FIXME: this will not work with AJAX loading #}
 {% block js %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/donate.js') }}"></script>
 <script src="https://checkout.stripe.com/checkout.js"></script>
 <script>
-// make sure any existing stripe_token is cleared
-$('#id_stripe_token').val('');
-
 var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
+
+init_donate();
 
 var handler = StripeCheckout.configure({
     key: "{{ config.STRIPE_PUBLIC_KEY }}",
@@ -199,29 +194,6 @@ $('#checkout_btn').on('click', function(e) {
     });
     e.preventDefault();
 });
-
-$('#donate_form input[name=premiums]').change(function() {
-    if($('#id_premiums_pickup').is(':checked')) {
-        $('#premium_fields').show('fast');
-        $('#shipping_fields').hide('fast');
-    }
-    else if($('#id_premiums_ship').is(':checked')) {
-        $('#premium_fields').show('fast');
-        $('#shipping_fields').show('fast');
-    }
-    else {
-        $('#premium_fields').hide('fast');
-        $('#shipping_fields').hide('fast');
-    }
-});
-
-if($('#id_premiums_pickup').is(':checked')) {
-    $('#premium_fields').show('fast');
-}
-else if($('#id_premiums_ship').is(':checked')) {
-    $('#premium_fields').show('fast');
-    $('#shipping_fields').show('fast');
-}
 
 // Close Checkout on page navigation
 $(window).on('popstate', function() {

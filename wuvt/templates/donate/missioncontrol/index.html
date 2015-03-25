@@ -1,0 +1,282 @@
+{% extends "donate/missioncontrol/base.html" %}
+{% block nav_missioncontrol_index %}<li class="active"><a href="{{ url_for('donate.missioncontrol_index') }}">Home</a></li>{% endblock %}
+
+{% block content %}
+<h1>Process Donations</h1>
+
+<form action="{{ url_for('donate.missioncontrol_index') }}" method="post"
+        id="donate_form" class="form-horizontal">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
+
+    <div class="form-group">
+        <label for="id_name" class="col-sm-3 control-label">Your Name</label>
+        <div class="col-sm-9">
+            <input type="text" name="name" id="id_name" value=""
+                class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_amount" class="col-sm-3 control-label">Pledge Amount</label>
+        <div class="col-sm-9">
+            <div class="input-group">
+                <span class="input-group-addon">$</span>
+                <input type="text" name="amount" id="id_amount" value=""
+                    placeholder="20.00" required="required"
+                    class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_recurrence" class="col-sm-3 control-label">Is this a one-time or monthly donation?</label>
+        <div class="col-sm-9">
+            <select name="recurrence" id="id_recurrence" class="form-control">
+                <option value="once">One-time</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_email" class="col-sm-3 control-label">Email Address</label>
+        <div class="col-sm-9">
+            <input type="text" name="email" id="id_email" value=""
+                placeholder="wuvtamfm@vt.edu" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
+        <div class="col-sm-9">
+            <input type="text" name="phone" id="id_phone" value=""
+                placeholder="(540) 231-9880" class="form-control" />
+        </div>
+    </div>
+ 
+    <div class="form-group">
+        <label for="id_show" class="col-sm-3 control-label">Show to Credit</label>
+        <div class="col-sm-9">
+            <input type="text" name="show" id="id_show" value=""
+                class="form-control" />
+        </div>
+    </div>
+
+    {% if config.DONATE_PREMIUMS %}
+    <div class="form-group">
+        <label class="col-sm-3 control-label">Would you like any premiums?</label>
+
+        <div class="col-sm-9">
+            <div class="radio">
+                <input type="radio" name="premiums" id="id_premiums_no"
+                    value="no" checked="checked" />
+                <label for="id_premiums_no">No, I'd like my entire donation to go towards WUVT</label>
+            </div>
+
+            <div class="radio">
+                <input type="radio" name="premiums" id="id_premiums_pickup"
+                    value="pickup" />
+                <label for="id_premiums_pickup">Yes, I'll pick them up in 350 Squires Student Center</label>
+            </div>
+
+            <div class="radio">
+                <input type="radio" name="premiums" id="id_premiums_ship"
+                    value="ship" />
+                <label for="id_premiums_ship">Yes, ship them to me (+${{ config.DONATE_SHIPPING_COST }}, US only)</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="premium_fields">
+        <div class="form-group">
+            <label for="id_tshirtsize" class="col-sm-3 control-label">T-Shirt Size</label>
+            <div class="col-sm-9">
+                <select id="id_tshirtsize" name="tshirtsize"
+                        class="form-control">
+                    {% for size in config.DONATE_TSHIRTSIZES %}
+                    <option value="{{ size }}">{{ size }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_tshirtcolor" class="col-sm-3 control-label">T-Shirt Color</label>
+            <div class="col-sm-9">
+                <select id="id_tshirtcolor" name="tshirtcolor"
+                        class="form-control">
+                    {% for color in config.DONATE_TSHIRTCOLORS %}
+                    <option value="{{ color }}">{{ color }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_sweatshirtsize" class="col-sm-3 control-label">Sweatshirt Size</label>
+            <div class="col-sm-9">
+                <select id="id_sweatshirtsize" name="sweatshirtsize"
+                        class="form-control">
+                    {% for size in config.DONATE_SWEATSHIRTSIZES %}
+                    <option value="{{ size }}">{{ size }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="shipping_fields">
+        <div class="form-group">
+            <label for="id_address_1" class="col-sm-3 control-label">Address</label>
+            <div class="col-sm-9">
+                <input type="text" name="address_1" id="id_address_1" value=""
+                    class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_address_2" class="col-sm-3 control-label">Address 2</label>
+            <div class="col-sm-9">
+                <input type="text" name="address_2" id="id_address_2" value=""
+                    class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_city" class="col-sm-3 control-label">City</label>
+            <div class="col-sm-9">
+                <input type="text" name="city" id="id_city" value=""
+                    class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_state" class="col-sm-3 control-label">State</label>
+            <div class="col-sm-9">
+                <input type="text" name="state" id="id_state" value=""
+                    class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_zipcode" class="col-sm-3 control-label">ZIP Code</label>
+            <div class="col-sm-9">
+                <input type="text" name="zipcode" id="id_zipcode" value=""
+                    class="form-control" />
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="id_onair" class="col-sm-3 control-label">May we thank you on-air?</label>
+        <div class="col-sm-9">
+            <select name="onair" id="id_onair" class="form-control">
+                <option value="y">Yes</option>
+                <option value="n">No</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_firsttime" class="col-sm-3 control-label">Is this your first time contributing?</label>
+        <div class="col-sm-9">
+            <select name="firsttime" id="id_firsttime" class="form-control">
+                <option value="y">Yes</option>
+                <option value="n" selected="selected">No</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_method" class="col-sm-3 control-label">Payment Method</label>
+
+        <div class="col-sm-9">
+            <select name="method" id="id_method" class="form-control">
+                <option value="stripe">Credit Card</option>
+                <option value="cash">Cash</option>
+                <option value="check">Check</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="stripe_fields">
+        <div class="form-group">
+            <label for="id_number" class="col-sm-3 control-label">Card Number</label>
+
+            <div class="col-sm-9">
+                <input type="text" id="id_number" data-stripe="number"
+                    class="form-control" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label for="id_expmonth" class="col-sm-3 control-label">Expiration</label>
+
+            <div class="col-xs-2">
+                <div class="input-group">
+                    <input type="text" id="id_expmonth" placeholder="MM"
+                        data-stripe="exp-month" class="form-control" />
+                    <span class="input-group-addon"> / </span>
+                    <input type="text" data-stripe="exp-year"
+                        placeholder="YYYY" class="form-control" />
+                </div>
+            </div>
+
+            <div class="col-xs-3">
+            </div>
+
+            <label for="id_cvc" class="col-xs-2 control-label">CVC</label>
+
+            <div class="col-xs-2">
+                <input type="text" id="id_cvc" data-stripe="cvc"
+                    class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Process Pledge</button>
+</form>
+{% endblock %}
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/donate.js') }}"></script>
+<script src="https://js.stripe.com/v2/"></script>
+<script>
+var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
+
+Stripe.setPublishableKey("{{ config.STRIPE_PUBLIC_KEY }}");
+init_donate();
+
+$('#donate_form').submit(function(ev) {
+    var $form = $(this);
+
+    // disable submit button
+    $form.find('button').prop('disabled', true);
+
+    Stripe.card.createToken($form, function(status, response) {
+        if(response.error) {
+            // show the errors
+            alert(response.error.message);
+            $form.find('button').prop('disabled', false);
+        }
+        else {
+            $('#id_stripe_token').val(response.id);
+            $form.get(0).submit();
+        }
+    });
+
+    ev.preventDefault();
+});
+
+$('#id_method').click(function() {
+    if($(this).val() == "stripe") {
+        $('#stripe_fields').show('fast');
+    }
+    else {
+        $('#stripe_fields').hide('fast');
+    }
+});
+</script>
+{% endblock %}

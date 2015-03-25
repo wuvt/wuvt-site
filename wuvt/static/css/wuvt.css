@@ -622,11 +622,6 @@ a.donate:hover {
 }
 /* }}} */
 
-#donate_form #premium_fields,
-#donate_form #shipping_fields {
-    display: none;
-}
-
 /* Forms {{{ */
 label {
     display: block;
