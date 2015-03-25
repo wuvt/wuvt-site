@@ -628,6 +628,7 @@ label {
     margin: 12px 0;
 }
 
+label input[type='email'],
 label input[type='text'],
 label select {
     display: block;

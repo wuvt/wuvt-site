@@ -19,8 +19,9 @@
 
         <label>
             Pledge Amount
-            <input type="text" name="amount" id="id_amount" value=""
-                placeholder="20.00" required="required" />
+            <input type="text" inputmode="numeric" name="amount"
+                id="id_amount" pattern="\d+(\.\d{2})?" placeholder="35.00"
+                required="required" />
         </label>
 
         <label>
@@ -33,8 +34,8 @@
 
         <label>
             Email Address
-            <input type="text" name="email" id="id_email" value=""
-                required="required" />
+            <input type="email" name="email" id="id_email" value=""
+                placeholder="you@example.com" required="required" />
         </label>
 
         <label>
