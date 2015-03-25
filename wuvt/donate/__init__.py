@@ -4,7 +4,6 @@ from wuvt import app
 
 bp = Blueprint('donate', __name__)
 
-
 def process_stripe(order, stripe_token, amount):
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
 

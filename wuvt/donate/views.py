@@ -1,10 +1,23 @@
-from flask import flash, render_template, request, Response
+import netaddr
+from flask import abort, flash, render_template, request, Response
+from functools import wraps
 from wuvt import app
 from wuvt import auth
 from wuvt import db
 from wuvt.donate import bp
 from wuvt.donate import process_stripe
 from wuvt.donate.models import Order
+
+
+def local_only(f):
+    @wraps(f)
+    def local_wrapper(*args, **kwargs):
+        if not request.remote_addr in \
+                netaddr.IPSet(app.config['INTERNAL_IPS']):
+            abort(403)
+        else:
+            return f(*args, **kwargs)
+    return local_wrapper
 
 
 @bp.route('/')
@@ -57,11 +70,10 @@ def thanks():
 
 
 @bp.route('/missioncontrol', methods=['GET', 'POST'])
+@local_only
 @auth.check_access('missioncontrol')
 def missioncontrol_index():
     if 'amount' in request.form:
-        print(request.form)
-
         premiums = request.form.get('premiums', 'no')
         amount = int(float(request.form['amount']) * 100)
         recurring = request.form.get('recurrence', 'once') == 'monthly'
