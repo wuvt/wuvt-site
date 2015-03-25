@@ -1,4 +1,4 @@
-from flask import render_template, request, Response
+from flask import flash, render_template, request, Response
 from wuvt import app
 from wuvt import auth
 from wuvt import db
@@ -96,6 +96,8 @@ def missioncontrol_index():
 
         db.session.add(order)
         db.session.commit()
+
+        flash("The pledge was processed successfully.")
 
 
     return render_template('donate/missioncontrol/index.html')
