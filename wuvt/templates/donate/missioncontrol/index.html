@@ -51,7 +51,8 @@
         <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
         <div class="col-sm-9">
             <input type="text" name="phone" id="id_phone" value=""
-                placeholder="(540) 231-9880" class="form-control" />
+                pattern="\d{3}\-\d{3}\-\d{4}" placeholder="540-231-9880"
+                class="form-control" />
         </div>
     </div>
  
@@ -255,17 +256,23 @@ $('#donate_form').submit(function(ev) {
     // disable submit button
     $form.find('button').prop('disabled', true);
 
-    Stripe.card.createToken($form, function(status, response) {
-        if(response.error) {
-            // show the errors
-            alert(response.error.message);
-            $form.find('button').prop('disabled', false);
-        }
-        else {
-            $('#id_stripe_token').val(response.id);
-            $form.get(0).submit();
-        }
-    });
+    if($('#id_method').val() == "stripe") {
+        Stripe.card.createToken($form, function(status, response) {
+            if(response.error) {
+                // show the errors
+                alert(response.error.message);
+                $form.find('button').prop('disabled', false);
+            }
+            else {
+                $('#id_stripe_token').val(response.id);
+                $form.get(0).submit();
+            }
+        });
+    }
+    else {
+        $('#id_stripe_token').val('');
+        $form.get(0).submit();
+    }
 
     ev.preventDefault();
 });

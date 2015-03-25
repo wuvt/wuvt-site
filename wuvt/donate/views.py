@@ -102,9 +102,10 @@ def missioncontrol_index():
                               request.form['city'], request.form['state'],
                               request.form['zipcode'])
 
-        if not process_stripe(order, request.form['stripe_token'], amount):
-            return Response("Your card was declined. Please try again with "\
-                            "a different method of payment.")
+        if request.form['method'] == "stripe":
+            if not process_stripe(order, request.form['stripe_token'], amount):
+                return Response("Your card was declined. Please try again "\
+                                "with a different method of payment.")
 
         db.session.add(order)
         db.session.commit()
