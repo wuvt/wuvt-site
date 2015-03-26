@@ -41,8 +41,7 @@ def process():
         order.set_premiums(premiums,
                            request.form.get('tshirtsize', None),
                            request.form.get('tshirtcolor', None),
-                           request.form.get('sweatshirtsize', None),
-                           request.form.get('sweatshirtcolor', None))
+                           request.form.get('sweatshirtsize', None))
 
     if premiums == "ship":
         # add shipping cost, if our order exceeds the minimum amount for
@@ -89,8 +88,7 @@ def missioncontrol_index():
             order.set_premiums(premiums,
                                request.form.get('tshirtsize', None),
                                request.form.get('tshirtcolor', None),
-                               request.form.get('sweatshirtsize', None),
-                               request.form.get('sweatshirtcolor', None))
+                               request.form.get('sweatshirtsize', None))
 
         if premiums == "ship":
             # add shipping cost, if our order exceeds the minimum amount for

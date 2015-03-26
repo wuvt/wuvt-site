@@ -8,6 +8,7 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(255))
     email = db.Column(db.Unicode(255))
+    phone = db.Column(db.Unicode(12))
     placed_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     # ip_address
@@ -29,9 +30,7 @@ class Order(db.Model):
 
     tshirtsize = db.Column(db.Unicode(255))
     tshirtcolor = db.Column(db.Unicode(255))
-
     sweatshirtsize = db.Column(db.Unicode(255))
-    sweatshirtcolor = db.Column(db.Unicode(255))
 
     method = db.Column(db.Unicode(255))
     custid = db.Column(db.Unicode(255))                 # used for Stripe recurrence
@@ -47,13 +46,11 @@ class Order(db.Model):
         self.amount = amount
         self.recurring = recurring
 
-    def set_premiums(self, premiums, tshirtsize, tshirtcolor, sweatshirtsize,
-                     sweatshirtcolor):
+    def set_premiums(self, premiums, tshirtsize, tshirtcolor, sweatshirtsize):
         self.premiums = premiums
         self.tshirtsize = tshirtsize
         self.tshirtcolor = tshirtcolor
         self.sweatshirtsize = sweatshirtsize
-        self.sweatshirtcolor = sweatshirtcolor
 
     def set_address(self, address1, address2, city, state, zipcode):
         self.address1 = address1
