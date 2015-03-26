@@ -23,7 +23,7 @@ from wuvt.trackman.models import TrackLog, DJSet, DJ
 def logout_recent():
     automation_dj = DJ.query.filter(DJ.name == "Automation").first()
     last_djset = DJSet.query.filter(DJSet.dj_id == automation_dj.id).order_by(DJSet.dtstart.desc()).first()
-    if last_djset.dtend is None:
+    if last_djset is not None and last_djset.dtend is None:
         last_djset.dtend = datetime.utcnow()
         db.session.commit()
         redis_conn.delete('dj_timeout')

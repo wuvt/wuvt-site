@@ -7,11 +7,28 @@ from datetime import timedelta
 from celery.decorators import periodic_task, task
 
 from wuvt import app
+from wuvt import db
 from wuvt import redis_conn
 from wuvt.celeryconfig import make_celery
 from wuvt.trackman.lib import logout_recent, enable_automation
+from wuvt.trackman.models import AirLog, DJSet, TrackLog
 
 celery = make_celery(app)
+
+
+@periodic_task(run_every=timedelta(hours=24))
+def playlist_cleanup():
+    app.logger.debug("Starting playlist cleanup...")
+
+    empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
+        DJSet.id).filter(DJSet.dtend != None).having(
+        db.and_(db.func.count(TrackLog.id) < 1,
+                db.func.count(AirLog.id) < 1))
+    for djset in empty.all():
+        db.session.delete(djset)
+    db.session.commit()
+
+    app.logger.debug("Removed {} empty DJSets.".format(empty.count()))
 
 
 @periodic_task(run_every=timedelta(minutes=1))
