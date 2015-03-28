@@ -27,6 +27,15 @@ body {
     background-repeat: no-repeat;
 }
 
+#progress_bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1%;
+    height: 4px;
+    background-color: #ec1c23;
+}
+
 /* Now playing bar {{{ */
 #nowplaying {
     clear: both;

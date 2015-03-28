@@ -148,7 +148,45 @@ function loadPage(path) {
     });
 }
 
+function progressTick() {
+    var pageWidth = $('#progress_bar').offsetParent().width();
+    var dist = Math.floor((Math.random() + 1) * 10);
+    var newWidth = $('#progress_bar').width() + dist;
+    if(newWidth / pageWidth < 1) {
+        $('#progress_bar').width(newWidth);
+    }
+    else {
+        $('#progress_bar').width('0.1%');
+    }
+}
+
+function initProgressBar() {
+    var progress = document.createElement('div');
+    progress.id = 'progress_bar';
+    $('body').append(progress);
+
+    var progressTimer = setInterval(progressTick, 100);
+
+    $(document).bind('ajaxStart', function() {
+        clearInterval(progressTimer);
+        progressTimer = setInterval(progressTick, 100);
+
+        $('#progress_bar').width('0.1%');
+        $('#progress_bar').fadeIn('fast');
+    }).bind('ajaxComplete', function() {
+        clearInterval(progressTimer);
+        $('#progress_bar').fadeOut('fast');
+    });
+
+    $(window).bind('load', function() {
+        clearInterval(progressTimer);
+        $('#progress_bar').fadeOut('fast');
+    });
+}
+
 function initAjaxLinks() {
+    initProgressBar();
+
     makeAjaxLink($('#nowplaying a'));
     makeAjaxLink($('header #mainheader h1 a'));
     $.each($('#bubble a'), function(i, item){makeAjaxLink(item);});
