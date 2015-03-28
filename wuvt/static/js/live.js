@@ -175,11 +175,15 @@ function initProgressBar() {
         $('#progress_bar').fadeIn('fast');
     }).bind('ajaxComplete', function() {
         clearInterval(progressTimer);
+
+        $('#progress_bar').width('100%');
         $('#progress_bar').fadeOut('fast');
     });
 
     $(window).bind('load', function() {
         clearInterval(progressTimer);
+
+        $('#progress_bar').width('100%');
         $('#progress_bar').fadeOut('fast');
     });
 }
