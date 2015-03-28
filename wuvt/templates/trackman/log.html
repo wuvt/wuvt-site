@@ -9,7 +9,7 @@
     <div class="col-md-3">
         <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
     </div>
-    <div class="col-md-7 text-center">
+    <div class="col-md-6 text-center">
         <h4>
             <span class="glyphicon glyphicon-flag"></span>
             If you can't fill in the blanks, you can't play it.
@@ -29,21 +29,24 @@
                 rel="external" target="_blank">Metal Archives</a></li>
         </ul>
     </div>
-    <div class="col-md-2">
-        <button type="button" class="btn btn-default pull-right" id="trackman_logout_btn">
-            <span class="glyphicon glyphicon-eject"></span>
-            Logout
-        </button>
+    <div class="col-md-3 text-right">
+        <div class="btn-toolbar" role="group">
+            <button type="button" class="btn btn-warning" id="trackman-autologout" title="Disable autologout to prevent logging out for tracks over 15 minutes">
+                <span class="glyphicon glyphicon-exclamation-sign"></span>
+                <span id="trackman-autologout-text">Extend autologout</span>
+            </button>
+            <button type="button" class="btn btn-default" id="trackman_logout_btn">
+                <span class="glyphicon glyphicon-eject"></span>
+                Logout
+            </button>
+        </div>
+
         <label>
             Email me my playlist
             <input type="checkbox" name="email_playlist"
                 id="id_email_playlist"
                 {% if email_playlist %}checked="checked"{% endif %} />
         </label>
-        <button type="button" class="btn btn-warning pull-right" id="trackman-autologout" title="Disable autologout to prevent logging out for tracks over 15 minutes">
-            <span class="glyphicon glyphicon-exclamation-sign"></span>
-            <span id="trackman-autologout-text">Extend autologout</span>
-        </button>
     </div>
 </div>
 <div class="row row-table">
