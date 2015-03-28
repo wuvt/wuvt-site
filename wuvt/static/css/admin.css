@@ -46,6 +46,10 @@ td.row-options {
     overflow-y: auto;
 }
 
+.lookup-controls div.checkbox:not(:first-child) label:before {
+    content: " - ";
+}
+
 /* These have to be hardcoded to handle nasty length fields */
 .playlist-actions {
     min-width: 100px;
