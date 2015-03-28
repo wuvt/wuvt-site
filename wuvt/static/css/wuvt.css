@@ -28,7 +28,8 @@ body {
 }
 
 #progress_bar {
-    position: absolute;
+    position: fixed;
+    z-index: 10001;
     top: 0;
     left: 0;
     width: 1%;
