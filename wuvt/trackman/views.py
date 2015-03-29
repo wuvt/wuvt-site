@@ -152,6 +152,12 @@ def playlists_dj():
     return render_template('playlists_dj_list.html', djs=djs)
 
 
+@app.route('/playlists/dj/all')
+def playlists_dj_all():
+    djs = DJ.query.order_by(DJ.airname).all()
+    return render_template('playlists_dj_list_all.html', djs=djs)
+
+
 @app.route('/playlists/dj/<int:dj_id>')
 def playlists_dj_sets(dj_id):
     dj = DJ.query.get(dj_id)
