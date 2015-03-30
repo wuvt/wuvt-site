@@ -187,6 +187,7 @@ header #mainheader #robot #volume_btn.active {
 
 header #mainheader #volume_box {
     position: absolute;
+    visibility: hidden;
     z-index: 9999;
     padding: 20px 15px 15px 15px;
     background: #808080;
@@ -199,12 +200,13 @@ header #mainheader #volume_box button {
 }
 
 header #mainheader #volume_box.visible {
+    visibility: visible;
     opacity: 1.0;
 
-    -webkit-transition: opacity 0.2s ease-in-out;
-       -moz-transition: opacity 0.2s ease-in-out;
-         -o-transition: opacity 0.2s ease-in-out;
-            transition: opacity 0.2s ease-in-out;
+    -webkit-transition: all 0.2s ease-in-out;
+       -moz-transition: all 0.2s ease-in-out;
+         -o-transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
 }
 
 header #mainheader #volume_box #volume_slider {
