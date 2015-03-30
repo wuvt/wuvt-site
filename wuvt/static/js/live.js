@@ -193,8 +193,8 @@ function initAjaxLinks() {
 
     makeAjaxLink($('#nowplaying a'));
     makeAjaxLink($('header #mainheader h1 a'));
+    makeAjaxLink($('#radiothon_banner a'));
     $.each($('#bubble a'), function(i, item){makeAjaxLink(item);});
-    $.each($('#radiothon_banner a'), function(i, item){makeAjaxLink(item);});
     $.each($('nav a'), function(i, item){makeAjaxLink(item);});
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});
     $.each($('body > footer a'), function(i, item){makeAjaxLink(item);});
