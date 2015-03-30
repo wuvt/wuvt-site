@@ -87,10 +87,12 @@ function initVolume() {
     var volbox = document.createElement('div');
     $(volbox).attr('id', "volume_box");
 
+    // create volume slider
     var slider = document.createElement('div');
     $(slider).attr('id', "volume_slider");
     $(volbox).append(slider);
 
+    // create mute button
     var mutebtn = document.createElement('button');
     $(mutebtn).attr('id', "volume_mute_btn");
     $(mutebtn).attr('title', "Mute");
@@ -99,14 +101,16 @@ function initVolume() {
 
     $('#mainheader').append(volbox);
 
-    $('#volume_btn').click(function() {
-        var btn = $('#volume_btn');
-        var offsetTop = btn.offset().top + btn.outerHeight();
-        var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
-            ($('#volume_box').outerWidth() / 2);
+    // adjust volume box placement
+    var btn = $('#volume_btn');
+    var offsetTop = btn.offset().top + btn.outerHeight();
+    var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
+        ($('#volume_box').outerWidth() / 2);
+    $('#volume_box').css('top', offsetTop + "px");
+    $('#volume_box').css('left', offsetLeft + "px");
 
-        $('#volume_box').css('top', offsetTop + "px");
-        $('#volume_box').css('left', offsetLeft + "px");
+    $('#volume_btn').click(function() {
+        $('#volume_btn').toggleClass('active');
         $('#volume_box').toggleClass('visible');
     });
 
