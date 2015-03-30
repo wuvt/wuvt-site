@@ -1,5 +1,5 @@
-from flask import abort, flash, jsonify, render_template, redirect, \
-    request, url_for, Response, send_from_directory
+from flask import abort, flash, jsonify, make_response, render_template, \
+    redirect, request, url_for, Response, send_from_directory
 
 from sqlalchemy import desc
 
@@ -54,6 +54,13 @@ def page(slug):
         abort(404)
 
     return render_template('page.html', page=page)
+
+
+@app.route('/js/init.js')
+def init_js():
+    resp = make_response(render_template('init.js'))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
 
 
 @app.route('/live')

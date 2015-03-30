@@ -23,8 +23,5 @@
 
 {% block js %}
 {{ super() }}
-<script>
-var p = new PlaylistsByDate('#playlists_by_date');
-p.init();
-</script>
+<script src="{{ url_for('static', filename='js/playlists_by_date_init.js') }}"></script>
 {% endblock %}
