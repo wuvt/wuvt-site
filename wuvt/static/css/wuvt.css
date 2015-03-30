@@ -406,6 +406,22 @@ header nav ul ul {
     width: 180px;
 }
 
+#side #radiothon_banner a {
+    display: block;
+    margin: 0 0 10px 0;
+    padding: 14px;
+    font-size: 1.2em;
+    background-color: #fff;
+    color: #000;
+    text-align: center;
+    text-decoration: none;
+}
+
+#side #radiothon_banner a strong {
+    color: #0071BC;
+    text-decoration: underline;
+}
+
 #side nav li a {
     display: block;
     margin: 0 0 10px 0;
@@ -481,11 +497,11 @@ header nav,
 #content > section p a,
 #content > article li a,
 #content > section li a {
-        color: rgb(0, 113, 188);
-        font-weight: bold;
-        text-decoration: none;
-        border-bottom-style: dashed;
-        border-bottom-width: thin;
+    color: rgb(0, 113, 188);
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom-style: dashed;
+    border-bottom-width: thin;
 }
 
 #content > article h2,

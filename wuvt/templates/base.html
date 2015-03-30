@@ -84,6 +84,12 @@
 <div id="wrapper">
 
     <div id="side">
+        {% if config.RADIOTHON -%}
+        <div id="radiothon_banner">
+            <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
+        </div>
+        {% endif -%}
+
         <nav id="side_primary">
             {% block nav_side_primary %}
             <ul>

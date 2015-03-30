@@ -64,4 +64,6 @@ LDAP_GROUPS_ADMIN = ['sudoers', 'webmasters']
 LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
 
 UPLOAD_DIR = "/srv/http/media"
+
+RADIOTHON = False
 # vim: syntax=python
