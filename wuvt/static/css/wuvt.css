@@ -587,6 +587,20 @@ section.pagination a {
     margin-right: 1em;
     color: #000000;
 }
+
+.blink-red {
+            animation: blink-red 2s steps(1) infinite;
+       -moz-animation: blink-red 2s steps(1) infinite;
+    -webkit-animation: blink-red 2s steps(1) infinite;
+}
+
+@keyframes blink-red {
+    50% { color: #ec1c23; }
+}
+
+@-webkit-keyframes blink-red {
+    50% { color: #ec1c23; }
+}
 /* }}} */
 
 /* Track list table {{{ */
