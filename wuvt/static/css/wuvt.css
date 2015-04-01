@@ -667,6 +667,8 @@ a.donate {
     background-color: #ec1c23;
     color: #ffffff !important;
     text-decoration: none !important;
+    /* open donate page in a new tab */
+    target-new: tab;
 }
 
 a.donate:hover {
