@@ -668,6 +668,7 @@ a.donate {
     color: #ffffff !important;
     text-decoration: none !important;
     /* open donate page in a new tab */
+    target-name: new;
     target-new: tab;
 }
 
