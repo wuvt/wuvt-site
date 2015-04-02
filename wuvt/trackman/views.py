@@ -14,7 +14,7 @@ from wuvt import app
 from wuvt import csrf
 from wuvt import db
 from wuvt import redis_conn
-from wuvt.trackman.lib import log_track, list_archives
+from wuvt.trackman.lib import log_track, list_archives, generate_cuesheet
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
@@ -174,6 +174,23 @@ def playlist(set_id):
     tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(TrackLog.played).all()
     archives = list_archives(djset)
     return render_template('playlist.html', archives=archives, djset=djset, tracklogs=tracks)
+
+
+@app.route('/playlists/cue/<string:filename>.cue')
+def playlist_cue(filename):
+    match_re = re.compile(r'^(\d{10}0001)(.*)$')
+    m = match_re.match(filename)
+    if not m:
+        abort(400)
+
+    start = datetime.datetime.strptime(m.group(1), "%Y%m%d%H0001")
+    end = start + datetime.timedelta(hours=1)
+
+    tracks = TrackLog.query.filter(db.and_(
+        TrackLog.played >= start,
+        TrackLog.played <= end)).order_by(TrackLog.played).all()
+    return Response(generate_cuesheet(filename, tracks),
+                    mimetype="audio/x-cue")
 
 
 #############################################################################

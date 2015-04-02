@@ -50,6 +50,23 @@ def list_archives(djset):
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
 
+def generate_cuesheet(filename, tracks):
+    cuesheet = "FILE \"{}\"\n".format(email.utils.quote(filename))
+    i = 1
+    for track in tracks:
+        cuesheet += """\
+    TRACK {index:02d} AUDIO
+        TITLE "{title}"
+        PERFORMER "{artist}"
+        INDEX 01 {h:02d}:{m:02d}:{s:02d}
+""".format(index=i, title=email.utils.quote(track.track.title),
+           artist=email.utils.quote(track.track.artist),
+           h=track.played.hour, m=track.played.minute, s=track.played.second)
+        i += 1
+
+    return cuesheet
+
+
 def disable_automation():
     automation_enabled = redis_conn.get("automation_enabled")
     # Make sure automation is actually enabled before changing the end time
