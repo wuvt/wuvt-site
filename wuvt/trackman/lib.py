@@ -50,10 +50,14 @@ def list_archives(djset):
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
 
-def generate_cuesheet(filename, tracks):
+def generate_cuesheet(filename, start, tracks):
     cuesheet = "FILE \"{}\"\n".format(email.utils.quote(filename))
     i = 1
     for track in tracks:
+        offset = track.played - start
+        hours, remainder = divmod(offset.seconds, 3600)
+        minutes, secs = divmod(remainder, 60)
+
         cuesheet += """\
     TRACK {index:02d} AUDIO
         TITLE "{title}"
@@ -61,7 +65,7 @@ def generate_cuesheet(filename, tracks):
         INDEX 01 {h:02d}:{m:02d}:{s:02d}
 """.format(index=i, title=email.utils.quote(track.track.title),
            artist=email.utils.quote(track.track.artist),
-           h=track.played.hour, m=track.played.minute, s=track.played.second)
+           h=hours, m=minutes, s=secs)
         i += 1
 
     return cuesheet

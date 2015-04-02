@@ -177,19 +177,22 @@ def playlist(set_id):
 
 
 @app.route('/playlists/cue/<string:filename>.cue')
-def playlist_cue(filename):
+def playlist_cuesheet(filename):
     match_re = re.compile(r'^(\d{10}0001)(.*)$')
     m = match_re.match(filename)
     if not m:
         abort(400)
 
-    start = datetime.datetime.strptime(m.group(1), "%Y%m%d%H0001")
-    end = start + datetime.timedelta(hours=1)
+    try:
+        start = datetime.datetime.strptime(m.group(1), "%Y%m%d%H0001")
+        end = start + datetime.timedelta(hours=1)
+    except:
+        abort(400)
 
     tracks = TrackLog.query.filter(db.and_(
         TrackLog.played >= start,
         TrackLog.played <= end)).order_by(TrackLog.played).all()
-    return Response(generate_cuesheet(filename, tracks),
+    return Response(generate_cuesheet(filename, start, tracks),
                     mimetype="audio/x-cue")
 
 
