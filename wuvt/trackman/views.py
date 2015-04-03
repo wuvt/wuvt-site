@@ -25,6 +25,7 @@ def trackinfo():
                 'description': app.config['STATION_NAME'], 'contact': app.config['STATION_URL']}
 
     data = track.track.serialize()
+    data['listeners'] = track.listeners
 
     if track.djset == None:
         dj = DJ.query.filter_by(name="Automation").first()
