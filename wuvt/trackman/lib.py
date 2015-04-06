@@ -59,17 +59,16 @@ def generate_cuesheet(filename, start, tracks):
         else:
             offset = track.played - start
 
-        hours, remainder = divmod(offset.seconds, 3600)
-        minutes, secs = divmod(remainder, 60)
+        minutes, secs = divmod(offset.seconds, 60)
 
         cuesheet += """\
     TRACK {index:02d} AUDIO
         TITLE "{title}"
         PERFORMER "{artist}"
-        INDEX 01 {h:02d}:{m:02d}:{s:02d}
+        INDEX 01 {m:02d}:{s:02d}:00
 """.format(index=i, title=email.utils.quote(track.track.title.encode('utf-8')),
            artist=email.utils.quote(track.track.artist.encode('utf-8')),
-           h=hours, m=minutes, s=secs)
+           m=minutes, s=secs)
         i += 1
 
     return cuesheet
