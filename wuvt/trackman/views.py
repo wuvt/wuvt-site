@@ -190,9 +190,12 @@ def playlist_cuesheet(filename):
     except:
         abort(400)
 
+    prev = db.session.query(TrackLog.id).filter(TrackLog.played <= start).\
+        order_by(db.desc(TrackLog.played)).limit(1)
     tracks = TrackLog.query.filter(db.and_(
-        TrackLog.played >= start,
+        TrackLog.id >= prev.as_scalar(),
         TrackLog.played <= end)).order_by(TrackLog.played).all()
+
     return Response(generate_cuesheet(filename, start, tracks),
                     mimetype="audio/x-cue")
 

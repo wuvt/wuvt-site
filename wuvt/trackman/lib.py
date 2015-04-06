@@ -54,7 +54,11 @@ def generate_cuesheet(filename, start, tracks):
     cuesheet = "FILE \"{}\"\n".format(email.utils.quote(filename))
     i = 1
     for track in tracks:
-        offset = track.played - start
+        if track.played < start:
+            offset = timedelta(seconds=0)
+        else:
+            offset = track.played - start
+
         hours, remainder = divmod(offset.seconds, 3600)
         minutes, secs = divmod(remainder, 60)
 
@@ -63,8 +67,8 @@ def generate_cuesheet(filename, start, tracks):
         TITLE "{title}"
         PERFORMER "{artist}"
         INDEX 01 {h:02d}:{m:02d}:{s:02d}
-""".format(index=i, title=email.utils.quote(track.track.title),
-           artist=email.utils.quote(track.track.artist),
+""".format(index=i, title=email.utils.quote(track.track.title.encode('utf-8')),
+           artist=email.utils.quote(track.track.artist.encode('utf-8')),
            h=hours, m=minutes, s=secs)
         i += 1
 
