@@ -133,11 +133,6 @@ function loadPage(path) {
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
-        if($('#playlists_by_date').length) {
-            var p = new PlaylistsByDate('#playlists_by_date');
-            p.init();
-        }
-
         $(document).trigger('pageChange');
         initLocalDates();
     }).fail(function(data) {
