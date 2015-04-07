@@ -67,6 +67,7 @@ app = Flask(__name__)
 app.config.from_object(config)
 app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
+app.jinja_env.filters['isodatetime'] = lambda d: d.isoformat() + 'Z'
 app.static_folder = 'static'
 
 redis_conn = redis.from_url(app.config['REDIS_URL'])

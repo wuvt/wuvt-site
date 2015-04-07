@@ -5,7 +5,7 @@
 <article>
     <header>
         <h2>{{ article.title }}</h2>
-        <h3>written by {{ article.author.name }} on {{ article.datetime|datetime("%B %d, %Y at %H:%M") }}</h3>
+        <h3>written by {{ article.author.name }} on <time datetime="{{ article.datetime|isodatetime }}" data-format="MMMM D, YYYY, HH:mm">{{ article.datetime|datetime("%B %d, %Y, %H:%M") }}</time></h3>
     </header>
 
 {{ article.html_summary|safe }}

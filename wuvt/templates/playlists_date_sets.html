@@ -5,13 +5,13 @@
 <section>
 <header>
     <h2>Playlist Archive (by date)</h2>
-    <h3>{{ date|datetime("%Y-%m-%d") }}</h3>
+    <h3><time datetime="{{ date|isodatetime }}" data-format="YYYY-MM-DD">{{ date|datetime("%Y-%m-%d") }}</time></h3>
 </header>
 
 <section>
     <ul>
         {% for set in sets %}
-        <li><a href="{{ url_for('playlist', set_id=set.id) }}">{{ set.dtstart|datetime("%H:%M") }}-{% if set.dtend %}{{ set.dtend|datetime("%H:%M") }}{% endif %}: {{ set.dj.airname }}</a></li>
+        <li><a href="{{ url_for('playlist', set_id=set.id) }}"><time datetime="{{ set.dstart|isodatetime }}" data-format="HH:mm">{{ set.dtstart|datetime("%H:%M") }}</time>-{% if set.dtend %}<time datetime="{{ set.dtend|isodatetime }}" data-format="HH:mm">>{{ set.dtend|datetime("%H:%M") }}</time>{% endif %}: {{ set.dj.airname }}</a></li>
         {% endfor %}
     </ul>
 </section>

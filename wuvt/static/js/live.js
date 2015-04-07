@@ -48,10 +48,10 @@ function updateLast15(tracklog) {
     var tr = document.createElement('tr');
 
     var td = document.createElement('td');
-    var played = new Date(tracklog['played']);
-    $(td).text("{0}:{1}:{2}".format(pad(played.getHours()),
-                                    pad(played.getMinutes()),
-                                    pad(played.getSeconds())));
+
+    var played = moment(tracklog['played']);
+    $(td).text(played.format('HH:mm:ss'));
+    $(td).attr('title', played.format('LLLL'));
     $(tr).append(td);
 
     var td = document.createElement('td');
@@ -137,6 +137,8 @@ function loadPage(path) {
             var p = new PlaylistsByDate('#playlists_by_date');
             p.init();
         }
+
+        initLocalDates();
     }).fail(function(data) {
         var doc = $('<div>').append($.parseHTML(data.responseText));
         $('title').text(doc.find('title').text());
@@ -145,6 +147,8 @@ function loadPage(path) {
 
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+
+        initLocalDates();
     });
 }
 
@@ -206,4 +210,16 @@ function initAjaxLinks() {
     window.onpopstate = function(ev) {
         loadPage(ev.state.path);
     };
+}
+
+function initLocalDates() {
+    $('time').each(function() {
+        var datestr = $(this).attr('datetime');
+        var format = $(this).attr('data-format');
+        var m = moment(datestr);
+        if(m.isValid()) {
+            $(this).text(m.format(format));
+            $(this).attr('title', m.format('LLLL'));
+        }
+    });
 }
