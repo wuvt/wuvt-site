@@ -138,6 +138,7 @@ function loadPage(path) {
             p.init();
         }
 
+        $(document).trigger('pageChange');
         initLocalDates();
     }).fail(function(data) {
         var doc = $('<div>').append($.parseHTML(data.responseText));
@@ -148,6 +149,7 @@ function loadPage(path) {
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
+        $(document).trigger('pageChange');
         initLocalDates();
     });
 }

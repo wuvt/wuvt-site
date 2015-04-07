@@ -102,12 +102,8 @@ function initVolume() {
     $('#mainheader').append(volbox);
 
     // adjust volume box placement
-    var btn = $('#volume_btn');
-    var offsetTop = btn.offset().top + btn.outerHeight();
-    var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
-        ($('#volume_box').outerWidth() / 2);
-    $('#volume_box').css('top', offsetTop + "px");
-    $('#volume_box').css('left', offsetLeft + "px");
+    $(document).ready(positionVolumeBox);
+    $(document).on('pageChange', positionVolumeBox);
 
     $('#volume_btn').click(function() {
         $('#volume_btn').toggleClass('active');
@@ -138,6 +134,18 @@ function initVolume() {
                 $('#wuvt_stream').prop('volume'));
         }
     });
+}
+
+function positionVolumeBox() {
+    $('#volume_btn').removeClass('active');
+    $('#volume_box').removeClass('visible');
+
+    var btn = $('#volume_btn');
+    var offsetTop = btn.offset().top + btn.outerHeight();
+    var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
+        ($('#volume_box').outerWidth() / 2);
+    $('#volume_box').css('top', offsetTop + "px");
+    $('#volume_box').css('left', offsetLeft + "px");
 }
 
 function warnBrokenPlayer() {
