@@ -7,6 +7,7 @@
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, Response
 import datetime
+import dateutil
 import json
 import re
 
@@ -186,9 +187,13 @@ def playlist_cuesheet(filename):
 
     try:
         start = datetime.datetime.strptime(m.group(1), "%Y%m%d%H0001")
-        end = start + datetime.timedelta(hours=1)
     except:
         abort(400)
+
+    # assume time in URL is local time, so convert to UTC for DB lookup
+    start = start.replace(tzinfo=dateutil.tz.tzlocal()).astimezone(
+        dateutil.tz.tzutc()).replace(tzinfo=None)
+    end = start + datetime.timedelta(hours=1)
 
     prev = db.session.query(TrackLog.id).filter(TrackLog.played <= start).\
         order_by(db.desc(TrackLog.played)).limit(1)
