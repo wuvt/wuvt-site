@@ -46,12 +46,14 @@ function updateLast15(tracklog) {
 
     var track = tracklog['track'];
     var tr = document.createElement('tr');
-
     var td = document.createElement('td');
 
+    var t = document.createElement('time');
     var played = moment(tracklog['played']);
-    $(td).text(played.format('HH:mm:ss'));
-    $(td).attr('title', played.format('LLLL'));
+    $(t).text(played.format('HH:mm:ss'));
+    $(t).attr('datetime', played.format());
+    $(t).attr('title', played.format('LLLL'));
+    $(td).append(t);
     $(tr).append(td);
 
     var td = document.createElement('td');
