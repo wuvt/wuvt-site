@@ -10,7 +10,6 @@ from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
-import logging
 
 from wuvt import app
 from wuvt import db

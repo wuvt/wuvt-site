@@ -5,14 +5,16 @@ from wuvt import redis_conn
 
 from wuvt import app
 
+
 def local_only(f):
     @wraps(f)
     def local_wrapper(*args, **kwargs):
-        if not request.remote_addr in netaddr.IPSet(app.config['INTERNAL_IPS']):
+        if request.remote_addr not in netaddr.IPSet(app.config['INTERNAL_IPS']):
             abort(403)
         else:
             return f(*args, **kwargs)
     return local_wrapper
+
 
 def dj_interact(f):
     @wraps(f)

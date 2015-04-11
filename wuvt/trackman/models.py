@@ -108,7 +108,7 @@ class TrackLog(db.Model):
     # DJ information, this is not kept updated right now and is _subject to removal_
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('tracks', lazy='dynamic'))
-    # Information about the track 
+    # Information about the track
     request = db.Column(db.Boolean, default=False)
     vinyl = db.Column(db.Boolean, default=False)
     new = db.Column(db.Boolean, default=False)
@@ -162,7 +162,6 @@ class TrackLog(db.Model):
             'rotation_id': self.rotation_id,
             'listeners': self.listeners,
         }
-
 
 
 class Track(db.Model):

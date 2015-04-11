@@ -1,20 +1,12 @@
-from flask import abort, flash, jsonify, render_template, \
-        render_template_string, redirect, request, url_for, Response, session
+from flask import flash, jsonify, render_template, redirect, request, url_for
 from sqlalchemy import func, desc
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
-import email.utils
 import datetime
-import json
-import smtplib
-import netaddr
 import dateutil.parser
 
 from wuvt import app
 from wuvt import db
 from wuvt import csrf
-from wuvt import format_datetime
 from wuvt import redis_conn
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
@@ -49,12 +41,14 @@ def login():
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
     return render_template('trackman/login.html',
-            trackman_name=app.config['TRACKMAN_NAME'],
-            automation=automation, djs=djs)
+                           trackman_name=app.config['TRACKMAN_NAME'],
+                           automation=automation, djs=djs)
+
 
 #############################################################################
 ### Automation Control
 #############################################################################
+
 
 @bp.route('/automation/start', methods=['POST'])
 @local_only
@@ -64,12 +58,13 @@ def start_automation():
 
     return redirect(url_for('trackman.login'))
 
+
 @bp.route('/api/automation/log', methods=['POST'])
 @local_only
 @csrf.exempt
 def automation_log():
     if 'password' not in request.form or \
-        request.form['password'] != app.config['AUTOMATION_PASSWORD']:
+            request.form['password'] != app.config['AUTOMATION_PASSWORD']:
         return jsonify(success=False, error="Invalid password")
 
     automation = redis_conn.get('automation_enabled') == "true"
@@ -91,10 +86,10 @@ def automation_log():
     else:
         album = "Not Available"
 
-    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr",
-            "ua"):
-        # ignore PSAs and other traffic for now!
-        return jsonify(success=False, error='AirLog logging not yet implemented')
+    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr", "ua"):
+        # TODO: implement airlog logging
+        return jsonify(success=False,
+                       error='AirLog logging not yet implemented')
 
     if 'label' in request.form and len(request.form['label']) > 0:
         label = request.form['label'].strip()
@@ -122,8 +117,6 @@ def automation_log():
             else:
                 track = notauto.first()
 
-    dj = DJ.query.filter_by(name="Automation").first()
-
     djset_id = redis_conn.get('automation_set')
     if djset_id != None:
         djset_id = int(djset_id)
@@ -131,9 +124,11 @@ def automation_log():
 
     return jsonify(success=True)
 
+
 #############################################################################
 ### DJ Control
 #############################################################################
+
 
 # Deprecated
 @bp.route('/log/<int:setid>', methods=['GET'])
@@ -149,8 +144,9 @@ def log(setid):
     for i in Rotation.query.order_by(Rotation.id).all():
         rotations[i.id] = i.rotation
     return render_template('trackman/log.html',
-            trackman_name=app.config['TRACKMAN_NAME'], djset=djset,
-            rotations=rotations)
+                           trackman_name=app.config['TRACKMAN_NAME'],
+                           djset=djset,
+                           rotations=rotations)
 
 
 @bp.route('/edit/<int:tracklog_id>', methods=['GET'])
@@ -255,11 +251,14 @@ def register():
             return redirect(url_for('trackman.login'))
 
     return render_template('trackman/register.html',
-            trackman_name=app.config['TRACKMAN_NAME'], errors=errors)
+                           trackman_name=app.config['TRACKMAN_NAME'],
+                           errors=errors)
+
 
 #############################################################################
 ### Trackman API
 #############################################################################
+
 
 @bp.route('/api/djset/<int:djset_id>', methods=['GET'])
 @local_only
@@ -276,7 +275,9 @@ def get_djset(djset_id):
         logs.extend([i.serialize() for i in djset.airlog])
         logs = sorted(logs, key=lambda log: log.get('airtime', False) if log.get('airtime', False) else log.get('played', False), reverse=False)
         return jsonify(success=True, logs=logs)
-    return jsonify(success=True, tracklog=[i.serialize() for i in djset.tracks], airlog=[i.serialize() for i in djset.airlog])
+    return jsonify(success=True,
+                   tracklog=[i.serialize() for i in djset.tracks],
+                   airlog=[i.serialize() for i in djset.airlog])
 
 
 @bp.route('/api/airlog/edit/<int:airlog_id>', methods=['DELETE', 'POST'])
@@ -296,11 +297,13 @@ def edit_airlog(airlog_id):
     # Update aired time
     airtime = request.form.get('airtime', None)
     if airtime is not None:
-        tracklog.airtime = dateutil.parser.parse(airtime)
+        airlog.airtime = dateutil.parser.parse(airtime)
+
     # Update integers
     logtype = request.form.get('logtype', None)
     if logtype is not None:
         airlog.request = bool(logtype)
+
     logid = request.form.get('logid', None)
     if logid is not None:
         airlog.request = bool(logid)
@@ -308,6 +311,7 @@ def edit_airlog(airlog_id):
     db.session.commit()
 
     return jsonify(success=True)
+
 
 @bp.route('/api/airlog', methods=['POST'])
 @local_only
@@ -318,7 +322,7 @@ def add_airlog():
     logtype = int(request.form['logtype'])
     logid = int(request.form['logid'])
 
-    airlog = Airlog(djset_id, logtype, logid=logid)
+    airlog = AirLog(djset_id, logtype, logid=logid)
     db.session.add(airlog)
     db.session.commit()
 
@@ -350,17 +354,18 @@ def edit_tracklog(tracklog_id):
     is_request = request.form.get('request', 'false') != 'false'
     vinyl = request.form.get('vinyl', 'false') != 'false'
     new = request.form.get('new', 'false') != 'false'
-    rotation = request.form.get("rotation", 1);
+    rotation = request.form.get("rotation", 1)
 
     # Validate
-    if (artist == "" or title == "" or album == "" or label == ""):
-        return jsonfiy(success=False, error="Must fill out artist, title, album, and label field")
+    if len(artist) <= 0 or len(title) <= 0 or len(album) <= 0 or \
+            len(label) <= 0:
+        return jsonify(
+            success=False,
+            error="Must fill out artist, title, album, and label field")
 
     # First check if the artist et. al. are the same
-    if (artist != tracklog.track.artist or
-        title  != tracklog.track.title or
-        album  != tracklog.track.album or
-        label  != tracklog.track.label):
+    if artist != tracklog.track.artist or title != tracklog.track.title or \
+            album != tracklog.track.album or label != tracklog.track.label:
         # This means we try to create a new track
         track = Track(title, artist, album, label)
         db.session.add(track)
@@ -373,18 +378,21 @@ def edit_tracklog(tracklog_id):
         tracklog.played = dateutil.parser.parse(played)
     # Update boolean information
     tracklog.request = is_request
-    tracklog.new     = new
-    tracklog.vinyl   = vinyl
+    tracklog.new = new
+    tracklog.vinyl = vinyl
 
     # Update rotation
     rotation = Rotation.query.get(rotation)
     if not rotation:
-        return jsonify(success=False, error="Rotation specified by rotation_id does not exist")
+        return jsonify(
+            success=False,
+            error="Rotation specified by rotation_id does not exist")
     tracklog.rotation_id = rotation.id
 
     db.session.commit()
 
     return jsonify(success=True)
+
 
 @bp.route('/api/tracklog', methods=['POST'])
 @local_only
@@ -413,6 +421,7 @@ def play_tracklog():
     tracklog = log_track(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
 
     return jsonify(success=True, tracklog_id=tracklog.id)
+
 
 @bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
 @local_only
@@ -516,7 +525,7 @@ def search_tracks():
         tracks = tracks.filter(func.lower(Track.label) == func.lower(label))
 
     # This means there was a bad search, stop searching
-    if somesearch == False:
+    if somesearch is False:
         app.logger.info("An empty search was submitted to the API")
         return jsonify(success=False, error="No search entires")
 
@@ -548,9 +557,7 @@ def search_tracks():
 
         tracks = tracks.limit(8).all()
         if len(tracks) == 0:
-            return jsonify(results = [])
+            return jsonify(results=[])
 
-    return jsonify(results = [i[0].serialize() for i in tracks], success = True)
-
-
-
+    return jsonify(results=[i[0].serialize() for i in tracks],
+                   success=True)

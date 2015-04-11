@@ -1,14 +1,8 @@
-# WARNING:
-# Breaking this will cause WUVT to go off-air because Winamp.
-# If you're not using Winamp, breaking this will make people mad.
+# NOTE: the .php filenames are kept so old URLs keep working
 
-# NOTE: the .php filenames are kept for legacy reasons
-
-from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response
+from flask import abort, jsonify, render_template, request, Response
 import datetime
 import dateutil
-import json
 import re
 
 from wuvt import app
@@ -43,9 +37,11 @@ def trackinfo():
     data['contact'] = app.config['STATION_URL']
     return data
 
+
 #############################################################################
 ### Playlist Information
 #############################################################################
+
 
 @app.context_processor
 def inject_nowplaying():
@@ -83,7 +79,7 @@ def latest_track():
         return jsonify(trackinfo())
 
     return Response(u"{artist} - {title}".format(**trackinfo()),
-            mimetype="text/plain")
+                    mimetype="text/plain")
 
 
 @app.route('/playlists/latest_track_clean')
@@ -129,13 +125,12 @@ def playlists_date_data():
 
     sets = DJSet.query.filter(db.and_(DJSet.dtstart >= start,
                                       DJSet.dtstart <= end)).\
-            order_by(db.desc(DJSet.dtstart)).limit(300).all()
+        order_by(db.desc(DJSet.dtstart)).limit(300).all()
 
     if request.wants_json():
         return jsonify({'sets': [s.serialize() for s in sets]})
 
     return Response("{start} {end}".format(start=start, end=end))
-
 
 
 @app.route('/playlists/date/<int:year>/<int:month>/<int:day>')
@@ -213,7 +208,7 @@ def playlist_cuesheet(filename):
 @csrf.exempt
 def submit_automation_track():
     if 'password' not in request.form or \
-        request.form['password'] != app.config['AUTOMATION_PASSWORD']:
+            request.form['password'] != app.config['AUTOMATION_PASSWORD']:
         abort(403)
 
     automation = redis_conn.get('automation_enabled') == "true"
@@ -235,8 +230,7 @@ def submit_automation_track():
     else:
         album = "Not Available"
 
-    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr",
-            "ua"):
+    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr", "ua"):
         # ignore PSAs and other traffic
         return Response("Will not log traffic\n", mimetype="text/plain")
 
@@ -265,8 +259,6 @@ def submit_automation_track():
                 track = tracks.one()
             else:
                 track = notauto.one()
-
-    dj = DJ.query.filter_by(name="Automation").first()
 
     log_track(track.id, None)
 
