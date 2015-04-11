@@ -165,7 +165,6 @@ def edit(tracklog_id):
 
 @bp.route('/report/<int:dj_id>/<int:track_id>', methods=['GET', 'POST'])
 @local_only
-@csrf.exempt
 @dj_interact
 def report_track(dj_id, track_id):
     track = Track.query.get_or_404(track_id)
