@@ -343,10 +343,10 @@ def edit_tracklog(tracklog_id):
         return jsonify(success=True)
 
     # This is a post time to do data sanitation!
-    artist = request.form.get("artist", "")
-    title = request.form.get("title", "")
-    album = request.form.get("album", "")
-    label = request.form.get("label", "")
+    artist = request.form.get("artist", "").strip()
+    title = request.form.get("title", "").strip()
+    album = request.form.get("album", "").strip()
+    label = request.form.get("label", "").strip()
     is_request = request.form.get('request', 'false') != 'false'
     vinyl = request.form.get('vinyl', 'false') != 'false'
     new = request.form.get('new', 'false') != 'false'
@@ -451,10 +451,10 @@ def edit_track(track_id):
 @dj_interact
 def add_track():
     # TODO: sanitation and verification
-    title = request.form['title']
-    album = request.form['album']
-    artist = request.form['artist']
-    label = request.form['label']
+    title = request.form['title'].strip()
+    album = request.form['album'].strip()
+    artist = request.form['artist'].strip()
+    label = request.form['label'].strip()
 
     track = Track(title, artist, album, label)
     db.session.add(track)
