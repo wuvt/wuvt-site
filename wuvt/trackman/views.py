@@ -204,6 +204,9 @@ def playlist_cuesheet_ts(filename):
 @app.route('/playlists/cue/set/<int:set_id><string:ext>.cue')
 def playlist_cuesheet(set_id, ext):
     djset = DJSet.query.get_or_404(set_id)
+    if djset.dtend is None:
+        abort(404)
+
     return Response(generate_playlist_cuesheet(djset, ext),
                     mimetype="audio/x-cue")
 
