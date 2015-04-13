@@ -92,7 +92,10 @@ def generate_cuesheet(filename, start, tracks, offset=0):
 
 def generate_playlist_cuesheet(djset, ext):
     delta = timedelta(hours=1)
-    end = djset.dtend.replace(minute=59, second=59) + timedelta(seconds=1)
+    start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
+    end = djset.dtend.replace(minute=59, second=59, microsecond=0) + \
+        timedelta(seconds=1)
+
     cuesheet = """\
 PERFORMER "{dj}"
 TITLE "{date}"
@@ -101,8 +104,9 @@ TITLE "{date}"
         date=format_datetime(djset.dtstart, "%Y-%m-%d %H:%S"))
     offset = 0
 
-    for loghour in perdelta(djset.dtstart, end, delta):
+    for loghour in perdelta(start, end, delta):
         tracks = TrackLog.query.filter(db.and_(
+            TrackLog.djset_id == djset.id,
             TrackLog.played >= loghour,
             TrackLog.played <= loghour + delta)).\
             order_by(TrackLog.played).all()
