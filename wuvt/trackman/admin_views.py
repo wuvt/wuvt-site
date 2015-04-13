@@ -10,7 +10,7 @@ from wuvt import csrf
 from wuvt import redis_conn
 from wuvt.trackman import bp
 from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
-        enable_automation, logout_recent
+        enable_automation, logout_recent, logout_all_but_current
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
 from wuvt.trackman.view_utils import local_only, dj_interact
@@ -25,15 +25,16 @@ from wuvt.trackman.view_utils import local_only, dj_interact
 @dj_interact
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
-        logout_recent()
         disable_automation()
 
         dj = DJ.query.get(request.form['dj'])
-        djset = DJSet(dj.id)
-        db.session.add(djset)
-        db.session.commit()
 
-        redis_conn.delete('dj_timeout')
+        # close open DJSets, and see if we have one we can use
+        djset = logout_all_but_current(dj)
+        if djset is None:
+            djset = DJSet(dj.id)
+            db.session.add(djset)
+            db.session.commit()
 
         return redirect(url_for('trackman.log', setid=djset.id))
 
