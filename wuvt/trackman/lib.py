@@ -112,7 +112,7 @@ TITLE "{date}"
             order_by(TrackLog.played).all()
 
         if len(tracks) > 0:
-            filename = datetime.strftime(djset.dtstart,
+            filename = datetime.strftime(localize_datetime(loghour),
                                          "%Y%m%d%H0001{}".format(ext))
             cuesheet += generate_cuesheet(filename, loghour, tracks, offset)
             offset += len(tracks)
