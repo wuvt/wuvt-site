@@ -9,7 +9,8 @@ from wuvt import app
 from wuvt import csrf
 from wuvt import db
 from wuvt import redis_conn
-from wuvt.trackman.lib import log_track, list_archives, generate_cuesheet
+from wuvt.trackman.lib import log_track, list_archives, generate_cuesheet, \
+    generate_playlist_cuesheet
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
@@ -174,7 +175,7 @@ def playlist(set_id):
 
 
 @app.route('/playlists/cue/<string:filename>.cue')
-def playlist_cuesheet(filename):
+def playlist_cuesheet_ts(filename):
     match_re = re.compile(r'^(\d{10}0001)(.*)$')
     m = match_re.match(filename)
     if not m:
@@ -197,6 +198,13 @@ def playlist_cuesheet(filename):
         TrackLog.played <= end)).order_by(TrackLog.played).all()
 
     return Response(generate_cuesheet(filename, start, tracks),
+                    mimetype="audio/x-cue")
+
+
+@app.route('/playlists/cue/set/<int:set_id><string:ext>.cue')
+def playlist_cuesheet(set_id, ext):
+    djset = DJSet.query.get_or_404(set_id)
+    return Response(generate_playlist_cuesheet(djset, ext),
                     mimetype="audio/x-cue")
 
 

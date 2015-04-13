@@ -66,9 +66,9 @@ def list_archives(djset):
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
 
-def generate_cuesheet(filename, start, tracks):
+def generate_cuesheet(filename, start, tracks, offset=0):
     cuesheet = "FILE \"{}\"\n".format(email.utils.quote(filename))
-    i = 1
+    i = offset + 1
     for track in tracks:
         if track.played < start:
             offset = timedelta(seconds=0)
@@ -86,6 +86,32 @@ def generate_cuesheet(filename, start, tracks):
            artist=email.utils.quote(track.track.artist.encode('utf-8')),
            m=minutes, s=secs)
         i += 1
+
+    return cuesheet
+
+
+def generate_playlist_cuesheet(djset, ext):
+    delta = timedelta(hours=1)
+    end = djset.dtend.replace(minute=59, second=59) + timedelta(seconds=1)
+    cuesheet = """\
+PERFORMER "{dj}"
+TITLE "{date}"
+""".format(
+        dj=email.utils.quote(djset.dj.airname.encode('utf-8')),
+        date=format_datetime(djset.dtstart, "%Y-%m-%d %H:%S"))
+    offset = 0
+
+    for loghour in perdelta(djset.dtstart, end, delta):
+        tracks = TrackLog.query.filter(db.and_(
+            TrackLog.played >= loghour,
+            TrackLog.played <= loghour + delta)).\
+            order_by(TrackLog.played).all()
+
+        if len(tracks) > 0:
+            filename = datetime.strftime(djset.dtstart,
+                                         "%Y%m%d%H0001{}".format(ext))
+            cuesheet += generate_cuesheet(filename, loghour, tracks, offset)
+            offset += len(tracks)
 
     return cuesheet
 
