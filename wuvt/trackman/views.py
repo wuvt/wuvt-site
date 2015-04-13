@@ -169,9 +169,20 @@ def playlists_dj_sets(dj_id):
 @app.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
     djset = DJSet.query.get_or_404(set_id)
-    tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(TrackLog.played).all()
+    tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
+        TrackLog.played).all()
     archives = list_archives(djset)
-    return render_template('playlist.html', archives=archives, djset=djset, tracklogs=tracks)
+
+    if request.wants_json():
+        data = djset.serialize()
+        data.update({
+            'archives': [a[0] for a in archives],
+            'tracks': [t.full_serialize() for t in tracks],
+        })
+        return jsonify(data)
+
+    return render_template('playlist.html', archives=archives, djset=djset,
+                           tracklogs=tracks)
 
 
 @app.route('/playlists/cue/<string:filename>.cue')
