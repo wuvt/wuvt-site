@@ -96,8 +96,7 @@ PERFORMER "{dj}"
 TITLE "{date}"
 """.format(
         dj=email.utils.quote(djset.dj.airname.encode('utf-8')),
-        date=format_datetime(localize_datetime(djset.dtstart),
-                             "%Y-%m-%d %H:%M"))
+        date=format_datetime(djset.dtstart, "%Y-%m-%d %H:%M"))
 
     delta = timedelta(hours=1)
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
