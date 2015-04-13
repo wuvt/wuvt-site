@@ -21,28 +21,11 @@ from wuvt.trackman.models import TrackLog, DJSet, DJ
 
 def logout_recent():
     automation_dj = DJ.query.filter(DJ.name == "Automation").first()
-    last_djset = DJSet.query.filter(DJSet.dj_id == automation_dj.id).order_by(
-        DJSet.dtstart.desc()).first()
+    last_djset = DJSet.query.filter(DJSet.dj_id == automation_dj.id).order_by(DJSet.dtstart.desc()).first()
     if last_djset is not None and last_djset.dtend is None:
         last_djset.dtend = datetime.utcnow()
         db.session.commit()
         redis_conn.delete('dj_timeout')
-
-
-def logout_all_but_current(dj):
-    current_djset = None
-    open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
-        DJSet.dtstart.desc()).all()
-    for djset in open_djsets:
-        if current_djset is None and djset.dj_id == dj.id:
-            current_djset = djset
-        else:
-            djset.dtend = datetime.utcnow()
-
-    db.session.commit()
-    redis_conn.delete('dj_timeout')
-
-    return current_djset
 
 
 def perdelta(start, end, td):
