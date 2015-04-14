@@ -10,7 +10,7 @@ from wuvt import app
 from wuvt import db
 from wuvt import redis_conn
 from wuvt.celeryconfig import make_celery
-from wuvt.trackman.lib import logout_recent, enable_automation
+from wuvt.trackman.lib import logout_all, enable_automation
 from wuvt.trackman.models import AirLog, DJSet, TrackLog
 
 celery = make_celery(app)
@@ -42,12 +42,12 @@ def autologout_check():
             pass
         elif automation == "true":
             # automation is running, carry on
-            # if automation is enabled then logout_recent was already called
+            # if automation is enabled, enable_automation was already called
             pass
         else:
             # Automation is not running, end djset if exists and start
             # automation
-            logout_recent()
+            logout_all()
             enable_automation()
 
 
