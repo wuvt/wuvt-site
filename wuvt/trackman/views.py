@@ -140,6 +140,12 @@ def playlists_date_sets(year, month, day):
     dtstart = datetime.datetime(year, month, day, 0, 0, 0)
     sets = DJSet.query.filter(DJSet.dtstart >= dtstart).all()
 
+    if request.wants_json():
+        return jsonify({
+            'dtstart': dtstart,
+            'sets': [s.serialize() for s in sets],
+        })
+
     return render_template('playlists_date_sets.html', date=dtstart, sets=sets)
 # }}}
 
@@ -148,12 +154,20 @@ def playlists_date_sets(year, month, day):
 @app.route('/playlists/dj')
 def playlists_dj():
     djs = DJ.query.order_by(DJ.airname).filter(DJ.visible == True)
+
+    if request.wants_json():
+        return jsonify({'djs': [dj.serialize() for dj in djs]})
+
     return render_template('playlists_dj_list.html', djs=djs)
 
 
 @app.route('/playlists/dj/all')
 def playlists_dj_all():
     djs = DJ.query.order_by(DJ.airname).all()
+
+    if request.wants_json():
+        return jsonify({'djs': [dj.serialize() for dj in djs]})
+
     return render_template('playlists_dj_list_all.html', djs=djs)
 
 
@@ -163,6 +177,13 @@ def playlists_dj_sets(dj_id):
     if not dj:
         abort(404)
     sets = DJSet.query.filter(DJSet.dj_id == dj_id).all()
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'sets': [s.serialize() for s in sets],
+        })
+
     return render_template('playlists_dj_sets.html', dj=dj, sets=sets)
 # }}}
 

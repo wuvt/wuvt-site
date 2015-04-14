@@ -21,6 +21,7 @@ class DJ(db.Model):
 
     def serialize(self):
         return {
+            'id': self.id,
             'airname': self.airname,
             'name': self.name,
             'visible': self.visible,
