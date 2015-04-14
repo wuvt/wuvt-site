@@ -92,7 +92,7 @@ def error403(error):
 @app.errorhandler(404)
 def error404(error):
     if request.wants_json():
-        return jsonify({'errors': "404 File Not Found"}), 404
+        return jsonify({'errors': "404 Not Found"}), 404
 
     return render_template('error404.html'), 404
 
