@@ -69,6 +69,7 @@
                     <li><a href="{{ url_for('last15') }}">Last 15</a></li>
                     <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
                     <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
+                    <li><a href="{{ url_for('charts_index') }}">Charts</a></li>
                     {% endif -%}
                     {% for page in menus[section['menu']] -%}
                     <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
