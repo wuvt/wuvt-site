@@ -603,7 +603,7 @@ section.pagination a {
 }
 /* }}} */
 
-/* Track list table {{{ */
+/* Tables {{{ */
 table.tracklist {
     width: 100%;
     border: 1px solid #ffffff;
@@ -631,6 +631,11 @@ table.tracklist thead th.icon-column {
 table.tracklist th,
 table.tracklist td {
     padding: 4px;
+}
+
+table.tracklist th.text-right,
+table.tracklist td.text-right {
+    text-align: right;
 }
 
 table.tracklist td span {

@@ -1,6 +1,7 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
-from flask import abort, jsonify, render_template, request, Response
+from flask import abort, jsonify, redirect, render_template, request, \
+    Response, url_for
 import datetime
 import dateutil
 import re
@@ -163,6 +164,126 @@ def playlists_dj_sets(dj_id):
         abort(404)
     sets = DJSet.query.filter(DJSet.dj_id == dj_id).all()
     return render_template('playlists_dj_sets.html', dj=dj, sets=sets)
+# }}}
+
+
+# Charts {{{
+def charts_period(period):
+    if period is not None:
+        end = datetime.datetime.utcnow()
+
+        if period == 'weekly':
+            start = end - datetime.timedelta(weeks=1)
+        elif period == 'monthly':
+            start = end - dateutil.relativedelta.relativedelta(months=1)
+        elif period == 'yearly':
+            start = end - dateutil.relativedelta.relativedelta(years=1)
+        else:
+            abort(404)
+    else:
+        if 'start' in request.args:
+            try:
+                start = datetime.datetime.strptime(request.args['start'],
+                                                   "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                abort(400)
+        else:
+            first_track = TrackLog.query.order_by(TrackLog.played).first()
+            start = first_track.played
+
+        if 'end' in request.args:
+            try:
+                end = datetime.datetime.strptime(request.args['end'],
+                                                 "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                abort(400)
+        else:
+            end = datetime.datetime.utcnow()
+
+    return start, end
+
+
+@app.route('/playlists/charts')
+def charts_index():
+    periodic_charts = [
+        ('charts_albums', "Top albums"),
+        ('charts_artists', "Top artists"),
+        ('charts_tracks', "Top tracks"),
+    ]
+    return render_template('charts.html', periodic_charts=periodic_charts)
+
+
+@app.route('/playlists/charts/albums')
+@app.route('/playlists/charts/albums/<string:period>')
+def charts_albums(period=None):
+    start, end = charts_period(period)
+    results = Track.query.\
+        with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(db.and_(
+            TrackLog.played >= start,
+            TrackLog.played <= end)).\
+        group_by(Track.artist, Track.album).\
+        order_by(db.func.count(TrackLog.id).desc()).all()
+
+    if request.wants_json():
+        return jsonify({'results': results})
+
+    return render_template('chart_albums.html', start=start, end=end,
+                           results=results)
+
+
+@app.route('/playlists/charts/artists')
+@app.route('/playlists/charts/artists/<string:period>')
+def charts_artists(period=None):
+    start, end = charts_period(period)
+    results = Track.query.\
+        with_entities(Track.artist, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(db.and_(
+            TrackLog.played >= start,
+            TrackLog.played <= end)).\
+        group_by(Track.artist).\
+        order_by(db.func.count(TrackLog.id).desc()).all()
+
+    if request.wants_json():
+        return jsonify({'results': results})
+
+    return render_template('chart_artists.html', start=start, end=end,
+                           results=results)
+
+
+@app.route('/playlists/charts/tracks')
+@app.route('/playlists/charts/tracks/<string:period>')
+def charts_tracks(period=None):
+    start, end = charts_period(period)
+    results = Track.query.with_entities(Track, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(db.and_(
+            TrackLog.played >= start,
+            TrackLog.played <= end)).\
+        group_by(TrackLog.track_id).\
+        order_by(db.func.count(TrackLog.id).desc()).all()
+
+    if request.wants_json():
+        return jsonify({
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_tracks.html', start=start, end=end,
+                           results=results)
+
+
+@app.route('/playlists/charts/dj/spins')
+def charts_dj_spins():
+    results = TrackLog.query.\
+        with_entities(TrackLog.dj_id, DJ, db.func.count(TrackLog.id)).\
+        join(DJ).filter(DJ.visible == True).group_by(TrackLog.dj_id).\
+        order_by(db.func.count(TrackLog.id).desc()).all()
+
+    if request.wants_json():
+        return jsonify({
+            'results': [(x[1].serialize(), x[2]) for x in results],
+        })
+
+    return render_template('chart_dj_spins.html', results=results)
 # }}}
 
 
