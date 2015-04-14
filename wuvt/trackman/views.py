@@ -223,7 +223,7 @@ def charts_albums(period=None):
             TrackLog.played >= start,
             TrackLog.played <= end)).\
         group_by(Track.artist, Track.album).\
-        order_by(db.func.count(TrackLog.id).desc()).all()
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
 
     if request.wants_json():
         return jsonify({'results': results})
@@ -242,7 +242,7 @@ def charts_artists(period=None):
             TrackLog.played >= start,
             TrackLog.played <= end)).\
         group_by(Track.artist).\
-        order_by(db.func.count(TrackLog.id).desc()).all()
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
 
     if request.wants_json():
         return jsonify({'results': results})
@@ -260,7 +260,7 @@ def charts_tracks(period=None):
             TrackLog.played >= start,
             TrackLog.played <= end)).\
         group_by(TrackLog.track_id).\
-        order_by(db.func.count(TrackLog.id).desc()).all()
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
 
     if request.wants_json():
         return jsonify({
