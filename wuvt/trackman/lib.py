@@ -175,10 +175,15 @@ def email_playlist(djset):
 def stream_listeners(url):
     url += 'stats.xml'
     parsed = urlparse.urlparse(url)
-    r = requests.get(url, auth=(parsed.username, parsed.password))
-    doc = lxml.etree.fromstring(r.text)
-    listeners = doc.xpath('//icestats/listeners/text()')[0]
-    return int(listeners)
+
+    try:
+        r = requests.get(url, auth=(parsed.username, parsed.password))
+        doc = lxml.etree.fromstring(r.text)
+        listeners = doc.xpath('//icestats/listeners/text()')[0]
+        return int(listeners)
+    except Exception as e:
+        app.logger.error(e)
+        return None
 
 
 def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
