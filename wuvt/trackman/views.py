@@ -292,6 +292,25 @@ def charts_tracks(period=None):
                            results=results)
 
 
+@app.route('/playlists/charts/tracks/dj/<int:dj_id>')
+def charts_tracks_dj(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    results = Track.query.\
+        with_entities(Track, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
+        group_by(TrackLog.track_id).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_tracks_dj.html', dj=dj, results=results)
+
+
+
 @app.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
     results = TrackLog.query.\
