@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% set page_title="Album: " + artist + " - " + album %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<h1>Album: {{ artist }} - {{ album }}</h1>
+
+<ul>
+    {% for track in tracks -%}
+    <li><a href="{{ url_for('admin.library_track', id=track.id) }}">{{ track.title }}</a></li>
+    {% endfor -%}
+</ul>
+{% endblock %}
