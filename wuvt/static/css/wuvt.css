@@ -39,7 +39,6 @@ body {
 
 /* Now playing bar {{{ */
 #nowplaying {
-    clear: both;
     height: 34px;
     margin: 8px 0 15px 0;
     padding: 8px 50px 8px 16px;
@@ -51,18 +50,23 @@ body {
 }
 
 #nowplaying ul {
+    position: relative;
     margin: 0;
-    padding: 4px;
+    padding: 0;
     background: #bcccd3;
     list-style: none;
 }
 
 #nowplaying li {
-    display: inline;
+    display: inline-block;
+    padding: 4px;
+    background-color: #bcccd3;
 }
 
 #nowplaying li:last-child {
-    float: right;
+    position: absolute;
+    right: 0px;
+    padding-left: 15px;
 }
 
 #nowplaying strong {
