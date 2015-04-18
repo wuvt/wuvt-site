@@ -61,6 +61,7 @@ LDAP_STARTTLS = True
 LDAP_BASE_DN = "dc=wuvt,dc=vt,dc=edu"
 LDAP_AUTH_DN = "uid={},ou=Users,dc=wuvt,dc=vt,dc=edu"
 LDAP_GROUPS_ADMIN = ['sudoers', 'webmasters']
+LDAP_GROUPS_LIBRARY = ['sudoers', 'librarians']
 LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
 
 UPLOAD_DIR = "/srv/http/media"

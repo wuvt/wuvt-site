@@ -56,11 +56,21 @@ def login():
 
                     login_user(user)
                     session['username'] = user.username
-                    session['access_admin'] = ldap_group_test(
-                        client, app.config['LDAP_GROUPS_ADMIN'], user.username)
-                    session['access_missioncontrol'] = ldap_group_test(
-                        client, app.config['LDAP_GROUPS_RADIOTHON'],
-                        user.username)
+                    session['access'] = []
+
+                    if ldap_group_test(client, app.config['LDAP_GROUPS_ADMIN'],
+                                       user.username):
+                        session['access'].append('admin')
+
+                    if ldap_group_test(client,
+                                       app.config['LDAP_GROUPS_LIBRARY'],
+                                       user.username):
+                        session['access'].append('library')
+
+                    if ldap_group_test(client,
+                                       app.config['LDAP_GROUPS_RADIOTHON'],
+                                       user.username):
+                        session['access'].append('missioncontrol')
 
                     app.logger.warning("LDAP user {} logged in.".format(
                         user.username))
