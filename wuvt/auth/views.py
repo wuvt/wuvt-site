@@ -86,8 +86,7 @@ def login():
             if user and user.check_password(request.form['password']):
                 login_user(user)
                 session['username'] = user.username
-                session['access_admin'] = True
-                session['access_missioncontrol'] = True
+                session['access'] = ['admin', 'library', 'missioncontrol']
 
                 app.logger.warning("Database user {} logged in.".format(
                     user.username))
