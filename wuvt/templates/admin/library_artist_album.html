@@ -3,6 +3,12 @@
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
+    <li class="active">{{ album }}</li>
+</ol>
+
 <h1>Album: {{ artist }} - {{ album }}</h1>
 
 <ul>

@@ -3,6 +3,13 @@
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}">{{ track.album }}</a></li>
+    <li class="active">{{ track.title }}</li>
+</ol>
+
 <h1>Edit Track: {{ track.artist }} - {{ track.title }}</h1>
 
 <form action="{{ url_for('admin.library_track', id=track.id) }}" method="post"
