@@ -539,9 +539,10 @@ def library_index():
     return render_template('admin/library_index.html', artists=artists)
 
 
-@bp.route('/library/artist/<string:artist>')
+@bp.route('/library/artist')
 @check_access('library')
-def library_artist(artist):
+def library_artist():
+    artist = request.args['artist']
     albums = Track.query.with_entities(Track.artist, Track.album).\
         filter(Track.artist == artist).\
         group_by(Track.album).order_by(Track.album).all()
@@ -549,9 +550,11 @@ def library_artist(artist):
                            albums=albums)
 
 
-@bp.route('/library/album/<string:artist>/<string:album>')
+@bp.route('/library/album')
 @check_access('library')
-def library_artist_album(artist, album):
+def library_artist_album():
+    artist = request.args['artist']
+    album = request.args['album']
     tracks = Track.query.\
         filter(db.and_(Track.artist == artist, Track.album == album)).\
         order_by(Track.title).all()
