@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% set page_title="Library" %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li class="active">Library</li>
+</ol>
+
+<h1>Library</h1>
+
+<ul>
+    {% for artist in artists -%}
+    <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
+    {% endfor -%}
+</ul>
+{% endblock %}

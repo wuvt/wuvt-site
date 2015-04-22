@@ -40,14 +40,16 @@ def ldap_group_test(client, groups, username):
     return False
 
 
-def check_access(section):
+def check_access(*sections):
+    sections = set(sections)
     def access_decorator(f):
         @wraps(f)
         def access_wrapper(*args, **kwargs):
             if not current_user.is_authenticated():
                 return app.login_manager.unauthorized()
 
-            if not session.get('access_' + section, False):
+            access_sections = set(session.get('access', []))
+            if sections.isdisjoint(access_sections):
                 abort(403)
 
             return f(*args, **kwargs)

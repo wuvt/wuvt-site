@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% set page_title="Edit Track: " + track.artist + " - " + track.title %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}">{{ track.album }}</a></li>
+    <li class="active">{{ track.title }}</li>
+</ol>
+
+<h1>Edit Track: {{ track.artist }} - {{ track.title }}</h1>
+
+<form action="{{ url_for('admin.library_track', id=track.id) }}" method="post"
+    class="form-horizontal" role="form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group{% if 'artist' in error_fields %} has-error{% endif %}">
+        <label for="id_artist" class="col-sm-3 control-label">Artist</label>
+        <div class="col-sm-9">
+            <input type="text" name="artist" id="id_artist"
+                value="{{ track.artist }}" required="required"
+                class="form-control"/>
+        </div>
+    </div>
+    
+    <div class="form-group{% if 'title' in error_fields %} has-error{% endif %}">
+        <label for="id_name" class="col-sm-3 control-label">Title</label>
+        <div class="col-sm-9">
+            <input type="text" name="title" id="id_title"
+                value="{{ track.title }}" required="required"
+                class="form-control"/>
+        </div>
+    </div>
+
+    <div class="form-group{% if 'album' in error_fields %} has-error{% endif %}">
+        <label for="id_artist" class="col-sm-3 control-label">Album</label>
+        <div class="col-sm-9">
+            <input type="text" name="album" id="id_album"
+                value="{{ track.album }}" required="required"
+                class="form-control"/>
+        </div>
+    </div>
+    
+    <div class="form-group{% if 'label' in error_fields %} has-error{% endif %}">
+        <label for="id_name" class="col-sm-3 control-label">Label</label>
+        <div class="col-sm-9">
+            <input type="text" name="label" id="id_label"
+                value="{{ track.label }}" required="required"
+                class="form-control"/>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span>
+            Save Changes
+        </button>
+
+        <a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

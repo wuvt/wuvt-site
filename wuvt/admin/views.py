@@ -11,13 +11,14 @@ from wuvt.auth import check_access
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
+from wuvt.trackman.models import Track, TrackLog
 
 from werkzeug import secure_filename
 import os
 
 
 @bp.route('/')
-@check_access('admin')
+@check_access('admin', 'library')
 def index():
     return render_template('admin/index.html')
 
@@ -527,3 +528,68 @@ def users():
         users = User.query.filter(User.username == current_user.username).order_by('name').all()
 
     return render_template('admin/users.html', users=users)
+
+
+@bp.route('/library')
+@check_access('library')
+def library_index():
+    artists = Track.query.with_entities(Track.artist).\
+        group_by(Track.artist).order_by(Track.artist).all()
+    artists = [x[0] for x in artists]
+    return render_template('admin/library_index.html', artists=artists)
+
+
+@bp.route('/library/artist/<string:artist>')
+@check_access('library')
+def library_artist(artist):
+    albums = Track.query.with_entities(Track.artist, Track.album).\
+        filter(Track.artist == artist).\
+        group_by(Track.album).order_by(Track.album).all()
+    return render_template('admin/library_artist.html', artist=artist,
+                           albums=albums)
+
+
+@bp.route('/library/album/<string:artist>/<string:album>')
+@check_access('library')
+def library_artist_album(artist, album):
+    tracks = Track.query.\
+        filter(db.and_(Track.artist == artist, Track.album == album)).\
+        order_by(Track.title).all()
+    return render_template('admin/library_artist_album.html', artist=artist,
+                           album=album, tracks=tracks)
+
+
+@bp.route('/library/track/<int:id>', methods=['GET', 'POST'])
+@check_access('library')
+def library_track(id):
+    track = Track.query.get_or_404(id)
+
+    if request.method == 'POST':
+        artist = request.form['artist'].strip()
+        if len(artist) <= 0:
+            error_fields.append('artist')
+
+        title = request.form['title'].strip()
+        if len(title) <= 0:
+            error_fields.append('title')
+
+        album = request.form['album'].strip()
+        if len(album) <= 0:
+            error_fields.append('album')
+
+        label = request.form['label'].strip()
+        if len(label) <= 0:
+            error_fields.append('label')
+
+        # TODO: merge with any tracks that exactly match
+
+        track.artist = artist
+        track.title = title
+        track.album = album
+        track.label = label
+        db.session.commit()
+
+        return redirect(url_for('.library_artist_album', artist=track.artist,
+                                album=track.album))
+
+    return render_template('admin/library_track.html', track=track)
