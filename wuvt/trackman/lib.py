@@ -19,6 +19,14 @@ from wuvt import format_datetime, localize_datetime
 from wuvt.trackman.models import TrackLog, DJSet, DJ
 
 
+def get_duplicates(model, attrs):
+    dups = model.query.with_entities(
+        *[getattr(model, attr) for attr in attrs]).group_by(
+        *[getattr(model, attr) for attr in attrs]).having(db.and_(
+        *[db.func.count(getattr(model, attr)) > 1 for attr in attrs])).all()
+    return dups
+
+
 def logout_all():
     open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
         DJSet.dtstart.desc()).all()
