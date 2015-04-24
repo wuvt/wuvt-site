@@ -475,7 +475,9 @@ def article_edit(art_id):
 
             # ensure slug is unique, add - until it is (if we're changing the slug)
             if article.slug != slug:
-                while Article.query.filter_by(slug=slug).filter(Article.id != article.id).count() > 1:
+                while Article.query.filter(db.and_(
+                        Article.slug == slug,
+                        Article.id != article.id)).count() > 0:
                     slug += '-'
 
             article.title = title
