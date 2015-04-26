@@ -64,4 +64,16 @@
         </a>
     </div>
 </form>
+
+{% if tracklogs %}
+<h2>Plays</h2>
+<ul>
+    {% for tracklog in tracklogs %}
+    {% if tracklog.djset_id > 0 -%}
+    <li><a href="{{ url_for('playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time> by {{ tracklog.dj.airname }}</a></li>
+    {% endif -%}
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% endblock %}

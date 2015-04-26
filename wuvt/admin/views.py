@@ -570,6 +570,8 @@ def library_artist_album():
 @check_access('library')
 def library_track(id):
     track = Track.query.get_or_404(id)
+    tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
+        order_by(TrackLog.played).all()
 
     if request.method == 'POST':
         artist = request.form['artist'].strip()
@@ -599,4 +601,5 @@ def library_track(id):
         return redirect(url_for('.library_artist_album', artist=track.artist,
                                 album=track.album))
 
-    return render_template('admin/library_track.html', track=track)
+    return render_template('admin/library_track.html', track=track,
+                           tracklogs=tracklogs)
