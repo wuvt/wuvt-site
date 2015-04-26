@@ -6,7 +6,7 @@
 <ol class="breadcrumb">
     <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
     <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></li>
-    <li><a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}">{{ track.album }}</a></li>
+    <li>{{ track.album }}</li>
     <li class="active">{{ track.title }}</li>
 </ol>
 
