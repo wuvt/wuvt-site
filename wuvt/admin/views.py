@@ -533,11 +533,13 @@ def users():
 
 
 @bp.route('/library')
+@bp.route('/library/<int:page>')
 @check_access('library')
-def library_index():
+def library_index(page=1):
     artists = Track.query.with_entities(Track.artist).\
-        group_by(Track.artist).order_by(Track.artist).all()
-    artists = [x[0] for x in artists]
+        group_by(Track.artist).order_by(Track.artist).paginate(
+            page, app.config['ARTISTS_PER_PAGE'])
+    artists.items = [x[0] for x in artists.items]
     return render_template('admin/library_index.html', artists=artists)
 
 

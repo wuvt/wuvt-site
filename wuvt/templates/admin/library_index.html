@@ -10,8 +10,23 @@
 <h1>Library</h1>
 
 <ul>
-    {% for artist in artists -%}
+    {% for artist in artists.items -%}
     <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
     {% endfor -%}
 </ul>
+
+{% if artists.has_prev or artists.has_next -%}
+<nav>
+    <ul class="pager">
+        {% if artists.has_prev -%}
+        <li><a href="{{ url_for('admin.library_index', page=artists.prev_num) }}">Previous</a></li>
+        {% endif -%}
+
+        {% if artists.has_next -%}
+        <li><a href="{{ url_for('admin.library_index', page=artists.next_num) }}">Next</a></li>
+        {% endif -%}
+    </ul>
+</nav>
+{% endif -%}
+
 {% endblock %}
