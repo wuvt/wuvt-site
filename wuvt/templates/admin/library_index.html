@@ -19,11 +19,11 @@
 <nav>
     <ul class="pager">
         {% if artists.has_prev -%}
-        <li><a href="{{ url_for('admin.library_index', page=artists.prev_num) }}">Previous</a></li>
+        <li class="previous"><a href="{{ url_for('admin.library_index', page=artists.prev_num) }}"><span aria-hidden="true">«</span> Previous</a></li>
         {% endif -%}
 
         {% if artists.has_next -%}
-        <li><a href="{{ url_for('admin.library_index', page=artists.next_num) }}">Next</a></li>
+        <li class="next"><a href="{{ url_for('admin.library_index', page=artists.next_num) }}">Next <span aria-hidden="true">»</span></a></li>
         {% endif -%}
     </ul>
 </nav>
