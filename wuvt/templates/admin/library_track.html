@@ -58,7 +58,7 @@
             Save Changes
         </button>
 
-        <a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}" class="btn btn-default">
+        <a href="{{ url_for('admin.library_artist', artist=track.artist) }}" class="btn btn-default">
             <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>
