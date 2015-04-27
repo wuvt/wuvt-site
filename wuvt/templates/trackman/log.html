@@ -223,42 +223,17 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
 <script>
+// TODO: replace these?
 var csrf_token = "{{ csrf_token() }}";
-var autologout_enabled = false;
-
-$(function() {
-    $('#trackman_logout_btn').click(function() {
-        var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
-        $("#trackman_logout_form input[name='email_playlist']").val(email);
-
-        $('#trackman_logout_form').submit();
-    });
-});
-
-// dynamic javascript vars
 var djset_id = {{ djset.id }};
 var dj_id = {{ djset.dj.id }};
 // Dictionary mapping rotation_ids to strings
 var rotations = {{ rotations|tojson|safe }};
-var rotationoptions = "{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}"
-$( document ).ready(function() {
-    var thread = null;
-    $(".trackman-entry input").keyup(function () {
-        clearTimeout(thread);
-        var target = $(this);
-        thread = setTimeout(function() {search_form();}, 350);
 
-    });
-    $.ajax({
-        url: "/trackman/api/autologout",
-        dataType: "json",
-        success: update_autologout,
-    });
-    $("button#trackman-autologout").click(set_autologout);
-    $("button#new-queue").click(queue_new_track);
-    $("button#new-log").click(log_new_track);
-    $("button#clear-form").click(clear_form);
-    update_playlist();
-})
+// TODO: remove this if possible
+var rotationoptions = "{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}"
+
+var t = new Trackman(csrf_token, djset_id, dj_id, rotations);
+t.init();
 </script>
 {% endblock %}

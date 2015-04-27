@@ -64,158 +64,37 @@ var queuerow = "<tr class='queue-row' id='q{0}'>" +
 "</tr>";
 
 // The data is the same origin indicates 0 if newly entered, 1 if from history
-var search_results = [];
-var queue = [];
-var playlist = [];
 var delayinterval;
 var delaybutton;
 
-function log_search(element) {
-    var elem = element;
-    var id = element.prop("id").substring(1);
-    var track = search_results[id];
-    function post_log(data) {
-        if (data['success'] == false) {
-            alert(data['error']);
-            return;
-        }
-        update_playlist();
-    };
-    log_track(track, post_log);
+function ret_undefined() {
+    return;
 }
 
-function log_track(track, callback) {
-    $.ajax({
-        url: "/trackman/api/tracklog",
-        data: { "track_id": track['id'],
-                "djset_id": djset_id,
-                "vinyl":    track['vinyl'],
-                "request":  track['request'],
-                "new":      track['new'],
-                "rotation": track['rotation']
-        },
-        type: "POST",
-        success: callback,
-    });
+function Trackman(csrfToken, djsetId, djId, rotations) {
+    this.csrfToken = csrfToken;
+    this.djsetId = djsetId;
+    this.djId = djId;
+    this.rotations = rotations;
 }
 
+Trackman.prototype.clearForm = function(ev) {
+    if(typeof ev == "undefined") {
+        var inst = this;
+    }
+    else {
+        var inst = ev.data.instance;
+    }
 
-function log_queue(element) {
-    var elem = element;
-    var id = element.prop("id").substring(1);
-    var track = queue[id]
-    function post_log(data) {
-        if (data['success'] == false) {
-            alert(data['error']);
-            return;
-        };
-        queue.splice(id, 1);
-        update_queue();
-        update_playlist();
-    };
-
-    // Delete it from the queue if it's there
-    if (track['origin'] == 1) {
-        log_track(track, post_log);
-    }
-    else if (track['origin'] == 0) {
-        create_track(track, post_log);
-    }
-}
-
-function create_track(track, callback) {
-    $.ajax({
-        url: "/trackman/api/track",
-        data: { "artist": track['artist'],
-                "album": track['album'],
-                "title": track['title'],
-                "label": track['label'],
-        },
-        type: "POST",
-        success: function(data) {
-            if (data['success'] == false) {
-                alert(data['error']);
-                return;
-            }
-            track['id'] = data['track_id'];
-            log_track(track, callback);
-        },
-    });
-}
-
-function remove_from_queue(element) {
-    id = $(element).prop("id").substring(1);
-    queue.splice(id, 1);
-    update_queue();
-}
-
-function add_to_queue(element) {
-    //var track = row_to_object(element);
-    /*$("table#search tbody tr#" + id).remove();*/
-    var id = $(element).prop("id").substring(1);
-    var queue_entry = $.extend(true, {}, search_results[id]);
-    queue.push(queue_entry);
-    //search_results.splice(id, 1);
-    clear_timer();
-    //update_history();
-    update_queue();
-}
-
-function validate_track(track) {
-    if (track['artist'] == "") {
-        alert("Must fill out the artist field");
-        return false;
-    }
-    if (track['title'] == "") {
-        alert("Must fill out the title field");
-        return false;
-    }
-    if (track['album'] == "") {
-        alert("Must fill out the album field");
-        return false;
-    }
-    if (track['label'] == "") {
-        alert("Must fill out the label field");
-        return false;
-    }
-    return true;
-}
-
-function queue_new_track() {
-    var track = get_form_data();
-    if (!validate_track(track)) {
-        return false;
-    }
-    track['origin'] = 0;
-    queue.push(track);
-    update_queue();
-    clear_form();
-}
-
-function log_new_track() {
-    var track = get_form_data();
-    if (!validate_track(track)) {
-        return false;
-    }
-    track['origin'] = 0;
-    function post_log(data) {
-        if (data['success'] == false) {
-            alert(data['error']);
-            return;
-        }
-        clear_form();
-        update_playlist();
-    }
-    create_track(track, post_log);
-}
-function clear_form() {
     $(".trackman-entry input").val("");
     $(".trackman-entry input[type=checkbox]").prop("checked", false);
     $(".trackman-entry select.rotation").val(1);
-    search_results = [];
-    update_history();
-}
-function get_form_data () {
+
+    inst.searchResults = [];
+    inst.updateHistory();
+};
+
+Trackman.prototype.getFormData = function() {
     return {"artist": $(".trackman-entry input#artist").val(),
             "title": $(".trackman-entry input#title").val(),
             "album": $(".trackman-entry input#album").val(),
@@ -225,107 +104,345 @@ function get_form_data () {
             "new": $(".trackman-entry input[name=new]").prop("checked"),
             "rotation": $(".trackman-entry select.rotation").val(),
     };
-}
+};
 
-function search_edit(element) {
-    var id = element.prop("id").substring(1);
-    var track = search_results[id];
-    $(".trackman-entry input#artist").val(track['artist']);
-    $(".trackman-entry input#title").val(track['title']);
-    $(".trackman-entry input#album").val(track['album']);
-    $(".trackman-entry input#rlabel").val(track['label']);
-    $(".trackman-entry input[name=request]").prop("checked", track['request']);
-    $(".trackman-entry input[name=vinyl]").prop("checked", track['vinyl']);
-    $(".trackman-entry input[name=new]").prop("checked", track['new']);
-    var track_rotation = 1;
-    if (typeof track['rotation'] != "undefined") {
-        track_rotation = track['rotation'];
+Trackman.prototype.validateTrack = function(track) {
+    if(track['artist'] == "") {
+        alert("Must fill out the artist field");
+        return false;
     }
-    $(".trackman-entry select.rotation").val(track_rotation);
-}
-// This takes the row 
-function delete_track(element) {
+    if(track['title'] == "") {
+        alert("Must fill out the title field");
+        return false;
+    }
+    if(track['album'] == "") {
+        alert("Must fill out the album field");
+        return false;
+    }
+    if(track['label'] == "") {
+        alert("Must fill out the label field");
+        return false;
+    }
+    return true;
+};
+
+// Autologout {{{
+Trackman.prototype.initAutologout = function() {
+    this.extendAutologout = false;
+
+    $.ajax({
+        url: "/trackman/api/autologout",
+        dataType: "json",
+        success: this.updateAutologout,
+    });
+    $("button#trackman-autologout").bind('click', {'instance': this},
+                                         this.toggleAutologout);
+};
+
+Trackman.prototype.toggleAutologout = function(ev) {
+    var inst = ev.data.instance;
+    var formdata = {};
+    if(inst.extendAutologout) {
+        formdata['autologout'] = 'enable';
+    }
+    else {
+        formdata['autologout'] = 'disable';
+    }
+    $.ajax({
+        url: "/trackman/api/autologout",
+        data: formdata,
+        dataType: "json",
+        type: "POST",
+        context: inst,
+        success: inst.updateAutologout,
+    });
+};
+
+Trackman.prototype.updateAutologout = function(data) {
+    if(data['success'] == false) {
+        alert(data['error']);
+        return;
+    }
+    if(data['autologout']) {
+        $("#trackman-autologout").removeClass("active");
+        this.extendAutologout = false;
+    }
+    else {
+        $("#trackman-autologout").addClass("active");
+        this.extendAutologout = true;
+    }
+};
+// }}}
+
+// Queue {{{
+Trackman.prototype.initQueue = function() {
+    this.queue = [];
+
+    $("button#new-queue").bind('click', {'instance': this},
+                               this.queueTrack);
+
+    if(localStorage.getItem('trackman_queue')) {
+        this.loadQueue();
+    }
+    else {
+        this.saveQueue();
+    }
+
+    this.bindQueueListeners();
+};
+
+Trackman.prototype.loadQueue = function() {
+    var newQueue = localStorage.getItem('trackman_queue');
+    this.queue = JSON.parse(newQueue);
+    this.updateQueue();
+};
+
+Trackman.prototype.saveQueue = function() {
+    localStorage.setItem('trackman_queue', JSON.stringify(this.queue));
+};
+
+Trackman.prototype.updateQueue = function() {
+    this.clearTimer("queue");
+
+    // FIXME: this should not replace the entire existing queue; this will
+    // require modifications to bindQueueListeners as well
+    $("table#queue tbody tr").remove()
+    for (var i = 0; i < this.queue.length; i++) {
+        var result = this.queue[i];
+        $("table#queue tbody").append(queuerow.format(i, result['artist'], result['title'], result['album'], result['label']));
+        var row = $("table#queue tbody tr#q" + i);
+        row.find(".request input").prop("checked", result['request']);
+        row.find(".vinyl input").prop("checked", result['vinyl']);
+        row.find(".new input").prop("checked", result['new']);
+        this.renderRotation(row.find("select.rotation"), result['rotation']);
+    }
+
+    this.bindQueueListeners();
+};
+
+Trackman.prototype.bindQueueListeners = function() {
+    // XXX: do we need to clear existing event listeners first?
+
+    // request/new/vinyl checkbox listener
+    $("table#queue input[type=checkbox]").bind('change', {'instance': this},
+                                               function(ev) {
+        ev.data.instance.queue[$(ev.target).parents(".queue-row").prop("id").substring(1)][$(ev.target).prop("name")] = this.checked;
+    });
+
+    // rotation listener
+    $("table#queue select.rotation").bind('change', {'instance': this},
+                                          function(ev) {
+        ev.data.instance.queue[$(ev.target).parents(".queue-row").prop("id").substring(1)]['rotation'] = $(ev.target).val();
+    });
+
+    $("table#queue button.queue-delay").bind('click', {'instance': this},
+                                             this.logTimer);
+
+    $("button.queue-log").bind('click', {'instance': this}, function(ev) {
+        ev.data.instance.logQueued($(ev.target).parents(".queue-row"));
+    });
+
+    $("table#queue button.queue-delete").bind('click', {'instance': this},
+                                              function(ev) {
+        ev.data.instance.removeFromQueue($(ev.target).parents(".queue-row"));
+    });
+};
+
+Trackman.prototype.logQueued = function(element) {
+    var elem = element;
+    var id = element.prop("id").substring(1);
+    var track = this.queue[id]
+    function postLog(data) {
+        if(data['success'] == false) {
+            alert(data['error']);
+            return;
+        };
+        this.queue.splice(id, 1);
+        this.updateQueue();
+        this.updatePlaylist();
+    };
+
+    // Delete it from the queue if it's there
+    if (track['origin'] == 1) {
+        this.logTrack(track, postLog);
+    }
+    else if (track['origin'] == 0) {
+        this.createTrack(track, postLog);
+    }
+
+    this.saveQueue();
+};
+
+Trackman.prototype.addToQueue = function(element) {
+    var id = $(element).prop("id").substring(1);
+    var queue_entry = $.extend(true, {}, this.searchResults[id]);
+    this.queue.push(queue_entry);
+    this.clearTimer();
+
+    this.saveQueue();
+    this.updateQueue();
+};
+
+Trackman.prototype.removeFromQueue = function(element) {
+    id = $(element).prop("id").substring(1);
+    this.queue.splice(id, 1);
+
+    this.saveQueue();
+    this.updateQueue();
+};
+
+Trackman.prototype.queueTrack = function(ev) {
+    var inst = ev.data.instance;
+
+    var track = inst.getFormData();
+    if(!inst.validateTrack(track)) {
+        return false;
+    }
+    track['origin'] = 0;
+    inst.queue.push(track);
+
+    inst.saveQueue();
+    inst.updateQueue();
+    inst.clearForm();
+};
+
+Trackman.prototype.queueFromJson = function(data) {
+    // TODO
+
+    this.saveQueue();
+};
+// }}}
+
+// Playlist {{{
+Trackman.prototype.initPlaylist = function() {
+    this.playlist = [];
+
+    var inst = this;
+    var thread = null;
+    $(".trackman-entry input").keyup(function () {
+        clearTimeout(thread);
+        var target = $(this);
+        thread = setTimeout(function(){inst.searchForm();}, 350);
+
+    });
+    $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
+    $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
+
+    this.bindPlaylistListeners();
+    this.updatePlaylist();
+};
+
+Trackman.prototype.logTrack = function(track, callback) {
+    $.ajax({
+        url: "/trackman/api/tracklog",
+        data: { "track_id": track['id'],
+                "djset_id": djset_id,
+                "vinyl":    track['vinyl'],
+                "request":  track['request'],
+                "new":      track['new'],
+                "rotation": track['rotation']
+        },
+        context: this,
+        type: "POST",
+        success: callback,
+    });
+};
+
+Trackman.prototype.createTrack = function(track, callback) {
+    $.ajax({
+        url: "/trackman/api/track",
+        data: { "artist": track['artist'],
+                "album": track['album'],
+                "title": track['title'],
+                "label": track['label'],
+        },
+        type: "POST",
+        context: this,
+        success: function(data) {
+            if(data['success'] == false) {
+                alert(data['error']);
+                return;
+            }
+            track['id'] = data['track_id'];
+            this.logTrack(track, callback);
+        },
+    });
+};
+
+Trackman.prototype.logNewTrack = function(ev) {
+    var inst = ev.data.instance;
+
+    var track = inst.getFormData();
+    if(!inst.validateTrack(track)) {
+        return false;
+    }
+    track['origin'] = 0;
+    function post_log(data) {
+        if(data['success'] == false) {
+            alert(data['error']);
+            return;
+        }
+        inst.clearForm();
+        inst.updatePlaylist();
+    }
+    inst.createTrack(track, post_log);
+};
+
+Trackman.prototype.deleteTrack = function(element) {
     var id = $(element).prop("id");
-    if (id.substring(0,1) == "p") {
+    if(id.substring(0,1) == "p") {
         id = id.substring(1);
         $.ajax({
             url: "/trackman/api/tracklog/edit/" + id,
             type: "DELETE",
             dataType: "json",
+            context: this,
             success: function(data) {
-                if (data['success'] == false) {
+                if(data['success'] == false) {
                     alert(data['error']);
                 }
-                update_playlist();
+                this.updatePlaylist();
             },
         });
     }
     else {
         // This is an airlog
     }
-}
-function update_queue() {
-    clear_timer("queue");
-    $("table#queue tbody tr").remove()
-    for (var i = 0; i < queue.length; i++) {
-        var result = queue[i];
-        $("table#queue tbody").append(queuerow.format(i, result['artist'], result['title'], result['album'], result['label']));
-        var row = $("table#queue tbody tr#q" + i);
-        row.find(".request input").prop("checked", result['request']);
-        row.find(".vinyl input").prop("checked", result['vinyl']);
-        row.find(".new input").prop("checked", result['new']);
-        render_rotation(row.find("select.rotation"), result['rotation']);
+};
+
+Trackman.prototype.editTrack = function() {
+    function completeEdit(data) {
+        if (data['success'] == false) {
+            alert(data['error']);
+            return;
+        }
+        opener.update_playlist();
+        window.close();
     }
-    queue_listeners();
-}
-function search_history() {
+
+    var track = this.getFormData();
+    if(!this.validateTrack(track)) {
+        return false;
+    }
     $.ajax({
-        url: "/trackman/api/search",
-        data: get_form_data(),
+        url: "/trackman/api/tracklog/edit/" + tracklog_id,
+        data: { "artist":   track['artist'],
+                "album":    track['album'],
+                "title":    track['title'],
+                "label":    track['label'],
+                "vinyl":    track['vinyl'],
+                "request":  track['request'],
+                "new":      track['new'],
+                "rotation": track['rotation']
+        },
         dataType: "json",
-        success: process_history,
-    })
-}
-function process_history(data) {
-    if (data['success'] == false) { 
-        alert(data['error']);
-        return;
-    }
-    results = data['results'];
-    search_results = [];
-    for (var i = 0; i < results.length; i++) {
-        results[i]['origin'] = 1;
-        search_results.push(results[i])
-    }
-    update_history();
-}
-function update_history() {
-    clear_timer("search");
-    // Remove old history results
-    $("table#search tbody tr").remove();
-    // Add new results
-    for (var i = 0; i < search_results.length; i++) {
-        var result = search_results[i];
-        $("table#search tbody").append(searchrow.format(i, result['artist'], result['title'], result['album'], result['label']));
-        var row = $("table#search tbody tr#s" + i);
-        row.find(".request input").prop("checked", result['request']);
-        row.find(".vinyl input").prop("checked", result['vinyl']);
-        row.find(".new input").prop("checked", result['new']);
-        render_rotation(row.find("select.rotation"), result['rotation']);
+        type: "POST",
+        success: completeEdit,
+    });
+};
 
-    }
-    search_listeners();
-}
-
-// Generates the select content, if an id is provided it chooses the option
-function render_rotation(selement, id) {
-    $(selement).append(rotationoptions);
-    if (typeof id != "undefined") {
-        $(selement).val(id);
-    }
-}
-
-function update_playlist() {
+Trackman.prototype.updatePlaylist = function() {
+    var inst = this;
     $.ajax({
         url: "/trackman/api/djset/" + djset_id,
         data: {
@@ -338,12 +455,19 @@ function update_playlist() {
                 return;
             }
             playlist = data['logs'];
-            render_playlist();
+            inst.renderPlaylist();
         },
-    })
-}
+    });
+};
 
-function render_playlist() {
+Trackman.prototype.renderRotation = function(selement, id) {
+    $(selement).append(rotationoptions);
+    if(typeof id != "undefined") {
+        $(selement).val(id);
+    }
+};
+
+Trackman.prototype.renderPlaylist = function() {
     // Empty the old playlist
     $("table#playlist tbody tr").remove();
     for (var i = 0; i < playlist.length; i++) {
@@ -374,100 +498,21 @@ function render_playlist() {
         }
     }
     if (playlist.length > 0) {
-        playlist_listeners();
+        this.bindPlaylistListeners();
         // Scroll to bottom
         var pos = $("table#playlist tbody tr:last").position();
         var scrollwindow = $("table#playlist").parent();
         scrollwindow.scrollTop(scrollwindow.scrollTop() + pos.top);
     }
-}
+};
 
-function open_edit_window(event) {
-    var url;
-    var id = $(event.target).parents(".playlist-row").prop("id");
-    if (id.substring(0,1) == "p") {
-        url = "/trackman/edit/" + id.slice(1);
-    }
-    else {
-        // TODO Set edit url for airlog
-    }
-    var edit_win = window.open(url, "editWindow", "height=600,width=1200");
-    edit_win = update_parent = update_playlist();
-}
-
-function update_search_results(event) {
-    search_results[$(event.target).parents(".search-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
-}
-function update_search_rotation(event) {
-    search_results[$(event.target).parents(".search-row").prop("id").substring(1)]['rotation'] = $(event.target).val();
-}
-function update_queue_data(event) {
-    queue[$(event.target).parents(".queue-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
-}
-function update_queue_rotation(event) {
-    queue[$(event.target).parents(".queue-row").prop("id").substring(1)]['rotation'] = $(event.target).val();
-}
-
-function report_track(id) {
-    url = "/trackman/report/" + dj_id + "/" + id;
-    var report_win = window.open(url, "reportWindow", "height=600,width=1200");
-}
-
-
-// Event listener code
-function playlist_listeners() {
-    $("button.playlist-delete").click(function (event) {
-        delete_track($(event.target).parents(".playlist-row"));
-    });
-    $("table#playlist button.playlist-edit").click(open_edit_window);
-    $("table#playlist button.report").click(function (event) {
-        playlist_id = $(event.target).parents("tr").prop("id").slice(1);
-        tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
-        id = tracklog['track_id'];
-        report_track(id);
-    })
-}
-function search_listeners() {
-    $("button.search-queue").click(function (event) { 
-        add_to_queue($(event.target).parents(".search-row"));
-    })
-    $("button.search-log").click(function (event) { 
-        log_search($(event.target).parents(".search-row"));
-    })
-    $("table#search input[type=checkbox]").change(update_search_results);
-    $("table#search select.rotation").change(update_search_rotation);
-    $("table#search button.search-delay").click(log_timer);
-    $("table#search button.report").click(function (event) {
-        search_id = $(event.target).parents("tr").prop("id").slice(1);
-        id = search_results[search_id]['id']
-        report_track(id);
-    })
-}
-
-function queue_listeners() {
-    $("table#queue input[type=checkbox]").change(update_queue_data);
-    $("table#queue select.rotation").change(update_queue_rotation);
-    $("table#queue button.queue-delay").click(log_timer);
-    $("button.queue-log").click(function (event) { 
-        log_queue($(event.target).parents(".queue-row"));
-    });
-    $("table#queue button.queue-delete").click(function (event) {
-        remove_from_queue($(event.target).parents(".queue-row"));
-    });
-}
-
-function ret_undefined() {
-    return;
-}
-
-
-function clear_timer(tableclass) {
+Trackman.prototype.clearTimer = function(tableclass) {
     if (typeof tableclass != "undefined") {
         if (typeof delaybutton != "undefined") {
             if (delaybutton.parents("table").prop("id") == tableclass) {
                 delaybutton.html(clockspan);
                 delaybutton.off("click");
-                delaybutton.click(log_timer);
+                delaybutton.bind('click', {'instance': this}, this.logTimer);
                 clearInterval(delayinterval);
             }
         }
@@ -479,115 +524,215 @@ function clear_timer(tableclass) {
         if (typeof delaybutton != "undefined") {
             delaybutton.html(clockspan);
             delaybutton.off("click");
-            delaybutton.click(log_timer);
+            delaybutton.bind('click', {'instance': this}, this.logTimer);
         }
     }
     delaybutton = ret_undefined();
     delayinterval = ret_undefined();
-}
+};
 
-function log_timer(event) {
-    clear_timer();
+Trackman.prototype.logTimer = function(ev) {
+    var inst = ev.data.instance;
+
+    inst.clearTimer();
     // Sometimes it triggers on the span itself
-    if ($(event.target).prop("tagName") == "SPAN") {
-        delaybutton = $(event.target).parent();
+    if($(ev.target).prop("tagName") == "SPAN") {
+        delaybutton = $(ev.target).parent();
     }
     else {
-        delaybutton = $(event.target);
+        delaybutton = $(ev.target);
     }
     delaybutton.find("span").remove();
     delaybutton.html(timerlength);
     var seconds = timerlength;
-    delayinterval = setInterval(function () {
+    delayinterval = setInterval(function() {
         seconds--;
-        if (seconds == 0) {
+        if(seconds == 0) {
             var button = delaybutton;
-            clear_timer();
+            inst.clearTimer();
             if (button.parents("table").prop("id") == "queue") {
-                log_queue(button.parents("tr.queue-row"));
+                inst.logQueued(button.parents("tr.queue-row"));
             }
             else {
-                log_search(button.parents("tr.search-row"));
+                inst.logSearch(button.parents("tr.search-row"));
             }
             return 0;
         }
         delaybutton.html(seconds);
     }, 1000);
-    // Replce the click listener with clear_timer
+
+    // Replace the click listener with clearTimer
     delaybutton.off("click");
-    delaybutton.click(function () {clear_timer()});
-}
+    delaybutton.click(function () {inst.clearTimer()});
+};
 
-function edit_track() {
-    var track = get_form_data();
-    if (!validate_track(track)) {
-        return false;
+Trackman.prototype.bindPlaylistListeners = function() {
+    $("button.playlist-delete").bind('click', {'instance': this},
+                                     function(ev) {
+        ev.data.instance.deleteTrack($(ev.target).parents(".playlist-row"));
+    });
+
+    // TODO: inline editing
+    $("table#playlist button.playlist-edit").bind('click', {'instance': this},
+                                                  this.openEditWindow);
+
+    $("table#playlist button.report").bind('click', {'instance': this},
+                                           function(ev) {
+        playlist_id = $(ev.target).parents("tr").prop("id").slice(1);
+        tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
+        id = tracklog['track_id'];
+        ev.data.instance.reportTrack(id);
+    });
+};
+// }}}
+
+// Search {{{
+Trackman.prototype.initSearch = function() {
+    this.searchResults = [];
+    this.bindSearchListeners();
+};
+
+Trackman.prototype.logSearch = function(element) {
+    var elem = element;
+    var id = element.prop("id").substring(1);
+    var track = this.searchResults[id];
+    function post_log(data) {
+        if(data['success'] == false) {
+            alert(data['error']);
+            return;
+        }
+        this.updatePlaylist();
+    };
+    this.logTrack(track, post_log);
+};
+
+Trackman.prototype.searchEdit = function(element) {
+    var id = element.prop("id").substring(1);
+    var track = this.searchResults[id];
+    $(".trackman-entry input#artist").val(track['artist']);
+    $(".trackman-entry input#title").val(track['title']);
+    $(".trackman-entry input#album").val(track['album']);
+    $(".trackman-entry input#rlabel").val(track['label']);
+    $(".trackman-entry input[name=request]").prop("checked", track['request']);
+    $(".trackman-entry input[name=vinyl]").prop("checked", track['vinyl']);
+    $(".trackman-entry input[name=new]").prop("checked", track['new']);
+    var track_rotation = 1;
+    if (typeof track['rotation'] != "undefined") {
+        track_rotation = track['rotation'];
     }
+    $(".trackman-entry select.rotation").val(track_rotation);
+};
+
+Trackman.prototype.searchHistory = function() {
+    var inst = this;
+
     $.ajax({
-        url: "/trackman/api/tracklog/edit/" + tracklog_id,
-        data: { "artist":   track['artist'],
-                "album":    track['album'],
-                "title":    track['title'],
-                "label":    track['label'],
-                "vinyl":    track['vinyl'],
-                "request":  track['request'],
-                "new":      track['new'],
-                "rotation": track['rotation']
+        url: "/trackman/api/search",
+        data: this.getFormData(),
+        dataType: "json",
+        success: function(data) {
+            if(data['success'] == false) { 
+                alert(data['error']);
+                return;
+            }
+            results = data['results'];
+            inst.searchResults = [];
+            for (var i = 0; i < results.length; i++) {
+                results[i]['origin'] = 1;
+                inst.searchResults.push(results[i])
+            }
+            inst.updateHistory();
         },
-        dataType: "json",
-        type: "POST",
-        success: complete_edit,
     });
-}
+};
 
-function complete_edit(data) {
-    if (data['success'] == false) {
-        alert(data['error']);
-        return;
+Trackman.prototype.updateHistory = function() {
+    this.clearTimer("search");
+    // Remove old history results
+    $("table#search tbody tr").remove();
+    // Add new results
+    for (var i = 0; i < this.searchResults.length; i++) {
+        var result = this.searchResults[i];
+        $("table#search tbody").append(searchrow.format(i, result['artist'], result['title'], result['album'], result['label']));
+        var row = $("table#search tbody tr#s" + i);
+        row.find(".request input").prop("checked", result['request']);
+        row.find(".vinyl input").prop("checked", result['vinyl']);
+        row.find(".new input").prop("checked", result['new']);
+        this.renderRotation(row.find("select.rotation"), result['rotation']);
+
     }
-    opener.update_playlist();
-    window.close();
-}
+    this.bindSearchListeners();
+};
 
-function set_autologout(button) {
-    formdata = {};
-    if (autologout_enabled) {
-        formdata['autologout'] = 'enable';
+Trackman.prototype.searchForm = function() {
+    var inst = this;
+    $(".trackman-entry input.form-control").each(function(index) {
+        if($(this).val().length >= 2) {
+            inst.searchHistory();
+            return false;
+        }
+    });
+};
+
+Trackman.prototype.bindSearchListeners = function() {
+    function updateSearchResults(ev) {
+        ev.data.instance.searchResults[$(ev.target).parents(".search-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
+    }
+    function updateSearchRotation(ev) {
+        ev.data.instance.searchResults[$(ev.target).parents(".search-row").prop("id").substring(1)]['rotation'] = $(ev.target).val();
+    }
+
+    $("button.search-queue").bind('click', {'instance': this}, function(ev) { 
+        ev.data.instance.addToQueue($(ev.target).parents(".search-row"));
+    });
+    $("button.search-log").bind('click', {'instance': this}, function(ev) {
+        ev.data.instance.logSearch($(ev.target).parents(".search-row"));
+    });
+    $("table#search input[type=checkbox]").bind('change', {'instance': this},
+                                                updateSearchResults);
+    $("table#search select.rotation").bind('change', {'instance': this},
+                                           updateSearchRotation);
+    $("table#search button.search-delay").bind('click', {'instance': this},
+                                               this.logTimer);
+
+    $("table#search button.report").bind('click', {'instance': this},
+                                         function(ev) {
+        search_id = $(ev.target).parents("tr").prop("id").slice(1);
+        id = this.searchResults[search_id]['id']
+        ev.data.instance.reportTrack(id);
+    });
+};
+// }}}
+
+Trackman.prototype.openEditWindow = function(ev) {
+    var inst = ev.data.instance;
+    var url;
+    var id = $(ev.target).parents(".playlist-row").prop("id");
+    if (id.substring(0,1) == "p") {
+        url = "/trackman/edit/" + id.slice(1);
     }
     else {
-        formdata['autologout'] = 'disable';
+        // TODO Set edit url for airlog
     }
-    $.ajax({
-        url: "/trackman/api/autologout",
-        data: formdata,
-        dataType: "json",
-        type: "POST",
-        success: update_autologout,
+    var edit_win = window.open(url, "editWindow", "height=600,width=1200");
+    edit_win = update_parent = inst.updatePlaylist();
+}
+
+Trackman.prototype.reportTrack = function(id) {
+    url = "/trackman/report/" + dj_id + "/" + id;
+    var report_win = window.open(url, "reportWindow", "height=600,width=1200");
+}
+
+Trackman.prototype.init = function() {
+    $('#trackman_logout_btn').click(function() {
+        var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
+        $("#trackman_logout_form input[name='email_playlist']").val(email);
+
+        $('#trackman_logout_form').submit();
     });
-}
 
-function update_autologout(data) {
-    if (data['success'] == false) {
-        alert(data['error']);
-        return;
-    }
-    if (data['autologout']) {
-        $("#trackman-autologout").removeClass("active");
-        autologout_enabled = false;
-    }
-    else {
-        $("#trackman-autologout").addClass("active");
-        autologout_enabled = true;
-    }
-}
-
-function search_form() {
-    $(".trackman-entry input.form-control").each(
-            function(index) {
-                if ($(this).val().length >= 2) {
-                    search_history();
-                    return false;
-                }
-            });
-}
-
+    this.initAutologout();
+    this.initQueue();
+    this.initPlaylist();
+    this.initSearch();
+};
