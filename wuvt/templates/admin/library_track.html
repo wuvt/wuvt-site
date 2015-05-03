@@ -5,8 +5,8 @@
 {% block content %}
 <ol class="breadcrumb">
     <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
-    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></li>
-    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.album }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Artist: {{ track.artist }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Album: {{ track.album }}</a></li>
     <li class="active">{{ track.title }}</li>
 </ol>
 
