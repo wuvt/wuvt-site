@@ -5,6 +5,7 @@ import urllib
 from datetime import timedelta
 
 from celery.decorators import periodic_task, task
+from celery.task.schedules import crontab
 
 from wuvt import app
 from wuvt import db
@@ -16,7 +17,7 @@ from wuvt.trackman.models import AirLog, DJSet, Track, TrackLog
 celery = make_celery(app)
 
 
-@periodic_task(run_every=timedelta(hours=24))
+@periodic_task(run_every=crontab(hour=3, minute=0))
 def deduplicate_tracks():
     dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
     for artist, title, album, label in dups:
