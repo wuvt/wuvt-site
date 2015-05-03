@@ -130,7 +130,10 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">Rotation</span>
-                        <select class="rotation form-control">{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}
+                        <select class="rotation form-control">
+                            {% for id, rotation in rotations.iteritems() -%}
+                            <option value="{{ id }}">{{ rotation }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -154,6 +157,7 @@
         </div>
     </div>
 </div>
+
 <!--
 <div class="control-panel">
     <div class="row psa-controls">
@@ -182,7 +186,9 @@
             Weather
         </button>
     </div>
-    -->
+</div>
+-->
+
 <div class="row row-table" style="height: 200px;">
     <table class='table table-condensed table-striped table-hover' id='queue'>
         <thead>
@@ -200,8 +206,9 @@
         </tbody>
     </table>
 </div>
+
 <div class="row row-table" style="height: 340px;">
-<h4>Search Results</h4>
+    <h4>Search Results</h4>
     <table class='table table-condensed table-striped table-hover' id="search">
         <thead>
             <tr>
@@ -229,9 +236,6 @@ var djset_id = {{ djset.id }};
 var dj_id = {{ djset.dj.id }};
 // Dictionary mapping rotation_ids to strings
 var rotations = {{ rotations|tojson|safe }};
-
-// TODO: remove this if possible
-var rotationoptions = "{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}"
 
 var t = new Trackman(csrf_token, djset_id, dj_id, rotations);
 t.init();

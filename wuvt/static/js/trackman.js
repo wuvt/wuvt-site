@@ -95,14 +95,15 @@ Trackman.prototype.clearForm = function(ev) {
 };
 
 Trackman.prototype.getFormData = function() {
-    return {"artist": $(".trackman-entry input#artist").val(),
-            "title": $(".trackman-entry input#title").val(),
-            "album": $(".trackman-entry input#album").val(),
-            "label": $(".trackman-entry input#rlabel").val(),
-            "request": $(".trackman-entry input[name=request]").prop("checked"),
-            "vinyl": $(".trackman-entry input[name=vinyl]").prop("checked"),
-            "new": $(".trackman-entry input[name=new]").prop("checked"),
-            "rotation": $(".trackman-entry select.rotation").val(),
+    return {
+        "artist": $(".trackman-entry input#artist").val(),
+        "title": $(".trackman-entry input#title").val(),
+        "album": $(".trackman-entry input#album").val(),
+        "label": $(".trackman-entry input#rlabel").val(),
+        "request": $(".trackman-entry input[name=request]").prop("checked"),
+        "vinyl": $(".trackman-entry input[name=vinyl]").prop("checked"),
+        "new": $(".trackman-entry input[name=new]").prop("checked"),
+        "rotation": $(".trackman-entry select.rotation").val(),
     };
 };
 
@@ -461,7 +462,13 @@ Trackman.prototype.updatePlaylist = function() {
 };
 
 Trackman.prototype.renderRotation = function(selement, id) {
-    $(selement).append(rotationoptions);
+    for(r in this.rotations) {
+        var opt = document.createElement('option');
+        $(opt).attr('value', r);
+        $(opt).text(this.rotations[r]);
+        $(selement).append(opt);
+    }
+
     if(typeof id != "undefined") {
         $(selement).val(id);
     }
@@ -648,10 +655,12 @@ Trackman.prototype.searchHistory = function() {
 
 Trackman.prototype.updateHistory = function() {
     this.clearTimer("search");
+
     // Remove old history results
     $("table#search tbody tr").remove();
+
     // Add new results
-    for (var i = 0; i < this.searchResults.length; i++) {
+    for(var i = 0; i < this.searchResults.length; i++) {
         var result = this.searchResults[i];
         $("table#search tbody").append(searchrow.format(i, result['artist'], result['title'], result['album'], result['label']));
         var row = $("table#search tbody tr#s" + i);
@@ -659,8 +668,8 @@ Trackman.prototype.updateHistory = function() {
         row.find(".vinyl input").prop("checked", result['vinyl']);
         row.find(".new input").prop("checked", result['new']);
         this.renderRotation(row.find("select.rotation"), result['rotation']);
-
     }
+
     this.bindSearchListeners();
 };
 
