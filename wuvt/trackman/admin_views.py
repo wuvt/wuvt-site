@@ -131,11 +131,9 @@ def automation_log():
 #############################################################################
 
 
-# Deprecated
-@bp.route('/log/<int:setid>', methods=['GET'])
+@bp.route('/log/<int:setid>')
 @local_only
 def log(setid):
-
     djset = DJSet.query.get_or_404(setid)
     if djset.dtend is not None:
         # This is a logged out DJSet
@@ -368,6 +366,11 @@ def edit_tracklog(tracklog_id):
             album != tracklog.track.album or label != tracklog.track.label:
         # This means we try to create a new track
         track = Track(title, artist, album, label)
+        if not track.validate():
+            return jsonify(success=False,
+                           error="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
+
+
         db.session.add(track)
         db.session.commit()
         tracklog.track_id = track.id
@@ -439,16 +442,20 @@ def edit_track(track_id):
 
     artist = request.form.get('artist', None)
     if artist is not None:
-        track.artist = artist
+        track.artist = artist.strip()
     album = request.form.get('album', None)
     if album is not None:
-        track.album = album
+        track.album = album.strip()
     title = request.form.get('title', None)
     if title is not None:
-        track.title = title
+        track.title = title.strip()
     label = request.form.get('label', None)
     if label is not None:
-        track.label = label
+        track.label = label.strip()
+
+    if not track.validate():
+        return jsonify(success=False,
+                       error="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
 
     db.session.commit()
     return jsonify(success=True)
@@ -459,13 +466,16 @@ def edit_track(track_id):
 @csrf.exempt
 @dj_interact
 def add_track():
-    # TODO: sanitation and verification
     title = request.form['title'].strip()
     album = request.form['album'].strip()
     artist = request.form['artist'].strip()
     label = request.form['label'].strip()
 
     track = Track(title, artist, album, label)
+    if not track.validate():
+        return jsonify(success=False,
+                       error="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
+
     db.session.add(track)
     db.session.commit()
     return jsonify(success=True, track_id=track.id)

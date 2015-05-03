@@ -1,5 +1,6 @@
 import datetime
 
+from wuvt import app
 from wuvt import db
 
 
@@ -180,6 +181,13 @@ class Track(db.Model):
         self.artist = artist
         self.album = album
         self.label = label
+
+    def validate(self):
+        if 'TRACKMAN_LABEL_BLACKLIST' in app.config and \
+                self.label in app.config['TRACKMAN_LABEL_BLACKLIST']:
+            return False
+
+        return True
 
     def serialize(self):
         return {

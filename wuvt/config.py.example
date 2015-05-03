@@ -4,6 +4,7 @@ SECRET_KEY = ''
 REDIS_URL = 'redis://localhost:6379'
 REDIS_CHANNEL = "wuvt"
 POSTS_PER_PAGE = 5
+ARTISTS_PER_PAGE = 500
 
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"
@@ -38,6 +39,7 @@ ICECAST_MOUNTS = ['/wuvt-hq.ogg', '/wuvt.ogg', '/wuvt-lb.ogg', '/wuvt-hq.aac',
                   '/wuvt.aac', '/wuvt-lb.aac']
 INTERNAL_IPS = ['192.168.0.0/16']
 TRACKMAN_NAME = "WUVT-FM"
+TRACKMAN_LABEL_BLACKLIST = ["No Idea", "same"]
 
 ARCHIVE_BASE_URL = "https://archive.org/details/WUVTFM_"
 

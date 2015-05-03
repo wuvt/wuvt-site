@@ -5,14 +5,21 @@
 {% block content %}
 <ol class="breadcrumb">
     <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
-    <li class="active">{{ artist }}</li>
+    <li class="active">Artist: {{ artist }}</li>
 </ol>
 
 <h1>Artist: {{ artist }}</h1>
 
 <ul>
-    {% for artist, album in albums -%}
-    <li><a href="{{ url_for('admin.library_artist_album', artist=artist, album=album) }}">{{ album }}</a></li>
+    {% for album, tracks in albums -%}
+    <li>
+        <strong>{{ album }}</strong>
+        <ul>
+            {% for track in tracks -%}
+            <li><a href="{{ url_for('admin.library_track', id=track.id, from='artist') }}">{{ track.title }}</a></li>
+            {% endfor -%}
+        </ul>
+    </li>
     {% endfor -%}
 </ul>
 {% endblock %}

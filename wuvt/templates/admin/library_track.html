@@ -5,8 +5,8 @@
 {% block content %}
 <ol class="breadcrumb">
     <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
-    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></li>
-    <li><a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}">{{ track.album }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Artist: {{ track.artist }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Album: {{ track.album }}</a></li>
     <li class="active">{{ track.title }}</li>
 </ol>
 
@@ -58,10 +58,22 @@
             Save Changes
         </button>
 
-        <a href="{{ url_for('admin.library_artist_album', artist=track.artist, album=track.album) }}" class="btn btn-default">
+        <a href="{{ url_for('admin.library_artist', artist=track.artist) }}" class="btn btn-default">
             <span class="glyphicon glyphicon-remove"></span>
             Cancel
         </a>
     </div>
 </form>
+
+{% if tracklogs %}
+<h2>Plays</h2>
+<ul>
+    {% for tracklog in tracklogs %}
+    {% if tracklog.djset_id > 0 -%}
+    <li><a href="{{ url_for('playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('admin.library_dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
+    {% endif -%}
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% endblock %}
