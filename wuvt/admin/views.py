@@ -12,7 +12,7 @@ from wuvt.auth import check_access
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
-from wuvt.trackman.models import Track, TrackLog
+from wuvt.trackman.models import DJ, Track, TrackLog
 
 from werkzeug import secure_filename
 import os
@@ -538,10 +538,29 @@ def users():
 @check_access('library')
 def library_index(page=1):
     artists = Track.query.with_entities(Track.artist).\
-        group_by(Track.artist).order_by(Track.artist).paginate(
-            page, app.config['ARTISTS_PER_PAGE'])
+        group_by(Track.artist).order_by(Track.artist).\
+        paginate(page, app.config['ARTISTS_PER_PAGE'])
     artists.items = [x[0] for x in artists.items]
     return render_template('admin/library_index.html', artists=artists)
+
+
+@bp.route('/library/djs')
+@check_access('library')
+def library_djs():
+    djs = DJ.query.order_by(DJ.airname).all()
+    return render_template('admin/library_djs.html', djs=djs)
+
+
+@bp.route('/library/dj/<int:id>')
+@bp.route('/library/dj/<int:id>/<int:page>')
+@check_access('library')
+def library_dj(id, page=1):
+    dj = DJ.query.get_or_404(id)
+    tracks = TrackLog.query.join(Track).\
+        filter(TrackLog.dj_id == id).\
+        group_by(TrackLog.track_id).order_by(Track.artist, Track.title).\
+        paginate(page, app.config['ARTISTS_PER_PAGE'])
+    return render_template('admin/library_dj.html', dj=dj, tracks=tracks)
 
 
 @bp.route('/library/artist')

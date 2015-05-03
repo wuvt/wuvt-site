@@ -9,24 +9,30 @@
 
 <h1>Library</h1>
 
-<ul>
-    {% for artist in artists.items -%}
-    <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
-    {% endfor -%}
+<ul class="nav nav-tabs">
+    <li role="presentation" class="active"><a href="{{ url_for('admin.library_index') }}">By Track</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_djs') }}">By DJ</a></li>
 </ul>
+
+<div class="panel-body">
+    <ul>
+        {% for artist in artists.items -%}
+        <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
+        {% endfor -%}
+    </ul>
+</div>
 
 {% if artists.has_prev or artists.has_next -%}
 <nav>
     <ul class="pager">
         {% if artists.has_prev -%}
-        <li class="previous"><a href="{{ url_for('admin.library_index', page=artists.prev_num) }}"><span aria-hidden="true">«</span> Previous</a></li>
+        <li class="previous"><a href="{{ url_for('admin.library_index', page=artists.prev_num) }}"><span aria-hidden="true">&larr;</span> Previous</a></li>
         {% endif -%}
 
         {% if artists.has_next -%}
-        <li class="next"><a href="{{ url_for('admin.library_index', page=artists.next_num) }}">Next <span aria-hidden="true">»</span></a></li>
+        <li class="next"><a href="{{ url_for('admin.library_index', page=artists.next_num) }}">Next <span aria-hidden="true">&rarr;</span></a></li>
         {% endif -%}
     </ul>
 </nav>
 {% endif -%}
-
 {% endblock %}
