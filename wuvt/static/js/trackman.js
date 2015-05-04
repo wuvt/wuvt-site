@@ -4,25 +4,6 @@ var clockspan = "<span class='glyphicon glyphicon-time'></span>";
 var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
 var playlistfalse = "";
 
-var playlistrow = "<tr class='playlist-row' id='p{0}'>" +
-"<td class='airtime'>{1}</td>" +
-"<td class='artist'>{2}</td>" +
-"<td class='title'>{3}</td>" +
-"<td class='album'>{4}</td>" +
-"<td class='rlabel'>{5}</td>" +
-"<td class='request'>{6}</td>" +
-"<td class='vinyl'>{7}</td>" +
-"<td class='new'>{8}</td>" +
-"<td class='rotation'>{9}</td>" +
-"<td>" +
-"<div class='btn-group playlist-actions' role='group'>" +
-"<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>" +
-"<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>" +
-"<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>" +
-"</div>" +
-"</td>" +
-"</tr>";
-
 var airlogrow = "<tr class='playlist-row airlog-row' id='a{0}'>" + 
 "<td class='airtime'>{1}</td>" +
 "<td class='logtype'>{2}</td>" + 
@@ -39,27 +20,11 @@ var searchrow = "<tr class='search-row' id='s{0}'>" +
 "<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
 "<td class='new'><input type='checkbox' name='new'></td>" +
 "<td class='rotation'><select class='rotation'></select></td>" +
-"<td><div class='btn-group search-actions'>" +
+"<td class='text-right'><div class='btn-group search-actions'>" +
 "<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>" +
 "<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>" +
 "<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
 "<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>" +
-"</div></td>" +
-"</tr>";
-
-var queuerow = "<tr class='queue-row' id='q{0}'>" + 
-"<td class='artist'>{1}</td>" + 
-"<td class='title'>{2}</td>" + 
-"<td class='album'>{3}</td>" + 
-"<td class='rlabel'>{4}</td>" + 
-"<td class='request'><input type='checkbox' name='request'></td>" + 
-"<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
-"<td class='new'><input type='checkbox' name='new'></td>" +
-"<td class='rotation'><select class='rotation'></select></td>" +
-"<td><div class='btn-group queue-actions'>" +
-"<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>" +
-"<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
-"<button class='btn btn-danger btn-sm queue-delete' type='button' title='Remove from the queue.'><span class='glyphicon glyphicon-remove'></span></button>" +
 "</div></td>" +
 "</tr>";
 
@@ -187,9 +152,8 @@ Trackman.prototype.initQueue = function() {
     }
     else {
         this.saveQueue();
+        this.bindQueueListeners();
     }
-
-    this.bindQueueListeners();
 };
 
 Trackman.prototype.loadQueue = function() {
@@ -210,22 +174,28 @@ Trackman.prototype.updateQueue = function() {
     $("table#queue tbody tr").remove()
     for (var i = 0; i < this.queue.length; i++) {
         var result = this.queue[i];
-        $("table#queue tbody").append(queuerow.format(i, result['artist'], result['title'], result['album'], result['label']));
-        var row = $("table#queue tbody tr#q" + i);
-        row.find(".request input").prop("checked", result['request']);
-        row.find(".vinyl input").prop("checked", result['vinyl']);
-        row.find(".new input").prop("checked", result['new']);
-        this.renderRotation(row.find("select.rotation"), result['rotation']);
+        $("table#queue tbody").append(this.renderTrackRow({
+            'id': i,
+            'artist': result['artist'],
+            'title': result['title'],
+            'album': result['album'],
+            'label': result['label'],
+            'request': result['request'],
+            'vinyl': result['vinyl'],
+            'new': result['new'],
+            'rotation': result['rotation'],
+        }, 'queue'));
     }
 
+    // FIXME: this appears to be getting bound twice!
     this.bindQueueListeners();
 };
 
 Trackman.prototype.bindQueueListeners = function() {
     // XXX: do we need to clear existing event listeners first?
-
+    
     // request/new/vinyl checkbox listener
-    $("table#queue input[type=checkbox]").bind('change', {'instance': this},
+    /*$("table#queue input[type=checkbox]").bind('change', {'instance': this},
                                                function(ev) {
         ev.data.instance.queue[$(ev.target).parents(".queue-row").prop("id").substring(1)][$(ev.target).prop("name")] = this.checked;
     });
@@ -234,7 +204,7 @@ Trackman.prototype.bindQueueListeners = function() {
     $("table#queue select.rotation").bind('change', {'instance': this},
                                           function(ev) {
         ev.data.instance.queue[$(ev.target).parents(".queue-row").prop("id").substring(1)]['rotation'] = $(ev.target).val();
-    });
+    });*/
 
     $("table#queue button.queue-delay").bind('click', {'instance': this},
                                              this.logTimer);
@@ -242,6 +212,9 @@ Trackman.prototype.bindQueueListeners = function() {
     $("button.queue-log").bind('click', {'instance': this}, function(ev) {
         ev.data.instance.logQueued($(ev.target).parents(".queue-row"));
     });
+
+    $("table#queue button.queue-edit").bind('click',
+        {'instance': this, 'context': 'queue'}, this.inlineEditTrack);
 
     $("table#queue button.queue-delete").bind('click', {'instance': this},
                                               function(ev) {
@@ -276,8 +249,8 @@ Trackman.prototype.logQueued = function(element) {
 
 Trackman.prototype.addToQueue = function(element) {
     var id = $(element).prop("id").substring(1);
-    var queue_entry = $.extend(true, {}, this.searchResults[id]);
-    this.queue.push(queue_entry);
+    var queueEntry = $.extend(true, {}, this.searchResults[id]);
+    this.queue.push(queueEntry);
     this.clearTimer();
 
     this.saveQueue();
@@ -308,9 +281,15 @@ Trackman.prototype.queueTrack = function(ev) {
 };
 
 Trackman.prototype.queueFromJson = function(data) {
-    // TODO
+    var track = JSON.unstringify(data);
+    if(!this.validateTrack(track)) {
+        return false;
+    }
+    track['origin'] = 0;
+    this.queue.push(track);
 
     this.saveQueue();
+    this.updateQueue();
 };
 // }}}
 
@@ -336,12 +315,13 @@ Trackman.prototype.initPlaylist = function() {
 Trackman.prototype.logTrack = function(track, callback) {
     $.ajax({
         url: "/trackman/api/tracklog",
-        data: { "track_id": track['id'],
-                "djset_id": djset_id,
-                "vinyl":    track['vinyl'],
-                "request":  track['request'],
-                "new":      track['new'],
-                "rotation": track['rotation']
+        data: {
+            "track_id": track['id'],
+            "djset_id": djset_id,
+            "vinyl":    track['vinyl'],
+            "request":  track['request'],
+            "new":      track['new'],
+            "rotation": track['rotation'],
         },
         context: this,
         type: "POST",
@@ -411,37 +391,6 @@ Trackman.prototype.deleteTrack = function(element) {
     }
 };
 
-Trackman.prototype.editTrack = function() {
-    function completeEdit(data) {
-        if (data['success'] == false) {
-            alert(data['error']);
-            return;
-        }
-        opener.update_playlist();
-        window.close();
-    }
-
-    var track = this.getFormData();
-    if(!this.validateTrack(track)) {
-        return false;
-    }
-    $.ajax({
-        url: "/trackman/api/tracklog/edit/" + tracklog_id,
-        data: { "artist":   track['artist'],
-                "album":    track['album'],
-                "title":    track['title'],
-                "label":    track['label'],
-                "vinyl":    track['vinyl'],
-                "request":  track['request'],
-                "new":      track['new'],
-                "rotation": track['rotation']
-        },
-        dataType: "json",
-        type: "POST",
-        success: completeEdit,
-    });
-};
-
 Trackman.prototype.updatePlaylist = function() {
     var inst = this;
     $.ajax({
@@ -464,7 +413,7 @@ Trackman.prototype.updatePlaylist = function() {
 Trackman.prototype.renderRotation = function(selement, id) {
     for(r in this.rotations) {
         var opt = document.createElement('option');
-        $(opt).attr('value', r);
+        $(opt).val(r);
         $(opt).text(this.rotations[r]);
         $(selement).append(opt);
     }
@@ -489,18 +438,19 @@ Trackman.prototype.renderPlaylist = function() {
                 return ("00" + value).slice(-2);
             }
             played = "{0}:{1}:{2}".format(pad(played.getHours()), pad(played.getMinutes()), pad(played.getSeconds()));
-            // Generate the rotation string
-            var rotation = rotations[p['rotation_id']];
-            if (typeof rotation == "undefined") {
-                rotation = rotations[1];
-            }
-            var request = p['request'] ? playlisttrue : playlistfalse;
-            var vinyl = p['vinyl'] ? playlisttrue : playlistfalse;
-            var new_track = p['new'] ? playlisttrue : playlistfalse;
-            var row = playlistrow.format(p['tracklog_id'], played,
-                    p['track']['artist'], p['track']['title'],
-                    p['track']['album'], p['track']['label'], request, vinyl,
-                    new_track, rotation);
+
+            var row = this.renderTrackRow({
+                'id': p['tracklog_id'],
+                'played': played,
+                'artist': p['track']['artist'],
+                'title': p['track']['title'],
+                'album': p['track']['album'],
+                'label': p['track']['label'],
+                'request': p['request'],
+                'vinyl': p['vinyl'],
+                'new': p['new'],
+                'rotation': p['rotation_id']
+            }, 'playlist');
             $("table#playlist tbody").append(row);
         }
     }
@@ -580,8 +530,8 @@ Trackman.prototype.bindPlaylistListeners = function() {
     });
 
     // TODO: inline editing
-    $("table#playlist button.playlist-edit").bind('click', {'instance': this},
-                                                  this.openEditWindow);
+    $("table#playlist button.playlist-edit").bind('click',
+        {'instance': this, 'context': 'playlist'}, this.inlineEditTrack);
 
     $("table#playlist button.report").bind('click', {'instance': this},
                                            function(ev) {
@@ -685,7 +635,7 @@ Trackman.prototype.searchForm = function() {
 
 Trackman.prototype.bindSearchListeners = function() {
     function updateSearchResults(ev) {
-        ev.data.instance.searchResults[$(ev.target).parents(".search-row").prop("id").substring(1)][$(event.target).prop("name")] = this.checked;
+        ev.data.instance.searchResults[$(ev.target).parents(".search-row").prop("id").substring(1)][$(ev.target).prop("name")] = this.checked;
     }
     function updateSearchRotation(ev) {
         ev.data.instance.searchResults[$(ev.target).parents(".search-row").prop("id").substring(1)]['rotation'] = $(ev.target).val();
@@ -707,30 +657,226 @@ Trackman.prototype.bindSearchListeners = function() {
     $("table#search button.report").bind('click', {'instance': this},
                                          function(ev) {
         search_id = $(ev.target).parents("tr").prop("id").slice(1);
-        id = this.searchResults[search_id]['id']
+        id = ev.data.instance.searchResults[search_id]['id']
         ev.data.instance.reportTrack(id);
     });
 };
 // }}}
 
-Trackman.prototype.openEditWindow = function(ev) {
-    var inst = ev.data.instance;
-    var url;
-    var id = $(ev.target).parents(".playlist-row").prop("id");
-    if (id.substring(0,1) == "p") {
-        url = "/trackman/edit/" + id.slice(1);
+Trackman.prototype.renderTrackRow = function(track, context) {
+    var row = $('<tr>');
+
+    if(context == 'playlist') {
+        row.addClass('playlist-row');
+        row.attr('id', 'p' + track['id']);
+
+        // playlist entries also get a timestamp
+        var td = $('<td>');
+        td.addClass('airtime');
+        td.text(track['played']);
+        row.append(td);
     }
     else {
-        // TODO Set edit url for airlog
+        row.addClass('queue-row');
+        row.attr('id', 'p' + track['id']);
     }
-    var edit_win = window.open(url, "editWindow", "height=600,width=1200");
-    edit_win = update_parent = inst.updatePlaylist();
-}
+
+    var cols = ['artist', 'title', 'album'];
+    for(c in cols) {
+        var td = $('<td>');
+        td.addClass(cols[c]);
+        td.text(track[cols[c]]);
+        row.append(td);
+    }
+
+    var td = $('<td>');
+    td.addClass('rlabel');
+    td.text(track['label']);
+    row.append(td);
+
+    // request/vinyl/new checkbxoes
+
+    var cols = ['request', 'vinyl', 'new'];
+    for(c in cols) {
+        var td = $('<td>');
+        td.addClass(cols[c]);
+        if(track[cols[c]] == true) {
+            td.html(playlisttrue);
+        }
+        row.append(td);
+    }
+
+    // rotation
+
+    var rotation_id = track['rotation'];
+    if(rotation_id == null) {
+        rotation_id = 1;
+    }
+
+    var td = $('<td>');
+    td.addClass('rotation');
+    td.attr('data-rotation-id', rotation_id);
+    td.text(this.rotations[rotation_id]);
+    row.append(td);
+
+    // buttons
+
+    var td = $('<td>');
+    td.addClass('text-right');
+    var group = $('<div>');
+    group.addClass('btn-group');
+    td.append(group);
+    row.append(td);
+
+    if(context == 'playlist') {
+        group.addClass('playlist-actions');
+
+        var btn1 = $("<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
+        group.append(btn1);
+        var btn2 = $("<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>");
+        group.append(btn2);
+        var btn3 = $("<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>");
+        group.append(btn3);
+    }
+    else if(context == 'queue') {
+        group.addClass('queue-actions');
+
+        var btn1 = $("<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>");
+        group.append(btn1);
+        var btn2 = $("<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
+        group.append(btn2);
+        var btn3 = $("<button class='btn btn-default btn-sm queue-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
+        group.append(btn3);
+        var btn4 = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Remove from the queue.'><span class='glyphicon glyphicon-remove'></span></button>");
+        group.append(btn4);
+    }
+
+    return row;
+};
+
+Trackman.prototype.inlineEditTrack = function(ev) {
+    var inst = ev.data.instance;
+    var context = ev.data.context;
+    var row = $(ev.target).parents('tr');
+    var id = row.prop("id").slice(1);
+
+    function serializeTrackRow() {
+        return {
+            'artist': $('.artist input', row).val(),
+            'title': $('.title input', row).val(),
+            'album': $('.album input', row).val(),
+            'label': $('.rlabel input', row).val(),
+            'request': $('.request input', row).prop('checked'),
+            'vinyl': $('.vinyl input', row).prop('checked'),
+            'new': $('.new input', row).prop('checked'),
+            'rotation': $('.rotation select', row).val(),
+        };
+    }
+
+    if(context == 'playlist') {
+        if(row.hasClass('editing')) {
+            // XXX: artist, title, album, label will require special handling
+            var track = serializeTrackRow();
+            if(!inst.validateTrack(track)) {
+                // TODO: provide some UI indication that validation failed
+                return false;
+            }
+
+            $.ajax({
+                url: "/trackman/api/tracklog/edit/" + id,
+                data: {
+                    "artist":   track['artist'],
+                    "album":    track['album'],
+                    "title":    track['title'],
+                    "label":    track['label'],
+                    "vinyl":    track['vinyl'],
+                    "request":  track['request'],
+                    "new":      track['new'],
+                    "rotation": track['rotation'],
+                },
+                dataType: "json",
+                type: "POST",
+                success: function(data) {
+                    if(data['success'] == false) {
+                        alert(data['error']);
+                        return;
+                    }
+
+                    inst.updatePlaylist();
+                },
+            });
+            return;
+        }
+
+        $('button.playlist-edit', row).addClass('btn-primary');
+        $('button.playlist-edit', row).attr('title', "Save this track");
+        $('button.playlist-edit span.glyphicon', row).removeClass(
+            'glyphicon-pencil');
+        $('button.playlist-edit span.glyphicon', row).addClass('glyphicon-ok');
+
+        $('button.report', row).attr('disabled', 'disabled');
+        $('button.playlist-delete', row).attr('disabled', 'disabled');
+    }
+    else if(context == 'queue') {
+        if(row.hasClass('editing')) {
+            var track = serializeTrackRow();
+            if(!inst.validateTrack(track)) {
+                // TODO: provide some UI indication that validation failed
+                return false;
+            }
+
+            $.extend(inst.queue[id], serializeTrackRow());
+
+            inst.saveQueue();
+            inst.updateQueue();
+            return;
+        }
+
+        $('button.queue-edit', row).addClass('btn-primary');
+        $('button.queue-edit', row).attr('title', "Save this track");
+        $('button.queue-edit span.glyphicon', row).removeClass(
+            'glyphicon-pencil');
+        $('button.queue-edit span.glyphicon', row).addClass('glyphicon-ok');
+
+        $('button.queue-log', row).attr('disabled', 'disabled');
+        $('button.queue-delay', row).attr('disabled', 'disabled');
+        $('button.queue-delete', row).attr('disabled', 'disabled');
+    }
+
+    function transformToInput(obj) {
+        var input = $('<input>');
+        input.attr('type', 'input');
+        input.addClass('form-control');
+        input.addClass('input-sm');
+        input.val($(obj).text());
+        $(obj).html(input);
+    }
+
+    function transformToCheckbox(obj) {
+        var input = $('<input>');
+        input.attr('type', 'checkbox');
+        input.attr('checked', $(obj).html().length > 0);
+        $(obj).html(input);
+    }
+
+    row.addClass('editing');
+    transformToInput($('.artist', row));
+    transformToInput($('.title', row));
+    transformToInput($('.album', row));
+    transformToInput($('.rlabel', row));
+    transformToCheckbox($('.request', row));
+    transformToCheckbox($('.vinyl', row));
+    transformToCheckbox($('.new', row));
+
+    var newSelect = $('<select>');
+    inst.renderRotation(newSelect, $('.rotation', row).attr('data-rotation-id'));
+    $('.rotation', row).html(newSelect);
+};
 
 Trackman.prototype.reportTrack = function(id) {
     url = "/trackman/report/" + dj_id + "/" + id;
     var report_win = window.open(url, "reportWindow", "height=600,width=1200");
-}
+};
 
 Trackman.prototype.init = function() {
     $('#trackman_logout_btn').click(function() {
