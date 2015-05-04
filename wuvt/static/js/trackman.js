@@ -10,7 +10,6 @@ var airlogrow = "<tr class='playlist-row airlog-row' id='a{0}'>" +
 "<td class='logid'>{3}</td>" +
 "</tr>";
 
-
 var searchrow = "<tr class='search-row' id='s{0}'>" + 
 "<td class='artist'>{1}</td>" + 
 "<td class='title'>{2}</td>" + 
@@ -187,25 +186,10 @@ Trackman.prototype.updateQueue = function() {
         }, 'queue'));
     }
 
-    // FIXME: this appears to be getting bound twice!
     this.bindQueueListeners();
 };
 
 Trackman.prototype.bindQueueListeners = function() {
-    // XXX: do we need to clear existing event listeners first?
-    
-    // request/new/vinyl checkbox listener
-    /*$("table#queue input[type=checkbox]").bind('change', {'instance': this},
-                                               function(ev) {
-        ev.data.instance.queue[$(ev.target).parents(".queue-row").prop("id").substring(1)][$(ev.target).prop("name")] = this.checked;
-    });
-
-    // rotation listener
-    $("table#queue select.rotation").bind('change', {'instance': this},
-                                          function(ev) {
-        ev.data.instance.queue[$(ev.target).parents(".queue-row").prop("id").substring(1)]['rotation'] = $(ev.target).val();
-    });*/
-
     $("table#queue button.queue-delay").bind('click', {'instance': this},
                                              this.logTimer);
 
@@ -529,7 +513,6 @@ Trackman.prototype.bindPlaylistListeners = function() {
         ev.data.instance.deleteTrack($(ev.target).parents(".playlist-row"));
     });
 
-    // TODO: inline editing
     $("table#playlist button.playlist-edit").bind('click',
         {'instance': this, 'context': 'playlist'}, this.inlineEditTrack);
 
@@ -694,7 +677,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
     td.text(track['label']);
     row.append(td);
 
-    // request/vinyl/new checkbxoes
+    // request/vinyl/new checkboxes
 
     var cols = ['request', 'vinyl', 'new'];
     for(c in cols) {
@@ -775,10 +758,9 @@ Trackman.prototype.inlineEditTrack = function(ev) {
 
     if(context == 'playlist') {
         if(row.hasClass('editing')) {
-            // XXX: artist, title, album, label will require special handling
             var track = serializeTrackRow();
             if(!inst.validateTrack(track)) {
-                // TODO: provide some UI indication that validation failed
+                row.addClass('danger');
                 return false;
             }
 
@@ -821,7 +803,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         if(row.hasClass('editing')) {
             var track = serializeTrackRow();
             if(!inst.validateTrack(track)) {
-                // TODO: provide some UI indication that validation failed
+                row.addClass('danger');
                 return false;
             }
 
@@ -848,7 +830,10 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         input.attr('type', 'input');
         input.addClass('form-control');
         input.addClass('input-sm');
+
+        input.attr('placeholder', $(obj).text());
         input.val($(obj).text());
+
         $(obj).html(input);
     }
 
