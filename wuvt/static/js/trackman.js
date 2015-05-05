@@ -730,7 +730,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.append(btn2);
         var btn3 = $("<button class='btn btn-default btn-sm queue-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
         group.append(btn3);
-        var btn4 = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Remove from the queue.'><span class='glyphicon glyphicon-remove'></span></button>");
+        var btn4 = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Delete this track from queue'><span class='glyphicon glyphicon-trash'></span></button>");
         group.append(btn4);
     }
 
@@ -754,6 +754,33 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             'new': $('.new input', row).prop('checked'),
             'rotation': $('.rotation select', row).val(),
         };
+    }
+
+    function startEditBtn(editBtn, cancelCallback) {
+        editBtn.removeClass('btn-default');
+        editBtn.addClass('btn-success');
+        editBtn.attr('title', "Save this track");
+        $('span.glyphicon', editBtn).removeClass('glyphicon-pencil');
+        $('span.glyphicon', editBtn).addClass('glyphicon-ok');
+
+        var cancelBtn = $('<button>');
+        cancelBtn.addClass('btn btn-default btn-sm cancel-edit');
+        var cancelGlyph = $('<span>');
+        cancelGlyph.addClass('glyphicon glyphicon-remove');
+        cancelBtn.html(cancelGlyph);
+        editBtn.after(cancelBtn);
+
+        cancelBtn.bind('click', {'instance': inst}, cancelCallback);
+    }
+
+    function finishEditBtn(editBtn, cancelBtn) {
+        editBtn.removeClass('btn-success');
+        editBtn.addClass('btn-default');
+        editBtn.attr('title', "Edit this track");
+        $('span.glyphicon', editBtn).removeClass('glyphicon-ok');
+        $('span.glyphicon', editBtn).addClass('glyphicon-pencil');
+
+        cancelBtn.remove();
     }
 
     if(context == 'playlist') {
@@ -790,12 +817,9 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             return;
         }
 
-        $('button.playlist-edit', row).addClass('btn-primary');
-        $('button.playlist-edit', row).attr('title', "Save this track");
-        $('button.playlist-edit span.glyphicon', row).removeClass(
-            'glyphicon-pencil');
-        $('button.playlist-edit span.glyphicon', row).addClass('glyphicon-ok');
-
+        startEditBtn($('button.playlist-edit', row), function(ev) {
+            ev.data.instance.updatePlaylist();
+        });
         $('button.report', row).attr('disabled', 'disabled');
         $('button.playlist-delete', row).attr('disabled', 'disabled');
     }
@@ -814,12 +838,9 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             return;
         }
 
-        $('button.queue-edit', row).addClass('btn-primary');
-        $('button.queue-edit', row).attr('title', "Save this track");
-        $('button.queue-edit span.glyphicon', row).removeClass(
-            'glyphicon-pencil');
-        $('button.queue-edit span.glyphicon', row).addClass('glyphicon-ok');
-
+        startEditBtn($('button.queue-edit', row), function(ev) {
+            ev.data.instance.updateQueue();
+        });
         $('button.queue-log', row).attr('disabled', 'disabled');
         $('button.queue-delay', row).attr('disabled', 'disabled');
         $('button.queue-delete', row).attr('disabled', 'disabled');
