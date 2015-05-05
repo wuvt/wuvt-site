@@ -128,7 +128,6 @@ Trackman.prototype.initQueue = function() {
     }
     else {
         this.saveQueue();
-        this.bindQueueListeners();
     }
 };
 
@@ -145,9 +144,7 @@ Trackman.prototype.saveQueue = function() {
 Trackman.prototype.updateQueue = function() {
     this.clearTimer("queue");
 
-    // FIXME: this should not replace the entire existing queue; this will
-    // require modifications to bindQueueListeners as well
-    $("table#queue tbody tr").remove()
+    $("table#queue tbody tr").remove();
     for (var i = 0; i < this.queue.length; i++) {
         var result = this.queue[i];
         $("table#queue tbody").append(this.renderTrackRow({
@@ -162,25 +159,6 @@ Trackman.prototype.updateQueue = function() {
             'rotation': result['rotation'],
         }, 'queue'));
     }
-
-    this.bindQueueListeners();
-};
-
-Trackman.prototype.bindQueueListeners = function() {
-    $("table#queue button.queue-delay").bind('click', {'instance': this},
-                                             this.logTimer);
-
-    $("button.queue-log").bind('click', {'instance': this}, function(ev) {
-        ev.data.instance.logQueued($(ev.target).parents(".queue-row"));
-    });
-
-    $("table#queue button.queue-edit").bind('click',
-        {'instance': this, 'context': 'queue'}, this.inlineEditTrack);
-
-    $("table#queue button.queue-delete").bind('click', {'instance': this},
-                                              function(ev) {
-        ev.data.instance.removeFromQueue($(ev.target).parents(".queue-row"));
-    });
 };
 
 Trackman.prototype.logQueued = function(element) {
@@ -269,7 +247,6 @@ Trackman.prototype.initPlaylist = function() {
     $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
     $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
 
-    this.bindPlaylistListeners();
     this.updatePlaylist();
 };
 
@@ -393,16 +370,9 @@ Trackman.prototype.renderPlaylist = function() {
         if ('logid' in p) {
         }
         else {
-            // Generate a date string
-            var played = new Date(p['played']);
-            function pad(value) {
-                return ("00" + value).slice(-2);
-            }
-            played = "{0}:{1}:{2}".format(pad(played.getHours()), pad(played.getMinutes()), pad(played.getSeconds()));
-
             var row = this.renderTrackRow({
                 'id': p['tracklog_id'],
-                'played': played,
+                'played': p['played'],
                 'artist': p['track']['artist'],
                 'title': p['track']['title'],
                 'album': p['track']['album'],
@@ -416,7 +386,6 @@ Trackman.prototype.renderPlaylist = function() {
         }
     }
     if (playlist.length > 0) {
-        this.bindPlaylistListeners();
         // Scroll to bottom
         var pos = $("table#playlist tbody tr:last").position();
         var scrollwindow = $("table#playlist").parent();
@@ -482,24 +451,6 @@ Trackman.prototype.logTimer = function(ev) {
     // Replace the click listener with clearTimer
     delaybutton.off("click");
     delaybutton.click(function () {inst.clearTimer()});
-};
-
-Trackman.prototype.bindPlaylistListeners = function() {
-    $("button.playlist-delete").bind('click', {'instance': this},
-                                     function(ev) {
-        ev.data.instance.deleteTrack($(ev.target).parents(".playlist-row"));
-    });
-
-    $("table#playlist button.playlist-edit").bind('click',
-        {'instance': this, 'context': 'playlist'}, this.inlineEditTrack);
-
-    $("table#playlist button.report").bind('click', {'instance': this},
-                                           function(ev) {
-        playlist_id = $(ev.target).parents("tr").prop("id").slice(1);
-        tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
-        id = tracklog['track_id'];
-        ev.data.instance.reportTrack(id);
-    });
 };
 // }}}
 
@@ -724,7 +675,15 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         // playlist entries also get a timestamp
         var td = $('<td>');
         td.addClass('airtime');
-        td.text(track['played']);
+
+        // Generate a date string
+        var played = new Date(track['played']);
+        function pad(value) {
+            return ("00" + value).slice(-2);
+        }
+        td.text("{0}:{1}:{2}".format(pad(played.getHours()),
+                                     pad(played.getMinutes()),
+                                     pad(played.getSeconds())));
         row.append(td);
     }
     else {
@@ -788,24 +747,49 @@ Trackman.prototype.renderTrackRow = function(track, context) {
     if(context == 'playlist') {
         group.addClass('playlist-actions');
 
-        var btn1 = $("<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
-        group.append(btn1);
-        var btn2 = $("<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>");
-        group.append(btn2);
-        var btn3 = $("<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>");
-        group.append(btn3);
+        var editBtn = $("<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
+        editBtn.bind('click', {'instance': this, 'context': 'playlist'},
+                     this.inlineEditTrack);
+        group.append(editBtn);
+
+        var reportBtn = $("<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>");
+        reportBtn.bind('click', {'instance': this}, function(ev) {
+            playlist_id = $(ev.target).parents("tr").prop("id").slice(1);
+            tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
+            id = tracklog['track_id'];
+            ev.data.instance.reportTrack(id);
+        });
+        group.append(reportBtn);
+
+        var deleteBtn = $("<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>");
+        deleteBtn.bind('click', {'instance': this}, function(ev) {
+            ev.data.instance.deleteTrack(row);
+        });
+        group.append(deleteBtn);
     }
     else if(context == 'queue') {
         group.addClass('queue-actions');
 
-        var btn1 = $("<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>");
-        group.append(btn1);
-        var btn2 = $("<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
-        group.append(btn2);
-        var btn3 = $("<button class='btn btn-default btn-sm queue-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
-        group.append(btn3);
-        var btn4 = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Delete this track from queue'><span class='glyphicon glyphicon-trash'></span></button>");
-        group.append(btn4);
+        var logBtn = $("<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>");
+        logBtn.bind('click', {'instance': this}, function(ev) {
+            ev.data.instance.logQueued(row);
+        });
+        group.append(logBtn);
+
+        var logDelayBtn = $("<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
+        logDelayBtn.bind('click', {'instance': this}, this.logTimer);
+        group.append(logDelayBtn);
+
+        var editBtn = $("<button class='btn btn-default btn-sm queue-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
+        editBtn.bind('click', {'instance': this, 'context': 'queue'},
+                     this.inlineEditTrack);
+        group.append(editBtn);
+
+        var deleteBtn = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Delete this track from queue'><span class='glyphicon glyphicon-trash'></span></button>");
+        deleteBtn.bind('click', {'instance': this}, function(ev) {
+            ev.data.instance.removeFromQueue(row);
+        });
+        group.append(deleteBtn);
     }
 
     return row;
@@ -844,17 +828,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         cancelBtn.html(cancelGlyph);
         editBtn.after(cancelBtn);
 
-        cancelBtn.bind('click', {'instance': inst}, cancelCallback);
-    }
-
-    function finishEditBtn(editBtn, cancelBtn) {
-        editBtn.removeClass('btn-success');
-        editBtn.addClass('btn-default');
-        editBtn.attr('title', "Edit this track");
-        $('span.glyphicon', editBtn).removeClass('glyphicon-ok');
-        $('span.glyphicon', editBtn).addClass('glyphicon-pencil');
-
-        cancelBtn.remove();
+        cancelBtn.bind('click', {'instance': inst, 'id': id}, cancelCallback);
     }
 
     if(context == 'playlist') {
@@ -899,21 +873,27 @@ Trackman.prototype.inlineEditTrack = function(ev) {
     }
     else if(context == 'queue') {
         if(row.hasClass('editing')) {
+            inst.clearTimer('queue');
+
             var track = serializeTrackRow();
             if(!inst.validateTrack(track)) {
                 row.addClass('danger');
                 return false;
             }
 
-            $.extend(inst.queue[id], serializeTrackRow());
+            $.extend(inst.queue[id], track);
 
+            track['id'] = id;
+            row.replaceWith(inst.renderTrackRow(track, 'queue'));
             inst.saveQueue();
-            inst.updateQueue();
             return;
         }
 
         startEditBtn($('button.queue-edit', row), function(ev) {
-            ev.data.instance.updateQueue();
+            var inst = ev.data.instance;
+            var track = inst.queue[id];
+            track['id'] = id;
+            row.replaceWith(inst.renderTrackRow(track, 'queue'));
         });
         $('button.queue-log', row).attr('disabled', 'disabled');
         $('button.queue-delay', row).attr('disabled', 'disabled');
