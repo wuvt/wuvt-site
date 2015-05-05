@@ -4,29 +4,6 @@ var clockspan = "<span class='glyphicon glyphicon-time'></span>";
 var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
 var playlistfalse = "";
 
-var airlogrow = "<tr class='playlist-row airlog-row' id='a{0}'>" + 
-"<td class='airtime'>{1}</td>" +
-"<td class='logtype'>{2}</td>" + 
-"<td class='logid'>{3}</td>" +
-"</tr>";
-
-var searchrow = "<tr class='search-row' id='s{0}'>" + 
-"<td class='artist'>{1}</td>" + 
-"<td class='title'>{2}</td>" + 
-"<td class='album'>{3}</td>" + 
-"<td class='rlabel'>{4}</td>" + 
-"<td class='request'><input type='checkbox' name='request'></td>" + 
-"<td class='vinyl'><input type='checkbox' name='vinyl'></td>" + 
-"<td class='new'><input type='checkbox' name='new'></td>" +
-"<td class='rotation'><select class='rotation'></select></td>" +
-"<td class='text-right'><div class='btn-group search-actions'>" +
-"<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>" +
-"<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>" +
-"<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>" +
-"<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>" +
-"</div></td>" +
-"</tr>";
-
 // The data is the same origin indicates 0 if newly entered, 1 if from history
 var delayinterval;
 var delaybutton;
@@ -595,7 +572,7 @@ Trackman.prototype.updateHistory = function() {
     // Add new results
     for(var i = 0; i < this.searchResults.length; i++) {
         var result = this.searchResults[i];
-        $("table#search tbody").append(searchrow.format(i, result['artist'], result['title'], result['album'], result['label']));
+        $("table#search tbody").append(this.renderSearchRow(i, result));
         var row = $("table#search tbody tr#s" + i);
         row.find(".request input").prop("checked", result['request']);
         row.find(".vinyl input").prop("checked", result['vinyl']);
@@ -646,6 +623,97 @@ Trackman.prototype.bindSearchListeners = function() {
 };
 // }}}
 
+Trackman.prototype.renderSearchRow = function(i, track) {
+    var row = $('<tr>');
+    row.addClass('search-row');
+    row.attr('id', 's' + i);
+
+    // main text entries
+
+    var cols = ['artist', 'title', 'album', 'rlabel'];
+    for(c in cols) {
+        var td = $('<td>');
+
+        var colName = cols[c];
+        td.addClass(colName);
+
+        if(colName == 'rlabel') {
+            td.text(track['label']);
+        }
+        else {
+            td.text(track[colName]);
+        }
+
+        row.append(td);
+    }
+
+    var td = $('<td>');
+    td.addClass('request');
+    td.html("<input type='checkbox' name='request'/>");
+    row.append(td);
+
+    var td = $('<td>');
+    td.addClass('vinyl');
+    td.html("<input type='checkbox' name='vinyl'/>");
+    row.append(td);
+
+    var td = $('<td>');
+    td.addClass('new');
+    td.html("<input type='checkbox' name='new'/>");
+    row.append(td);
+
+    var td = $('<td>');
+    td.addClass('rotation');
+    var newSelect = $('<select>');
+    this.renderRotation(newSelect);
+    td.html(newSelect);
+    row.append(td);
+
+    var td = $('<td>');
+    var group = $('<div>');
+    group.addClass('btn-group search-actions');
+
+    var btn1 = $("<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>");
+    group.append(btn1);
+    
+    var btn2 = $("<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>");
+    group.append(btn2);
+
+    var btn3 = $("<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
+    group.append(btn3);
+
+    var btn4 = $("<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>");
+    group.append(btn4);
+
+    td.append(group);
+    row.append(td);
+
+    return row;
+};
+
+Trackman.prototype.renderAirlogRow = function(airlog) {
+    var row = $('<tr>');
+    row.addClass('playlist-row airlog-row');
+    row.attr('id', 'a' + airlog['id']);
+
+    var td = $('<td>');
+    td.addClass('airtime');
+    td.text(airlog['played']);
+    row.append(td);
+
+    var td = $('<td>');
+    td.addClass('logtype');
+    td.text(airlog['logtype']);
+    row.append(td);
+
+    var td = $('<td>');
+    td.addClass('logid');
+    td.text(airlog['logid']);
+    row.append(td);
+
+    return row;
+}
+
 Trackman.prototype.renderTrackRow = function(track, context) {
     var row = $('<tr>');
 
@@ -664,18 +732,24 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         row.attr('id', 'p' + track['id']);
     }
 
-    var cols = ['artist', 'title', 'album'];
+    // main text entries
+
+    var cols = ['artist', 'title', 'album', 'rlabel'];
     for(c in cols) {
         var td = $('<td>');
-        td.addClass(cols[c]);
-        td.text(track[cols[c]]);
+
+        var colName = cols[c];
+        td.addClass(colName);
+
+        if(colName == 'rlabel') {
+            td.text(track['label']);
+        }
+        else {
+            td.text(track[colName]);
+        }
+
         row.append(td);
     }
-
-    var td = $('<td>');
-    td.addClass('rlabel');
-    td.text(track['label']);
-    row.append(td);
 
     // request/vinyl/new checkboxes
 
