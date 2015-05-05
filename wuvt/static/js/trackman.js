@@ -906,7 +906,6 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         input.addClass('form-control');
         input.addClass('input-sm');
 
-        input.attr('placeholder', $(obj).text());
         input.val($(obj).text());
 
         $(obj).html(input);
