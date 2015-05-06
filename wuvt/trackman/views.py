@@ -87,15 +87,19 @@ def latest_track():
 @app.route('/playlists/latest_track_clean')
 @app.route('/playlists/latest_track_clean.php')
 def latest_track_clean():
-    if request.wants_json():
-        return jsonify(trackinfo())
-
     naughty_word_re = re.compile(
         r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole',
         re.IGNORECASE)
-    output = u"{artist} - {title} [DJ: {dj}]".format(**trackinfo())
-    output = naughty_word_re.sub(u'****', output)
 
+    track = trackinfo()
+    for k, v in track.items():
+        if type(v) == str or type(v) == unicode:
+            track[k] = naughty_word_re.sub(u'****', v)
+
+    if request.wants_json():
+        return jsonify(track)
+
+    output = u"{artist} - {title} [DJ: {dj}]".format(**track)
     return Response(output, mimetype="text/plain")
 
 
