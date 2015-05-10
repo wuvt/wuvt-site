@@ -20,6 +20,11 @@
         <h2>Charts</h2>
     </header>
 
-    <p>You can view the <a href="{{ url_for('charts_tracks_dj', dj_id=dj.id) }}">top tracks for this DJ</a>.</p>
+    <ul>
+        <li><a href="{{ url_for('charts_albums_dj', dj_id=dj.id) }}">Top albums for this DJ</a></li>
+        <li><a href="{{ url_for('charts_artists_dj', dj_id=dj.id) }}">Top artists for this DJ</a></li>
+        <li><a href="{{ url_for('charts_tracks_dj', dj_id=dj.id) }}">Top tracks for this DJ</a></li>
+
+    </ul>
 </section>
 {% endblock %}

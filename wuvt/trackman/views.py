@@ -257,6 +257,24 @@ def charts_albums(period=None):
                            results=results)
 
 
+@app.route('/playlists/charts/albums/dj/<int:dj_id>')
+def charts_albums_dj(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    results = Track.query.\
+        with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
+        group_by(Track.artist, Track.album).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_albums_dj.html', dj=dj, results=results)
+
+
 @app.route('/playlists/charts/artists')
 @app.route('/playlists/charts/artists/<string:period>')
 def charts_artists(period=None):
@@ -274,6 +292,24 @@ def charts_artists(period=None):
 
     return render_template('chart_artists.html', start=start, end=end,
                            results=results)
+
+
+@app.route('/playlists/charts/artists/dj/<int:dj_id>')
+def charts_artists_dj(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    results = Track.query.\
+        with_entities(Track.artist, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
+        group_by(Track.artist).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_artists_dj.html', dj=dj, results=results)
 
 
 @app.route('/playlists/charts/tracks')
@@ -312,7 +348,6 @@ def charts_tracks_dj(dj_id):
         })
 
     return render_template('chart_tracks_dj.html', dj=dj, results=results)
-
 
 
 @app.route('/playlists/charts/dj/spins')
