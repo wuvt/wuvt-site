@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ dj.airname }} - Top Albums by DJ - Charts - {{ super() }}{% endblock %}
+{% block content %}
+<section>
+<header>
+    <h2>Charts: Top Albums by DJ</h2>
+    <h3><a href="{{ url_for('playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></h3>
+</header>
+
+<table class="tracklist chart">
+    <thead>
+        <th>Artist</th>
+        <th>Album</th>
+        <th class="text-right">Plays</th>
+    </thead>
+    <tbody>
+        {% for artist, album, plays in results %}
+        <tr>
+            <td>{{ artist }}</td>
+            <td>{{ album }}</td>
+            <td class="text-right">{{ plays }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</section>
+{% endblock %}
