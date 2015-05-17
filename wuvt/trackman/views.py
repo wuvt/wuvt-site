@@ -19,7 +19,8 @@ def trackinfo():
     track = TrackLog.query.order_by(db.desc(TrackLog.played)).first()
     if not track:
         return {'artist': "", 'title': "", 'album': "", 'label': "", 'dj': "",
-                'description': app.config['STATION_NAME'], 'contact': app.config['STATION_URL']}
+                'dj_id': 0, 'description': app.config['STATION_NAME'],
+                'contact': app.config['STATION_URL']}
 
     data = track.track.serialize()
     data['listeners'] = track.listeners
