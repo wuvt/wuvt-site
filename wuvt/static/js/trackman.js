@@ -335,6 +335,7 @@ Trackman.prototype.updatePlaylist = function() {
     this.fetchPlaylist(function(){
         inst.renderPlaylist();
     });
+    $('#artist').focus();
 };
 
 Trackman.prototype.fetchPlaylist = function(callback) {
@@ -370,7 +371,7 @@ Trackman.prototype.renderRotation = function(selement, id) {
     }
 };
 
-Trackman.prototype.renderPlaylist = function() {
+Trackman.prototype.renderPlaylist = function(renderRows) {
     // Empty the old playlist
     $("table#playlist tbody tr").remove();
     for(var i = 0; i < playlist.length; i++) {
@@ -381,6 +382,7 @@ Trackman.prototype.renderPlaylist = function() {
         }
         else {
             var row = this.renderPlaylistRow(p);
+            row.attr('data-offset', i);
         }
         $("table#playlist tbody").append(row);
     }
@@ -875,8 +877,10 @@ Trackman.prototype.inlineEditTrack = function(ev) {
                     }
 
                     inst.fetchPlaylist(function() {
-                        var offset = parseInt(id) - 1;
-                        row.replaceWith(inst.renderPlaylistRow(inst.playlist[offset - 1]));
+                        var offset = parseInt(row.attr('data-offset'));
+                        var newRow = inst.renderPlaylistRow(inst.playlist[offset]);
+                        newRow.attr('data-offset', offset);
+                        row.replaceWith(newRow);
                     });
                 },
             });
