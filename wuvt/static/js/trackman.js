@@ -185,6 +185,10 @@ Trackman.prototype.logQueued = function(element) {
     }
 };
 
+Trackman.prototype.clearQueue = function() {
+    this.queue = [];
+};
+
 Trackman.prototype.addToQueue = function(element) {
     var id = $(element).prop("id").substring(1);
     var queueEntry = $.extend(true, {}, this.searchResults[id]);
@@ -968,9 +972,13 @@ Trackman.prototype.reportTrack = function(id) {
 };
 
 Trackman.prototype.init = function() {
-    $('#trackman_logout_btn').click(function() {
+    var inst = this;
+    $('#trackman_logout_btn').bind('click', {}, function() {
         var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
         $("#trackman_logout_form input[name='email_playlist']").val(email);
+
+        inst.clearQueue();
+        inst.saveQueue();
 
         $('#trackman_logout_form').submit();
     });
