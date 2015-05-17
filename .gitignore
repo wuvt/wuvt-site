@@ -8,3 +8,4 @@ Thumbs.db
 __pycache__
 wuvt.db
 config.py
+celerybeat-schedule
