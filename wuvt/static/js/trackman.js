@@ -896,7 +896,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         }
 
         startEditBtn($('button.playlist-edit', row), function(ev) {
-            ev.data.instance.updatePlaylist();
+            row.replaceWith(inst.renderPlaylistRow(inst.playlistKeyed[id]));
         });
         $('button.report', row).attr('disabled', 'disabled');
         $('button.playlist-delete', row).attr('disabled', 'disabled');
