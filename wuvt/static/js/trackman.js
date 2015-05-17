@@ -351,8 +351,16 @@ Trackman.prototype.fetchPlaylist = function(callback) {
                 alert(data['error']);
                 return;
             }
+
             playlist = data['logs'];
             this.playlist = playlist;
+
+            this.playlistKeyed = [];
+            for(i in playlist) {
+                var p = playlist[i];
+                this.playlistKeyed[p['tracklog_id']] = p;
+            }
+
             callback();
         },
     });
@@ -877,10 +885,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
                     }
 
                     inst.fetchPlaylist(function() {
-                        var offset = parseInt(row.attr('data-offset'));
-                        var newRow = inst.renderPlaylistRow(inst.playlist[offset]);
-                        newRow.attr('data-offset', offset);
-                        row.replaceWith(newRow);
+                        row.replaceWith(inst.renderPlaylistRow(inst.playlistKeyed[id]));
                     });
                 },
             });
