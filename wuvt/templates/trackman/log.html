@@ -233,15 +233,5 @@
 {% block js %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
-<script>
-// TODO: replace these?
-var csrf_token = "{{ csrf_token() }}";
-var djset_id = {{ djset.id }};
-var dj_id = {{ djset.dj.id }};
-// Dictionary mapping rotation_ids to strings
-var rotations = {{ rotations|tojson|safe }};
-
-var t = new Trackman(csrf_token, djset_id, dj_id, rotations);
-t.init();
-</script>
+<script src="{{ url_for('trackman.log_js', setid=djset.id) }}"></script>
 {% endblock %}
