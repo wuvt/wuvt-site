@@ -216,7 +216,9 @@ Trackman.prototype.queueTrack = function(ev) {
 
     inst.saveQueue();
     inst.updateQueue();
+
     inst.clearForm();
+    $('#artist').focus();
 };
 
 Trackman.prototype.queueFromJson = function(data) {
@@ -301,7 +303,10 @@ Trackman.prototype.logNewTrack = function(ev) {
             alert(data['error']);
             return;
         }
+
         inst.clearForm();
+        $('#artist').focus();
+
         inst.updatePlaylist();
     }
     inst.createTrack(track, post_log);
@@ -335,7 +340,6 @@ Trackman.prototype.updatePlaylist = function() {
     this.fetchPlaylist(function(){
         inst.renderPlaylist();
     });
-    $('#artist').focus();
 };
 
 Trackman.prototype.fetchPlaylist = function(callback) {
