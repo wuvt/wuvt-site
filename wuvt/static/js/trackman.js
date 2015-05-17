@@ -171,6 +171,7 @@ Trackman.prototype.logQueued = function(element) {
             return;
         };
         this.queue.splice(id, 1);
+        this.saveQueue();
         this.updateQueue();
         this.updatePlaylist();
     };
@@ -182,8 +183,6 @@ Trackman.prototype.logQueued = function(element) {
     else if(track['origin'] == 0) {
         this.createTrack(track, postLog);
     }
-
-    this.saveQueue();
 };
 
 Trackman.prototype.addToQueue = function(element) {
