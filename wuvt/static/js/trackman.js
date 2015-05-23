@@ -225,12 +225,15 @@ Trackman.prototype.queueTrack = function(ev) {
 };
 
 Trackman.prototype.queueFromJson = function(data) {
-    var track = JSON.unstringify(data);
-    if(!this.validateTrack(track)) {
-        return false;
+    var tracks = JSON.parse(data);
+    for(i in tracks) {
+        var track = tracks[i];
+        if(!this.validateTrack(track)) {
+            return false;
+        }
+        track['origin'] = 0;
+        this.queue.push(track);
     }
-    track['origin'] = 0;
-    this.queue.push(track);
 
     this.saveQueue();
     this.updateQueue();
