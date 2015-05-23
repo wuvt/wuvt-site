@@ -656,6 +656,7 @@ Trackman.prototype.renderSearchRow = function(i, track) {
     row.append(td);
 
     var td = $('<td>');
+    td.addClass('text-right');
     var group = $('<div>');
     group.addClass('btn-group search-actions');
 
