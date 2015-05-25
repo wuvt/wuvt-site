@@ -164,7 +164,7 @@ Trackman.prototype.updateQueue = function() {
 Trackman.prototype.logQueued = function(element) {
     var elem = element;
     var id = element.prop("id").substring(1);
-    var track = this.queue[id]
+    var track = this.queue[id];
     function postLog(data) {
         if(data['success'] == false) {
             alert(data['error']);
@@ -919,9 +919,10 @@ Trackman.prototype.inlineEditTrack = function(ev) {
                 return false;
             }
 
-            $.extend(inst.queue[id], track);
-
             track['id'] = id;
+            track['origin'] = 0;
+            inst.queue[id] = track;
+
             row.replaceWith(inst.renderTrackRow(track, 'queue'));
             inst.saveQueue();
             return;
