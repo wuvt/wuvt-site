@@ -130,7 +130,10 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">Rotation</span>
-                        <select class="rotation form-control">{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}
+                        <select class="rotation form-control">
+                            {% for id, rotation in rotations.iteritems() -%}
+                            <option value="{{ id }}">{{ rotation }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -154,6 +157,7 @@
         </div>
     </div>
 </div>
+
 <!--
 <div class="control-panel">
     <div class="row psa-controls">
@@ -182,7 +186,9 @@
             Weather
         </button>
     </div>
-    -->
+</div>
+-->
+
 <div class="row row-table" style="height: 200px;">
     <table class='table table-condensed table-striped table-hover' id='queue'>
         <thead>
@@ -191,7 +197,9 @@
                 <th>Title</th>
                 <th>Album</th>
                 <th>Label</th>
-                <th colspan="3">Request/Vinyl/New</th>
+                <th>Request</th>
+                <th>Vinyl</th>
+                <th>New</th>
                 <th>Rotation</th>
                 <th></th>
             </tr>
@@ -200,8 +208,9 @@
         </tbody>
     </table>
 </div>
+
 <div class="row row-table" style="height: 340px;">
-<h4>Search Results</h4>
+    <h4>Search Results</h4>
     <table class='table table-condensed table-striped table-hover' id="search">
         <thead>
             <tr>
@@ -209,7 +218,9 @@
                 <th>Title</th>
                 <th>Album</th>
                 <th>Label</th>
-                <th colspan="3">Request/Vinyl/New</th>
+                <th>Request</th>
+                <th>Vinyl</th>
+                <th>New</th>
                 <th>Rotation</th>
                 <th></th>
             </tr>
@@ -223,42 +234,14 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
 <script>
+// TODO: replace these?
 var csrf_token = "{{ csrf_token() }}";
-var autologout_enabled = false;
-
-$(function() {
-    $('#trackman_logout_btn').click(function() {
-        var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
-        $("#trackman_logout_form input[name='email_playlist']").val(email);
-
-        $('#trackman_logout_form').submit();
-    });
-});
-
-// dynamic javascript vars
 var djset_id = {{ djset.id }};
 var dj_id = {{ djset.dj.id }};
 // Dictionary mapping rotation_ids to strings
 var rotations = {{ rotations|tojson|safe }};
-var rotationoptions = "{% for id, rotation in rotations.iteritems() %}<option value='{{ id }}'>{{ rotation }}</option>{% endfor %}"
-$( document ).ready(function() {
-    var thread = null;
-    $(".trackman-entry input").keyup(function () {
-        clearTimeout(thread);
-        var target = $(this);
-        thread = setTimeout(function() {search_form();}, 350);
 
-    });
-    $.ajax({
-        url: "/trackman/api/autologout",
-        dataType: "json",
-        success: update_autologout,
-    });
-    $("button#trackman-autologout").click(set_autologout);
-    $("button#new-queue").click(queue_new_track);
-    $("button#new-log").click(log_new_track);
-    $("button#clear-form").click(clear_form);
-    update_playlist();
-})
+var t = new Trackman(csrf_token, djset_id, dj_id, rotations);
+t.init();
 </script>
 {% endblock %}
