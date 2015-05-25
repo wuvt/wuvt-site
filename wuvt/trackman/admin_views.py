@@ -1,4 +1,5 @@
-from flask import flash, jsonify, render_template, redirect, request, url_for
+from flask import flash, jsonify, render_template, redirect, request, \
+    url_for, make_response
 from sqlalchemy import func, desc
 
 import datetime
@@ -146,6 +147,20 @@ def log(setid):
                            trackman_name=app.config['TRACKMAN_NAME'],
                            djset=djset,
                            rotations=rotations)
+
+@bp.route('/js/log/<int:setid>.js')
+def log_js(setid):
+    djset = DJSet.query.get_or_404(setid)
+    rotations = {}
+    for i in Rotation.query.order_by(Rotation.id).all():
+        rotations[i.id] = i.rotation
+
+    resp = make_response(render_template('trackman/log.js',
+                           trackman_name=app.config['TRACKMAN_NAME'],
+                           djset=djset,
+                           rotations=rotations))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
 
 
 @bp.route('/edit/<int:tracklog_id>', methods=['GET'])

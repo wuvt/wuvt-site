@@ -4,7 +4,7 @@ var clockspan = "<span class='glyphicon glyphicon-time'></span>";
 var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
 var playlistfalse = "";
 
-// The data is the same origin indicates 0 if newly entered, 1 if from history
+// origin: 0 if newly entered, 1 if from history
 var delayinterval;
 var delaybutton;
 
@@ -171,19 +171,22 @@ Trackman.prototype.logQueued = function(element) {
             return;
         };
         this.queue.splice(id, 1);
+        this.saveQueue();
         this.updateQueue();
         this.updatePlaylist();
     };
 
     // Delete it from the queue if it's there
-    if (track['origin'] == 1) {
+    if(track['origin'] == 1) {
         this.logTrack(track, postLog);
     }
-    else if (track['origin'] == 0) {
+    else if(track['origin'] == 0) {
         this.createTrack(track, postLog);
     }
+};
 
-    this.saveQueue();
+Trackman.prototype.clearQueue = function() {
+    this.queue = [];
 };
 
 Trackman.prototype.addToQueue = function(element) {
@@ -216,16 +219,21 @@ Trackman.prototype.queueTrack = function(ev) {
 
     inst.saveQueue();
     inst.updateQueue();
+
     inst.clearForm();
+    $('#artist').focus();
 };
 
 Trackman.prototype.queueFromJson = function(data) {
-    var track = JSON.unstringify(data);
-    if(!this.validateTrack(track)) {
-        return false;
+    var tracks = JSON.parse(data);
+    for(i in tracks) {
+        var track = tracks[i];
+        if(!this.validateTrack(track)) {
+            return false;
+        }
+        track['origin'] = 0;
+        this.queue.push(track);
     }
-    track['origin'] = 0;
-    this.queue.push(track);
 
     this.saveQueue();
     this.updateQueue();
@@ -301,7 +309,10 @@ Trackman.prototype.logNewTrack = function(ev) {
             alert(data['error']);
             return;
         }
+
         inst.clearForm();
+        $('#artist').focus();
+
         inst.updatePlaylist();
     }
     inst.createTrack(track, post_log);
@@ -320,30 +331,47 @@ Trackman.prototype.deleteTrack = function(element) {
                 if(data['success'] == false) {
                     alert(data['error']);
                 }
-                this.updatePlaylist();
+                $(element).remove();
             },
         });
     }
     else {
         // This is an airlog
+        // TODO: implement airlog deletion support
     }
 };
 
 Trackman.prototype.updatePlaylist = function() {
     var inst = this;
+    this.fetchPlaylist(function(){
+        inst.renderPlaylist();
+    });
+};
+
+Trackman.prototype.fetchPlaylist = function(callback) {
     $.ajax({
         url: "/trackman/api/djset/" + djset_id,
         data: {
             "merged": true,
         },
         dataType: "json",
+        context: this,
         success: function(data) {
-            if (data['success'] == false) {
+            if(data['success'] == false) {
                 alert(data['error']);
                 return;
             }
+
             playlist = data['logs'];
-            inst.renderPlaylist();
+            this.playlist = playlist;
+
+            this.playlistKeyed = [];
+            for(i in playlist) {
+                var p = playlist[i];
+                this.playlistKeyed[p['tracklog_id']] = p;
+            }
+
+            callback();
         },
     });
 };
@@ -361,31 +389,23 @@ Trackman.prototype.renderRotation = function(selement, id) {
     }
 };
 
-Trackman.prototype.renderPlaylist = function() {
+Trackman.prototype.renderPlaylist = function(renderRows) {
     // Empty the old playlist
     $("table#playlist tbody tr").remove();
-    for (var i = 0; i < playlist.length; i++) {
+    for(var i = 0; i < playlist.length; i++) {
         var p = playlist[i];
         // If logid is defined it's an airlog
-        if ('logid' in p) {
+        if('logid' in p) {
+            var row = this.renderAirlogRow(p);
         }
         else {
-            var row = this.renderTrackRow({
-                'id': p['tracklog_id'],
-                'played': p['played'],
-                'artist': p['track']['artist'],
-                'title': p['track']['title'],
-                'album': p['track']['album'],
-                'label': p['track']['label'],
-                'request': p['request'],
-                'vinyl': p['vinyl'],
-                'new': p['new'],
-                'rotation': p['rotation_id']
-            }, 'playlist');
-            $("table#playlist tbody").append(row);
+            var row = this.renderPlaylistRow(p);
+            row.attr('data-offset', i);
         }
+        $("table#playlist tbody").append(row);
     }
-    if (playlist.length > 0) {
+
+    if(playlist.length > 0) {
         // Scroll to bottom
         var pos = $("table#playlist tbody tr:last").position();
         var scrollwindow = $("table#playlist").parent();
@@ -393,10 +413,25 @@ Trackman.prototype.renderPlaylist = function() {
     }
 };
 
+Trackman.prototype.renderPlaylistRow = function(p) {
+    return this.renderTrackRow({
+        'id': p['tracklog_id'],
+        'played': p['played'],
+        'artist': p['track']['artist'],
+        'title': p['track']['title'],
+        'album': p['track']['album'],
+        'label': p['track']['label'],
+        'request': p['request'],
+        'vinyl': p['vinyl'],
+        'new': p['new'],
+        'rotation': p['rotation_id']
+    }, 'playlist');
+};
+
 Trackman.prototype.clearTimer = function(tableclass) {
-    if (typeof tableclass != "undefined") {
-        if (typeof delaybutton != "undefined") {
-            if (delaybutton.parents("table").prop("id") == tableclass) {
+    if(typeof tableclass != "undefined") {
+        if(typeof delaybutton != "undefined") {
+            if(delaybutton.parents("table").prop("id") == tableclass) {
                 delaybutton.html(clockspan);
                 delaybutton.off("click");
                 delaybutton.bind('click', {'instance': this}, this.logTimer);
@@ -405,10 +440,10 @@ Trackman.prototype.clearTimer = function(tableclass) {
         }
     }
     else {
-        if (typeof delayinterval != "undefined") {
+        if(typeof delayinterval != "undefined") {
             clearInterval(delayinterval);
         }
-        if (typeof delaybutton != "undefined") {
+        if(typeof delaybutton != "undefined") {
             delaybutton.html(clockspan);
             delaybutton.off("click");
             delaybutton.bind('click', {'instance': this}, this.logTimer);
@@ -437,7 +472,7 @@ Trackman.prototype.logTimer = function(ev) {
         if(seconds == 0) {
             var button = delaybutton;
             inst.clearTimer();
-            if (button.parents("table").prop("id") == "queue") {
+            if(button.parents("table").prop("id") == "queue") {
                 inst.logQueued(button.parents("tr.queue-row"));
             }
             else {
@@ -485,7 +520,7 @@ Trackman.prototype.searchEdit = function(element) {
     $(".trackman-entry input[name=vinyl]").prop("checked", track['vinyl']);
     $(".trackman-entry input[name=new]").prop("checked", track['new']);
     var track_rotation = 1;
-    if (typeof track['rotation'] != "undefined") {
+    if(typeof track['rotation'] != "undefined") {
         track_rotation = track['rotation'];
     }
     $(".trackman-entry select.rotation").val(track_rotation);
@@ -621,6 +656,7 @@ Trackman.prototype.renderSearchRow = function(i, track) {
     row.append(td);
 
     var td = $('<td>');
+    td.addClass('text-right');
     var group = $('<div>');
     group.addClass('btn-group search-actions');
 
@@ -859,14 +895,16 @@ Trackman.prototype.inlineEditTrack = function(ev) {
                         return;
                     }
 
-                    inst.updatePlaylist();
+                    inst.fetchPlaylist(function() {
+                        row.replaceWith(inst.renderPlaylistRow(inst.playlistKeyed[id]));
+                    });
                 },
             });
             return;
         }
 
         startEditBtn($('button.playlist-edit', row), function(ev) {
-            ev.data.instance.updatePlaylist();
+            row.replaceWith(inst.renderPlaylistRow(inst.playlistKeyed[id]));
         });
         $('button.report', row).attr('disabled', 'disabled');
         $('button.playlist-delete', row).attr('disabled', 'disabled');
@@ -938,9 +976,13 @@ Trackman.prototype.reportTrack = function(id) {
 };
 
 Trackman.prototype.init = function() {
-    $('#trackman_logout_btn').click(function() {
+    var inst = this;
+    $('#trackman_logout_btn').bind('click', {}, function() {
         var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
         $("#trackman_logout_form input[name='email_playlist']").val(email);
+
+        inst.clearQueue();
+        inst.saveQueue();
 
         $('#trackman_logout_form').submit();
     });
