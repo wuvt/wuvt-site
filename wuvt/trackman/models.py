@@ -183,6 +183,14 @@ class Track(db.Model):
         self.label = label
 
     def validate(self):
+        if len(self.title) <= 0 or len(self.artist) <= 0 or \
+                len(self.album) <= 0 or len(self.label) <= 0:
+            return False
+
+        if 'TRACKMAN_ARTIST_BLACKLIST' in app.config and \
+                self.artist in app.config['TRACKMAN_ARTIST_BLACKLIST']:
+            return False
+
         if 'TRACKMAN_LABEL_BLACKLIST' in app.config and \
                 self.label in app.config['TRACKMAN_LABEL_BLACKLIST']:
             return False

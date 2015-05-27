@@ -42,6 +42,7 @@ ICECAST_MOUNTS = ['/wuvt-hq.ogg', '/wuvt.ogg', '/wuvt-lb.ogg', '/wuvt-hq.aac',
                   '/wuvt.aac', '/wuvt-lb.aac']
 INTERNAL_IPS = ['192.168.0.0/16']
 TRACKMAN_NAME = "WUVT-FM"
+TRACKMAN_ARTIST_BLACKLIST = ["?"]
 TRACKMAN_LABEL_BLACKLIST = ["No Idea", "same"]
 
 ARCHIVE_BASE_URL = "https://archive.org/details/WUVTFM_"
