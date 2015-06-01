@@ -23,7 +23,6 @@ from wuvt.trackman.view_utils import local_only, dj_interact
 
 @bp.route('/', methods=['GET', 'POST'])
 @local_only
-@dj_interact
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
         disable_automation()
@@ -134,6 +133,7 @@ def automation_log():
 
 @bp.route('/log/<int:setid>')
 @local_only
+@dj_interact
 def log(setid):
     djset = DJSet.query.get_or_404(setid)
     if djset.dtend is not None:
@@ -149,6 +149,7 @@ def log(setid):
                            rotations=rotations)
 
 @bp.route('/js/log/<int:setid>.js')
+@local_only
 def log_js(setid):
     djset = DJSet.query.get_or_404(setid)
     rotations = {}
@@ -218,6 +219,10 @@ def logout(setid):
 
     # Reset the dj activity timeout period
     redis_conn.delete('dj_timeout')
+
+    # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation start time
+    redis_conn.set('dj_active', 'false')
+    redis_conn.expire('dj_active', int(app.config['NO_DJ_TIMEOUT']))
 
     # email playlist
     if 'email_playlist' in request.form and request.form.get('email_playlist') == 'true':
