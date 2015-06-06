@@ -54,8 +54,10 @@ def login():
 @bp.route('/automation/start', methods=['POST'])
 @local_only
 def start_automation():
-    logout_all()
-    enable_automation()
+    automation = redis_conn.get('automation_enabled') == "true"
+    if not automation:
+        logout_all()
+        enable_automation()
 
     return redirect(url_for('trackman.login'))
 
