@@ -100,7 +100,7 @@ def login():
                            errors=errors)
 
 
-@bp.route('/logout')
+@bp.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
