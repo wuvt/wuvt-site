@@ -226,7 +226,7 @@ def category_edit(cat_id):
 @bp.route('/articles')
 @check_access('admin')
 def articles():
-    articles = Article.query.all()
+    articles = Article.query.order_by(Article.datetime.desc()).all()
     return render_template('admin/articles.html',
                            articles=articles)
 
