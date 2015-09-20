@@ -19,29 +19,47 @@ to run the site, but it is not necessary to start it on boot.
 
 It is recommended that you use a virtualenv for this so that you can better
 separate dependencies:
-    mkdir -p ~/.local/share/virtualenv
-    virtualenv ~/.local/share/virtualenv/wuvt-site
-    source ~/.local/share/virtualenv/bin/activate
+
+```
+mkdir -p ~/.local/share/virtualenv
+virtualenv ~/.local/share/virtualenv/wuvt-site
+source ~/.local/share/virtualenv/bin/activate
+```
 
 Now, within this virtualenv, install the dependencies:
-    pip install -r requirements.txt
+
+```
+pip install -r requirements.txt
+```
 
 You'll also want to get gunicorn, which is used as a local web server:
-    pip install gunicorn
+
+```
+pip install gunicorn
+```
 
 Next, clone the repo and make a copy of the config:
-    git clone https://github.com/wuvt/wuvt-site.git
-    cd wuvt-site
-    cp wuvt/config.py.example wuvt/config.py
+
+```
+git clone https://github.com/wuvt/wuvt-site.git
+cd wuvt-site
+cp wuvt/config.py.example wuvt/config.py
+```
 
 Edit wuvt/config.py to match your desired config, then go ahead and create the
 database and fill it with some sample content:
-    python2 create.py
-    python2 articles.py
+
+```
+python2 create.py
+python2 articles.py
+```
 
 Finally, start the celery worker and development web server:
-    ./run_celery.sh &
-    ./run_dev_server.sh
+
+```
+./run_celery.sh &
+./run_dev_server.sh
+```
 
 You can now access the site at http://127.0.0.1:8080/
 
@@ -75,26 +93,28 @@ Look at submit_track.sh for an example of sending metadata to Trackman.
 For everything **except** the `wuvt/templates` and `wuvt/static` 
 directories:
 
-   Copyright 2012-2015 James Schwinabart, Calvin Winkowski, Matt Hazinski.
+```
+Copyright 2012-2015 James Schwinabart, Calvin Winkowski, Matt Hazinski.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
 
 #### Templates and Static
 For content in the `wuvt/templates` directory:
 
-    Copyright 2012-2015 James Schwinabart, Calvin Winkowski, Matt Hazinski.
+```
+Copyright 2012-2015 James Schwinabart, Calvin Winkowski, Matt Hazinski.
 
-    Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 
-    4.0 International
-
-
+Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 
+4.0 International
+```
