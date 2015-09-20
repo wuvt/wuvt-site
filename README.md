@@ -13,12 +13,45 @@ It has several main components:
   playlists are publicly available on the main website. 
 - HTML5 stream player capable of smooth chained OGG playback in Webkit
 
-### Deployment
-Here's some instructions to help you get started. This has a ways to go.
+### Development Environment Setup
+Install redis and start the daemon. You'll need redis running whenever you want
+to run the site, but it is not necessary to start it on boot.
+
+It is recommended that you use a virtualenv for this so that you can better
+separate dependencies:
+    mkdir -p ~/.local/share/virtualenv
+    virtualenv ~/.local/share/virtualenv/wuvt-site
+    source ~/.local/share/virtualenv/bin/activate
+
+Now, within this virtualenv, install the dependencies:
+    pip install -r requirements.txt
+
+You'll also want to get gunicorn, which is used as a local web server:
+    pip install gunicorn
+
+Next, clone the repo and make a copy of the config:
+    git clone https://github.com/wuvt/wuvt-site.git
+    cd wuvt-site
+    cp wuvt/config.py.example wuvt/config.py
+
+Edit wuvt/config.py to match your desired config, then go ahead and create the
+database and fill it with some sample content:
+    python2 create.py
+    python2 articles.py
+
+Finally, start the celery worker and development web server:
+    ./run_celery.sh &
+    ./run_dev_server.sh
+
+You can now access the site at http://127.0.0.1:8080/
+
+### Production Environment Setup
+Here are some example instructions to get you started. These are not complete,
+so it's recommended to just use the Ansible playbook for this. 
 - Install redis, start the daemon, and configure it to start at boot
 - Run `sudo pip install -r requirements.txt` to install requirements
 - Copy `wuvt/config.py.example` to `wuvt/config.py` and edit it to match your desired config
-- Run `python2 create.py` to seutp the website
+- Run `python2 create.py` to setup the website
 - Run `python2 articles.py` to create some sample articles
 
 (TODO: uwsgi setup)
