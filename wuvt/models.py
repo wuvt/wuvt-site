@@ -39,7 +39,7 @@ class Page(db.Model):
     published = db.Column(db.Boolean, default=True, nullable=False)
 
 
-    def __init__(self, name, slug, content, published=True, menu=None):
+    def __init__(self, name, slug, content, published, menu=None):
         self.name = name
         self.slug = slug
         self.content = content

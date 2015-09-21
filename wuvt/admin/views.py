@@ -64,6 +64,10 @@ def category_add():
         if len(name) <= 0:
             error_fields.append('name')
 
+        published = request.form.get('published', False)
+        if published is not False:
+            published = True
+
         if len(error_fields) <= 0:
             slug = slugify(name)
 
@@ -71,7 +75,7 @@ def category_add():
             while Category.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
 
-            db.session.add(Category(name, slug))
+            db.session.add(Category(name, slug, published))
             db.session.commit()
 
             flash("Category added.")
@@ -79,6 +83,53 @@ def category_add():
 
     return render_template('admin/category_add.html',
                            error_fields=error_fields)
+
+    
+@bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
+@check_access('admin')
+def category_edit(cat_id):
+    category = Category.query.get_or_404(cat_id)
+    error_fields = []
+
+    if request.method == 'POST':
+        name = request.form['name'].strip()
+        if len(name) <= 0:
+            error_fields.append('name')
+
+        slug = request.form['slug'].strip()
+        if len(slug) <= 0:
+            # generate a new slug if none is provided
+            slug = slugify(name)
+
+        published = request.form.get('published', False)
+        if published is not False:
+            published = True
+
+        if len(error_fields) <= 0:
+            if slug != category.slug:
+                # if slug has changed, ensure it is unique
+                while Category.query.filter_by(slug=slug).count() > 0:
+                    slug += '-'
+
+            category.name = name
+            category.slug = slug
+            category.published = published
+            db.session.commit()
+
+            flash("Category saved.")
+            return redirect(url_for('admin.categories'))
+    elif request.method == 'DELETE':
+        db.session.delete(category)
+        db.session.commit()
+
+        return jsonify({
+            '_csrf_token': app.jinja_env.globals['csrf_token'](),
+        })
+
+    return render_template('admin/category_edit.html',
+                           category=category,
+                           error_fields=error_fields)
+
 
 
 @bp.route('/users/new', methods=['GET', 'POST'])
@@ -182,47 +233,6 @@ def user_edit(id):
         return render_template('admin/user_edit.html', user=user, error_fields=error_fields)
 
 
-@bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
-@check_access('admin')
-def category_edit(cat_id):
-    category = Category.query.get_or_404(cat_id)
-    error_fields = []
-
-    if request.method == 'POST':
-        name = request.form['name'].strip()
-        if len(name) <= 0:
-            error_fields.append('name')
-
-        slug = request.form['slug'].strip()
-        if len(slug) <= 0:
-            # generate a new slug if none is provided
-            slug = slugify(name)
-
-        if len(error_fields) <= 0:
-            if slug != category.slug:
-                # if slug has changed, ensure it is unique
-                while Category.query.filter_by(slug=slug).count() > 0:
-                    slug += '-'
-
-            category.name = name
-            category.slug = slug
-            db.session.commit()
-
-            flash("Category saved.")
-            return redirect(url_for('admin.categories'))
-    elif request.method == 'DELETE':
-        db.session.delete(category)
-        db.session.commit()
-
-        return jsonify({
-            '_csrf_token': app.jinja_env.globals['csrf_token'](),
-        })
-
-    return render_template('admin/category_edit.html',
-                           category=category,
-                           error_fields=error_fields)
-
-
 @bp.route('/articles')
 @check_access('admin')
 def articles():
@@ -271,6 +281,10 @@ def page_edit(page_id):
         # Menu
         section = request.form['section'].strip()
 
+        published = request.form.get('published', False)
+        if published is not False:
+            published = True
+
         content = request.form.get('content', "").strip()
 
         if len(error_fields) <= 0:
@@ -282,6 +296,7 @@ def page_edit(page_id):
             page.slug = slug
             page.name = title
             page.menu = section
+            page.published = published
             page.content = content
 
             page.update_content(content)    # render HTML
@@ -329,6 +344,10 @@ def page_add():
         # Menu
         section = request.form['section'].strip()
 
+        published = request.form.get('published', False)
+        if published is not False:
+            published = True
+
         content = request.form.get('content', "").strip()
 
         if len(error_fields) <= 0:
@@ -336,7 +355,7 @@ def page_add():
             while Page.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
 
-            page = Page(title, slug, content, True, section)
+            page = Page(title, slug, content, published, section)
 
             db.session.add(page)
             db.session.commit()

@@ -14,6 +14,17 @@
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
                 value="" required="required" class="form-control" />
+
+        </div>
+    </div>
+    <div class="form-group{% if 'published' in error_fields %} has-error{% endif %}">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-9 checkbox">
+            <label>
+                <input type="checkbox" name="published" id="id_published" />
+                <strong>Publish category</strong>
+            </label>
         </div>
     </div>
 
