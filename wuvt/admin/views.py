@@ -527,10 +527,12 @@ def users():
 
     if current_user.username == 'admin':
         users = User.query.order_by('name').all()
+        is_admin = True
     else:
         users = User.query.filter(User.username == current_user.username).order_by('name').all()
+        is_admin = False
 
-    return render_template('admin/users.html', users=users)
+    return render_template('admin/users.html', users=users, is_admin=is_admin)
 
 
 @bp.route('/library')

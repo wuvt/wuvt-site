@@ -26,11 +26,13 @@
         </td>
     </tr>
     {% endfor %}
+    {% if is_admin %}
     <tr>
         <td colspan="5">
             <a href="{{ url_for('admin.user_add') }}" class="btn btn-primary">Add New User</a>
         </td>
     </tr>
+    {% endif %}
 </table>
 {% endblock %}
 {% block js %}
