@@ -16,9 +16,9 @@ db.session.commit()
 
 
 
-cats = [Category("News", "news"), Category("Sports", "sports"),
-        Category("Weather", "weather"),
-        Category("Woove", "woove")]
+cats = [Category("News", "news", True), Category("Sports", "sports", True),
+        Category("Weather", "weather", True),
+        Category("Woove", "woove", True)]
 for cat in cats:
     db.session.add(cat)
 

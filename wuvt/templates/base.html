@@ -95,7 +95,9 @@
             {% block nav_side_primary %}
             <ul>
                 {% for cat in categories %}
+                {% if cat.published %}
                 <li><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
+                {% endif %}
                 {% endfor %}
             </ul>
             {% endblock %}
