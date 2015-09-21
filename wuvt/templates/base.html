@@ -72,7 +72,9 @@
                     <li><a href="{{ url_for('charts_index') }}">Charts</a></li>
                     {% endif -%}
                     {% for page in menus[section['menu']] -%}
+                    {% if page.published %}
                     <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
+                    {% endif %}
                     {% endfor -%}
                 </ul></li>
             {% endif -%}

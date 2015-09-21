@@ -281,6 +281,10 @@ def page_edit(page_id):
         # Menu
         section = request.form['section'].strip()
 
+        published = request.form.get('published', False)
+        if published is not False:
+            published = True
+
         content = request.form.get('content', "").strip()
 
         if len(error_fields) <= 0:
@@ -292,6 +296,7 @@ def page_edit(page_id):
             page.slug = slug
             page.name = title
             page.menu = section
+            page.published = published
             page.content = content
 
             page.update_content(content)    # render HTML
@@ -339,6 +344,10 @@ def page_add():
         # Menu
         section = request.form['section'].strip()
 
+        published = request.form.get('published', False)
+        if published is not False:
+            published = True
+
         content = request.form.get('content', "").strip()
 
         if len(error_fields) <= 0:
@@ -346,7 +355,7 @@ def page_add():
             while Page.query.filter_by(slug=slug).count() > 0:
                 slug += '-'
 
-            page = Page(title, slug, content, True, section)
+            page = Page(title, slug, content, published, section)
 
             db.session.add(page)
             db.session.commit()
