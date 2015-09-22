@@ -9,10 +9,12 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(255), nullable=False)
     slug = db.Column(db.Unicode(255), nullable=False)
+    published = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __init__(self, name, slug):
+    def __init__(self, name, slug, published):
         self.name = name
         self.slug = slug
+        self.published = published
 
 
 class Article(db.Model):
