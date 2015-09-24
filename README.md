@@ -23,7 +23,7 @@ separate dependencies:
 ```
 mkdir -p ~/.local/share/virtualenv
 virtualenv ~/.local/share/virtualenv/wuvt-site
-source ~/.local/share/virtualenv/bin/activate
+source ~/.local/share/virtualenv/wuvt-site/bin/activate
 ```
 
 Now, within this virtualenv, install the dependencies:
