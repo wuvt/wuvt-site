@@ -809,6 +809,8 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         var logBtn = $("<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>");
         logBtn.bind('click', {'instance': this}, function(ev) {
             ev.data.instance.logQueued(row);
+            ev.data.instance.clearForm();
+            $('#artist').focus();
         });
         group.append(logBtn);
 
