@@ -181,6 +181,9 @@ def email_playlist(djset):
 
 
 def stream_listeners(url):
+    if len(url) <= 0:
+        return None
+
     url += 'stats.xml'
     parsed = urlparse.urlparse(url)
 
