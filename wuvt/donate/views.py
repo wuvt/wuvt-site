@@ -5,7 +5,7 @@ from wuvt import app
 from wuvt import auth
 from wuvt import db
 from wuvt.donate import bp
-from wuvt.donate import process_stripe
+from wuvt.donate import process_stripe_onetime
 from wuvt.donate.models import Order
 
 
@@ -53,7 +53,7 @@ def process():
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
-    if not process_stripe(order, request.form['stripe_token'], amount):
+    if not process_stripe_onetime(order, request.form['stripe_token'], amount):
         return Response("Your card was declined. Please try again with "\
                         "a different method of payment.")
 
@@ -101,7 +101,7 @@ def missioncontrol_index():
                               request.form['zipcode'])
 
         if request.form['method'] == "stripe":
-            if not process_stripe(order, request.form['stripe_token'], amount):
+            if not process_stripe_onetime(order, request.form['stripe_token'], amount):
                 return Response("Your card was declined. Please try again "\
                                 "with a different method of payment.")
 
