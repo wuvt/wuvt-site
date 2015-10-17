@@ -129,13 +129,18 @@ function loadPage(path) {
         'url': path,
         'dataType': 'html',
     }).done(function(data) {
-        var doc = $('<div>').append($.parseHTML(data));
+        var doc = $('<div>').append($.parseHTML(data, document, true));
         $('title').text(doc.find('title').text());
         $('#side_primary').html(doc.find('#side_primary > *'));
         $('#content').html(doc.find('#content > *'));
 
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+
+        // load scripts if necessary
+        $.each(doc.find('#extra_js script'), function(i, item) {
+            $.getScript(item.src);
+        });
 
         $(document).trigger('pageChange');
         initLocalDates();

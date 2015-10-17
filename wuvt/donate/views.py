@@ -1,5 +1,6 @@
 import netaddr
-from flask import abort, flash, render_template, request, Response
+from flask import abort, flash, make_response, render_template, request, \
+        Response
 from functools import wraps
 from wuvt import app
 from wuvt import auth
@@ -110,3 +111,10 @@ def missioncontrol_index():
 
 
     return render_template('donate/missioncontrol/index.html')
+
+
+@bp.route('/js/init.js')
+def init_js():
+    resp = make_response(render_template('donate/init.js'))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
