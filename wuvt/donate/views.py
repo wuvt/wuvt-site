@@ -29,13 +29,12 @@ def donate():
 def process():
     premiums = request.form.get('premiums', 'no')
     amount = int(float(request.form['amount']) * 100)
-    recurring = request.form.get('recurrence', 'once') == 'monthly'
 
     order = Order(request.form['name'], request.form['email'],
                   request.form.get('show', ''),
                   request.form.get('onair', 'n') == 'y',
                   request.form.get('firsttime', 'n') == 'y',
-                  amount, recurring)
+                  amount, False)
 
     if premiums != "no":
         order.set_premiums(premiums,
@@ -75,14 +74,13 @@ def missioncontrol_index():
     if 'amount' in request.form:
         premiums = request.form.get('premiums', 'no')
         amount = int(float(request.form['amount']) * 100)
-        recurring = request.form.get('recurrence', 'once') == 'monthly'
 
         order = Order(request.form.get('name', ''),
                       request.form.get('email', ''),
                       request.form.get('show', ''),
                       request.form.get('onair', 'n') == 'y',
                       request.form.get('firsttime', 'n') == 'y',
-                      amount, recurring)
+                      amount, False)
 
         if premiums != "no":
             order.set_premiums(premiums,
