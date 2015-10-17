@@ -9,8 +9,9 @@
 
     <div class="form-group">
         <select name="dj" class="form-control">
+            <option value="">Select DJ</option>
             {% for dj in djs %}
-            <option value="{{ dj.id }}">{{ dj.airname }}
+            <option value="{{ dj.id }}">{{ dj.airname }}</option>
             {% endfor %}
         </select>
     </div>

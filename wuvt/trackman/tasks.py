@@ -5,13 +5,58 @@ import urllib
 from datetime import timedelta
 
 from celery.decorators import periodic_task, task
+from celery.task.schedules import crontab
 
 from wuvt import app
+from wuvt import db
 from wuvt import redis_conn
 from wuvt.celeryconfig import make_celery
-from wuvt.trackman.lib import logout_recent, enable_automation
+from wuvt.trackman.lib import get_duplicates, logout_all, enable_automation
+from wuvt.trackman.models import AirLog, DJSet, Track, TrackLog
 
 celery = make_celery(app)
+
+
+@periodic_task(run_every=crontab(hour=3, minute=0))
+def deduplicate_tracks():
+    dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
+    for artist, title, album, label in dups:
+        track_query = Track.query.filter(db.and_(
+            Track.artist == artist,
+            Track.title == title,
+            Track.album == album,
+            Track.label == label)).order_by(Track.id)
+        count = track_query.count()
+        tracks = track_query.all()
+        track_id = int(tracks[0].id)
+
+        # update TrackLogs
+        TrackLog.query.filter(TrackLog.track_id.in_(
+            [track.id for track in tracks[1:]])).update(
+            {TrackLog.track_id: track_id}, synchronize_session=False)
+
+        # delete existing Track entries
+        map(db.session.delete, tracks[1:])
+
+        db.session.commit()
+
+        app.logger.info("Removed {0:d} duplicates of track ID {1:d}".format(
+            count - 1, track_id))
+
+
+@periodic_task(run_every=timedelta(hours=24))
+def playlist_cleanup():
+    app.logger.debug("Starting playlist cleanup...")
+
+    empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
+        DJSet.id).filter(DJSet.dtend != None).having(
+        db.and_(db.func.count(TrackLog.id) < 1,
+                db.func.count(AirLog.id) < 1))
+    for djset in empty.all():
+        db.session.delete(djset)
+    db.session.commit()
+
+    app.logger.debug("Removed {} empty DJSets.".format(empty.count()))
 
 
 @periodic_task(run_every=timedelta(minutes=1))
@@ -25,12 +70,12 @@ def autologout_check():
             pass
         elif automation == "true":
             # automation is running, carry on
-            # if automation is enabled then logout_recent was already called
+            # if automation is enabled, enable_automation was already called
             pass
         else:
             # Automation is not running, end djset if exists and start
             # automation
-            logout_recent()
+            logout_all()
             enable_automation()
 
 

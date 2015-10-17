@@ -1,3 +1,5 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
+
 function wuvtLive(liveurl) {
     if(typeof EventSource == 'undefined') {
         // cannot use server-sent events, boo
@@ -46,12 +48,14 @@ function updateLast15(tracklog) {
 
     var track = tracklog['track'];
     var tr = document.createElement('tr');
-
     var td = document.createElement('td');
-    var played = new Date(tracklog['played']);
-    $(td).text("{0}:{1}:{2}".format(pad(played.getHours()),
-                                    pad(played.getMinutes()),
-                                    pad(played.getSeconds())));
+
+    var t = document.createElement('time');
+    var played = moment(tracklog['played']);
+    $(t).text(played.format('HH:mm:ss'));
+    $(t).attr('datetime', played.format());
+    $(t).attr('title', played.format('LLLL'));
+    $(td).append(t);
     $(tr).append(td);
 
     var td = document.createElement('td');
@@ -112,7 +116,7 @@ function makeAjaxLink(item) {
     }
 
     $(item).click(function(ev) {
-        path = ev.target.href;
+        path = $(this).attr('href');
         window.history.pushState({'path': path}, item.innerText, path);
         loadPage(path);
 
@@ -133,10 +137,8 @@ function loadPage(path) {
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
-        if($('#playlists_by_date').length) {
-            var p = new PlaylistsByDate('#playlists_by_date');
-            p.init();
-        }
+        $(document).trigger('pageChange');
+        initLocalDates();
     }).fail(function(data) {
         var doc = $('<div>').append($.parseHTML(data.responseText));
         $('title').text(doc.find('title').text());
@@ -145,22 +147,81 @@ function loadPage(path) {
 
         $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+
+        $(document).trigger('pageChange');
+        initLocalDates();
+    });
+}
+
+function progressTick() {
+    var pageWidth = $('#progress_bar').offsetParent().width();
+    var dist = Math.floor((Math.random() + 1) * 10);
+    var newWidth = $('#progress_bar').width() + dist;
+    if(newWidth / pageWidth < 1) {
+        $('#progress_bar').width(newWidth);
+    }
+    else {
+        $('#progress_bar').width('0.1%');
+    }
+}
+
+function initProgressBar() {
+    var progress = document.createElement('div');
+    progress.id = 'progress_bar';
+    $('body').append(progress);
+
+    var progressTimer = setInterval(progressTick, 100);
+
+    $(document).bind('ajaxStart', function() {
+        clearInterval(progressTimer);
+        progressTimer = setInterval(progressTick, 100);
+
+        $('#progress_bar').width('0.1%');
+        $('#progress_bar').fadeIn('fast');
+    }).bind('ajaxComplete', function() {
+        clearInterval(progressTimer);
+
+        $('#progress_bar').width('100%');
+        $('#progress_bar').fadeOut('fast');
+    });
+
+    $(window).bind('load', function() {
+        clearInterval(progressTimer);
+
+        $('#progress_bar').width('100%');
+        $('#progress_bar').fadeOut('fast');
     });
 }
 
 function initAjaxLinks() {
+    initProgressBar();
+
     makeAjaxLink($('#nowplaying a'));
     makeAjaxLink($('header #mainheader h1 a'));
+    makeAjaxLink($('#radiothon_banner a'));
     $.each($('#bubble a'), function(i, item){makeAjaxLink(item);});
     $.each($('nav a'), function(i, item){makeAjaxLink(item);});
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});
     $.each($('body > footer a'), function(i, item){makeAjaxLink(item);});
 
     // replace state in history, so going back to the first page works
-    window.history.replaceState({'path': location.pathname}, window.title,
-                                location.pathname);
+    window.history.replaceState({'path': location.pathname}, window.title);
 
     window.onpopstate = function(ev) {
         loadPage(ev.state.path);
     };
 }
+
+function initLocalDates() {
+    $('time').each(function() {
+        var datestr = $(this).attr('datetime');
+        var format = $(this).attr('data-format');
+        var m = moment(datestr);
+        if(m.isValid()) {
+            $(this).text(m.format(format));
+            $(this).attr('title', m.format('LLLL'));
+        }
+    });
+}
+
+// @license-end

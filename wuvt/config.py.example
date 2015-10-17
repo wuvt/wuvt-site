@@ -1,9 +1,13 @@
 DEBUG = False
-SQLALCHEMY_DATABASE_URI = ''
 SECRET_KEY = ''
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
+
+SQLALCHEMY_DATABASE_URI = ''
 REDIS_URL = 'redis://localhost:6379'
 REDIS_CHANNEL = "wuvt"
 POSTS_PER_PAGE = 5
+ARTISTS_PER_PAGE = 500
 
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"
@@ -25,8 +29,9 @@ NAV_TOP_SECTIONS = [
 ]
 
 # DJ activity timer for automation/DJ logout in seconds
-DJ_TIMEOUT = 15 * 60
-EXTENDED_DJ_TIMEOUT = 60 * 60
+DJ_TIMEOUT = 30 * 60
+EXTENDED_DJ_TIMEOUT = 120 * 60
+NO_DJ_TIMEOUT = 15 * 60
 
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
@@ -38,6 +43,8 @@ ICECAST_MOUNTS = ['/wuvt-hq.ogg', '/wuvt.ogg', '/wuvt-lb.ogg', '/wuvt-hq.aac',
                   '/wuvt.aac', '/wuvt-lb.aac']
 INTERNAL_IPS = ['192.168.0.0/16']
 TRACKMAN_NAME = "WUVT-FM"
+TRACKMAN_ARTIST_BLACKLIST = ["?"]
+TRACKMAN_LABEL_BLACKLIST = ["same"]
 
 ARCHIVE_BASE_URL = "https://archive.org/details/WUVTFM_"
 
@@ -61,7 +68,10 @@ LDAP_STARTTLS = True
 LDAP_BASE_DN = "dc=wuvt,dc=vt,dc=edu"
 LDAP_AUTH_DN = "uid={},ou=Users,dc=wuvt,dc=vt,dc=edu"
 LDAP_GROUPS_ADMIN = ['sudoers', 'webmasters']
+LDAP_GROUPS_LIBRARY = ['sudoers', 'librarians']
 LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
 
 UPLOAD_DIR = "/srv/http/media"
+
+RADIOTHON = False
 # vim: syntax=python

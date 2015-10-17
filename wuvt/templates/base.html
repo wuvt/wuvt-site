@@ -69,6 +69,7 @@
                     <li><a href="{{ url_for('last15') }}">Last 15</a></li>
                     <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
                     <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
+                    <li><a href="{{ url_for('charts_index') }}">Charts</a></li>
                     {% endif -%}
                     {% for page in menus[section['menu']] -%}
                     <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
@@ -84,6 +85,12 @@
 <div id="wrapper">
 
     <div id="side">
+        {% if config.RADIOTHON -%}
+        <div id="radiothon_banner">
+            <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
+        </div>
+        {% endif -%}
+
         <nav id="side_primary">
             {% block nav_side_primary %}
             <ul>
@@ -127,11 +134,7 @@
 <script src="{{ url_for('static', filename='js/live.js') }}"></script>
 <script src="{{ url_for('static', filename='js/stream.js') }}"></script>
 <script src="{{ url_for('static', filename='js/playlists_by_date.js') }}"></script>
-<script>
-wuvtLive("{{ url_for('livestream') }}");
-initAjaxLinks();
-initPlayer();
-</script>
+<script src="{{ url_for('init_js') }}"></script>
 {% endblock %}
     </body>
 </html>

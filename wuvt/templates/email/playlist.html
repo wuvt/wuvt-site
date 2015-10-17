@@ -14,6 +14,7 @@
             <th>New</th>
             <th>Track</th>
             <th>Album</th>
+            <th>Label</th>
             <th colspan="2">Request/Vinyl</th>
         </thead>
         <tbody>
@@ -23,6 +24,7 @@
                 <td>{% if track.new %}NEW{% endif %}</td>
                 <td>{{ track.track.artist }} - {{ track.track.title }}</td>
                 <td>{{ track.track.album }}</td>
+                <td>{{ track.track.label }}</td>
                 <td>{% if track.request %}REQ{% endif %}</td>
                 <td>{% if track.vinyl %}VIN{% endif %}</td>
             </tr>

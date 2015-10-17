@@ -1,3 +1,5 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
+
 var streams = [
     ['audio/ogg', "http://engine.wuvt.vt.edu:8000/wuvt.ogg"],
     ['audio/aac', "http://engine.wuvt.vt.edu:8000/wuvt.aac"]
@@ -87,10 +89,12 @@ function initVolume() {
     var volbox = document.createElement('div');
     $(volbox).attr('id', "volume_box");
 
+    // create volume slider
     var slider = document.createElement('div');
     $(slider).attr('id', "volume_slider");
     $(volbox).append(slider);
 
+    // create mute button
     var mutebtn = document.createElement('button');
     $(mutebtn).attr('id', "volume_mute_btn");
     $(mutebtn).attr('title', "Mute");
@@ -99,14 +103,12 @@ function initVolume() {
 
     $('#mainheader').append(volbox);
 
-    $('#volume_btn').click(function() {
-        var btn = $('#volume_btn');
-        var offsetTop = btn.offset().top + btn.outerHeight();
-        var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
-            ($('#volume_box').outerWidth() / 2);
+    // adjust volume box placement
+    $(document).ready(positionVolumeBox);
+    $(document).on('pageChange', positionVolumeBox);
 
-        $('#volume_box').css('top', offsetTop + "px");
-        $('#volume_box').css('left', offsetLeft + "px");
+    $('#volume_btn').click(function() {
+        $('#volume_btn').toggleClass('active');
         $('#volume_box').toggleClass('visible');
     });
 
@@ -136,6 +138,20 @@ function initVolume() {
     });
 }
 
+function positionVolumeBox() {
+    $('#volume_btn').removeClass('active');
+    $('#volume_box').removeClass('visible');
+
+    var btn = $('#volume_btn');
+    var offsetTop = btn.offset().top + btn.outerHeight();
+    var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
+        ($('#volume_box').outerWidth() / 2);
+    $('#volume_box').css('top', offsetTop + "px");
+    $('#volume_box').css('left', offsetLeft + "px");
+}
+
 function warnBrokenPlayer() {
     alert("Sorry, the WUVT live stream player is not supported by your browser. Please see the Listen Live page for other ways to listen to WUVT, or switch to Google Chrome or Mozilla Firefox.");
 }
+
+// @license-end

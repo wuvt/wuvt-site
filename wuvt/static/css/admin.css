@@ -35,15 +35,19 @@ td.row-options {
 }
 
 .trackman-header h1 {
-    font-size: 28px;
+    font-size: 30px;
     margin: 4px 0;
-    max-height: 123px;
+    max-height: 100px;
     overflow: hidden;
 }
 
 .row-table {
     height: 240px;
     overflow-y: auto;
+}
+
+.lookup-controls div.checkbox:not(:first-child) label:before {
+    content: " - ";
 }
 
 /* These have to be hardcoded to handle nasty length fields */

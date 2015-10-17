@@ -1,20 +1,17 @@
-# WARNING:
-# Breaking this will cause WUVT to go off-air because Winamp.
-# If you're not using Winamp, breaking this will make people mad.
+# NOTE: the .php filenames are kept so old URLs keep working
 
-# NOTE: the .php filenames are kept for legacy reasons
-
-from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, Response
+from flask import abort, jsonify, redirect, render_template, request, \
+    Response, url_for
 import datetime
-import json
+import dateutil
 import re
 
 from wuvt import app
 from wuvt import csrf
 from wuvt import db
 from wuvt import redis_conn
-from wuvt.trackman.lib import log_track, list_archives
+from wuvt.trackman.lib import log_track, list_archives, generate_cuesheet, \
+    generate_playlist_cuesheet
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
@@ -22,9 +19,11 @@ def trackinfo():
     track = TrackLog.query.order_by(db.desc(TrackLog.played)).first()
     if not track:
         return {'artist': "", 'title': "", 'album': "", 'label': "", 'dj': "",
-                'description': app.config['STATION_NAME'], 'contact': app.config['STATION_URL']}
+                'dj_id': 0, 'description': app.config['STATION_NAME'],
+                'contact': app.config['STATION_URL']}
 
     data = track.track.serialize()
+    data['listeners'] = track.listeners
 
     if track.djset == None:
         dj = DJ.query.filter_by(name="Automation").first()
@@ -41,9 +40,11 @@ def trackinfo():
     data['contact'] = app.config['STATION_URL']
     return data
 
+
 #############################################################################
 ### Playlist Information
 #############################################################################
+
 
 @app.context_processor
 def inject_nowplaying():
@@ -81,21 +82,25 @@ def latest_track():
         return jsonify(trackinfo())
 
     return Response(u"{artist} - {title}".format(**trackinfo()),
-            mimetype="text/plain")
+                    mimetype="text/plain")
 
 
 @app.route('/playlists/latest_track_clean')
 @app.route('/playlists/latest_track_clean.php')
 def latest_track_clean():
-    if request.wants_json():
-        return jsonify(trackinfo())
-
     naughty_word_re = re.compile(
         r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole',
         re.IGNORECASE)
-    output = u"{artist} - {title} [DJ: {dj}]".format(**trackinfo())
-    output = naughty_word_re.sub(u'****', output)
 
+    track = trackinfo()
+    for k, v in track.items():
+        if type(v) == str or type(v) == unicode:
+            track[k] = naughty_word_re.sub(u'****', v)
+
+    if request.wants_json():
+        return jsonify(track)
+
+    output = u"{artist} - {title} [DJ: {dj}]".format(**track)
     return Response(output, mimetype="text/plain")
 
 
@@ -127,7 +132,7 @@ def playlists_date_data():
 
     sets = DJSet.query.filter(db.and_(DJSet.dtstart >= start,
                                       DJSet.dtstart <= end)).\
-            order_by(db.desc(DJSet.dtstart)).limit(300).all()
+        order_by(db.desc(DJSet.dtstart)).limit(300).all()
 
     if request.wants_json():
         return jsonify({'sets': [s.serialize() for s in sets]})
@@ -135,11 +140,16 @@ def playlists_date_data():
     return Response("{start} {end}".format(start=start, end=end))
 
 
-
 @app.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
     dtstart = datetime.datetime(year, month, day, 0, 0, 0)
     sets = DJSet.query.filter(DJSet.dtstart >= dtstart).all()
+
+    if request.wants_json():
+        return jsonify({
+            'dtstart': dtstart,
+            'sets': [s.serialize() for s in sets],
+        })
 
     return render_template('playlists_date_sets.html', date=dtstart, sets=sets)
 # }}}
@@ -149,7 +159,21 @@ def playlists_date_sets(year, month, day):
 @app.route('/playlists/dj')
 def playlists_dj():
     djs = DJ.query.order_by(DJ.airname).filter(DJ.visible == True)
+
+    if request.wants_json():
+        return jsonify({'djs': [dj.serialize() for dj in djs]})
+
     return render_template('playlists_dj_list.html', djs=djs)
+
+
+@app.route('/playlists/dj/all')
+def playlists_dj_all():
+    djs = DJ.query.order_by(DJ.airname).all()
+
+    if request.wants_json():
+        return jsonify({'djs': [dj.serialize() for dj in djs]})
+
+    return render_template('playlists_dj_list_all.html', djs=djs)
 
 
 @app.route('/playlists/dj/<int:dj_id>')
@@ -158,16 +182,245 @@ def playlists_dj_sets(dj_id):
     if not dj:
         abort(404)
     sets = DJSet.query.filter(DJSet.dj_id == dj_id).all()
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'sets': [s.serialize() for s in sets],
+        })
+
     return render_template('playlists_dj_sets.html', dj=dj, sets=sets)
+# }}}
+
+
+# Charts {{{
+def charts_period(period):
+    if period is not None:
+        end = datetime.datetime.utcnow()
+
+        if period == 'weekly':
+            start = end - datetime.timedelta(weeks=1)
+        elif period == 'monthly':
+            start = end - dateutil.relativedelta.relativedelta(months=1)
+        elif period == 'yearly':
+            start = end - dateutil.relativedelta.relativedelta(years=1)
+        else:
+            abort(404)
+    else:
+        if 'start' in request.args:
+            try:
+                start = datetime.datetime.strptime(request.args['start'],
+                                                   "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                abort(400)
+        else:
+            first_track = TrackLog.query.order_by(TrackLog.played).first()
+            start = first_track.played
+
+        if 'end' in request.args:
+            try:
+                end = datetime.datetime.strptime(request.args['end'],
+                                                 "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                abort(400)
+        else:
+            end = datetime.datetime.utcnow()
+
+    return start, end
+
+
+@app.route('/playlists/charts')
+def charts_index():
+    periodic_charts = [
+        ('charts_albums', "Top albums"),
+        ('charts_artists', "Top artists"),
+        ('charts_tracks', "Top tracks"),
+    ]
+    return render_template('charts.html', periodic_charts=periodic_charts)
+
+
+@app.route('/playlists/charts/albums')
+@app.route('/playlists/charts/albums/<string:period>')
+def charts_albums(period=None):
+    start, end = charts_period(period)
+    results = Track.query.\
+        with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(db.and_(
+            TrackLog.played >= start,
+            TrackLog.played <= end)).\
+        group_by(Track.artist, Track.album).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({'results': results})
+
+    return render_template('chart_albums.html', start=start, end=end,
+                           results=results)
+
+
+@app.route('/playlists/charts/albums/dj/<int:dj_id>')
+def charts_albums_dj(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    results = Track.query.\
+        with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
+        group_by(Track.artist, Track.album).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_albums_dj.html', dj=dj, results=results)
+
+
+@app.route('/playlists/charts/artists')
+@app.route('/playlists/charts/artists/<string:period>')
+def charts_artists(period=None):
+    start, end = charts_period(period)
+    results = Track.query.\
+        with_entities(Track.artist, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(db.and_(
+            TrackLog.played >= start,
+            TrackLog.played <= end)).\
+        group_by(Track.artist).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({'results': results})
+
+    return render_template('chart_artists.html', start=start, end=end,
+                           results=results)
+
+
+@app.route('/playlists/charts/artists/dj/<int:dj_id>')
+def charts_artists_dj(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    results = Track.query.\
+        with_entities(Track.artist, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
+        group_by(Track.artist).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_artists_dj.html', dj=dj, results=results)
+
+
+@app.route('/playlists/charts/tracks')
+@app.route('/playlists/charts/tracks/<string:period>')
+def charts_tracks(period=None):
+    start, end = charts_period(period)
+    results = Track.query.with_entities(Track, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(db.and_(
+            TrackLog.played >= start,
+            TrackLog.played <= end)).\
+        group_by(TrackLog.track_id).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_tracks.html', start=start, end=end,
+                           results=results)
+
+
+@app.route('/playlists/charts/tracks/dj/<int:dj_id>')
+def charts_tracks_dj(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    results = Track.query.\
+        with_entities(Track, db.func.count(TrackLog.id)).\
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
+        group_by(TrackLog.track_id).\
+        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+
+    if request.wants_json():
+        return jsonify({
+            'dj': dj.serialize(),
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_tracks_dj.html', dj=dj, results=results)
+
+
+@app.route('/playlists/charts/dj/spins')
+def charts_dj_spins():
+    results = TrackLog.query.\
+        with_entities(TrackLog.dj_id, DJ, db.func.count(TrackLog.id)).\
+        join(DJ).filter(DJ.visible == True).group_by(TrackLog.dj_id).\
+        order_by(db.func.count(TrackLog.id).desc()).all()
+
+    if request.wants_json():
+        return jsonify({
+            'results': [(x[1].serialize(), x[2]) for x in results],
+        })
+
+    return render_template('chart_dj_spins.html', results=results)
 # }}}
 
 
 @app.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
     djset = DJSet.query.get_or_404(set_id)
-    tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(TrackLog.played).all()
+    tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
+        TrackLog.played).all()
     archives = list_archives(djset)
-    return render_template('playlist.html', archives=archives, djset=djset, tracklogs=tracks)
+
+    if request.wants_json():
+        data = djset.serialize()
+        data.update({
+            'archives': [a[0] for a in archives],
+            'tracks': [t.full_serialize() for t in tracks],
+        })
+        return jsonify(data)
+
+    return render_template('playlist.html', archives=archives, djset=djset,
+                           tracklogs=tracks)
+
+
+@app.route('/playlists/cue/<string:filename>.cue')
+def playlist_cuesheet_ts(filename):
+    match_re = re.compile(r'^(\d{10}0001)(.*)$')
+    m = match_re.match(filename)
+    if not m:
+        abort(400)
+
+    try:
+        start = datetime.datetime.strptime(m.group(1), "%Y%m%d%H0001")
+    except:
+        abort(400)
+
+    # assume time in URL is local time, so convert to UTC for DB lookup
+    start = start.replace(tzinfo=dateutil.tz.tzlocal()).astimezone(
+        dateutil.tz.tzutc()).replace(tzinfo=None)
+    end = start + datetime.timedelta(hours=1)
+
+    prev = db.session.query(TrackLog.id).filter(TrackLog.played <= start).\
+        order_by(db.desc(TrackLog.played)).limit(1)
+    tracks = TrackLog.query.filter(db.and_(
+        TrackLog.id >= prev.as_scalar(),
+        TrackLog.played <= end)).order_by(TrackLog.played).all()
+
+    return Response(generate_cuesheet(filename, start, tracks),
+                    mimetype="audio/x-cue")
+
+
+@app.route('/playlists/cue/set/<int:set_id><string:ext>.cue')
+def playlist_cuesheet(set_id, ext):
+    djset = DJSet.query.get_or_404(set_id)
+    if djset.dtend is None:
+        abort(404)
+
+    return Response(generate_playlist_cuesheet(djset, ext),
+                    mimetype="audio/x-cue")
 
 
 #############################################################################
@@ -178,7 +431,7 @@ def playlist(set_id):
 @csrf.exempt
 def submit_automation_track():
     if 'password' not in request.form or \
-        request.form['password'] != app.config['AUTOMATION_PASSWORD']:
+            request.form['password'] != app.config['AUTOMATION_PASSWORD']:
         abort(403)
 
     automation = redis_conn.get('automation_enabled') == "true"
@@ -200,8 +453,7 @@ def submit_automation_track():
     else:
         album = "Not Available"
 
-    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr",
-            "ua"):
+    if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr", "ua"):
         # ignore PSAs and other traffic
         return Response("Will not log traffic\n", mimetype="text/plain")
 
@@ -230,8 +482,6 @@ def submit_automation_track():
                 track = tracks.one()
             else:
                 track = notauto.one()
-
-    dj = DJ.query.filter_by(name="Automation").first()
 
     log_track(track.id, None)
 

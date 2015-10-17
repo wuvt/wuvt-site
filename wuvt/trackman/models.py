@@ -1,5 +1,6 @@
 import datetime
 
+from wuvt import app
 from wuvt import db
 
 
@@ -21,6 +22,7 @@ class DJ(db.Model):
 
     def serialize(self):
         return {
+            'id': self.id,
             'airname': self.airname,
             'name': self.name,
             'visible': self.visible,
@@ -108,7 +110,7 @@ class TrackLog(db.Model):
     # DJ information, this is not kept updated right now and is _subject to removal_
     dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
     dj = db.relationship('DJ', backref=db.backref('tracks', lazy='dynamic'))
-    # Information about the track 
+    # Information about the track
     request = db.Column(db.Boolean, default=False)
     vinyl = db.Column(db.Boolean, default=False)
     new = db.Column(db.Boolean, default=False)
@@ -164,7 +166,6 @@ class TrackLog(db.Model):
         }
 
 
-
 class Track(db.Model):
     __tablename__ = "track"
     # may need to make this a BigInteger
@@ -180,6 +181,21 @@ class Track(db.Model):
         self.artist = artist
         self.album = album
         self.label = label
+
+    def validate(self):
+        if len(self.title) <= 0 or len(self.artist) <= 0 or \
+                len(self.album) <= 0 or len(self.label) <= 0:
+            return False
+
+        if 'TRACKMAN_ARTIST_BLACKLIST' in app.config and \
+                self.artist in app.config['TRACKMAN_ARTIST_BLACKLIST']:
+            return False
+
+        if 'TRACKMAN_LABEL_BLACKLIST' in app.config and \
+                self.label in app.config['TRACKMAN_LABEL_BLACKLIST']:
+            return False
+
+        return True
 
     def serialize(self):
         return {

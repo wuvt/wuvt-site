@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "Homestead Display";
-    src: url('/static/fonts/Homestead-Display.woff');
+    font-family: "Sohoma";
+    src: url('/static/fonts/sohoma_extrabold.woff');
 }
 
 /* remove focus outline */
@@ -27,9 +27,18 @@ body {
     background-repeat: no-repeat;
 }
 
+#progress_bar {
+    position: fixed;
+    z-index: 10001;
+    top: 0;
+    left: 0;
+    width: 1%;
+    height: 4px;
+    background-color: #ec1c23;
+}
+
 /* Now playing bar {{{ */
 #nowplaying {
-    clear: both;
     height: 34px;
     margin: 8px 0 15px 0;
     padding: 8px 50px 8px 16px;
@@ -41,18 +50,23 @@ body {
 }
 
 #nowplaying ul {
+    position: relative;
     margin: 0;
-    padding: 4px;
+    padding: 0;
     background: #bcccd3;
     list-style: none;
 }
 
 #nowplaying li {
-    display: inline;
+    display: inline-block;
+    padding: 4px;
+    background-color: #bcccd3;
 }
 
 #nowplaying li:last-child {
-    float: right;
+    position: absolute;
+    right: 0px;
+    padding-left: 15px;
 }
 
 #nowplaying strong {
@@ -164,11 +178,22 @@ header #mainheader #robot #volume_btn {
     background-image: url('/static/img/volume.svg');
 }
 
+header #mainheader #robot #volume_btn.active {
+    background-color: #808080;
+    border-radius: 30px 30px 0 0;
+
+    -webkit-transition: all 0.1s ease-in-out;
+       -moz-transition: all 0.1s ease-in-out;
+         -o-transition: all 0.1s ease-in-out;
+            transition: all 0.1s ease-in-out;
+
+}
+
 header #mainheader #volume_box {
     position: absolute;
+    visibility: hidden;
     z-index: 9999;
-    margin-top: -12px;
-    padding: 20px 12px 12px 12px;
+    padding: 20px 15px 15px 15px;
     background: #808080;
     opacity: 0;
 }
@@ -179,12 +204,13 @@ header #mainheader #volume_box button {
 }
 
 header #mainheader #volume_box.visible {
+    visibility: visible;
     opacity: 1.0;
 
-    -webkit-transition: opacity 0.2s ease-in-out;
-       -moz-transition: opacity 0.2s ease-in-out;
-         -o-transition: opacity 0.2s ease-in-out;
-            transition: opacity 0.2s ease-in-out;
+    -webkit-transition: all 0.2s ease-in-out;
+       -moz-transition: all 0.2s ease-in-out;
+         -o-transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
 }
 
 header #mainheader #volume_box #volume_slider {
@@ -241,8 +267,9 @@ header #bubble ul {
     margin: 0;
     padding: 0;
     list-style: none;
-    font-family: "Homestead Display", "Impact", sans-serif;
+    font-family: "Sohoma", sans-serif;
     font-size: 0.9em;
+    text-transform: uppercase;
 }
 
 header #bubble li {
@@ -396,6 +423,22 @@ header nav ul ul {
     width: 180px;
 }
 
+#side #radiothon_banner a {
+    display: block;
+    margin: 0 0 10px 0;
+    padding: 14px;
+    font-size: 1.2em;
+    background-color: #fff;
+    color: #000;
+    text-align: center;
+    text-decoration: none;
+}
+
+#side #radiothon_banner a strong {
+    color: #0071BC;
+    text-decoration: underline;
+}
+
 #side nav li a {
     display: block;
     margin: 0 0 10px 0;
@@ -471,11 +514,11 @@ header nav,
 #content > section p a,
 #content > article li a,
 #content > section li a {
-        color: rgb(0, 113, 188);
-        font-weight: bold;
-        text-decoration: none;
-        border-bottom-style: dashed;
-        border-bottom-width: thin;
+    color: rgb(0, 113, 188);
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom-style: dashed;
+    border-bottom-width: thin;
 }
 
 #content > article h2,
@@ -521,6 +564,7 @@ body > footer > a {
 #content > section img {
     float: left;
     margin: 0px 20px 10px 0px;
+    max-width: 100%;
 }
 
 #content > article footer,
@@ -549,9 +593,23 @@ section.pagination a {
     margin-right: 1em;
     color: #000000;
 }
+
+.blink-red {
+            animation: blink-red 2s steps(1) infinite;
+       -moz-animation: blink-red 2s steps(1) infinite;
+    -webkit-animation: blink-red 2s steps(1) infinite;
+}
+
+@keyframes blink-red {
+    50% { color: #ec1c23; }
+}
+
+@-webkit-keyframes blink-red {
+    50% { color: #ec1c23; }
+}
 /* }}} */
 
-/* Track list table {{{ */
+/* Tables {{{ */
 table.tracklist {
     width: 100%;
     border: 1px solid #ffffff;
@@ -579,6 +637,11 @@ table.tracklist thead th.icon-column {
 table.tracklist th,
 table.tracklist td {
     padding: 4px;
+}
+
+table.tracklist th.text-right,
+table.tracklist td.text-right {
+    text-align: right;
 }
 
 table.tracklist td span {
@@ -615,6 +678,9 @@ a.donate {
     background-color: #ec1c23;
     color: #ffffff !important;
     text-decoration: none !important;
+    /* open donate page in a new tab */
+    target-name: new;
+    target-new: tab;
 }
 
 a.donate:hover {

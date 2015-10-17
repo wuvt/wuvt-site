@@ -10,7 +10,6 @@ from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
-import logging
 
 from wuvt import app
 from wuvt import db
@@ -20,13 +19,38 @@ from wuvt import format_datetime, localize_datetime
 from wuvt.trackman.models import TrackLog, DJSet, DJ
 
 
-def logout_recent():
-    automation_dj = DJ.query.filter(DJ.name == "Automation").first()
-    last_djset = DJSet.query.filter(DJSet.dj_id == automation_dj.id).order_by(DJSet.dtstart.desc()).first()
-    if last_djset.dtend is None:
-        last_djset.dtend = datetime.utcnow()
-        db.session.commit()
-        redis_conn.delete('dj_timeout')
+def get_duplicates(model, attrs):
+    dups = model.query.with_entities(
+        *[getattr(model, attr) for attr in attrs]).group_by(
+        *[getattr(model, attr) for attr in attrs]).having(db.and_(
+        *[db.func.count(getattr(model, attr)) > 1 for attr in attrs])).all()
+    return dups
+
+
+def logout_all():
+    open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
+        DJSet.dtstart.desc()).all()
+    for djset in open_djsets:
+        djset.dtend = datetime.utcnow()
+
+    db.session.commit()
+    redis_conn.delete('dj_timeout')
+
+
+def logout_all_but_current(dj):
+    current_djset = None
+    open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
+        DJSet.dtstart.desc()).all()
+    for djset in open_djsets:
+        if current_djset is None and djset.dj_id == dj.id:
+            current_djset = djset
+        else:
+            djset.dtend = datetime.utcnow()
+
+    db.session.commit()
+    redis_conn.delete('dj_timeout')
+
+    return current_djset
 
 
 def perdelta(start, end, td):
@@ -48,6 +72,60 @@ def list_archives(djset):
         yield (app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
+
+
+def generate_cuesheet(filename, start, tracks, offset=0):
+    cuesheet = "FILE \"{}\"\n".format(email.utils.quote(filename))
+    i = offset + 1
+    for track in tracks:
+        if track.played < start:
+            offset = timedelta(seconds=0)
+        else:
+            offset = track.played - start
+
+        minutes, secs = divmod(offset.seconds, 60)
+
+        cuesheet += """\
+    TRACK {index:02d} AUDIO
+        TITLE "{title}"
+        PERFORMER "{artist}"
+        INDEX 01 {m:02d}:{s:02d}:00
+""".format(index=i, title=email.utils.quote(track.track.title.encode('utf-8')),
+           artist=email.utils.quote(track.track.artist.encode('utf-8')),
+           m=minutes, s=secs)
+        i += 1
+
+    return cuesheet
+
+
+def generate_playlist_cuesheet(djset, ext):
+    cuesheet = """\
+PERFORMER "{dj}"
+TITLE "{date}"
+""".format(
+        dj=email.utils.quote(djset.dj.airname.encode('utf-8')),
+        date=format_datetime(djset.dtstart, "%Y-%m-%d %H:%M"))
+
+    delta = timedelta(hours=1)
+    start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
+    end = djset.dtend.replace(minute=59, second=59, microsecond=0) + \
+        timedelta(seconds=1)
+    offset = 0
+
+    for loghour in perdelta(start, end, delta):
+        tracks = TrackLog.query.filter(db.and_(
+            TrackLog.djset_id == djset.id,
+            TrackLog.played >= loghour,
+            TrackLog.played <= loghour + delta)).\
+            order_by(TrackLog.played).all()
+
+        if len(tracks) > 0:
+            filename = datetime.strftime(localize_datetime(loghour),
+                                         "%Y%m%d%H0001{}".format(ext))
+            cuesheet += generate_cuesheet(filename, loghour, tracks, offset)
+            offset += len(tracks)
+
+    return cuesheet
 
 
 def disable_automation():
@@ -103,12 +181,20 @@ def email_playlist(djset):
 
 
 def stream_listeners(url):
+    if len(url) <= 0:
+        return None
+
     url += 'stats.xml'
     parsed = urlparse.urlparse(url)
-    r = requests.get(url, auth=(parsed.username, parsed.password))
-    doc = lxml.etree.fromstring(r.text)
-    listeners = doc.xpath('//icestats/listeners/text()')[0]
-    return int(listeners)
+
+    try:
+        r = requests.get(url, auth=(parsed.username, parsed.password))
+        doc = lxml.etree.fromstring(r.text)
+        listeners = doc.xpath('//icestats/listeners/text()')[0]
+        return int(listeners)
+    except Exception as e:
+        app.logger.error(e)
+        return None
 
 
 def log_track(track_id, djset_id, request=False, vinyl=False, new=False,

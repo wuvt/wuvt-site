@@ -67,6 +67,7 @@ app = Flask(__name__)
 app.config.from_object(config)
 app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
+app.jinja_env.filters['isodatetime'] = lambda d: d.isoformat() + 'Z'
 app.static_folder = 'static'
 
 redis_conn = redis.from_url(app.config['REDIS_URL'])
@@ -96,9 +97,12 @@ from wuvt import views
 if not app.debug:
     import logging
     from logging.handlers import SMTPHandler
-    mail_handler = SMTPHandler(app.config['SMTP_SERVER'],
-                               app.config['MAIL_FROM'],
-                               app.config['ADMINS'], "[WUVT] Website error")
+
+    mail_handler = SMTPHandler(
+        app.config['SMTP_SERVER'],
+        app.config['MAIL_FROM'],
+        app.config['ADMINS'],
+        "[{}] Website error".format(app.config['STATION_NAME']))
     mail_handler.setFormatter(logging.Formatter('''
 Message type:       %(levelname)s
 Time:               %(asctime)s

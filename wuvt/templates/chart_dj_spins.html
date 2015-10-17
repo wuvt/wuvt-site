@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Top DJs by Spins - Charts - {{ super() }}{% endblock %}
+{% block content %}
+<section>
+<header>
+    <h2>Charts: Top DJs by Spins</h2>
+</header>
+
+<table class="tracklist chart">
+    <thead>
+        <th>DJ</th>
+        <th class="text-right">Spins</th>
+    </thead>
+    <tbody>
+        {% for dj_id, dj, spins in results %}
+        <tr>
+            <td><a href="{{ url_for('playlists_dj_sets', dj_id=dj_id) }}">{{ dj.airname }}</a></td>
+            <td class="text-right">{{ spins }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</section>
+{% endblock %}

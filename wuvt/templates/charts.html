@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Charts - {{ super() }}{% endblock %}
+
+{% block content %}
+<section>
+    <header>
+        <h2>Charts</h2>
+    </header>
+
+    {% for path, name in periodic_charts %}
+    <ul>
+        <li><a href="{{ url_for(path, period='weekly') }}">{{ name }} in the last week</a></li>
+        <li><a href="{{ url_for(path, period='monthly') }}">{{ name }} in the last month</a></li>
+        <li><a href="{{ url_for(path, period='yearly') }}">{{ name }} in the last year</a></li>
+        <li><a href="{{ url_for(path) }}">{{ name }} of all time</a></li>
+    </ul>
+    {% endfor %}
+
+    <ul>
+        <li><a href="{{ url_for('charts_dj_spins') }}">Top DJs by spins</a></li>
+    </ul>
+</section>
+{% endblock %}

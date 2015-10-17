@@ -3,16 +3,28 @@
 
 {% block content %}
 <section>
-<header>
-    <h2>Playlist Archive (by DJ)</h2>
-    <h3>{{ dj.airname }}</h3>
-</header>
+    <header>
+        <h2>Playlist Archive (by DJ)</h2>
+        <h3>{{ dj.airname }}</h3>
+    </header>
 
-<section>
     <ul>
         {% for set in sets %}
-        <li><a href="{{ url_for('playlist', set_id=set.id) }}">{{ set.dtstart|datetime("%Y-%m-%d %H:%M") }}{% if set.dtend %}-{{ set.dtend|datetime("%Y-%m-%d %H:%M") }}{% endif %}</a></li>
+        <li><a href="{{ url_for('playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtstart|datetime("%Y-%m-%d %H:%M") }}</time>{% if set.dtend %}-<time datetime="{{ set.dtend|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtend|datetime("%Y-%m-%d %H:%M") }}</time>{% endif %}</a></li>
         {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <header>
+        <h2>Charts</h2>
+    </header>
+
+    <ul>
+        <li><a href="{{ url_for('charts_albums_dj', dj_id=dj.id) }}">Top albums for this DJ</a></li>
+        <li><a href="{{ url_for('charts_artists_dj', dj_id=dj.id) }}">Top artists for this DJ</a></li>
+        <li><a href="{{ url_for('charts_tracks_dj', dj_id=dj.id) }}">Top tracks for this DJ</a></li>
+
     </ul>
 </section>
 {% endblock %}

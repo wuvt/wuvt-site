@@ -34,7 +34,8 @@
                     {% block nav_admin_pages %}<li><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}
                     {% if not config.LDAP_AUTH %}{% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}{% endif %}
                     {% block nav_admin_upload %}<li><a href="{{ url_for('admin.upload') }}">Upload</a></li>{% endblock %}
-                    <li><a href="{{ url_for('auth.logout') }}">
+                    {% block nav_admin_library %}<li><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+                    <li><a href="#" id="logout_link">
                         <span class="glyphicon glyphicon-off"></span>
                         Logout</a></li>
                 </ul>
@@ -54,9 +55,14 @@
 {% endblock %}
 </div>
 
+<form action="{{ url_for('auth.logout') }}" method="post" id="logout_form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+</form>
+
 {% block js %}
 <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
 <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 {% endblock %}
     </body>
 </html>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Top Artists - Charts - {{ super() }}{% endblock %}
+{% block content %}
+<section>
+<header>
+    <h2>Charts: Top Artists</h2>
+    <h3>from <time datetime="{{ start|isodatetime }}" data-format="YYYY-MM-DD">{{ start|datetime("%Y-%m-%d") }}</time> to
+        <time datetime="{{ end|isodatetime }}" data-format="YYYY-MM-DD">{{ end|datetime("%Y-%m-%d") }}</time></h3>
+</header>
+
+<table class="tracklist chart">
+    <thead>
+        <th>Artist</th>
+        <th class="text-right">Plays</th>
+    </thead>
+    <tbody>
+        {% for artist, plays in results %}
+        <tr>
+            <td>{{ artist }}</td>
+            <td class="text-right">{{ plays }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</section>
+{% endblock %}
