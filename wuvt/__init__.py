@@ -87,7 +87,7 @@ from wuvt import auth
 app.register_blueprint(auth.bp, url_prefix='/auth')
 
 from wuvt import donate
-app.register_blueprint(donate.bp, url_prefix='/donate-online')
+app.register_blueprint(donate.bp, url_prefix='/donate')
 
 from wuvt import trackman
 app.register_blueprint(trackman.bp, url_prefix='/trackman')
