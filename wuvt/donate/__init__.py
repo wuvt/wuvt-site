@@ -4,6 +4,11 @@ from wuvt import app
 
 bp = Blueprint('donate', __name__)
 
+def get_recurring_plans():
+    stripe.api_key = app.config['STRIPE_SECRET_KEY']
+    return stripe.Plan.all()
+
+
 def process_stripe_onetime(order, stripe_token, amount):
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
@@ -22,18 +27,8 @@ def process_stripe_onetime(order, stripe_token, amount):
     return True
 
 
-def process_stripe_recurring(order, stripe_token, plan):
+def process_stripe_recurring(order, stripe_token, plan, shipping_cost=0):
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
-
-    # create the plan
-    #stripe.Plan.create(
-    #    amount=order.amount,
-    #    interval="month",
-    #    name=order.name,
-    #    currency="usd",
-    #    statement_description=app.config['STRIPE_DESCRIPTION'],
-    #    id=str(order.id)
-    #)
 
     # create the customer using stripe_token
     try:
@@ -47,16 +42,16 @@ def process_stripe_recurring(order, stripe_token, plan):
     order.custid = customer.id
 
     # bill for shipping, if applicable
-    if premiums == "ship":
+    if shipping_cost > 0:
         stripe.InvoiceItem.create(
             customer=order.custid,
-            amount=int(app.config['DONATE_SHIPPING_COST']) * 100,
+            amount=shipping_cost,
             currency="usd",
             description="One-time shipping fee")
 
     # create the subscription
     cust = stripe.Customer.retrieve(order.custid)
-    cust.subscriptions.create(plan=str(order.id))
+    cust.subscriptions.create(plan=plan)
 
     order.set_paid('stripe')
 

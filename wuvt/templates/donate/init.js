@@ -1,7 +1,5 @@
 var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
 
-alert(shipping_minimum);
-
 init_donate();
 
 var handler = StripeCheckout.configure({

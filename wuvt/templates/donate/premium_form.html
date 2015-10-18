@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Donate Online - {{ super() }}{% endblock %}
+{% block title %}Make a One-Time Donation - {{ super() }}{% endblock %}
 {% block content %}
 
 <section>
     <header>
-        <h2>Donate Online</h2>
+        <h2>{% block donate_title %}Make a One-Time Donation{% endblock %}</h2>
     </header>
 
-    <form action="{{ url_for('donate.process') }}" method="post"
+    <form action="{% block donate_action %}{{ url_for('donate.donate_onetime') }}{% endblock %}" method="post"
             id="donate_form">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
         <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
@@ -17,12 +17,14 @@
             <input type="text" name="name" id="id_name" value="" />
         </label>
 
+        {% block pledge_amount %}
         <label>
             Pledge Amount
             <input type="text" inputmode="numeric" name="amount"
                 id="id_amount" pattern="\d+(\.\d{2})?" placeholder="35.00"
                 required="required" />
         </label>
+        {% endblock %}
 
         <label>
             Email Address
