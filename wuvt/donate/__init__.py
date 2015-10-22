@@ -1,12 +1,19 @@
+import json
 import stripe
 from flask import Blueprint
 from wuvt import app
 
 bp = Blueprint('donate', __name__)
 
-def get_recurring_plans():
+
+def get_plan(id):
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
-    return stripe.Plan.all()
+    return stripe.Plan.retrieve(id)
+
+
+def list_plans():
+    stripe.api_key = app.config['STRIPE_SECRET_KEY']
+    return stripe.Plan.all()['data']
 
 
 def process_stripe_onetime(order, stripe_token, amount):

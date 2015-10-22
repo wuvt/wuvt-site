@@ -23,21 +23,38 @@ var handler = StripeCheckout.configure({
 });
 
 $('#donate_form').submit(function(ev) {
-    var amount = parseFloat($('#id_amount').val()) * 100;
-    if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
-        amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
-    }
-
-    // Open Checkout with further options
-    handler.open({
+    var opts = {
         name: "{{ config.STRIPE_NAME }}",
         description: "Donate Online",
-        amount: amount,
         currency: "usd",
-        panelLabel: "Pay {{ '{{amount}}' }}",
         email: $('#id_email').val(),
-        bitcoin: true,
-    });
+    };
+
+    if($('#id_plan').length > 0) {
+        var amount = parseInt($('option:selected', $('#id_plan')).attr('data-amount'));
+        if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
+            amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
+        }
+
+        // Open Checkout with options
+        opts['amount'] = amount;
+        opts['bitcoin'] = false;
+        opts['panelLabel'] = "Pay {{ '{{amount}}' }}";
+        handler.open(opts);
+    } else if($('#id_amount').length > 0) {
+        var amount = parseFloat($('#id_amount').val()) * 100;
+        if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
+            amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
+        }
+
+        // Open Checkout with options
+        opts['amount'] = amount;
+        opts['bitcoin'] = true;
+        opts['panelLabel'] = "Pay {{ '{{amount}}' }}";
+        handler.open(opts);
+    } else {
+        alert("Please enter or a select an amount to donate.");
+    }
 
     ev.preventDefault();
 });

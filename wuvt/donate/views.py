@@ -6,7 +6,7 @@ from wuvt import app
 from wuvt import auth
 from wuvt import db
 from wuvt.donate import bp
-from wuvt.donate import get_recurring_plans, process_stripe_onetime, \
+from wuvt.donate import get_plan, list_plans, process_stripe_onetime, \
         process_stripe_recurring
 from wuvt.donate.models import Order
 
@@ -22,91 +22,76 @@ def local_only(f):
     return local_wrapper
 
 
-@bp.route('/onetime', methods=['GET', 'POST'])
+@bp.route('/onetime')
 def donate_onetime():
-    if request.method == 'POST':
-        premiums = request.form.get('premiums', 'no')
-        amount = int(float(request.form['amount']) * 100)
-
-        order = Order(request.form['name'], request.form['email'],
-                      request.form.get('show', ''),
-                      request.form.get('onair', 'n') == 'y',
-                      request.form.get('firsttime', 'n') == 'y',
-                      amount, False)
-
-        if premiums != "no":
-            order.set_premiums(premiums,
-                               request.form.get('tshirtsize', None),
-                               request.form.get('tshirtcolor', None),
-                               request.form.get('sweatshirtsize', None))
-
-        if premiums == "ship":
-            # add shipping cost, if our order exceeds the minimum amount for
-            # shipping cost (e.g., lowest tier has free shipping)
-            if amount >= app.config['DONATE_SHIPPING_MINIMUM']:
-                amount += int(app.config['DONATE_SHIPPING_COST']) * 100
-
-            order.set_address(request.form['address_1'], request.form['address_2'],
-                              request.form['city'], request.form['state'],
-                              request.form['zipcode'])
-
-        if not process_stripe_onetime(order, request.form['stripe_token'],
-                                      amount):
-            return Response("Your card was declined. Please try again with "\
-                            "a different method of payment.")
-
-        db.session.add(order)
-        db.session.commit()
-
-        return Response("Thanks for your order.")
-
     return render_template('donate/premium_form.html')
 
 
-@bp.route('/monthly', methods=['GET', 'POST'])
+@bp.route('/monthly')
 def donate_recurring():
-    plans = get_recurring_plans() 
+    plans = list_plans()
     plan_ids = [plan.id for plan in plans]
-
-    if request.method == 'POST':
-        premiums = request.form.get('premiums', 'no')
-        shopping_cost = 0
-
-        plan = request.form['plan']
-        if plan not in plan_ids:
-            return Response("Unknown plan ID")
-
-        order = Order(request.form['name'], request.form['email'],
-                      request.form.get('show', ''),
-                      request.form.get('onair', 'n') == 'y',
-                      request.form.get('firsttime', 'n') == 'y',
-                      amount, True)
-
-        if premiums != "no":
-            order.set_premiums(premiums,
-                               request.form.get('tshirtsize', None),
-                               request.form.get('tshirtcolor', None),
-                               request.form.get('sweatshirtsize', None))
-
-        if premiums == "ship":
-            shipping_cost = int(app.config['DONATE_SHIPPING_COST']) * 100
-
-            order.set_address(request.form['address_1'], request.form['address_2'],
-                              request.form['city'], request.form['state'],
-                              request.form['zipcode'])
-
-        if not process_stripe_recurring(order, request.form['stripe_token'],
-                                        plan, shipping_cost):
-            return Response("Your card was declined. Please try again with "\
-                            "a different method of payment.")
-
-        db.session.add(order)
-        db.session.commit()
-
-        return Response("Thanks for your order.")
 
     return render_template('donate/recurring_form.html', plans=plans)
 
+
+@bp.route('/process', methods=['POST'])
+def process():
+    premiums = request.form.get('premiums', 'no')
+    shipping_cost = 0
+
+    if 'plan' in request.form:
+        recurring = True
+        plan = get_plan(request.form['plan'])
+
+        if plan:
+            amount = plan.amount
+        else:
+            return Response("Unknown plan ID"), 400
+    else:
+        recurring = False
+        amount = int(float(request.form['amount']) * 100)
+
+    order = Order(request.form['name'], request.form['email'],
+                  request.form.get('show', ''),
+                  request.form.get('onair', 'n') == 'y',
+                  request.form.get('firsttime', 'n') == 'y',
+                  amount, recurring)
+
+    if premiums != "no":
+        order.set_premiums(premiums,
+                           request.form.get('tshirtsize', None),
+                           request.form.get('tshirtcolor', None),
+                           request.form.get('sweatshirtsize', None))
+
+    if premiums == "ship":
+        # add shipping cost, if our order exceeds the minimum amount for
+        # shipping cost (e.g., lowest tier has free shipping)
+        if amount >= app.config['DONATE_SHIPPING_MINIMUM']:
+            shipping_cost = int(app.config['DONATE_SHIPPING_COST']) * 100
+            amount += int(app.config['DONATE_SHIPPING_COST']) * 100
+
+        order.set_address(request.form['address_1'], request.form['address_2'],
+                          request.form['city'], request.form['state'],
+                          request.form['zipcode'])
+
+    token = request.form['stripe_token']
+    if len(token) <= 0:
+        return Response("stripe_token was empty"), 400
+
+    if recurring:
+        if not process_stripe_recurring(order, token, plan, shipping_cost):
+            return Response("Your card was declined. Please try again with "\
+                            "a different method of payment."), 400
+    else:
+        if not process_stripe_onetime(order, token, amount):
+            return Response("Your card was declined. Please try again with "\
+                            "a different method of payment."), 400
+
+    db.session.add(order)
+    db.session.commit()
+
+    return Response("Thanks for your order!")
 
 @bp.route('/thanks')
 def thanks():
@@ -117,6 +102,8 @@ def thanks():
 @local_only
 @auth.check_access('missioncontrol')
 def missioncontrol_index():
+    # TODO: add recurring donation support for mission control
+
     if 'amount' in request.form:
         premiums = request.form.get('premiums', 'no')
         amount = int(float(request.form['amount']) * 100)
@@ -148,7 +135,7 @@ def missioncontrol_index():
             if not process_stripe_onetime(order, request.form['stripe_token'],
                                           amount):
                 return Response("Your card was declined. Please try again "\
-                                "with a different method of payment.")
+                                "with a different method of payment."), 400
 
         db.session.add(order)
         db.session.commit()

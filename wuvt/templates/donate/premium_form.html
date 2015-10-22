@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Make a One-Time Donation - {{ super() }}{% endblock %}
+{% block title %}Make a Donation - {{ super() }}{% endblock %}
 {% block content %}
 
 <section>
@@ -7,7 +7,7 @@
         <h2>{% block donate_title %}Make a One-Time Donation{% endblock %}</h2>
     </header>
 
-    <form action="{% block donate_action %}{{ url_for('donate.donate_onetime') }}{% endblock %}" method="post"
+    <form action="{{ url_for('donate.process') }}" method="post"
             id="donate_form">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
         <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
