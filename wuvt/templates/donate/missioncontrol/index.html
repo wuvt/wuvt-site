@@ -4,7 +4,7 @@
 {% block content %}
 <h1>Phone or In-Person Pledge</h1>
 
-<form action="{{ url_for('donate.missioncontrol_index') }}" method="post"
+<form action="{{ url_for('donate.missioncontrol_process') }}" method="post"
         id="donate_form" class="form-horizontal">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
@@ -24,8 +24,20 @@
                 <span class="input-group-addon">$</span>
                 <input type="text" inputmode="numeric" name="amount"
                     id="id_amount" pattern="\d+(\.\d{2})?" placeholder="35.00"
-                    required="required" class="form-control" />
+                    class="form-control" />
             </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_plan" class="col-sm-3 control-label">or Monthly Plan</label>
+        <div class="col-sm-9">
+            <select name="plan" id="id_plan" class="form-control">
+                <option value="">One-time donation</option>
+                {% for plan in plans %}
+                <option value="{{ plan.id }}" data-amount="{{ plan.amount }}">{{ plan.name }}</option>
+                {% endfor %}
+            </select>
         </div>
     </div>
 
@@ -192,90 +204,12 @@
         </div>
     </div>
 
-    <div id="stripe_fields">
-        <div class="form-group">
-            <label for="id_number" class="col-sm-3 control-label">Card Number</label>
-
-            <div class="col-sm-9">
-                <input type="text" inputmode="numeric" id="id_number"
-                    data-stripe="number" class="form-control" />
-            </div>
-        </div>
-
-        <div class="row">
-            <label for="id_expmonth" class="col-sm-3 control-label">Expiration</label>
-
-            <div class="col-xs-2">
-                <div class="input-group">
-                    <input type="text" inputmode="numeric" id="id_expmonth"
-                        placeholder="MM" data-stripe="exp-month"
-                        class="form-control" />
-                    <span class="input-group-addon"> / </span>
-                    <input type="text" inputmode="numeric"
-                        data-stripe="exp-year" placeholder="YYYY"
-                        class="form-control" />
-                </div>
-            </div>
-
-            <div class="col-xs-3">
-            </div>
-
-            <label for="id_cvc" class="col-xs-2 control-label">CVC</label>
-
-            <div class="col-xs-2">
-                <input type="text" inputmode="numeric" id="id_cvc"
-                    data-stripe="cvc" class="form-control" />
-            </div>
-        </div>
-    </div>
-
     <button type="submit" class="btn btn-primary">Process Pledge</button>
 </form>
 {% endblock %}
 {% block js %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/donate.js') }}"></script>
-<script src="https://js.stripe.com/v2/"></script>
-<script>
-var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
-
-Stripe.setPublishableKey("{{ config.STRIPE_PUBLIC_KEY }}");
-init_donate();
-
-$('#donate_form').submit(function(ev) {
-    var $form = $(this);
-
-    // disable submit button
-    $form.find('button').prop('disabled', true);
-
-    if($('#id_method').val() == "stripe") {
-        Stripe.card.createToken($form, function(status, response) {
-            if(response.error) {
-                // show the errors
-                alert(response.error.message);
-                $form.find('button').prop('disabled', false);
-            }
-            else {
-                $('#id_stripe_token').val(response.id);
-                $form.get(0).submit();
-            }
-        });
-    }
-    else {
-        $('#id_stripe_token').val('');
-        $form.get(0).submit();
-    }
-
-    ev.preventDefault();
-});
-
-$('#id_method').click(function() {
-    if($(this).val() == "stripe") {
-        $('#stripe_fields').show('fast');
-    }
-    else {
-        $('#stripe_fields').hide('fast');
-    }
-});
-</script>
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<script src="{{ url_for('donate.missioncontrol_donate_js') }}"></script>
 {% endblock %}

@@ -29,8 +29,6 @@ def process_stripe_onetime(order, stripe_token, amount):
     except stripe.CardError, e:
         return False
 
-    order.set_paid('stripe')
-
     return True
 
 
@@ -59,8 +57,6 @@ def process_stripe_recurring(order, stripe_token, plan, shipping_cost=0):
     # create the subscription
     cust = stripe.Customer.retrieve(order.custid)
     cust.subscriptions.create(plan=plan)
-
-    order.set_paid('stripe')
 
     return True
 

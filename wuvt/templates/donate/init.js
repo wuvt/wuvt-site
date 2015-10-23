@@ -4,7 +4,7 @@ init_donate();
 
 var handler = StripeCheckout.configure({
     key: "{{ config.STRIPE_PUBLIC_KEY }}",
-    image: '/static/img/icon.png',
+    image: "{{ url_for('static', filename='img/icon.png', _external=True) }}",
     token: function(token) {
         $('#id_stripe_token').val(token.id);
         $.ajax({
