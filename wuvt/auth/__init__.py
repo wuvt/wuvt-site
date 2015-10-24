@@ -45,7 +45,7 @@ def check_access(*sections):
     def access_decorator(f):
         @wraps(f)
         def access_wrapper(*args, **kwargs):
-            if not current_user.is_authenticated():
+            if not current_user.is_authenticated:
                 return app.login_manager.unauthorized()
 
             access_sections = set(session.get('access', []))

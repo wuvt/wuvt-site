@@ -1,3 +1,5 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
+
 var timerlength = 30;
 
 var clockspan = "<span class='glyphicon glyphicon-time'></span>";
@@ -809,6 +811,8 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         var logBtn = $("<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>");
         logBtn.bind('click', {'instance': this}, function(ev) {
             ev.data.instance.logQueued(row);
+            ev.data.instance.clearForm();
+            $('#artist').focus();
         });
         group.append(logBtn);
 
@@ -993,3 +997,5 @@ Trackman.prototype.init = function() {
     this.initPlaylist();
     this.initSearch();
 };
+
+// @license-end

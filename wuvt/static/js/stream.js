@@ -1,3 +1,5 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
+
 var streams = [
     ['audio/ogg', "http://engine.wuvt.vt.edu:8000/wuvt.ogg"],
     ['audio/aac', "http://engine.wuvt.vt.edu:8000/wuvt.aac"]
@@ -151,3 +153,5 @@ function positionVolumeBox() {
 function warnBrokenPlayer() {
     alert("Sorry, the WUVT live stream player is not supported by your browser. Please see the Listen Live page for other ways to listen to WUVT, or switch to Google Chrome or Mozilla Firefox.");
 }
+
+// @license-end
