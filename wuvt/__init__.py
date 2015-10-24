@@ -3,6 +3,7 @@ from wuvt import config
 from wuvt import session
 from flask import Flask, Request, redirect, request, url_for
 from flask.ext.login import LoginManager
+from flask.ext.migrate import Migrate
 from flask.ext.seasurf import SeaSurf
 from flask.ext.sqlalchemy import SQLAlchemy
 import re
@@ -75,6 +76,7 @@ app.session_interface = session.RedisSessionInterface(redis_conn)
 
 csrf = SeaSurf(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"

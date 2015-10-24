@@ -17,7 +17,7 @@ from wuvt.trackman.views import *
 @app.context_processor
 def inject_menus():
     menus = {}
-    pages = db.session.query(Page.name, Page.slug, Page.menu).\
+    pages = db.session.query(Page.name, Page.slug, Page.menu, Page.published).\
         filter(Page.menu is not None).order_by(Page.name).all()
     for page in pages:
         menu = str(page.menu)
