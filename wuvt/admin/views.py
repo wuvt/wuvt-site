@@ -1,5 +1,6 @@
 import datetime
 from collections import defaultdict
+from sqlalchemy import func
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, session
 from flask.ext.login import login_required, current_user
@@ -13,6 +14,7 @@ from wuvt.auth import check_access
 from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
 from wuvt.trackman.models import DJ, Track, TrackLog
+from wuvt.donate.models import Order
 
 from werkzeug import secure_filename
 import os
@@ -638,3 +640,11 @@ def library_track(id):
 
     return render_template('admin/library_track.html', track=track,
                            tracklogs=tracklogs, error_fields=error_fields)
+
+@bp.route('/donations', methods=['GET'])
+@check_access('business')
+def donation_index():
+    donations = Order.query.all()
+    stats = db.session.query(func.sum(Order.amount).label("total_paid"),
+                             func.max(Order.amount).label("max_paid")).all()
+    return render_template('admin/donation_index.html', donations=donations, total=stats[0][0], max=stats[0][1])

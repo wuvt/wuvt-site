@@ -117,7 +117,7 @@ def thanks():
 
 @bp.route('/missioncontrol')
 @local_only
-@auth.check_access('missioncontrol')
+#@auth.check_access('missioncontrol')
 def missioncontrol_index():
     return render_template('donate/missioncontrol/index.html',
                            plans=list_plans())
@@ -125,7 +125,7 @@ def missioncontrol_index():
 
 @bp.route('/missioncontrol/process', methods=['POST'])
 @local_only
-@auth.check_access('missioncontrol')
+#@auth.check_access('missioncontrol')
 def missioncontrol_process():
     success, msg = process_order(request.form['method'])
     if success:

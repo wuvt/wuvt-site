@@ -71,6 +71,10 @@ def login():
                                        app.config['LDAP_GROUPS_RADIOTHON'],
                                        user.username):
                         session['access'].append('missioncontrol')
+                    if ldap_group_test(client,
+                                       app.config['LDAP_GROUPS_BUSINESS'],
+                                       user.username):
+                        session['access'].append('business')
 
                     app.logger.warning("LDAP user {} logged in.".format(
                         user.username))
@@ -86,7 +90,7 @@ def login():
             if user and user.check_password(request.form['password']):
                 login_user(user)
                 session['username'] = user.username
-                session['access'] = ['admin', 'library', 'missioncontrol']
+                session['access'] = ['admin', 'library', 'missioncontrol', 'business']
 
                 app.logger.warning("Database user {} logged in.".format(
                     user.username))
