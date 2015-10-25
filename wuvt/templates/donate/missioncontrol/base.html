@@ -29,9 +29,9 @@
             <nav class="collapse navbar-collapse" role="navigation">
                 <ul class="nav navbar-nav">
                     {% block nav_admin_index %}<li><a href="{{ url_for('donate.missioncontrol_index') }}">Home</a></li>{% endblock %}
-                    <li><a href="{{ url_for('auth.logout') }}">
+                    {# <li><a href="{{ url_for('auth.logout') }}">
                         <span class="glyphicon glyphicon-off"></span>
-                        Logout</a></li>
+                        Logout</a></li> #}
                 </ul>
             </nav>
         </header>
