@@ -107,7 +107,7 @@ def process():
     if success:
         return Response(msg)
     else:
-        return Response(msg), 400
+        return render_template('donate/error.html', msg=msg), 400
 
 
 @bp.route('/thanks')
