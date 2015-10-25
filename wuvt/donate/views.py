@@ -119,8 +119,9 @@ def thanks():
 @local_only
 #@auth.check_access('missioncontrol')
 def missioncontrol_index():
+    orders = Order.query.order_by(db.desc(Order.id)).limit(app.config['ARTISTS_PER_PAGE'])
     return render_template('donate/missioncontrol/index.html',
-                           plans=list_plans())
+                           plans=list_plans(), orders=orders)
 
 
 @bp.route('/missioncontrol/process', methods=['POST'])

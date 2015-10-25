@@ -7,6 +7,10 @@
         <h2>{% block donate_title %}Make a One-Time Donation{% endblock %}</h2>
     </header>
 
+    <noscript><p>Sorry, but you'll need JavaScript enabled to donate. This
+    allows us to process your donation without your credit card information
+    ever touching our server.</p></noscript>
+
     <form action="{{ url_for('donate.process') }}" method="post"
             id="donate_form">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />

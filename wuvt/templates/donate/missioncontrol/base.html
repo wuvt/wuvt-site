@@ -28,16 +28,16 @@
             </div>
             <nav class="collapse navbar-collapse" role="navigation">
                 <ul class="nav navbar-nav">
-                    {% block nav_admin_index %}<li><a href="{{ url_for('donate.missioncontrol_index') }}">Home</a></li>{% endblock %}
-                    <li><a href="{{ url_for('auth.logout') }}">
+                    {% block nav_missioncontrol_index %}<li><a href="{{ url_for('donate.missioncontrol_index') }}">Home</a></li>{% endblock %}
+                    {# <li><a href="{{ url_for('auth.logout') }}">
                         <span class="glyphicon glyphicon-off"></span>
-                        Logout</a></li>
+                        Logout</a></li> #}
                 </ul>
             </nav>
         </header>
         {% endblock %}
 
-<div class="container">
+<div class="container-fluid">
     {% for msg in get_flashed_messages() %}
     <div class="alert alert-info">
         <button type="button" class="close" data-dismiss="alert">&times;</button>

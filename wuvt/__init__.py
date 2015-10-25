@@ -39,6 +39,10 @@ def format_datetime(value, format=None):
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
 
 
+def format_currency(value):
+    return "${:,.2f}".format(value)
+
+
 def is_safe_url(target):
     ref_url = urlparse.urlparse(request.host_url)
     test_url = urlparse.urlparse(urlparse.urljoin(request.host_url, target))
@@ -69,6 +73,7 @@ app.config.from_object(config)
 app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
 app.jinja_env.filters['isodatetime'] = lambda d: d.isoformat() + 'Z'
+app.jinja_env.filters['format_currency'] = format_currency
 app.static_folder = 'static'
 
 redis_conn = redis.from_url(app.config['REDIS_URL'])
