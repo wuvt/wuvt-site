@@ -216,6 +216,7 @@
     <tr>
         <th>Donor</th>
         <th>Show to Credit</th>
+        <th>First Time?</th>
         <th>Amount</th>
     </tr>
 
@@ -223,6 +224,7 @@
     <tr>
         <td>{% if order.thank_on_air %}{{ order.name }}{% else %}<em>Anonymous Donor</em>{% endif %}</td>
         <td>{{ order.dj }}</td>
+        <td>{% if order.first_time %}Yes{% else %}No{% endif %}</td>
         <td>{{ (order.amount / 100)|format_currency }}</td>
     </tr>
     {% endfor -%}
