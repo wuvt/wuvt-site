@@ -116,18 +116,6 @@
                 </select>
             </div>
         </div>
-
-        <div class="form-group">
-            <label for="id_sweatshirtsize" class="col-sm-3 control-label">Sweatshirt Size</label>
-            <div class="col-sm-9">
-                <select id="id_sweatshirtsize" name="sweatshirtsize"
-                        class="form-control">
-                    {% for size in config.DONATE_SWEATSHIRTSIZES %}
-                    <option value="{{ size }}">{{ size }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
     </div>
 
     <div id="shipping_fields">
