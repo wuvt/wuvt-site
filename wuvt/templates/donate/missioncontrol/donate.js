@@ -1,3 +1,5 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
+
 var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
 
 init_donate();
@@ -12,6 +14,8 @@ var handler = StripeCheckout.configure({
             'type': 'post',
             'data': $('#donate_form').serialize(),
         }).done(function(data) {
+            $('#donate_form button[type=submit]').prop('disabled', true);
+
             window.location.href = "{{ url_for('donate.missioncontrol_index') }}";
         }).fail(function(data) {
             alert("There was a problem donating!");
@@ -63,3 +67,5 @@ $('#donate_form').submit(function(ev) {
 $(window).on('popstate', function() {
     handler.close();
 });
+
+// @license-end
