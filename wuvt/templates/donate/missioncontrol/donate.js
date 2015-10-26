@@ -2,7 +2,7 @@
 
 var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
 
-init_donate();
+initDonate();
 
 var handler = StripeCheckout.configure({
     key: "{{ config.STRIPE_PUBLIC_KEY }}",
