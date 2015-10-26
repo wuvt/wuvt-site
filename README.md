@@ -114,7 +114,6 @@ license as noted in their headers:
 * wuvt/static/js/jquery.js
 * wuvt/static/js/jquery-ui.min.js
 * wuvt/static/js/moment.min.js
-* wuvt/static/js/pace.min.js
 
 The following font file was designed by Humberto Gregorio and is in the public
 domain:
