@@ -124,6 +124,20 @@ function makeAjaxLink(item) {
     });
 }
 
+function loadScriptFromList(scripts, i) {
+    var deferred = $.ajax({
+        url: scripts[i],
+        dataType: "script",
+        cache: true
+    });
+
+    if(i < scripts.length - 1) {
+        deferred.then(function() {
+            loadScriptFromList(scripts, i + 1);
+        });
+    }
+}
+
 function loadPage(path) {
     $.ajax({
         'url': path,
@@ -138,9 +152,13 @@ function loadPage(path) {
         $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
         // load scripts if necessary
+        var scripts = [];
         $.each(doc.find('#extra_js script'), function(i, item) {
-            $.getScript(item.src);
+            scripts.push(item.src);
         });
+        if(scripts.length > 0) {
+            loadScriptFromList(scripts, 0);
+        }
 
         $(document).trigger('pageChange');
         initLocalDates();
