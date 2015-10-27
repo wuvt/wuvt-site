@@ -144,6 +144,8 @@ def init_js():
 
 
 @bp.route('/missioncontrol/js/donate_init.js')
+@local_only
+#@auth.check_access('missioncontrol')
 def missioncontrol_donate_js():
     resp = make_response(render_template(
         'donate/missioncontrol/donate.js'))
