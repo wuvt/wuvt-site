@@ -725,6 +725,13 @@ button:active {
 }
 /* }}} */
 
+/* Donate form {{{ */
+#donate_form {
+    /* Hide by default; will be shown with JavaScript */
+    display: none;
+}
+/* }}} */
+
 /* Playlists by date {{{ */
 #playlists_by_date {
     position: relative;

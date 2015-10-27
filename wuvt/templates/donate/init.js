@@ -26,6 +26,9 @@ var handler = StripeCheckout.configure({
     }
 });
 
+$('#donate_loading_message').hide('fast');
+$('#donate_form').show('fast');
+
 $('#donate_form').submit(function(ev) {
     var opts = {
         name: "{{ config.STRIPE_NAME }}",

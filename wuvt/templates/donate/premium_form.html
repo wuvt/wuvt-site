@@ -11,6 +11,10 @@
     allows us to process your donation without your credit card information
     ever touching our server.</p></noscript>
 
+    <div id="donate_loading_message">
+        <p>Please wait a few seconds for the donate form to load...</p>
+    </div>
+
     <form action="{{ url_for('donate.process') }}" method="post"
             id="donate_form">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
