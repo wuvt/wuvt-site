@@ -1,6 +1,6 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
 
-var shipping_minimum = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
+var shippingMin = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
 
 initDonate();
 
@@ -36,7 +36,7 @@ $('#donate_form').submit(function(ev) {
 
     if($('#id_plan').length > 0) {
         var amount = parseInt($('option:selected', $('#id_plan')).attr('data-amount'));
-        if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
+        if($('#id_premiums_ship').is(':checked') && amount >= shippingMin) {
             amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
         }
 
@@ -47,7 +47,7 @@ $('#donate_form').submit(function(ev) {
         handler.open(opts);
     } else if($('#id_amount').length > 0) {
         var amount = parseFloat($('#id_amount').val()) * 100;
-        if($('#id_premiums_ship').is(':checked') && amount >= shipping_minimum) {
+        if($('#id_premiums_ship').is(':checked') && amount >= shippingMin) {
             amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
         }
 
