@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "Sohoma";
-    src: url('/static/fonts/sohoma_extrabold.woff');
+    font-family: "Homestead Display";
+    src: url('/static/fonts/Homestead-Display.woff');
 }
 
 /* remove focus outline */
@@ -267,7 +267,7 @@ header #bubble ul {
     margin: 0;
     padding: 0;
     list-style: none;
-    font-family: "Sohoma", sans-serif;
+    font-family: "Homestead Display", sans-serif;
     font-size: 0.9em;
     text-transform: uppercase;
 }

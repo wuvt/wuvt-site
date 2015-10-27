@@ -118,3 +118,5 @@ license as noted in their headers:
 The following font file was designed by Humberto Gregorio and is in the public
 domain:
 * wuvt/static/fonts/sohoma_extrabold.woff
+
+Other included fonts (in wuvt/static/fonts) are not covered under this license.
