@@ -47,12 +47,17 @@ def process_order(method):
             return False, "Unknown plan ID"
     else:
         recurring = False
-        amount = int(float(request.form['amount']) * 100)
+        amount_entry = request.form.get('amount', '').strip().lstrip('$')
+        if len(amount_entry) <= 0:
+            return False, "Please enter an amount to donate"
+
+        amount = int(float(amount_entry) * 100)
         if amount <= 0:
             return False, "Amount must be greater than 0"
 
-    order = Order(request.form['name'], request.form['email'],
-                  request.form.get('show', ''),
+    order = Order(request.form.get('name', '').strip(),
+                  request.form.get('email', '').strip(),
+                  request.form.get('show', '').strip(),
                   request.form.get('onair', 'n') == 'y',
                   request.form.get('firsttime', 'n') == 'y',
                   amount, recurring)

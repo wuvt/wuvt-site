@@ -49,7 +49,8 @@ $('#donate_form').submit(function(ev) {
         opts['panelLabel'] = "Pay {{ '{{amount}}' }}";
         handler.open(opts);
     } else if($('#id_amount').length > 0) {
-        var amount = parseFloat($('#id_amount').val()) * 100;
+        var amountStr = $('#id_amount').val().replace(/^[\s\$]+|\s+/g, '');
+        var amount = parseFloat(amountStr) * 100;
         if($('#id_premiums_ship').is(':checked') && amount >= shippingMin) {
             amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
         }
