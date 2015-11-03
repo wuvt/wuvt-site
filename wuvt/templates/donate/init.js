@@ -20,8 +20,7 @@ var handler = StripeCheckout.configure({
             window.history.replaceState({'path': path}, "Donate Online", path);
             loadPage(path);
         }).fail(function(data) {
-            alert("There was a problem donating!");
-            console.log(data);
+            updatePage($.parseHTML(data.responseText, document, true));
         });
     }
 });

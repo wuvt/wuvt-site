@@ -78,20 +78,20 @@ def process_order(method):
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
-    if method == 'stripe':
+    if method == u'stripe':
         token = request.form['stripe_token']
         if len(token) <= 0:
             return False, "stripe_token was empty"
 
         if recurring:
             if process_stripe_recurring(order, token, plan, shipping_cost):
-                order.set_paid('stripe')
+                order.set_paid(u'stripe')
             else:
                 return False, "Your card was declined. Please try again with "\
                         "a different method of payment."
         else:
             if process_stripe_onetime(order, token, amount + shipping_cost):
-                order.set_paid('stripe')
+                order.set_paid(u'stripe')
             else:
                 return False, "Your card was declined. Please try again with "\
                         "a different method of payment."
@@ -108,11 +108,33 @@ def process_order(method):
 
 @bp.route('/process', methods=['POST'])
 def process():
-    success, msg = process_order('stripe')
+    errors = []
+    if request.form['premiums'] != "no" and len(request.form['name']) <= 0:
+        errors.append("Please enter your name")
+
+    if request.form['premiums'] == "ship":
+        # verify we included address information
+
+        if len(request.form['address_1']) <= 0:
+            errors.append("Please enter an address line 1")
+
+        if len(request.form['city']) <= 0:
+            errors.append("Please enter a city")
+
+        if len(request.form['state']) <= 0:
+            errors.append("Please enter a state")
+
+        if len(request.form['zipcode']) <= 0:
+            errors.append("Please enter a a ZIP code")
+
+    if len(errors) > 0:
+        return render_template('donate/error.html', messages=errors), 400
+
+    success, msg = process_order(u'stripe')
     if success:
         return Response(msg)
     else:
-        return render_template('donate/error.html', msg=msg), 400
+        return render_template('donate/error.html', messages=[msg]), 400
 
 
 @bp.route('/thanks')

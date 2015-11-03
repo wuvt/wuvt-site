@@ -143,37 +143,33 @@ function loadPage(path) {
         'url': path,
         'dataType': 'html',
     }).done(function(data) {
-        var doc = $('<div>').append($.parseHTML(data, document, true));
-        $('title').text(doc.find('title').text());
-        $('#side_primary').html(doc.find('#side_primary > *'));
-        $('#content').html(doc.find('#content > *'));
-
-        $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
-        $.each($('#content a'), function(i, item){makeAjaxLink(item);});
-
-        // load scripts if necessary
-        var scripts = [];
-        $.each(doc.find('#extra_js script'), function(i, item) {
-            scripts.push(item.src);
-        });
-        if(scripts.length > 0) {
-            loadScriptFromList(scripts, 0);
-        }
-
-        $(document).trigger('pageChange');
-        initLocalDates();
+        updatePage($.parseHTML(data, document, true));
     }).fail(function(data) {
-        var doc = $('<div>').append($.parseHTML(data.responseText));
-        $('title').text(doc.find('title').text());
-        $('#side_primary').html(doc.find('#side_primary > *'));
-        $('#content').html(doc.find('#content > *'));
-
-        $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
-        $.each($('#content a'), function(i, item){makeAjaxLink(item);});
-
-        $(document).trigger('pageChange');
-        initLocalDates();
+        updatePage($.parseHTML(data.responseText, document, true));
     });
+}
+
+function updatePage(srcDoc) {
+    var doc = $('<div>').append(srcDoc);
+
+    $('title').text(doc.find('title').text());
+    $('#side_primary').html(doc.find('#side_primary > *'));
+    $('#content').html(doc.find('#content > *'));
+
+    $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
+    $.each($('#content a'), function(i, item){makeAjaxLink(item);});
+
+    // load scripts if necessary
+    var scripts = [];
+    $.each(doc.find('#extra_js script'), function(i, item) {
+        scripts.push(item.src);
+    });
+    if(scripts.length > 0) {
+        loadScriptFromList(scripts, 0);
+    }
+
+    $(document).trigger('pageChange');
+    initLocalDates();
 }
 
 function progressTick() {

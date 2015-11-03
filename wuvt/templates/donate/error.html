@@ -7,10 +7,17 @@
         <h2>Donation Error</h2>
     </header>
 
-    <p>There was a problem with your donation. Please try again; if you still
-    get this error, please contact the station for assistance.</p>
+    <p>We're sorry, but there was a problem with your donation. The following
+    error messages were returned:</p>
 
-    <p>The error message was: {{ msg }}</p>
+    <ul>
+    {% for msg in messages -%}
+        <li>{{ msg }}</li>
+    {% endfor -%}
+    </ul>
+
+    <p>Please try to make your donation again. If you continue to get this
+    error, please contact the station for assistance.</p>
 
     <footer>
     </footer>
