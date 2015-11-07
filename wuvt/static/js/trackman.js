@@ -51,19 +51,19 @@ Trackman.prototype.getFormData = function() {
 };
 
 Trackman.prototype.validateTrack = function(track) {
-    if(track['artist'] == "") {
+    if(track['artist'] == undefined || track['artist'] == "") {
         alert("Must fill out the artist field");
         return false;
     }
-    if(track['title'] == "") {
+    if(track['title'] == undefined || track['title'] == "") {
         alert("Must fill out the title field");
         return false;
     }
-    if(track['album'] == "") {
+    if(track['album'] == undefined || track['album'] == "") {
         alert("Must fill out the album field");
         return false;
     }
-    if(track['label'] == "") {
+    if(track['label'] == undefined || track['label'] == "") {
         alert("Must fill out the label field");
         return false;
     }
@@ -227,19 +227,22 @@ Trackman.prototype.queueTrack = function(ev) {
 };
 
 Trackman.prototype.queueFromJson = function(data) {
-    var tracks = JSON.parse(data);
+    return this.queueFromList(JSON.parse(data));
+};
+
+Trackman.prototype.queueFromList = function(tracks) {
     for(i in tracks) {
         var track = tracks[i];
-        if(!this.validateTrack(track)) {
-            return false;
+        if(this.validateTrack(track)) {
+            track['origin'] = 0;
+            this.queue.push(track);
         }
-        track['origin'] = 0;
-        this.queue.push(track);
     }
 
     this.saveQueue();
     this.updateQueue();
 };
+
 // }}}
 
 // Playlist {{{
