@@ -7,18 +7,64 @@ var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
 var playlistfalse = "";
 
 // origin: 0 if newly entered, 1 if from history
-var delayinterval;
-var delaybutton;
 
-function ret_undefined() {
-    return;
+function getParentIfSpan(target) {
+    if($(target).prop("tagName") == "SPAN") {
+        return $(target).parent();
+    }
+    else {
+        return $(target);
+    }
 }
+
+function TrackmanTimer(button, finish) {
+    this.interval = null;
+    this.seconds = timerlength;
+    this.button = button
+
+    // the finish action is expected to handle the event, e.g. log the track
+    this.finish = finish;
+}
+
+TrackmanTimer.prototype.start = function() {
+    // if it's already ticking, bail out
+    if(this.button.data("ticking") == true) {
+        return;
+    }
+
+    this.button.data("ticking", true);
+    this.button.find("span").remove();
+    this.button.html(this.seconds);
+
+    var inst = this;
+    this.interval = setInterval(function() {
+        inst.seconds--;
+        if(inst.seconds <= 0) {
+            inst.finish();
+            inst.clear();
+        }
+        else {
+            inst.button.html(inst.seconds);
+        }
+    }, 1000);
+};
+
+TrackmanTimer.prototype.clear = function() {
+    this.seconds = timerlength;
+    if(this.interval != undefined) {
+        clearInterval(this.interval);
+    }
+
+    this.button.data("ticking", false);
+    this.button.html(clockspan);
+};
 
 function Trackman(csrfToken, djsetId, djId, rotations) {
     this.csrfToken = csrfToken;
     this.djsetId = djsetId;
     this.djId = djId;
     this.rotations = rotations;
+    this.timers = {'queue': null, 'search': null};
 }
 
 Trackman.prototype.clearForm = function(ev) {
@@ -164,6 +210,8 @@ Trackman.prototype.updateQueue = function() {
 };
 
 Trackman.prototype.logQueued = function(element) {
+    this.clearTimer("queue");
+
     var elem = element;
     var id = element.prop("id").substring(1);
     var track = this.queue[id];
@@ -434,63 +482,19 @@ Trackman.prototype.renderPlaylistRow = function(p) {
 };
 
 Trackman.prototype.clearTimer = function(tableclass) {
-    if(typeof tableclass != "undefined") {
-        if(typeof delaybutton != "undefined") {
-            if(delaybutton.parents("table").prop("id") == tableclass) {
-                delaybutton.html(clockspan);
-                delaybutton.off("click");
-                delaybutton.bind('click', {'instance': this}, this.logTimer);
-                clearInterval(delayinterval);
-            }
+    if(typeof tableclass == "undefined" || tableclass == "queue") {
+        if(this.timers['queue'] != null) {
+            this.timers['queue'].clear();
+            this.timers['queue'] = null;
         }
     }
-    else {
-        if(typeof delayinterval != "undefined") {
-            clearInterval(delayinterval);
-        }
-        if(typeof delaybutton != "undefined") {
-            delaybutton.html(clockspan);
-            delaybutton.off("click");
-            delaybutton.bind('click', {'instance': this}, this.logTimer);
-        }
-    }
-    delaybutton = ret_undefined();
-    delayinterval = ret_undefined();
-};
 
-Trackman.prototype.logTimer = function(ev) {
-    var inst = ev.data.instance;
-
-    inst.clearTimer();
-    // Sometimes it triggers on the span itself
-    if($(ev.target).prop("tagName") == "SPAN") {
-        delaybutton = $(ev.target).parent();
-    }
-    else {
-        delaybutton = $(ev.target);
-    }
-    delaybutton.find("span").remove();
-    delaybutton.html(timerlength);
-    var seconds = timerlength;
-    delayinterval = setInterval(function() {
-        seconds--;
-        if(seconds == 0) {
-            var button = delaybutton;
-            inst.clearTimer();
-            if(button.parents("table").prop("id") == "queue") {
-                inst.logQueued(button.parents("tr.queue-row"));
-            }
-            else {
-                inst.logSearch(button.parents("tr.search-row"));
-            }
-            return 0;
+    if(typeof tableclass == "undefined" || tableclass == "search") {
+        if(this.timers['search'] != null) {
+            this.timers['search'].clear();
+            this.timers['search'] = null;
         }
-        delaybutton.html(seconds);
-    }, 1000);
-
-    // Replace the click listener with clearTimer
-    delaybutton.off("click");
-    delaybutton.click(function () {inst.clearTimer()});
+    }
 };
 // }}}
 
@@ -501,6 +505,8 @@ Trackman.prototype.initSearch = function() {
 };
 
 Trackman.prototype.logSearch = function(element) {
+    this.clearTimer("search");
+
     var elem = element;
     var id = element.prop("id").substring(1);
     var track = this.searchResults[id];
@@ -602,8 +608,21 @@ Trackman.prototype.bindSearchListeners = function() {
                                                 updateSearchResults);
     $("table#search select.rotation").bind('change', {'instance': this},
                                            updateSearchRotation);
+
     $("table#search button.search-delay").bind('click', {'instance': this},
-                                               this.logTimer);
+                                               function(ev) {
+        var button = getParentIfSpan(ev.target);
+        if(button.data('ticking') != true) {
+            ev.data.instance.clearTimer('search');
+            ev.data.instance.timers['search'] = new TrackmanTimer(button, function() {
+                ev.data.instance.logSearch($(ev.target).parents(".search-row"));
+            });
+            ev.data.instance.timers['search'].start();
+        }
+        else {
+            ev.data.instance.timers['search'].clear();
+        }
+    });
 
     $("table#search button.report").bind('click', {'instance': this},
                                          function(ev) {
@@ -820,7 +839,19 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.append(logBtn);
 
         var logDelayBtn = $("<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
-        logDelayBtn.bind('click', {'instance': this}, this.logTimer);
+        logDelayBtn.bind('click', {'instance': this}, function(ev) {
+            var button = getParentIfSpan(ev.target);
+            if(button.data('ticking') != true) {
+                ev.data.instance.clearTimer('queue');
+                ev.data.instance.timers['queue'] = new TrackmanTimer(button, function() {
+                    ev.data.instance.logQueued($(ev.target).parents(".queue-row"));
+                });
+                ev.data.instance.timers['queue'].start();
+            }
+            else {
+                ev.data.instance.timers['queue'].clear();
+            }
+        });
         group.append(logDelayBtn);
 
         var editBtn = $("<button class='btn btn-default btn-sm queue-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
