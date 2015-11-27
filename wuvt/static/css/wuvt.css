@@ -698,6 +698,10 @@ label input[type='email'],
 label input[type='text'],
 label select {
     display: block;
+}
+
+input[type='email'],
+input[type='text'] {
     border: 1px solid #000;
     padding: 2px;
     background: #fff;
