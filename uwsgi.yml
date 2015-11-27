@@ -6,6 +6,7 @@ prod:
   touch-reload: /srv/http/wuvt-site/reload.txt
   processes: 20
   offload-threads: 2
+  harakiri: 30
 
   plugins: python,router_uwsgi
   if-env: VIRTUAL_ENV
@@ -30,6 +31,7 @@ dev:
   http-socket: ':9090'
   processes: 5
   offload-threads: 1
+  harakiri: 30
 
   plugins: python,router_uwsgi
   if-env: VIRTUAL_ENV
