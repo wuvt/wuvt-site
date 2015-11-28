@@ -32,10 +32,18 @@ Now, within this virtualenv, install the dependencies:
 pip install -r requirements.txt
 ```
 
-You'll also want to get gunicorn, which is used as a local web server:
+You'll also want to get uWSGI. You need at least version 2.0.9. For example:
 
 ```
-pip install gunicorn
+apt-get install uwsgi uwsgi-core uwsgi-plugin-python
+```
+
+Now, build the SSE offload plugin. For example, on Debian:
+
+```
+apt-get install uuid-dev libcap-dev libpcre3-dev
+uwsgi --build-plugin https://github.com/unbit/uwsgi-sse-offload
+sudo cp sse_offload_plugin.so /usr/lib/uwsgi/plugins/
 ```
 
 Next, clone the repo and make a copy of the config:
@@ -54,11 +62,11 @@ python2 create.py
 python2 articles.py
 ```
 
-Finally, start the celery worker and development web server:
+Finally, start the celery worker and uWSGI workers:
 
 ```
 ./run_celery.sh &
-./run_dev_server.sh
+uwsgi --yaml uwsgi.yml:dev
 ```
 
 You can now access the site at http://127.0.0.1:8080/

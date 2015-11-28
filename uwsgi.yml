@@ -1,13 +1,42 @@
 uwsgi:
-    procname-prefix-spaced: wuvt-site
-    socket: /run/uwsgi/wuvt-site.sock
-    master: true
-    processes: 20
-    gevent: 100
-    chdir: /srv/http/wuvt-site
-    module: wuvt
-    callable: app
-    chmod-socket: 600
-    disable-logging: 1
-    touch-reload: /srv/http/wuvt-site/reload.txt
-    gevent-monkey-patch: 1
+  procname-prefix-spaced: wuvt-site
+  master: 1
+  socket: /run/uwsgi/wuvt-site.sock
+  chmod-socket: 600
+  touch-reload: /srv/http/wuvt-site/reload.txt
+  processes: 20
+  offload-threads: 2
+  harakiri: 30
+
+  plugins: python,sse_offload
+  if-env: VIRTUAL_ENV
+  virtualenv: '%(_)'
+  endif: 
+  module: wuvt
+  callable: app
+
+  pull-header: X-SSE-Offload SSE_OFFLOAD
+  pull-header: X-SSE-Server SSE_SERVER
+  pull-header: X-SSE-Channel SSE_CHANNEL
+  response-route-if-not: 'empty:${SSE_OFFLOAD} sse:server=${SSE_SERVER},subscribe=${SSE_CHANNEL}'
+
+dev:
+  procname-prefix-spaced: wuvt-site
+  master: 1
+  http-socket: ':9090'
+  processes: 5
+  offload-threads: 1
+  harakiri: 30
+
+  plugins: python,sse_offload
+  py-autoreload: 1
+  if-env: VIRTUAL_ENV
+  virtualenv: '%(_)'
+  endif: 
+  module: wuvt
+  callable: app
+
+  pull-header: X-SSE-Offload SSE_OFFLOAD
+  pull-header: X-SSE-Server SSE_SERVER
+  pull-header: X-SSE-Channel SSE_CHANNEL
+  response-route-if-not: 'empty:${SSE_OFFLOAD} sse:server=${SSE_SERVER},subscribe=${SSE_CHANNEL}'
