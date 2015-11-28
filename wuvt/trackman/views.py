@@ -246,6 +246,7 @@ def charts_albums(period=None):
     results = Track.query.\
         with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
         join(TrackLog).filter(db.and_(
+            TrackLog.dj_id > 1,
             TrackLog.played >= start,
             TrackLog.played <= end)).\
         group_by(Track.artist, Track.album).\
@@ -283,6 +284,7 @@ def charts_artists(period=None):
     results = Track.query.\
         with_entities(Track.artist, db.func.count(TrackLog.id)).\
         join(TrackLog).filter(db.and_(
+            TrackLog.dj_id > 1,
             TrackLog.played >= start,
             TrackLog.played <= end)).\
         group_by(Track.artist).\
@@ -319,6 +321,7 @@ def charts_tracks(period=None):
     start, end = charts_period(period)
     results = Track.query.with_entities(Track, db.func.count(TrackLog.id)).\
         join(TrackLog).filter(db.and_(
+            TrackLog.dj_id > 1,
             TrackLog.played >= start,
             TrackLog.played <= end)).\
         group_by(TrackLog.track_id).\
