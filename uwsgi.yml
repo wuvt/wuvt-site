@@ -1,65 +1,13 @@
-prod:
-  procname-prefix-spaced: wuvt-site
-  socket: /run/uwsgi/wuvt-site.sock
-  chmod-socket: 600
-  disable-logging: 1
-  touch-reload: /srv/http/wuvt-site/reload.txt
-  processes: 20
-  offload-threads: 2
-
-  plugins: python,router_uwsgi
-  if-env: VIRTUAL_ENV
-  virtualenv: '%(_)'
-  endif: 
-  module: wuvt
-  callable: app
-
-  collect-header: X-SSE-Offload SSE_OFFLOAD
-  collect-header: X-SSE-Server SSE_SERVER
-  collect-header: X-SSE-Channel SSE_CHANNEL
-
-  response-route-if: 'equal:${SSE_OFFLOAD};y goto:offload'
-  response-route-run: 'last:'
-
-  response-route-label: offload
-  response-route-run: 'disableheaders:'
-  response-route-run: 'uwsgi:/run/uwsgi/wuvt-sse.sock,0,0'
-
-dev:
-  procname-prefix-spaced: wuvt-site
-  http-socket: ':9090'
-  processes: 5
-  offload-threads: 1
-
-  plugins: python,router_uwsgi
-  if-env: VIRTUAL_ENV
-  virtualenv: '%(_)'
-  endif: 
-  module: wuvt
-  callable: app
-
-  collect-header: Content-Type CONTENT_TYPE
-  collect-header: X-SSE-Offload SSE_OFFLOAD
-  collect-header: X-SSE-Server SSE_SERVER
-  collect-header: X-SSE-Channel SSE_CHANNEL
-
-  response-route-if: 'equal:${SSE_OFFLOAD};y goto:offload'
-  response-route-run: 'last:'
-
-  response-route-label: offload
-  response-route-run: 'disableheaders:'
-  response-route-run: 'uwsgi:/run/uwsgi/wuvt-sse.sock,0,0'
-
-sse:
-  procname-prefix-spaced: sse
-  socket: /run/uwsgi/wuvt-sse.sock
-  chmod-socket: 600
-  disable-logging: 1
-  gevent: 1000
-  gevent-monkey-patch: 1
-
-  plugins: python
-  if-env: VIRTUAL_ENV
-  virtualenv: '%(_)'
-  endif: 
-  module: sse
+uwsgi:
+    procname-prefix-spaced: wuvt-site
+    socket: /run/uwsgi/wuvt-site.sock
+    master: true
+    processes: 20
+    gevent: 100
+    chdir: /srv/http/wuvt-site
+    module: wuvt
+    callable: app
+    chmod-socket: 600
+    disable-logging: 1
+    touch-reload: /srv/http/wuvt-site/reload.txt
+    gevent-monkey-patch: 1

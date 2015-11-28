@@ -5,6 +5,7 @@ from sqlalchemy import desc
 
 from wuvt import app
 from wuvt import db
+from wuvt import sse
 
 from wuvt.models import User, Page
 from wuvt.blog.models import Article, Category
@@ -65,12 +66,9 @@ def init_js():
 @app.route('/live')
 def livestream():
     if request.headers.get('accept') == 'text/event-stream':
-        return Response("", mimetype="text/event-stream", headers={
-            'Cache-Control': "no-cache",
-            'X-SSE-Offload': 'y',
-            'X-SSE-Server': app.config['REDIS_URL'],
-            'X-SSE-Channel': app.config['REDIS_CHANNEL'],
-        })
+        response = Response(sse.event_stream(), mimetype="text/event-stream",
+                            headers={'X-Accel-Buffering': "no"})
+        return response
     else:
         abort(400)
 
