@@ -32,14 +32,14 @@ Now, within this virtualenv, install the dependencies:
 pip install -r requirements.txt
 ```
 
-You'll also want to get uWSGI. You need at least version 2.0.9, which is
-available in CentOS 7 and Debian Stretch. For example:
+You'll also want to get uWSGI. You need at least version 2.0.9. For example:
 
 ```
 apt-get install uwsgi uwsgi-core uwsgi-plugin-python
 ```
 
 Now, build the SSE offload plugin. For example, on Debian:
+
 ```
 apt-get install uuid-dev libcap-dev libpcre3-dev
 uwsgi --build-plugin https://github.com/unbit/uwsgi-sse-offload
