@@ -1,4 +1,4 @@
-prod:
+uwsgi:
   procname-prefix-spaced: wuvt-site
   master: 1
   socket: /run/uwsgi/wuvt-site.sock
