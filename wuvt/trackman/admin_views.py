@@ -77,17 +77,17 @@ def automation_log():
     if 'title' in request.form and len(request.form['title']) > 0:
         title = request.form['title'].strip()
     else:
-        title = "Not Available"
+        return jsonify(success=False, error="Title must be provided")
 
     if 'artist' in request.form and len(request.form['artist']) > 0:
         artist = request.form['artist'].strip()
     else:
-        artist = "Not Available"
+        return jsonify(success=False, error="Artist must be provided")
 
     if 'album' in request.form and len(request.form['album']) > 0:
         album = request.form['album'].strip()
     else:
-        album = "Not Available"
+        album = u"Not Available"
 
     if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr", "ua"):
         # TODO: implement airlog logging
@@ -106,7 +106,7 @@ def automation_log():
 
     else:
         # Handle automation not providing a label
-        label = "Not Available"
+        label = u"Not Available"
         tracks = Track.query.filter(Track.title == title).filter(Track.artist == artist).filter(Track.album == album)
         if len(tracks.all()) == 0:
             track = Track(title, artist, album, label)
