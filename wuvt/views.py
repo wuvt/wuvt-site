@@ -67,6 +67,7 @@ def livestream():
     if request.headers.get('accept') == 'text/event-stream':
         return Response("", mimetype="text/event-stream", headers={
             'Cache-Control': "no-cache",
+            'X-Accel-Buffering': "no",
             'X-SSE-Offload': 'y',
             'X-SSE-Server': app.config['REDIS_URL'][8:],
             'X-SSE-Channel': app.config['REDIS_CHANNEL'],
