@@ -8,10 +8,8 @@ uwsgi:
   offload-threads: 2
   harakiri: 30
 
+  chdir: /srv/http/wuvt-site
   plugins: python,sse_offload
-  if-env: VIRTUAL_ENV
-  virtualenv: '%(_)'
-  endif: 
   module: wuvt
   callable: app
 
