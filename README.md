@@ -32,11 +32,10 @@ Now, within this virtualenv, install the dependencies:
 pip install -r requirements.txt
 ```
 
-You'll also want to get uWSGI. You can install it yourself, but for purposes of
-this guide, the easiest way is to use pip:
+You'll also want to get gunicorn, which is used as a local web server:
 
 ```
-pip install uwsgi
+pip install gunicorn
 ```
 
 Next, clone the repo and make a copy of the config:
@@ -55,12 +54,11 @@ python2 create.py
 python2 articles.py
 ```
 
-Finally, start the celery worker and uWSGI workers:
+Finally, start the celery worker and development web server:
 
 ```
 ./run_celery.sh &
-uwsgi --yaml uwsgi.yml:dev &
-uwsgi --yaml uwsgi.yml:sse &
+./run_dev_server.sh
 ```
 
 You can now access the site at http://127.0.0.1:8080/
