@@ -68,7 +68,7 @@ def livestream():
         return Response("", mimetype="text/event-stream", headers={
             'Cache-Control': "no-cache",
             'X-SSE-Offload': 'y',
-            'X-SSE-Server': app.config['REDIS_URL'][8:],
+            'X-SSE-Server': app.config['REDIS_URL'],
             'X-SSE-Channel': app.config['REDIS_CHANNEL'],
         })
     else:

@@ -32,18 +32,11 @@ Now, within this virtualenv, install the dependencies:
 pip install -r requirements.txt
 ```
 
-You'll also want to get uWSGI. You need at least version 2.0.9, which is
-available in CentOS 7 and Debian Stretch. For example:
+You'll also want to get uWSGI. You can install it yourself, but for purposes of
+this guide, the easiest way is to use pip:
 
 ```
-apt-get install uwsgi uwsgi-core uwsgi-plugin-python
-```
-
-Now, build the SSE offload plugin. For example, on Debian:
-```
-apt-get install uuid-dev libcap-dev libpcre3-dev
-uwsgi --build-plugin https://github.com/unbit/uwsgi-sse-offload
-sudo cp sse_offload_plugin.so /usr/lib/uwsgi/plugins/
+pip install uwsgi
 ```
 
 Next, clone the repo and make a copy of the config:
@@ -66,7 +59,8 @@ Finally, start the celery worker and uWSGI workers:
 
 ```
 ./run_celery.sh &
-uwsgi --yaml uwsgi.yml:dev
+uwsgi --yaml uwsgi.yml:dev &
+uwsgi --yaml uwsgi.yml:sse &
 ```
 
 You can now access the site at http://127.0.0.1:8080/

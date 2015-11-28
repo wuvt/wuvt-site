@@ -8,17 +8,18 @@ prod:
   offload-threads: 2
   harakiri: 30
 
-  plugins: python,sse_offload
+  plugins: python,router_uwsgi
   if-env: VIRTUAL_ENV
   virtualenv: '%(_)'
   endif: 
   module: wuvt
   callable: app
 
-  pull-header: X-SSE-Offload SSE_OFFLOAD
-  pull-header: X-SSE-Server SSE_SERVER
-  pull-header: X-SSE-Channel SSE_CHANNEL
-  response-route-if-not: 'empty:${SSE_OFFLOAD} sse:server=${SSE_SERVER},subscribe=${SSE_CHANNEL}'
+  collect-header: X-SSE-Offload SSE_OFFLOAD
+  collect-header: X-SSE-Server SSE_SERVER
+  collect-header: X-SSE-Channel SSE_CHANNEL
+  response-route-if-not: 'empty:${SSE_OFFLOAD} disableheaders:'
+  response-route-if-not: 'empty:${SSE_OFFLOAD} uwsgi:/run/uwsgi/wuvt-sse.sock,0,0'
 
 dev:
   procname-prefix-spaced: wuvt-site
@@ -28,7 +29,7 @@ dev:
   offload-threads: 1
   harakiri: 30
 
-  plugins: python,sse_offload
+  plugins: python,router_uwsgi
   py-autoreload: 1
   if-env: VIRTUAL_ENV
   virtualenv: '%(_)'
@@ -36,7 +37,22 @@ dev:
   module: wuvt
   callable: app
 
-  pull-header: X-SSE-Offload SSE_OFFLOAD
-  pull-header: X-SSE-Server SSE_SERVER
-  pull-header: X-SSE-Channel SSE_CHANNEL
-  response-route-if-not: 'empty:${SSE_OFFLOAD} sse:server=${SSE_SERVER},subscribe=${SSE_CHANNEL}'
+  collect-header: X-SSE-Offload SSE_OFFLOAD
+  collect-header: X-SSE-Server SSE_SERVER
+  collect-header: X-SSE-Channel SSE_CHANNEL
+  response-route-if-not: 'empty:${SSE_OFFLOAD} disableheaders:'
+  response-route-if-not: 'empty:${SSE_OFFLOAD} uwsgi:/run/uwsgi/wuvt-sse.sock,0,0'
+
+sse:
+  procname-prefix-spaced: sse
+  master: 1
+  socket: /run/uwsgi/wuvt-sse.sock
+  chmod-socket: 600
+  gevent: 1000
+  gevent-monkey-patch: 1
+
+  plugins: python
+  if-env: VIRTUAL_ENV
+  virtualenv: '%(_)'
+  endif: 
+  module: sse
