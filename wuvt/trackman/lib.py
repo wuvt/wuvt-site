@@ -13,7 +13,6 @@ import email.utils
 
 from wuvt import app
 from wuvt import db
-from wuvt import sse
 from wuvt import redis_conn
 from wuvt import format_datetime, localize_datetime
 from wuvt.trackman.models import TrackLog, DJSet, DJ
@@ -216,7 +215,9 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     tasks.update_lastfm.delay(artist, title, album, played)
 
     # send server-sent event
-    sse.send(json.dumps({'event': "track_change",
-                         'tracklog': track.full_serialize()}, cls=JSONEncoder))
+    redis_conn.publish(app.config['REDIS_CHANNEL'], json.dumps({
+        'event': "track_change",
+        'tracklog': track.full_serialize()
+    }, cls=JSONEncoder))
 
     return track
