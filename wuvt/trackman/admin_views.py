@@ -243,6 +243,11 @@ def register():
         if len(airname) <= 0:
             errors['airname'] = "You must enter an on-air name."
 
+        matching = DJ.query.filter(DJ.airname == airname).count()
+        print(matching)
+        if matching > 0:
+            errors['airname'] = "Your on-air name must be unique."
+
         name = request.form['name'].strip()
         if len(name) <= 0:
             errors['name'] = "You must enter your name."
