@@ -3,13 +3,14 @@
 from sqlalchemy.engine import create_engine
 from wuvt import db
 from wuvt.trackman.models import DJ, DJSet, Rotation, TrackLog, Track
+import pytz
 import config
 
 
 engine = create_engine(config.QUICKTRACK_DB_URI)
 conn = engine.connect()
 
-manual_djs = {
+manual_djs = [
     "Adam Capuano",
     "Alex Field",
     "Amanda Wade",
@@ -36,11 +37,14 @@ manual_djs = {
     "Vassili",
     "Yemi and Julie",
     "Yener Kutluay",
-}
+]
 airname_map = {
     "Promised Hero": "DJ Promised Hero",
     "\"The Don\"": "The Don",
     "Maria": "Maria Hatzios",
+    "Thomson & Thompson": "Thompson and Thomson",
+    "The Wiggity Whack Swaggy Stack Show": "The Wiggity Wack Swaggy Stack Show",
+    "Captain Deaf Jean and the 43rd Vinyl-Scrounging Squirrel Battalion": "Captain Deaf Jean and the 43rd Vinyl Scrounging Squirrel Battalion",
 }
 djname_map = {
     "'full' nelson bandana": "Full Nelson Bandana",
@@ -49,7 +53,7 @@ djname_map = {
     "deb sim/hickory dickory doc show": "hickory dickory dock show",
     "dj lo (laurel)": "DJ Lo",
     "gaskins": "John Gaskins",
-    "hickory": "hickory dickory dock show",
+    "hickory ": "hickory dickory dock show",
     "hickory dickory doc show": "hickory dickory dock show",
     "the hickory dickory dock show": "hickory dickory dock show",
     "maria hatzios--greek show": "Maria Hatzios",
@@ -96,13 +100,15 @@ def make_djset(dj_id, dtstart):
     db.session.commit()
     return djset
 
+local = pytz.timezone("America/New_York")
+
 
 for airname in manual_djs:
     existing = DJ.query.filter(DJ.airname == airname).first()
     if existing is None:
         dj = DJ(airname, airname)
         dj.visible = False
-        dj.session.add(dj)
+        db.session.add(dj)
         db.session.commit()
     else:
         dj = existing
@@ -129,7 +135,8 @@ for r in result:
         dj.phone = r['vcPhoneNum']
         dj.email = r['vcEmail']
         dj.genres = r['vcGenres']
-        dj.time_added = r['dtTimeAdded']
+        dj.time_added = local.localize(r['dtTimeAdded'],
+                                       is_dst=False).astimezone(pytz.utc)
         dj.visible = False
         db.session.add(dj)
         db.session.commit()
@@ -146,6 +153,8 @@ for r in result:
     djname = r['vcDJName']
     is_new = r['enBin'] in ('NEW_H', 'NEW_M', 'NEW_L')
     rotation = get_rotation(r['enBin'])
+    playedtime = local.localize(r['dtDateTime'],
+                                is_dst=False).astimezone(pytz.utc)
 
     if djname.lower() in djname_map:
         djname = djname_map[djname.lower()]
@@ -165,7 +174,7 @@ for r in result:
         continue
 
     track = Track(r['vcTitle'], r['vcArtist'], r['vcAlbum'], r['vcLabel'])
-    track.added = r['dtDateTime']
+    track.added = playedtime
 
     # set label to "Not Available" if it is empty
     if len(track.label) <= 0:
@@ -177,16 +186,16 @@ for r in result:
     if open_djset is not None:
         djset = DJSet.query.get(open_djset)
         if djset.dj_id != dj_id:
-            djset.dtend = r['dtDateTime']
+            djset.dtend = playedtime
             db.session.commit()
 
-            djset = make_djset(dj_id, r['dtDateTime'])
+            djset = make_djset(dj_id, playedtime)
     else:
-        djset = make_djset(dj_id, r['dtDateTime'])
+        djset = make_djset(dj_id, playedtime)
 
     open_djset = djset.id
     tracklog = TrackLog(track.id, djset.id, r['boolRequest'], r['boolVinyl'],
                         is_new, rotation, r['intListeners'])
-    tracklog.played = r['dtDateTime']
+    tracklog.played = playedtime
     db.session.add(tracklog)
     db.session.commit()
