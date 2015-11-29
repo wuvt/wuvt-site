@@ -8,8 +8,7 @@ function PlaylistsByDate(wrapper) {
     this.absoluteEnd = moment().endOf('day');
 
     // start date for playlists by date viewer
-    //this.absoluteStart = moment("2007-09-07");
-    this.absoluteStart = moment("2015-03-05");
+    this.absoluteStart = moment("2007-09-07");
 
     this.loading = false;
     this.wrapper = wrapper;
