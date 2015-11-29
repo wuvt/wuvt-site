@@ -94,7 +94,7 @@ def get_rotation(rot):
         return None
 
 
-def find_or_insert_track(title, artist, album, label):
+def find_or_insert_track(title, artist, album, label, playedtime):
     title = title.strip()
     artist = artist.strip()
     album = album.strip()
@@ -203,7 +203,7 @@ for r in result:
         continue
 
     track = find_or_insert_track(r['vcTitle'], r['vcArtist'], r['vcAlbum'],
-                                 r['vcLabel'])
+                                 r['vcLabel'], playedtime)
 
     if open_djset is not None:
         djset = DJSet.query.get(open_djset)
