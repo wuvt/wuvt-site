@@ -183,6 +183,7 @@ for r in result:
     rotation = get_rotation(r['enBin'])
     playedtime = local.localize(r['dtDateTime'],
                                 is_dst=False).astimezone(pytz.utc)
+    playedtime.replace(tzinfo=None)
 
     if djname.lower() in djname_map:
         djname = djname_map[djname.lower()]
