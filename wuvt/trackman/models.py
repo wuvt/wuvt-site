@@ -9,7 +9,7 @@ class DJ(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     airname = db.Column(db.Unicode(255))
     name = db.Column(db.Unicode(255))
-    phone = db.Column(db.Unicode(10))
+    phone = db.Column(db.Unicode(12))
     email = db.Column(db.Unicode(255))
     genres = db.Column(db.Unicode(255))
     time_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
