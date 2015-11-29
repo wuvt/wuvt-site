@@ -181,7 +181,8 @@ def playlists_dj_sets(dj_id):
     dj = DJ.query.get(dj_id)
     if not dj:
         abort(404)
-    sets = DJSet.query.filter(DJSet.dj_id == dj_id).all()
+    sets = DJSet.query.filter(DJSet.dj_id == dj_id).order_by(
+        DJSet.dtstart).all()
 
     if request.wants_json():
         return jsonify({
