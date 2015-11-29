@@ -94,6 +94,31 @@ def get_rotation(rot):
         return None
 
 
+def find_or_insert_track(title, artist, album, label):
+    title = title.strip()
+    artist = artist.strip()
+    album = album.strip()
+    label = label.strip()
+
+    # set label to "Not Available" if it is empty
+    if len(label) <= 0:
+        label = u"Not Available"
+
+    existing = Track.query.filter(Track.title == title,
+                                  Track.artist == artist,
+                                  Track.album == album,
+                                  Track.label == label).first()
+    if existing is None:
+        track = Track(title, artist, album, label)
+        track.added = playedtime
+        db.session.add(track)
+        db.session.commit()
+    else:
+        track = existing
+
+    return track
+
+
 def make_djset(dj_id, dtstart):
     djset = DJSet(dj_id)
     djset.dtstart = dtstart
@@ -176,15 +201,8 @@ for r in result:
             f.write("{}\n".format(djname))
         continue
 
-    track = Track(r['vcTitle'], r['vcArtist'], r['vcAlbum'], r['vcLabel'])
-    track.added = playedtime
-
-    # set label to "Not Available" if it is empty
-    if len(track.label) <= 0:
-        track.label = u"Not Available"
-
-    db.session.add(track)
-    db.session.commit()
+    track = find_or_insert_track(r['vcTitle'], r['vcArtist'], r['vcAlbum'],
+                                 r['vcLabel'])
 
     if open_djset is not None:
         djset = DJSet.query.get(open_djset)
