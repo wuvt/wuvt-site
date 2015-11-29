@@ -98,7 +98,7 @@ def process_order(method):
     else:
         if recurring:
             return False, "Only Stripe is supported for recurring payments."
-        else:
+        elif method != u'later':
             order.set_paid(method)
 
     db.session.add(order)
