@@ -62,6 +62,10 @@ def process_order(method):
                   request.form.get('firsttime', 'n') == 'y',
                   amount, recurring)
 
+    if 'phone' in request.form:
+        # if a phone number is provided, set it
+        order.phone = request.form['phone'].strip()
+
     if premiums != "no":
         order.set_premiums(premiums,
                            request.form.get('tshirtsize', None),
