@@ -4,6 +4,10 @@
 
 <h1>{{ trackman_name }}: DJ Registration</h1>
 
+{% for _, msg in errors.items() %}
+<div class="alert alert-danger">{{ msg }}</div>
+{% endfor %}
+
 <form action="{{ url_for('trackman.register') }}" method="post"
     class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
