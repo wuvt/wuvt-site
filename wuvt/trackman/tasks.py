@@ -17,9 +17,7 @@ from wuvt.trackman.models import AirLog, DJSet, Track, TrackLog
 celery = make_celery(app)
 
 
-# XXX: periodic task disabled during import; should be reenabled when finished
-#@periodic_task(run_every=crontab(hour=3, minute=0))
-@task
+@periodic_task(run_every=crontab(hour=3, minute=0))
 def deduplicate_tracks():
     dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
     for artist, title, album, label in dups:
@@ -46,9 +44,7 @@ def deduplicate_tracks():
             count - 1, track_id))
 
 
-# XXX: periodic task disabled during import; should be reenabled when finished
-#@periodic_task(run_every=timedelta(hours=24))
-@task
+@periodic_task(run_every=crontab(hour=6, minute=0))
 def playlist_cleanup():
     app.logger.debug("Starting playlist cleanup...")
 
