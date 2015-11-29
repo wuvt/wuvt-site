@@ -3,6 +3,7 @@
 from sqlalchemy.engine import create_engine
 from wuvt import db
 from wuvt.trackman.models import DJ, DJSet, Rotation, TrackLog, Track
+import datetime
 import pytz
 import config
 
@@ -148,8 +149,10 @@ for r in result:
     dj_id_map[name.lower()] = dj.id
 
 open_djset = None
+playedtime = None
 result = conn.execute('select * from quicktrack')
 for r in result:
+    print(r['biTrackID'])
     djname = r['vcDJName']
     is_new = r['enBin'] in ('NEW_H', 'NEW_M', 'NEW_L')
     rotation = get_rotation(r['enBin'])
@@ -198,4 +201,10 @@ for r in result:
                         is_new, rotation, r['intListeners'])
     tracklog.played = playedtime
     db.session.add(tracklog)
+    db.session.commit()
+
+if open_djset is not None and playedtime is not None:
+    # close the open DJSet
+    djset = DJSet.query.get(open_djset)
+    djset.dtend = playedtime + datetime.timedelta(minutes=5)
     db.session.commit()
