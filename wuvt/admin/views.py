@@ -644,7 +644,7 @@ def library_track(id):
 @bp.route('/donations', methods=['GET'])
 @check_access('business')
 def donation_index():
-    donations = Order.query.order_by(Order.placed_date.desc()).all()
+    donations = Order.query.all()
     stats = db.session.query(func.sum(Order.amount).label("total_paid"),
                              func.max(Order.amount).label("max_paid")).all()
     return render_template('admin/donation_index.html', donations=donations, total=stats[0][0], max=stats[0][1])

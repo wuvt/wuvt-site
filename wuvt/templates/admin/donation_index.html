@@ -65,8 +65,8 @@ Max donation: {{ format_price(max) }}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
 <script>
-$(document).ready(function() {
-    $('#donations').DataTable();
-} );
+$('#donations').DataTable({
+    'order': [[3, 'desc']],
+});
 </script>
 {% endblock %}
