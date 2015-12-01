@@ -208,8 +208,9 @@ for r in result:
     if open_djset is not None:
         djset = DJSet.query.get(open_djset)
         if djset.dj_id != dj_id:
-            djset.dtend = playedtime
-            db.session.commit()
+            if djset.dtend is None:
+                djset.dtend = playedtime
+                db.session.commit()
 
             djset = make_djset(dj_id, playedtime)
     else:
