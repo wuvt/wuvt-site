@@ -254,7 +254,9 @@ def charts_albums(period=None):
         order_by(db.func.count(TrackLog.id).desc()).limit(250)
 
     if request.wants_json():
-        return jsonify({'results': results})
+        return jsonify({
+            'results': [(x[0], x[1], x[2]) for x in results],
+        })
 
     return render_template('chart_albums.html', start=start, end=end,
                            results=results)
@@ -272,7 +274,7 @@ def charts_albums_dj(dj_id):
     if request.wants_json():
         return jsonify({
             'dj': dj.serialize(),
-            'results': [(x[0].serialize(), x[1]) for x in results],
+            'results': [(x[0], x[1], x[2]) for x in results],
         })
 
     return render_template('chart_albums_dj.html', dj=dj, results=results)
@@ -292,7 +294,9 @@ def charts_artists(period=None):
         order_by(db.func.count(TrackLog.id).desc()).limit(250)
 
     if request.wants_json():
-        return jsonify({'results': results})
+        return jsonify({
+            'results': [(x[0], x[1]) for x in results],
+        })
 
     return render_template('chart_artists.html', start=start, end=end,
                            results=results)
@@ -310,7 +314,7 @@ def charts_artists_dj(dj_id):
     if request.wants_json():
         return jsonify({
             'dj': dj.serialize(),
-            'results': [(x[0].serialize(), x[1]) for x in results],
+            'results': [(x[0], x[1]) for x in results],
         })
 
     return render_template('chart_artists_dj.html', dj=dj, results=results)
