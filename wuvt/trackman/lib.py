@@ -1,3 +1,4 @@
+import dateutil
 import json
 import lxml.etree
 import requests
@@ -12,10 +13,14 @@ from email.mime.text import MIMEText
 import email.utils
 
 from wuvt import app
+from wuvt import cache
 from wuvt import db
 from wuvt import redis_conn
 from wuvt import format_datetime, localize_datetime
-from wuvt.trackman.models import TrackLog, DJSet, DJ
+from wuvt.trackman.models import TrackLog, DJSet
+
+CHART_PER_PAGE = 250
+CHART_TTL = 14400
 
 
 def get_duplicates(model, attrs):
@@ -221,3 +226,44 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     }, cls=JSONEncoder))
 
     return track
+
+
+def get_chart_range(period, request):
+    if period is not None:
+        end = datetime.utcnow()
+
+        if period == 'weekly':
+            start = end - timedelta(weeks=1)
+        elif period == 'monthly':
+            start = end - dateutil.relativedelta.relativedelta(months=1)
+        elif period == 'yearly':
+            start = end - dateutil.relativedelta.relativedelta(years=1)
+        else:
+            raise ValueError("Period not one of weekly, monthly, or yearly")
+    else:
+        if 'start' in request.args:
+            start = datetime.strptime(request.args['start'],
+                                      "%Y-%m-%dT%H:%M:%S.%fZ")
+        else:
+            first_track = TrackLog.query.order_by(TrackLog.played).first()
+            start = first_track.played
+
+        if 'end' in request.args:
+            end = datetime.strptime(request.args['end'],
+                                    "%Y-%m-%dT%H:%M:%S.%fZ")
+        else:
+            end = datetime.utcnow()
+
+    # reduce date resolution to 1 hour windows tot make caching work
+    start = start.replace(minute=0, second=0, microsecond=0)
+    end = end.replace(minute=0, second=0, microsecond=0)
+
+    return start, end
+
+
+def get_chart(cache_key, query, limit=CHART_PER_PAGE):
+    results = cache.get('charts:' + cache_key)
+    if results is None:
+        results = list(query.limit(limit))
+        cache.set('charts:' + cache_key, results, timeout=CHART_TTL)
+    return results
