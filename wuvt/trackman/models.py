@@ -171,7 +171,7 @@ class Track(db.Model):
     # may need to make this a BigInteger
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(255))
-    artist = db.Column(db.Unicode(255))
+    artist = db.Column(db.Unicode(255), index=True)
     album = db.Column(db.Unicode(255))
     label = db.Column(db.Unicode(255))
     added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
