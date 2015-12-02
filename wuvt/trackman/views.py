@@ -1,7 +1,6 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
-from flask import abort, jsonify, redirect, render_template, request, \
-    Response, url_for
+from flask import abort, jsonify, render_template, request, Response
 import datetime
 import dateutil
 import re
@@ -11,7 +10,7 @@ from wuvt import csrf
 from wuvt import db
 from wuvt import redis_conn
 from wuvt.trackman.lib import log_track, list_archives, generate_cuesheet, \
-    generate_playlist_cuesheet
+    generate_playlist_cuesheet, get_chart_range, get_chart
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
@@ -195,41 +194,6 @@ def playlists_dj_sets(dj_id):
 
 
 # Charts {{{
-def charts_period(period):
-    if period is not None:
-        end = datetime.datetime.utcnow()
-
-        if period == 'weekly':
-            start = end - datetime.timedelta(weeks=1)
-        elif period == 'monthly':
-            start = end - dateutil.relativedelta.relativedelta(months=1)
-        elif period == 'yearly':
-            start = end - dateutil.relativedelta.relativedelta(years=1)
-        else:
-            abort(404)
-    else:
-        if 'start' in request.args:
-            try:
-                start = datetime.datetime.strptime(request.args['start'],
-                                                   "%Y-%m-%dT%H:%M:%S.%fZ")
-            except ValueError:
-                abort(400)
-        else:
-            first_track = TrackLog.query.order_by(TrackLog.played).first()
-            start = first_track.played
-
-        if 'end' in request.args:
-            try:
-                end = datetime.datetime.strptime(request.args['end'],
-                                                 "%Y-%m-%dT%H:%M:%S.%fZ")
-            except ValueError:
-                abort(400)
-        else:
-            end = datetime.datetime.utcnow()
-
-    return start, end
-
-
 @app.route('/playlists/charts')
 def charts_index():
     periodic_charts = [
@@ -243,15 +207,21 @@ def charts_index():
 @app.route('/playlists/charts/albums')
 @app.route('/playlists/charts/albums/<string:period>')
 def charts_albums(period=None):
-    start, end = charts_period(period)
-    results = Track.query.\
-        with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
+    try:
+        start, end = get_chart_range(period, request)
+    except ValueError:
+        abort(400)
+
+    results = get_chart(
+        'albums_{0}_{1}'.format(start, end),
+        Track.query.with_entities(
+            Track.artist, Track.album, db.func.count(TrackLog.id)).
         join(TrackLog).filter(db.and_(
             TrackLog.dj_id > 1,
             TrackLog.played >= start,
-            TrackLog.played <= end)).\
-        group_by(Track.artist, Track.album).\
-        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+            TrackLog.played <= end)).
+        group_by(Track.artist, Track.album).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({
@@ -265,11 +235,13 @@ def charts_albums(period=None):
 @app.route('/playlists/charts/albums/dj/<int:dj_id>')
 def charts_albums_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
-    results = Track.query.\
-        with_entities(Track.artist, Track.album, db.func.count(TrackLog.id)).\
-        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
-        group_by(Track.artist, Track.album).\
-        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+    results = get_chart(
+        'albums_dj_{}'.format(dj_id),
+        Track.query.with_entities(
+            Track.artist, Track.album, db.func.count(TrackLog.id)).
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).
+        group_by(Track.artist, Track.album).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({
@@ -283,15 +255,20 @@ def charts_albums_dj(dj_id):
 @app.route('/playlists/charts/artists')
 @app.route('/playlists/charts/artists/<string:period>')
 def charts_artists(period=None):
-    start, end = charts_period(period)
-    results = Track.query.\
-        with_entities(Track.artist, db.func.count(TrackLog.id)).\
+    try:
+        start, end = get_chart_range(period, request)
+    except ValueError:
+        abort(400)
+
+    results = get_chart(
+        'artists_{0}_{1}'.format(start, end),
+        Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
         join(TrackLog).filter(db.and_(
             TrackLog.dj_id > 1,
             TrackLog.played >= start,
-            TrackLog.played <= end)).\
-        group_by(Track.artist).\
-        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+            TrackLog.played <= end)).
+        group_by(Track.artist).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({
@@ -305,11 +282,12 @@ def charts_artists(period=None):
 @app.route('/playlists/charts/artists/dj/<int:dj_id>')
 def charts_artists_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
-    results = Track.query.\
-        with_entities(Track.artist, db.func.count(TrackLog.id)).\
-        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
-        group_by(Track.artist).\
-        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+    results = get_chart(
+        'artists_dj_{}'.format(dj_id),
+        Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).
+        group_by(Track.artist).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({
@@ -323,14 +301,20 @@ def charts_artists_dj(dj_id):
 @app.route('/playlists/charts/tracks')
 @app.route('/playlists/charts/tracks/<string:period>')
 def charts_tracks(period=None):
-    start, end = charts_period(period)
-    results = Track.query.with_entities(Track, db.func.count(TrackLog.id)).\
+    try:
+        start, end = get_chart_range(period, request)
+    except ValueError:
+        abort(400)
+
+    results = get_chart(
+        'tracks_{start}_{end}'.format(start=start, end=end),
+        Track.query.with_entities(Track, db.func.count(TrackLog.id)).
         join(TrackLog).filter(db.and_(
             TrackLog.dj_id > 1,
             TrackLog.played >= start,
-            TrackLog.played <= end)).\
-        group_by(TrackLog.track_id).\
-        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+            TrackLog.played <= end)).
+        group_by(TrackLog.track_id).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({
@@ -344,11 +328,12 @@ def charts_tracks(period=None):
 @app.route('/playlists/charts/tracks/dj/<int:dj_id>')
 def charts_tracks_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
-    results = Track.query.\
-        with_entities(Track, db.func.count(TrackLog.id)).\
-        join(TrackLog).filter(TrackLog.dj_id == dj.id).\
-        group_by(TrackLog.track_id).\
-        order_by(db.func.count(TrackLog.id).desc()).limit(250)
+    results = get_chart(
+        'tracks_dj_{}'.format(dj_id),
+        Track.query.with_entities(Track, db.func.count(TrackLog.id)).
+        join(TrackLog).filter(TrackLog.dj_id == dj.id).
+        group_by(TrackLog.track_id).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({
@@ -361,10 +346,12 @@ def charts_tracks_dj(dj_id):
 
 @app.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
-    results = TrackLog.query.\
-        with_entities(TrackLog.dj_id, DJ, db.func.count(TrackLog.id)).\
-        join(DJ).filter(DJ.visible == True).group_by(TrackLog.dj_id).\
-        order_by(db.func.count(TrackLog.id).desc()).all()
+    results = get_chart(
+        'dj_spins',
+        TrackLog.query.with_entities(
+            TrackLog.dj_id, DJ, db.func.count(TrackLog.id)).
+        join(DJ).filter(DJ.visible == True).group_by(TrackLog.dj_id).
+        order_by(db.func.count(TrackLog.id).desc()))
 
     if request.wants_json():
         return jsonify({

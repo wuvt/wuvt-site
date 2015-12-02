@@ -6,6 +6,7 @@ from flask.ext.login import LoginManager
 from flask.ext.migrate import Migrate
 from flask.ext.seasurf import SeaSurf
 from flask.ext.sqlalchemy import SQLAlchemy
+from werkzeug.contrib.cache import RedisCache
 import re
 import redis
 import unidecode
@@ -79,6 +80,7 @@ app.static_folder = 'static'
 redis_conn = redis.from_url(app.config['REDIS_URL'])
 app.session_interface = session.RedisSessionInterface(redis_conn)
 
+cache = RedisCache(host=redis_conn)
 csrf = SeaSurf(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
