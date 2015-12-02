@@ -64,7 +64,7 @@ def inject_nowplaying():
 
 @app.route('/last15')
 def last15():
-    tracks = TrackLog.query.order_by(db.desc(TrackLog.played)).limit(15).all()
+    tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
 
     if request.wants_json():
         return jsonify({
