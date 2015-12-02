@@ -15,7 +15,7 @@ from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
 
 
 def trackinfo():
-    track = TrackLog.query.order_by(db.desc(TrackLog.played)).first()
+    track = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
     if not track:
         return {'artist': "", 'title': "", 'album': "", 'label': "", 'dj': "",
                 'dj_id': 0, 'description': app.config['STATION_NAME'],
