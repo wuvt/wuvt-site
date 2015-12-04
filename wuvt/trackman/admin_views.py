@@ -113,7 +113,7 @@ def automation_log():
             db.session.add(track)
             db.session.commit()
         else:
-            notauto = tracks.filter(Track.label != "Not Available")
+            notauto = tracks.filter(Track.label != u"Not Available")
             if len(notauto.all()) == 0:
                 # The only option is "not available label"
                 track = tracks.first()
