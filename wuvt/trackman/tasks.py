@@ -80,13 +80,15 @@ def autologout_check():
 
 
 @task
-def update_stream(artist, title):
+def update_stream(artist, title, album):
     for mount in app.config['ICECAST_MOUNTS']:
-        song = u'{artist} - {title}'.format(artist=artist, title=title)
-        requests.get(app.config['ICECAST_ADMIN'] +
-                     u'metadata?mount={mount}&mode=updinfo&song={song}'
-                     .format(mount=urllib.quote(mount),
-                             song=urllib.quote(song.encode('utf-8'))))
+        requests.get(app.config['ICECAST_ADMIN'] + u'metadata', params={
+            u'mount': mount,
+            u'mode': u'updinfo',
+            u'album': album,
+            u'artist': artist,
+            u'title': title,
+        })
 
 
 @task

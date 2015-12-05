@@ -215,7 +215,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     played = localize_datetime(track.played)
 
     from wuvt.trackman import tasks
-    tasks.update_stream.delay(artist, title)
+    tasks.update_stream.delay(artist, title, album)
     tasks.update_tunein.delay(artist, title)
     tasks.update_lastfm.delay(artist, title, album, played)
 
