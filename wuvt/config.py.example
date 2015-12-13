@@ -8,6 +8,7 @@ REDIS_URL = 'redis://localhost:6379'
 REDIS_CHANNEL = "wuvt"
 POSTS_PER_PAGE = 5
 ARTISTS_PER_PAGE = 500
+SANITIZE_SUMMARY = True
 
 STATION_NAME = "WUVT-FM 90.7 Blacksburg, VA"
 STATION_URL = "http://www.wuvt.vt.edu"
