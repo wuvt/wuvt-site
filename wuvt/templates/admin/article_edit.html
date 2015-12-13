@@ -81,6 +81,11 @@
         <div class="col-sm-9">
             <textarea type="text" name="summary" id="id_summary"
                       required="required" rows=12 class="form-control">{{ article.summary or "" }}</textarea>
+            {% if config.SANITIZE_SUMMARY -%}
+            <p class="help-block">Some tags, like iframe, object, and table,
+            will be stripped from the summary to improve site performance.
+            Please use the content field for those.</p>
+            {% endif -%}
         </div>
     </div>
     <div class="form-group{% if 'content' in error_fields %} has-error{% endif %}">

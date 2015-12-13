@@ -1,6 +1,10 @@
+import bleach
 import datetime
 
+from wuvt import app
 from wuvt import db
+from wuvt.blog import SUMMARY_ALLOWED_TAGS, SUMMARY_ALLOWED_ATTRIBUTES, \
+    SUMMARY_ALLOWED_STYLES
 from markdown import markdown
 
 
@@ -24,10 +28,10 @@ class Article(db.Model):
     slug = db.Column(db.Unicode(255), nullable=False, unique=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', backref=db.backref('category',
-        lazy='dynamic'))
+                                                              lazy='dynamic'))
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     author = db.relationship('User', backref=db.backref('author',
-        lazy='dynamic'))
+                                                        lazy='dynamic'))
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
     summary = db.Column(db.UnicodeText(length=2**31))
     content = db.Column(db.UnicodeText(length=2**31))
@@ -37,7 +41,7 @@ class Article(db.Model):
     front_page = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, title, slug, category_id, author_id, summary,
-            content=None, published=False):
+                 content=None, published=False):
         self.title = title
         self.slug = slug
         self.category_id = category_id
@@ -49,5 +53,14 @@ class Article(db.Model):
     def render_html(self):
         if self.summary is not None:
             self.html_summary = markdown(self.summary)
+
+            if app.config['SANITIZE_SUMMARY'] is True:
+                self.html_summary = bleach.clean(
+                    self.html_summary,
+                    tags=SUMMARY_ALLOWED_TAGS,
+                    attributes=SUMMARY_ALLOWED_ATTRIBUTES,
+                    styles=SUMMARY_ALLOWED_STYLES,
+                    strip=True)
+
         if self.content is not None:
             self.html_content = markdown(self.content)
