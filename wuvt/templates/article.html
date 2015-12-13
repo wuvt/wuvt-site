@@ -8,8 +8,7 @@
         <h3>written by {{ article.author.name }} on <time datetime="{{ article.datetime|isodatetime }}" data-format="MMMM D, YYYY, HH:mm">{{ article.datetime|datetime("%B %d, %Y, %H:%M") }}</time></h3>
     </header>
 
-{{ article.html_summary|safe }}
-{# {{ article.html_content|safe or article.html_summary|safe }} #}
+{{ article.html_content|safe or article.html_summary|safe }}
 
     <footer>
         Filed under
