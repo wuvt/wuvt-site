@@ -7,14 +7,13 @@ from flask.ext.login import login_required, current_user
 
 from wuvt import app
 from wuvt import db
-from wuvt import slugify
 from wuvt.admin import bp
 from wuvt.auth import check_access
-
-from wuvt.models import User, Page
 from wuvt.blog.models import Category, Article
-from wuvt.trackman.models import DJ, Track, TrackLog
 from wuvt.donate.models import Order
+from wuvt.models import User, Page
+from wuvt.trackman.models import DJ, Track, TrackLog
+from wuvt.view_utils import slugify
 
 from werkzeug import secure_filename
 import os
