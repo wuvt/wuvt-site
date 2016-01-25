@@ -3,14 +3,13 @@ from flask import abort, flash, jsonify, make_response, render_template, \
 
 from sqlalchemy import desc
 
-from wuvt import app
-from wuvt import db
-
-from wuvt.models import User, Page
-from wuvt.blog.models import Article, Category
-
-from wuvt.blog.views import *
-from wuvt.trackman.views import *
+from . import app
+from . import db
+from .models import User, Page
+from .blog.models import Article, Category
+from .blog.views import *
+from .trackman.views import *
+from .view_utils import IPAccessDeniedException
 
 
 @app.context_processor
@@ -105,3 +104,11 @@ def error405(error):
         return jsonify({'errors': "405 Method Not Allowed"}), 405
 
     return render_template('error405.html'), 405
+
+
+@app.errorhandler(IPAccessDeniedException)
+def error403_ipaccess(error):
+    if request.wants_json():
+        return jsonify({'errors': "403 Forbidden"}), 403
+
+    return render_template('error403_ipaccess.html'), 403

@@ -1,19 +1,7 @@
 from functools import wraps
 from flask import abort, request
-import netaddr
-from wuvt import redis_conn
-
 from wuvt import app
-
-
-def local_only(f):
-    @wraps(f)
-    def local_wrapper(*args, **kwargs):
-        if request.remote_addr not in netaddr.IPSet(app.config['INTERNAL_IPS']):
-            abort(403)
-        else:
-            return f(*args, **kwargs)
-    return local_wrapper
+from wuvt import redis_conn
 
 
 def dj_interact(f):

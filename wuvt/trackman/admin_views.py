@@ -14,7 +14,8 @@ from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
         enable_automation, logout_all, logout_all_but_current
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
-from wuvt.trackman.view_utils import local_only, dj_interact
+from wuvt.trackman.view_utils import dj_interact
+from wuvt.view_utils import local_only
 
 
 #############################################################################
