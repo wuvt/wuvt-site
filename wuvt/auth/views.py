@@ -4,11 +4,11 @@ import ldap
 
 from wuvt import app
 from wuvt import db
-from wuvt import redirect_back
 from wuvt.auth import bp
 from wuvt.auth import build_dn
 from wuvt.auth import ldap_group_test
 from wuvt.models import User
+from wuvt.view_utils import redirect_back
 
 
 @bp.route('/login', methods=['GET', 'POST'])
