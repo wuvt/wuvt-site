@@ -70,7 +70,7 @@ Finally, start the celery worker and uWSGI workers:
 uwsgi --yaml uwsgi.yml:dev
 ```
 
-You can now access the site at http://127.0.0.1:8080/
+You can now access the site at http://127.0.0.1:9090/
 
 ### Production Environment Setup
 Here are some example instructions to get you started. These are not complete,
