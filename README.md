@@ -7,8 +7,9 @@ It has several main components:
   static *pages*. These can be managed at the `/admin` endpoint. One *admin*
   user capable of administrative access exists; all other users have full 
   control of articles and pages and may upload files. 
-- **Trackman**, a track logger with a UI and an API compatible with both 
-  WinAmp's POST plugin and [mpd-automation](https://github.com/wuvt/mpd-automation). 
+- **Trackman**, a track logger with a UI and an API compatible with WinAmp's
+  POST plugin, [mpd-automation](https://github.com/wuvt/mpd-automation),
+  and [johnny-six](https://github.com/wuvt/johnny-six).
   Upon track changes, metadata is sent to Icecast, TuneIn, and Last.fm. Logged 
   playlists are publicly available on the main website. 
 - HTML5 stream player capable of smooth chained OGG playback in Webkit
