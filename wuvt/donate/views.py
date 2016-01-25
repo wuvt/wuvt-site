@@ -1,7 +1,5 @@
-import netaddr
-from flask import abort, flash, make_response, redirect, render_template, \
-        request, url_for, Response
-from functools import wraps
+from flask import flash, make_response, redirect, render_template, request, \
+        url_for, Response
 from wuvt import app
 from wuvt import auth
 from wuvt import db
@@ -9,17 +7,7 @@ from wuvt.donate import bp
 from wuvt.donate import get_plan, list_plans, process_stripe_onetime, \
         process_stripe_recurring
 from wuvt.donate.models import Order
-
-
-def local_only(f):
-    @wraps(f)
-    def local_wrapper(*args, **kwargs):
-        if request.remote_addr not in \
-                netaddr.IPSet(app.config['INTERNAL_IPS']):
-            abort(403)
-        else:
-            return f(*args, **kwargs)
-    return local_wrapper
+from wuvt.view_utils import local_only
 
 
 @bp.route('/onetime')

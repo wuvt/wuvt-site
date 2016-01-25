@@ -1,6 +1,6 @@
 from dateutil import tz
-from wuvt import config
-from wuvt import session
+from . import config
+from . import session
 from flask import Flask, Request, redirect, request, url_for
 from flask.ext.login import LoginManager
 from flask.ext.migrate import Migrate
@@ -101,6 +101,7 @@ app.register_blueprint(donate.bp, url_prefix='/donate')
 from wuvt import trackman
 app.register_blueprint(trackman.bp, url_prefix='/trackman')
 
+from wuvt import models
 from wuvt import views
 
 if not app.debug:
