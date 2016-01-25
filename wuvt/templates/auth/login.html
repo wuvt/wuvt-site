@@ -9,7 +9,13 @@
 {% endfor %}
 
 <form action="{{ url_for('auth.login') }}" method="post" class="form-signin">
-    <h2 class="form-signin-heading">WUVT Login</h2>
+    <h1>
+        <a href="{{ url_for('index') }}">
+            WUVT
+            <span class="sub1">radio for everyone</span>
+            <span class="sub2">90.7 fm</span>
+        </a>
+    </h1>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
