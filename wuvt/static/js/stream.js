@@ -7,6 +7,18 @@ var streams = [
 var streamPlaying = false;
 
 function initPlayer() {
+    var playBtn = $('<button>');
+    playBtn.attr('title', "Play");
+    playBtn.attr('id', "stream_btn");
+    playBtn.text("Play/Stop");
+    $('#robot').append(playBtn);
+
+    var volBtn = $('<button>');
+    volBtn.attr('title', "Volume Control");
+    volBtn.attr('id', "volume_btn");
+    volBtn.text("Volume Control");
+    $('#robot').append(volBtn);
+
     var audioTag = document.createElement('audio');
 
     for(i in streams) {
