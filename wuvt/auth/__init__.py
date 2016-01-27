@@ -1,4 +1,4 @@
-from flask import abort, Blueprint, session
+from flask import abort, make_response, session, Blueprint
 from flask.ext.login import current_user, UserMixin
 from functools import wraps
 import ldap
@@ -52,7 +52,11 @@ def check_access(*sections):
             if sections.isdisjoint(access_sections):
                 abort(403)
 
-            return f(*args, **kwargs)
+            resp = make_response(f(*args, **kwargs))
+            resp.cache_control.no_cache = True
+            resp.cache_control.no_store = True
+            resp.cache_control.must_revalidate = True
+            return resp
         return access_wrapper
     return access_decorator
 
