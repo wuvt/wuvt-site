@@ -15,7 +15,7 @@ from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
 from wuvt.trackman.view_utils import dj_interact
-from wuvt.view_utils import local_only
+from wuvt.view_utils import ajax_only, local_only
 
 
 #############################################################################
@@ -308,6 +308,7 @@ def get_djset(djset_id):
 
 @bp.route('/api/airlog/edit/<int:airlog_id>', methods=['DELETE', 'POST'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def edit_airlog(airlog_id):
@@ -341,6 +342,7 @@ def edit_airlog(airlog_id):
 
 @bp.route('/api/airlog', methods=['POST'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def add_airlog():
@@ -357,6 +359,7 @@ def add_airlog():
 
 @bp.route('/api/tracklog/edit/<int:tracklog_id>', methods=['POST', 'DELETE'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def edit_tracklog(tracklog_id):
@@ -427,6 +430,7 @@ def edit_tracklog(tracklog_id):
 
 @bp.route('/api/tracklog', methods=['POST'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def play_tracklog():
@@ -456,6 +460,7 @@ def play_tracklog():
 
 @bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def edit_track(track_id):
@@ -491,6 +496,7 @@ def edit_track(track_id):
 
 @bp.route('/api/track', methods=['POST'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def add_track():
@@ -511,6 +517,7 @@ def add_track():
 
 @bp.route('/api/autologout', methods=['GET', 'POST'])
 @local_only
+@ajax_only
 @csrf.exempt
 @dj_interact
 def change_autologout():

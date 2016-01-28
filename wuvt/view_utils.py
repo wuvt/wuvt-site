@@ -1,4 +1,4 @@
-from flask import redirect, request, url_for
+from flask import abort, redirect, request, url_for
 from functools import wraps
 from wuvt import app
 import netaddr
@@ -30,6 +30,20 @@ def local_only(f):
         else:
             return f(*args, **kwargs)
     return local_wrapper
+
+
+def ajax_only(f):
+    """This decorator verifies that the X-Requested-With header is present.
+    JQuery adds this header, and we can use it to prevent cross-origin requests
+    because it cannot be added without a CORS preflight check."""
+
+    @wraps(f)
+    def ajax_only_wrapper(*args, **kwargs):
+        if request.headers.get('X-Requested-With', '') == "XMLHttpRequest":
+            return f(*args, **kwargs)
+        else:
+            return abort(403)
+    return ajax_only_wrapper
 
 
 def redirect_back(endpoint, **values):
