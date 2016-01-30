@@ -16,11 +16,7 @@ function wuvtLive(liveurl) {
             addDJLink('#current_dj', msg['tracklog']);
 
             if($('#last15tracks').length) {
-                updateLastTracks('#last15tracks', msg['tracklog']);
-            }
-
-            if($('#last3hours').length) {
-                updateLastTracks('#last3hours', msg['tracklog']);
+                updateLast15(msg['tracklog']);
             }
         }
     };
@@ -40,10 +36,10 @@ function addDJLink(elem, tracklog) {
     }
 }
 
-function updateLastTracks(selector, tracklog) {
-    if($(selector + ' tbody tr').length >= 15) {
+function updateLast15(tracklog) {
+    if($('#last15tracks tbody tr').length >= 15) {
         // remove last item if already 15 tracks
-        $(selector + ' tbody tr:last-child').remove();
+        $('#last15tracks tbody tr:last-child').remove();
     }
 
     function pad(value) {
@@ -105,7 +101,7 @@ function updateLastTracks(selector, tracklog) {
     }
     $(tr).append(td);
 
-    $(selector + ' tbody').prepend(tr);
+    $('#last15tracks tbody').prepend(tr);
 }
 
 function makeAjaxLink(item) {
