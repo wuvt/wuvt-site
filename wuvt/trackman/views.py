@@ -74,6 +74,20 @@ def last15():
     return render_template('last15.html', tracklogs=tracks)
 
 
+@app.route('/last3hours')
+def last3hours():
+    start = datetime.datetime.utcnow() - datetime.timedelta(hours=3)
+    tracks = TrackLog.query.filter(TrackLog.played >= start).order_by(
+            db.desc(TrackLog.id)).all()
+
+    if request.wants_json():
+        return jsonify({
+            'tracks': [t.full_serialize() for t in tracks],
+        })
+
+    return render_template('last3hours.html', tracklogs=tracks)
+
+
 @app.route('/playlists/latest_track')
 @app.route('/playlists/latest_track.php')
 def latest_track():
