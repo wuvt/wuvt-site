@@ -1,10 +1,12 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
 from flask import abort, current_app, jsonify, render_template, request, \
-        Response
+        url_for, Response
 import datetime
 import dateutil
 import re
+from werkzeug.contrib.atom import AtomFeed
+from urlparse import urljoin
 
 from .. import db
 from . import bp
@@ -53,7 +55,38 @@ def last15():
             'tracks': [t.full_serialize() for t in tracks],
         })
 
-    return render_template('last15.html', tracklogs=tracks)
+    return render_template('last15.html', tracklogs=tracks,
+                           feedlink=url_for('last15_feed'))
+
+
+@app.route('/last15.atom')
+def last15_feed():
+    def make_external(url):
+        return urljoin(request.url_root, url)
+
+    tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
+    feed = AtomFeed(u"{0}: Last 15 Tracks".format(app.config['TRACKMAN_NAME']),
+                    feed_url=request.url,
+                    url=make_external(url_for('last15')))
+
+    for tracklog in tracks:
+        feed.add(
+            u"{artist}: '{title}'".format(
+                artist=tracklog.track.artist,
+                title=tracklog.track.title),
+            u"'{title}' by {artist} on {album} spun by {dj}".format(
+                album=tracklog.track.album,
+                artist=tracklog.track.artist,
+                title=tracklog.track.title,
+                dj=tracklog.dj.airname),
+            url=make_external(url_for('playlist',
+                                      set_id=tracklog.djset_id,
+                                      _anchor="t{}".format(tracklog.id))),
+            author=tracklog.dj.airname,
+            updated=tracklog.played,
+            published=tracklog.played)
+
+    return feed.get_response()
 
 
 @bp.route('/playlists/latest_track')
