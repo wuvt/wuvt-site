@@ -68,7 +68,7 @@ def last15_feed():
     feed = AtomFeed(
         u"{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
         feed_url=request.url,
-        url=make_external(url_for('last15')))
+        url=make_external(url_for('.last15')))
 
     for tracklog in tracks:
         feed.add(
@@ -80,7 +80,7 @@ def last15_feed():
                 artist=tracklog.track.artist,
                 title=tracklog.track.title,
                 dj=tracklog.dj.airname),
-            url=make_external(url_for('playlist',
+            url=make_external(url_for('.playlist',
                                       set_id=tracklog.djset_id,
                                       _anchor="t{}".format(tracklog.id))),
             author=tracklog.dj.airname,
