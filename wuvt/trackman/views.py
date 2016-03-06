@@ -56,7 +56,7 @@ def last15():
         })
 
     return render_template('last15.html', tracklogs=tracks,
-                           feedlink=url_for('last15_feed'))
+                           feedlink=url_for('.last15_feed'))
 
 
 @bp.route('/last15.atom')
