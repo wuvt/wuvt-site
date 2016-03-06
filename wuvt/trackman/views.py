@@ -59,15 +59,16 @@ def last15():
                            feedlink=url_for('last15_feed'))
 
 
-@app.route('/last15.atom')
+@bp.route('/last15.atom')
 def last15_feed():
     def make_external(url):
         return urljoin(request.url_root, url)
 
     tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
-    feed = AtomFeed(u"{0}: Last 15 Tracks".format(app.config['TRACKMAN_NAME']),
-                    feed_url=request.url,
-                    url=make_external(url_for('last15')))
+    feed = AtomFeed(
+        u"{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
+        feed_url=request.url,
+        url=make_external(url_for('last15')))
 
     for tracklog in tracks:
         feed.add(
