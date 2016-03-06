@@ -1,28 +1,27 @@
-from flask import flash, jsonify, render_template, redirect, request, \
-    url_for, make_response
+from flask import current_app, flash, jsonify, render_template, redirect, \
+        request, url_for, make_response
 from sqlalchemy import func, desc
 
 import datetime
 import dateutil.parser
 
-from wuvt import app
-from wuvt import db
-from wuvt import csrf
-from wuvt import redis_conn
-from wuvt.trackman import bp
-from wuvt.trackman.lib import log_track, email_playlist, disable_automation, \
+from .. import db
+from .. import csrf
+from .. import redis_conn
+from ..view_utils import ajax_only, local_only
+from . import private_bp
+from .lib import log_track, email_playlist, disable_automation, \
         enable_automation, logout_all, logout_all_but_current
-from wuvt.trackman.models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
+from .models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
-from wuvt.trackman.view_utils import dj_interact
-from wuvt.view_utils import ajax_only, local_only
+from .view_utils import dj_interact
 
 
 #############################################################################
-### Login
+# Login
 #############################################################################
 
-@bp.route('/', methods=['GET', 'POST'])
+@private_bp.route('/', methods=['GET', 'POST'])
 @local_only
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
@@ -37,22 +36,22 @@ def login():
             db.session.add(djset)
             db.session.commit()
 
-        return redirect(url_for('trackman.log', setid=djset.id))
+        return redirect(url_for('.log', setid=djset.id))
 
     automation = redis_conn.get('automation_enabled') == "true"
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
     return render_template('trackman/login.html',
-                           trackman_name=app.config['TRACKMAN_NAME'],
+                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            automation=automation, djs=djs)
 
 
 #############################################################################
-### Automation Control
+# Automation Control
 #############################################################################
 
 
-@bp.route('/automation/start', methods=['POST'])
+@private_bp.route('/automation/start', methods=['POST'])
 @local_only
 def start_automation():
     automation = redis_conn.get('automation_enabled') == "true"
@@ -60,15 +59,16 @@ def start_automation():
         logout_all()
         enable_automation()
 
-    return redirect(url_for('trackman.login'))
+    return redirect(url_for('.login'))
 
 
-@bp.route('/api/automation/log', methods=['POST'])
+@private_bp.route('/api/automation/log', methods=['POST'])
 @local_only
 @csrf.exempt
 def automation_log():
     if 'password' not in request.form or \
-            request.form['password'] != app.config['AUTOMATION_PASSWORD']:
+            request.form['password'] != \
+            current_app.config['AUTOMATION_PASSWORD']:
         return jsonify(success=False, error="Invalid password")
 
     automation = redis_conn.get('automation_enabled') == "true"
@@ -130,28 +130,29 @@ def automation_log():
 
 
 #############################################################################
-### DJ Control
+# DJ Control
 #############################################################################
 
 
-@bp.route('/log/<int:setid>')
+@private_bp.route('/log/<int:setid>')
 @local_only
 @dj_interact
 def log(setid):
     djset = DJSet.query.get_or_404(setid)
     if djset.dtend is not None:
         # This is a logged out DJSet
-        return redirect(url_for('trackman.login'))
+        return redirect(url_for('.login'))
 
     rotations = {}
     for i in Rotation.query.order_by(Rotation.id).all():
         rotations[i.id] = i.rotation
     return render_template('trackman/log.html',
-                           trackman_name=app.config['TRACKMAN_NAME'],
+                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            djset=djset,
                            rotations=rotations)
 
-@bp.route('/js/log/<int:setid>.js')
+
+@private_bp.route('/js/log/<int:setid>.js')
 @local_only
 def log_js(setid):
     djset = DJSet.query.get_or_404(setid)
@@ -160,14 +161,14 @@ def log_js(setid):
         rotations[i.id] = i.rotation
 
     resp = make_response(render_template('trackman/log.js',
-                           trackman_name=app.config['TRACKMAN_NAME'],
-                           djset=djset,
-                           rotations=rotations))
+                         trackman_name=current_app.config['TRACKMAN_NAME'],
+                         djset=djset,
+                         rotations=rotations))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
 
 
-@bp.route('/edit/<int:tracklog_id>', methods=['GET'])
+@private_bp.route('/edit/<int:tracklog_id>', methods=['GET'])
 @local_only
 def edit(tracklog_id):
     track = TrackLog.query.get_or_404(tracklog_id)
@@ -177,11 +178,11 @@ def edit(tracklog_id):
         rotations[i.id] = i.rotation
 
     return render_template('trackman/edit.html',
-                           trackman_name=app.config['TRACKMAN_NAME'],
+                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            rotations=rotations, track=track)
 
 
-@bp.route('/report/<int:dj_id>/<int:track_id>', methods=['GET', 'POST'])
+@private_bp.route('/report/<int:dj_id>/<int:track_id>', methods=['GET', 'POST'])
 @local_only
 @dj_interact
 def report_track(dj_id, track_id):
@@ -189,18 +190,18 @@ def report_track(dj_id, track_id):
     dj = DJ.query.get_or_404(dj_id)
     if request.method == 'GET':
         return render_template('trackman/report.html', track=track, dj=dj,
-                               trackman_name=app.config['TRACKMAN_NAME'])
+                               trackman_name=current_app.config['TRACKMAN_NAME'])
     else:
         # This is a POST
         if 'reason' not in request.form:
             return render_template('trackman/report.html', track=track, dj=dj,
-                                   trackman_name=app.config['TRACKMAN_NAME'],
+                                   trackman_name=current_app.config['TRACKMAN_NAME'],
                                    error="A reason is required")
 
         reason = request.form['reason'].strip()
         if len(reason) == 0:
             return render_template('trackman/report.html', track=track, dj=dj,
-                                   trackman_name=app.config['TRACKMAN_NAME'],
+                                   trackman_name=current_app.config['TRACKMAN_NAME'],
                                    error="A reason is required")
 
         report = TrackReport(dj_id, track_id, reason)
@@ -209,7 +210,7 @@ def report_track(dj_id, track_id):
         return render_template('trackman/reportsuccess.html', dj=dj)
 
 
-@bp.route('/log/<int:setid>/end', methods=['POST'])
+@private_bp.route('/log/<int:setid>/end', methods=['POST'])
 @local_only
 def logout(setid):
     djset = DJSet.query.get_or_404(setid)
@@ -217,7 +218,7 @@ def logout(setid):
         djset.dtend = datetime.datetime.utcnow()
     else:
         # This has already been logged out
-        return redirect(url_for('trackman.login'))
+        return redirect(url_for('.login'))
     db.session.commit()
 
     # Reset the dj activity timeout period
@@ -225,16 +226,16 @@ def logout(setid):
 
     # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation start time
     redis_conn.set('dj_active', 'false')
-    redis_conn.expire('dj_active', int(app.config['NO_DJ_TIMEOUT']))
+    redis_conn.expire('dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
 
     # email playlist
     if 'email_playlist' in request.form and request.form.get('email_playlist') == 'true':
         email_playlist(djset)
 
-    return redirect(url_for('trackman.login'))
+    return redirect(url_for('.login'))
 
 
-@bp.route('/register', methods=['GET', 'POST'])
+@private_bp.route('/register', methods=['GET', 'POST'])
 @local_only
 def register():
     errors = {}
@@ -274,19 +275,19 @@ def register():
             db.session.commit()
 
             flash("DJ added")
-            return redirect(url_for('trackman.login'))
+            return redirect(url_for('.login'))
 
     return render_template('trackman/register.html',
-                           trackman_name=app.config['TRACKMAN_NAME'],
+                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            errors=errors)
 
 
 #############################################################################
-### Trackman API
+# Trackman API
 #############################################################################
 
 
-@bp.route('/api/djset/<int:djset_id>', methods=['GET'])
+@private_bp.route('/api/djset/<int:djset_id>', methods=['GET'])
 @local_only
 @dj_interact
 def get_djset(djset_id):
@@ -306,7 +307,7 @@ def get_djset(djset_id):
                    airlog=[i.serialize() for i in djset.airlog])
 
 
-@bp.route('/api/airlog/edit/<int:airlog_id>', methods=['DELETE', 'POST'])
+@private_bp.route('/api/airlog/edit/<int:airlog_id>', methods=['DELETE', 'POST'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -340,7 +341,7 @@ def edit_airlog(airlog_id):
     return jsonify(success=True)
 
 
-@bp.route('/api/airlog', methods=['POST'])
+@private_bp.route('/api/airlog', methods=['POST'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -357,7 +358,7 @@ def add_airlog():
     return jsonify(success=True, airlog_id=airlog.id)
 
 
-@bp.route('/api/tracklog/edit/<int:tracklog_id>', methods=['POST', 'DELETE'])
+@private_bp.route('/api/tracklog/edit/<int:tracklog_id>', methods=['POST', 'DELETE'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -401,7 +402,6 @@ def edit_tracklog(tracklog_id):
             return jsonify(success=False,
                            error="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
 
-
         db.session.add(track)
         db.session.commit()
         tracklog.track_id = track.id
@@ -428,7 +428,7 @@ def edit_tracklog(tracklog_id):
     return jsonify(success=True)
 
 
-@bp.route('/api/tracklog', methods=['POST'])
+@private_bp.route('/api/tracklog', methods=['POST'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -458,7 +458,7 @@ def play_tracklog():
     return jsonify(success=True, tracklog_id=tracklog.id)
 
 
-@bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
+@private_bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -494,7 +494,7 @@ def edit_track(track_id):
     return jsonify(success=True)
 
 
-@bp.route('/api/track', methods=['POST'])
+@private_bp.route('/api/track', methods=['POST'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -515,7 +515,7 @@ def add_track():
     return jsonify(success=True, track_id=track.id)
 
 
-@bp.route('/api/autologout', methods=['GET', 'POST'])
+@private_bp.route('/api/autologout', methods=['GET', 'POST'])
 @local_only
 @ajax_only
 @csrf.exempt
@@ -535,11 +535,12 @@ def change_autologout():
             # This needs to be reexpired now since dj_timeout changed after dj_interact
             return jsonify(success=True, autologout=True)
         else:
-            redis_conn.set('dj_timeout', app.config['EXTENDED_DJ_TIMEOUT'])
+            redis_conn.set('dj_timeout',
+                           current_app.config['EXTENDED_DJ_TIMEOUT'])
             return jsonify(success=True, autologout=False)
 
 
-@bp.route('/api/search', methods=['GET'])
+@private_bp.route('/api/search', methods=['GET'])
 @local_only
 @dj_interact
 def search_tracks():
@@ -571,7 +572,7 @@ def search_tracks():
 
     # This means there was a bad search, stop searching
     if somesearch is False:
-        app.logger.info("An empty search was submitted to the API")
+        current_app.logger.info("An empty search was submitted to the API")
         return jsonify(success=False, error="No search entires")
 
     # Check if results

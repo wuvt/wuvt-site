@@ -12,12 +12,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
 
-from wuvt import app
-from wuvt import cache
-from wuvt import db
-from wuvt import redis_conn
-from wuvt import format_datetime, localize_datetime
-from wuvt.trackman.models import TrackLog, DJSet
+from .. import app
+from .. import cache
+from .. import db
+from .. import redis_conn
+from .. import format_datetime, localize_datetime
+from .models import TrackLog, DJSet
 
 CHART_PER_PAGE = 250
 CHART_TTL = 14400
@@ -27,7 +27,7 @@ def get_duplicates(model, attrs):
     dups = model.query.with_entities(
         *[getattr(model, attr) for attr in attrs]).group_by(
         *[getattr(model, attr) for attr in attrs]).having(db.and_(
-        *[db.func.count(getattr(model, attr)) > 1 for attr in attrs])).all()
+            *[db.func.count(getattr(model, attr)) > 1 for attr in attrs])).all()
     return dups
 
 
@@ -214,7 +214,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     album = track.track.album
     played = localize_datetime(track.played)
 
-    from wuvt.trackman import tasks
+    from . import tasks
     tasks.update_stream.delay(artist, title, album)
     tasks.update_tunein.delay(artist, title)
     tasks.update_lastfm.delay(artist, title, album, played)

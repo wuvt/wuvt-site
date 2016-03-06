@@ -9,12 +9,12 @@
 
     <ul>
         {% for dj in djs %}
-        <li><a href="{{ url_for('playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></li>
+        <li><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></li>
         {% endfor %}
     </ul>
 </section>
 
 <section class="pagination">
-    <a href="{{ url_for('playlists_dj') }}">Show only current DJs</a>
+    <a href="{{ url_for('trackman.playlists_dj') }}">Show only current DJs</a>
 </section>
 {% endblock %}

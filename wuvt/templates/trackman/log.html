@@ -1,6 +1,6 @@
 {% extends "trackman/base.html" %}
 {% block content %}
-<form style="display: none;" action="{{ url_for('trackman.logout', setid=djset.id) }}" method="post"
+<form style="display: none;" action="{{ url_for('trackman_private.logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="email_playlist" value="0" />
@@ -233,5 +233,5 @@
 {% block js %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
-<script src="{{ url_for('trackman.log_js', setid=djset.id) }}"></script>
+<script src="{{ url_for('trackman_private.log_js', setid=djset.id) }}"></script>
 {% endblock %}

@@ -29,7 +29,7 @@
             <td>{{ track.track.album }}</td>
             <td>
                 {% if track.dj.visible -%}
-                <a href="{{ url_for('playlists_dj_sets', dj_id=track.dj_id) }}">{{ track.dj.airname }}</a>
+                <a href="{{ url_for('trackman.playlists_dj_sets', dj_id=track.dj_id) }}">{{ track.dj.airname }}</a>
                 {% else -%}
                 {{ track.dj.airname }}
                 {% endif -%}
@@ -48,7 +48,7 @@
 </header>
 
 <p>Check out our playlist archives. You can search
-<a href='{{ url_for('playlists_date') }}'>air date</a> or
-<a href="{{ url_for('playlists_dj') }}">DJ</a>.</p>
+<a href='{{ url_for('trackman.playlists_date') }}'>air date</a> or
+<a href="{{ url_for('trackman.playlists_dj') }}">DJ</a>.</p>
 </section>
 {% endblock %}

@@ -1,7 +1,7 @@
 import datetime
 
-from wuvt import app
-from wuvt import db
+from .. import app
+from .. import db
 
 
 class DJ(db.Model):

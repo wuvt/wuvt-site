@@ -28,7 +28,7 @@
 </div>
 
 <div class="row">
-<form action="{{ url_for('trackman.report_track', dj_id=dj.id, track_id=track.id) }}"
+<form action="{{ url_for('trackman_private.report_track', dj_id=dj.id, track_id=track.id) }}"
     method="post" class="" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 

@@ -1,7 +1,6 @@
+from flask import current_app
 from functools import wraps
-from flask import abort, request
-from wuvt import app
-from wuvt import redis_conn
+from .. import redis_conn
 
 
 def dj_interact(f):
@@ -14,7 +13,7 @@ def dj_interact(f):
         # logout/login must delete this dj_timeout
         expire = redis_conn.get('dj_timeout')
         if redis_conn.get('dj_timeout') is None:
-            expire = app.config['DJ_TIMEOUT']
+            expire = current_app.config['DJ_TIMEOUT']
 
         redis_conn.expire('dj_active', int(expire))
 
