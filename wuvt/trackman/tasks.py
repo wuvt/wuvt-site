@@ -7,12 +7,12 @@ from datetime import timedelta
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 
-from wuvt import app
-from wuvt import db
-from wuvt import redis_conn
-from wuvt.celeryconfig import make_celery
-from wuvt.trackman.lib import get_duplicates, logout_all, enable_automation
-from wuvt.trackman.models import AirLog, DJSet, Track, TrackLog
+from .. import app
+from .. import db
+from .. import redis_conn
+from ..celeryconfig import make_celery
+from .lib import get_duplicates, logout_all, enable_automation
+from .models import AirLog, DJSet, Track, TrackLog
 
 celery = make_celery(app)
 

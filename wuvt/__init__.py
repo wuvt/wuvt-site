@@ -66,7 +66,26 @@ from wuvt import donate
 app.register_blueprint(donate.bp, url_prefix='/donate')
 
 from wuvt import trackman
-app.register_blueprint(trackman.bp, url_prefix='/trackman')
+app.register_blueprint(trackman.bp)
+app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
+
+
+@app.context_processor
+def inject_nowplaying():
+    track = trackman.trackinfo()
+    if not track:
+        return {
+            'current_track': u"Not Available",
+            'current_dj': u"Not Available",
+            'current_dj_id': 0,
+        }
+
+    return {
+        'current_track': u"{artist} - {title}".format(**track),
+        'current_dj': track['dj'],
+        'current_dj_id': track['dj_id']
+    }
+
 
 from wuvt import models
 from wuvt import views

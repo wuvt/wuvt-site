@@ -24,7 +24,7 @@
         <ul>
             <li><strong>Currently on air:</strong> <span id="current_track">{{ current_track }}</span></li>
             <li><strong>Current DJ:</strong> <span id="current_dj">{% if current_dj_id > 0 -%}
-<a href="{{ url_for('playlists_dj_sets', dj_id=current_dj_id) }}">{{ current_dj }}</a>
+<a href="{{ url_for('trackman.playlists_dj_sets', dj_id=current_dj_id) }}">{{ current_dj }}</a>
 {% else -%}
 {{ current_dj }}{% endif -%}
 </span></li>
@@ -49,7 +49,7 @@
         {% block bubble %}
         <ul>
             <li><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
-            <li><a href="{{ url_for('last15') }}">Last 15 Tracks!!</a></li>
+            <li><a href="{{ url_for('trackman.last15') }}">Last 15 Tracks!!</a></li>
             <li><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
         </ul>
         {% endblock %}
@@ -64,10 +64,10 @@
                 <span class="menu-heading">{{ section['name'] }}</span>
                 <ul>
                     {% if section['menu'] == 'playlists' -%}
-                    <li><a href="{{ url_for('last15') }}">Last 15</a></li>
-                    <li><a href="{{ url_for('playlists_date') }}">by date</a></li>
-                    <li><a href="{{ url_for('playlists_dj') }}">by DJ</a></li>
-                    <li><a href="{{ url_for('charts_index') }}">Charts</a></li>
+                    <li><a href="{{ url_for('trackman.last15') }}">Last 15</a></li>
+                    <li><a href="{{ url_for('trackman.playlists_date') }}">by date</a></li>
+                    <li><a href="{{ url_for('trackman.playlists_dj') }}">by DJ</a></li>
+                    <li><a href="{{ url_for('trackman.charts_index') }}">Charts</a></li>
                     {% endif -%}
                     {% for page in menus[section['menu']] -%}
                     {% if page.published %}
