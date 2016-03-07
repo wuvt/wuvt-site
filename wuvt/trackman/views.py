@@ -24,6 +24,7 @@ def trackinfo():
 
     data = track.track.serialize()
     data['listeners'] = track.listeners
+    data['played'] = str(track.played)
 
     if track.djset == None:
         dj = DJ.query.filter_by(name="Automation").first()
