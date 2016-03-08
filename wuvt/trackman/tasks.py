@@ -115,13 +115,16 @@ def update_lastfm(artist, title, album, played):
         h.update(app.config['LASTFM_PASSWORD'])
         password_hash = h.hexdigest()
 
-        network = pylast.LastFMNetwork(
-            api_key=app.config['LASTFM_APIKEY'],
-            api_secret=app.config['LASTFM_SECRET'],
-            username=app.config['LASTFM_USERNAME'],
-            password_hash=password_hash)
-        network.scrobble(
-            artist=artist,
-            title=title,
-            timestamp=int(time.mktime(played.timetuple())),
-            album=album)
+        try:
+            network = pylast.LastFMNetwork(
+                api_key=app.config['LASTFM_APIKEY'],
+                api_secret=app.config['LASTFM_SECRET'],
+                username=app.config['LASTFM_USERNAME'],
+                password_hash=password_hash)
+            network.scrobble(
+                artist=artist,
+                title=title,
+                timestamp=int(time.mktime(played.timetuple())),
+                album=album)
+        except Exception as exc:
+            app.logger.warning("Last.fm scrobble failed: {}".format(exc))
