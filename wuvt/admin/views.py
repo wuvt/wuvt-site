@@ -486,9 +486,7 @@ def article_edit(art_id):
 
         # summary
         summary = request.form.get('summary', "").strip()
-        print('summary: {0}', summary)
         content = request.form.get('content', "").strip()
-        print('content: {0}', content)
 
         # markdown
 
