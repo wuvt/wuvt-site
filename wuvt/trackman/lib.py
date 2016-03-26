@@ -163,7 +163,7 @@ def email_playlist(djset):
     msg['To'] = djset.dj.email
     msg['Message-Id'] = email.utils.make_msgid()
     msg['X-Mailer'] = "Trackman"
-    msg['Subject'] = "[{name}] {djname} - Playlist from {dtend}".format(
+    msg['Subject'] = u"[{name}] {djname} - Playlist from {dtend}".format(
         name=app.config['TRACKMAN_NAME'],
         djname=djset.dj.airname,
         dtend=format_datetime(djset.dtend, "%Y-%m-%d"))
