@@ -5,8 +5,8 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}" />
 <h1>Donations</h1>
-Total so far: {{ format_price(total) }}<br>
-Max donation: {{ format_price(max) }}
+Total so far: {{ (total / 100)|format_currency }}<br>
+Max donation: {{ (max / 100)|format_currency }}
 <!--
 <ul class="nav nav-tabs">
     <li role="presentation" class="active"><a href="{{ url_for('admin.library_index') }}">By Artist</a></li>
@@ -38,8 +38,8 @@ Max donation: {{ format_price(max) }}
         <td>{{ donation.name }}</td>
         <td>{{ donation.email }}</td>
         <td>{{ donation.phone }}</td>
-        <td>{{ format_datetime(donation.placed_date) }}</td>
-        <td>{% if donation.paid_date %}{{ format_datetime(donation.paid_date) }} {% endif %}</td>
+        <td>{{ donation.placed_date|datetime }}</td>
+        <td>{% if donation.paid_date %}{{ donation.paid_date|datetime }} {% endif %}</td>
         <td>{{ donation.method }}</td>
         <td>{% if donation.address1 %}
             {{ donation.address1 }}<br>
@@ -49,8 +49,8 @@ Max donation: {{ format_price(max) }}
                 {{ donation.city }}, {{ donation.state }} {{ donation.zipcode }}
             {% endif %}
         </td>
-        <td>{% if donation.shipped_date %}{{ format_datetime(donation.shipped_date) }} {% endif %}</td>
-        <td>{{ format_price(donation.amount) }}</td>
+        <td>{% if donation.shipped_date %}{{ donation.shipped_date|datetime }} {% endif %}</td>
+        <td>{{ (donation.amount / 100)|format_currency }}</td>
         <td>{{ donation.recurring }}</td>
         <td>{% if donation.tshirtsize %}{{ donation.tshirtsize }}{% endif %}</td>
         <td>{% if donation.tshirtcolor %}{{ donation.tshirtcolor }}{% endif %}</td>
