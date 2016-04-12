@@ -76,8 +76,11 @@ def login():
                                        user.username):
                         session['access'].append('business')
 
-                    app.logger.warning("LDAP user {} logged in.".format(
-                        user.username))
+                    app.logger.warning(
+                        "LDAP user {user} logged in from {ip} using "
+                        "{ua}".format(user=user.username,
+                                      ip=request.remote_addr,
+                                      ua=request.user_agent))
 
                     client.unbind()
 
@@ -92,8 +95,11 @@ def login():
                 session['username'] = user.username
                 session['access'] = ['admin', 'library', 'missioncontrol', 'business']
 
-                app.logger.warning("Database user {} logged in.".format(
-                    user.username))
+                app.logger.warning(
+                    "Database user {user} logged in from {ip} using "
+                    "{ua}".format(user=user.username,
+                                  ip=request.remote_addr,
+                                  ua=request.user_agent))
 
                 return redirect_back('admin.index')
             else:
