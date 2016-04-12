@@ -92,7 +92,7 @@ from wuvt import views
 
 if not app.debug:
     import logging
-    from logging.handlers import SMTPHandler
+    from logging.handlers import SMTPHandler, SysLogHandler
 
     mail_handler = SMTPHandler(
         app.config['SMTP_SERVER'],
@@ -107,3 +107,8 @@ Time:               %(asctime)s
 '''))
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
+
+    syslog_handler = SysLogHandler(
+        address=app.config.get('SYSLOG_ADDRESS', '/dev/log'))
+    syslog_handler.setLevel(logging.WARNING)
+    app.logger.addHandler(syslog_handler)
