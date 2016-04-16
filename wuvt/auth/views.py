@@ -114,6 +114,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.pop('userrname', None)
+    session.pop('username', None)
     flash("You have been logged out.")
     return redirect(url_for('.login'))
