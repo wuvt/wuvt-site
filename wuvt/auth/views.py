@@ -4,9 +4,8 @@ import ldap
 
 from wuvt import app
 from wuvt import db
-from wuvt.auth import bp
-from wuvt.auth import build_dn
-from wuvt.auth import ldap_group_test
+from wuvt.auth import bp, build_dn, ldap_group_test, log_auth_success, \
+        log_auth_failure
 from wuvt.models import User
 from wuvt.view_utils import redirect_back
 
@@ -30,6 +29,7 @@ def login():
                     client.simple_bind_s(dn, request.form['password'])
                 except ldap.INVALID_CREDENTIALS:
                     client.unbind()
+                    log_auth_failure("LDAP", request.form['username'], request)
                     errors.append("Invalid username or password.")
                 except ldap.SERVER_DOWN as e:
                     errors.append("Could not contact the LDAP server.")
@@ -76,16 +76,12 @@ def login():
                                        user.username):
                         session['access'].append('business')
 
-                    app.logger.warning(
-                        "LDAP user {user} logged in from {ip} using "
-                        "{ua}".format(user=user.username,
-                                      ip=request.remote_addr,
-                                      ua=request.user_agent))
-
+                    log_auth_success("LDAP", user.username, request)
                     client.unbind()
 
                     return redirect_back('admin.index')
             else:
+                log_auth_failure("LDAP", request.form['username'], request)
                 errors.append("Invalid username or password.")
         else:
             user = User.query.filter(
@@ -95,14 +91,10 @@ def login():
                 session['username'] = user.username
                 session['access'] = ['admin', 'library', 'missioncontrol', 'business']
 
-                app.logger.warning(
-                    "Database user {user} logged in from {ip} using "
-                    "{ua}".format(user=user.username,
-                                  ip=request.remote_addr,
-                                  ua=request.user_agent))
-
+                log_auth_success("DB", user.username, request)
                 return redirect_back('admin.index')
             else:
+                log_auth_failure("DB", request.form['username'], request)
                 errors.append("Invalid username or password.")
 
     return render_template('auth/login.html',

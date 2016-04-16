@@ -61,4 +61,22 @@ def check_access(*sections):
     return access_decorator
 
 
+def log_auth_success(method, user, req):
+    return app.logger.warning(
+        "{method} user {user} logged in from {ip} using {ua}".format(
+            method=method,
+            user=user,
+            ip=req.remote_addr,
+            ua=req.user_agent))
+
+
+def log_auth_failure(method, user, req):
+    return app.logger.warning(
+        "Failed login for {method} user {user} from {ip} using {ua}".format(
+            method=method,
+            user=user,
+            ip=req.remote_addr,
+            ua=req.user_agent))
+
+
 from wuvt.auth import views
