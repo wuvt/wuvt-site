@@ -23,10 +23,6 @@ def login():
                     client = ldap.initialize(app.config['LDAP_URI'])
                     client.set_option(ldap.OPT_REFERRALS, 0)
 
-                    if app.config.get('LDAP_TLS_CACERT', None) is not None:
-                        client.set_option(ldap.OPT_X_TLS_CACERTFILE,
-                                          app.config['LDAP_TLS_CACERT'])
-
                     if app.config['LDAP_STARTTLS']:
                         client.start_tls_s()
 
