@@ -23,6 +23,10 @@ def login():
                     client = ldap.initialize(app.config['LDAP_URI'])
                     client.set_option(ldap.OPT_REFERRALS, 0)
 
+                    if app.config.get('LDAP_TLS_CACERT', None) is not None:
+                        client.set_option(ldap.OPT_X_TLS_CACERTFILE,
+                                          app.config['LDAP_TLS_CACERT'])
+
                     if app.config['LDAP_STARTTLS']:
                         client.start_tls_s()
 
@@ -31,7 +35,7 @@ def login():
                     client.unbind()
                     log_auth_failure("LDAP", request.form['username'], request)
                     errors.append("Invalid username or password.")
-                except ldap.SERVER_DOWN as e:
+                except (ldap.CONNECT_ERROR, ldap.SERVER_DOWN) as e:
                     errors.append("Could not contact the LDAP server.")
                     app.logger.error("Could not contact the LDAP server: "
                         "{}".format(e))
