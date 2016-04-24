@@ -124,9 +124,10 @@ def automation_log():
     djset_id = redis_conn.get('automation_set')
     if djset_id != None:
         djset_id = int(djset_id)
-    log_track(track.id, djset_id)
-
-    return jsonify(success=True)
+        log_track(track.id, djset_id)
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False)
 
 
 #############################################################################
