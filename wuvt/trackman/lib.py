@@ -141,8 +141,13 @@ def disable_automation():
         app.logger.info("Automation disabled with DJSet.id = {}".format(automation_set_id))
         if automation_set_id is not None:
             automation_set = DJSet.query.get(int(automation_set_id))
-            automation_set.dtend = datetime.utcnow()
-            db.session.commit()
+            if automation_set is not None:
+                automation_set.dtend = datetime.utcnow()
+                db.session.commit()
+            else:
+                app.logger.warning(
+                    "The provided automation set ({0}) was not found in the "
+                    "database.".format(automation_set_id))
 
 
 def enable_automation():
