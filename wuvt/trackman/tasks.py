@@ -2,7 +2,7 @@ import hashlib
 import requests
 import time
 import urllib
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
@@ -48,10 +48,15 @@ def deduplicate_tracks():
 def playlist_cleanup():
     app.logger.debug("Starting playlist cleanup...")
 
+    prune_before = datetime.utcnow() - timedelta(days=1)
     empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
-        DJSet.id).filter(DJSet.dtend != None).having(
-        db.and_(db.func.count(TrackLog.id) < 1,
-                db.func.count(AirLog.id) < 1))
+        DJSet.id).filter(db.and_(
+            DJSet.dtend != None,
+            DJSet.dtstart < prune_before
+        )).having(db.and_(
+            db.func.count(TrackLog.id) < 1,
+            db.func.count(AirLog.id) < 1
+        ))
     for djset in empty.all():
         db.session.delete(djset)
     db.session.commit()
