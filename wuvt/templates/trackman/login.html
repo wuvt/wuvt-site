@@ -11,7 +11,7 @@
         <select name="dj" class="form-control">
             <option value="">Select DJ</option>
             {% for dj in djs %}
-            <option value="{{ dj.id }}">{{ dj.airname }}</option>
+            <option value="{{ dj.id }}">{{ dj.airname|truncate(50) }}</option>
             {% endfor %}
         </select>
     </div>
