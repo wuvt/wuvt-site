@@ -1,4 +1,4 @@
-import pickle
+import json
 import sys
 from datetime import timedelta
 from uuid import uuid4
@@ -19,7 +19,7 @@ class RedisSession(CallbackDict, SessionMixin):
 
 
 class RedisSessionInterface(SessionInterface):
-    serializer = pickle
+    serializer = json
     session_class = RedisSession
 
     def __init__(self, redis=None, prefix='session:'):
