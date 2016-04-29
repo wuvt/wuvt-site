@@ -29,6 +29,12 @@ def login():
 
         dj = DJ.query.get(request.form['dj'])
 
+        current_app.logger.warning(
+            "Trackman: {airname} logged in from {ip} using {ua}".format(
+                airname=dj.airname,
+                ip=request.remote_addr,
+                ua=request.user_agent))
+
         # close open DJSets, and see if we have one we can use
         djset = logout_all_but_current(dj)
         if djset is None:
@@ -58,6 +64,11 @@ def start_automation():
     if not automation:
         logout_all()
         enable_automation()
+
+        current_app.logger.warning(
+            "Trackman: Automation started from {ip} using {ua}".format(
+                ip=request.remote_addr,
+                ua=request.user_agent))
 
     return redirect(url_for('.login'))
 
