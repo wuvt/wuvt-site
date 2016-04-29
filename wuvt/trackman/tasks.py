@@ -40,13 +40,15 @@ def deduplicate_tracks():
 
         db.session.commit()
 
-        app.logger.info("Removed {0:d} duplicates of track ID {1:d}".format(
-            count - 1, track_id))
+        app.logger.info(
+            "Trackman: Removed {0:d} duplicates of track ID {1:d}".format(
+                count - 1,
+                track_id))
 
 
 @periodic_task(run_every=crontab(hour=6, minute=0))
 def playlist_cleanup():
-    app.logger.debug("Starting playlist cleanup...")
+    app.logger.debug("Trackman: Starting playlist cleanup...")
 
     prune_before = datetime.utcnow() - timedelta(days=1)
     empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
@@ -61,7 +63,8 @@ def playlist_cleanup():
         db.session.delete(djset)
     db.session.commit()
 
-    app.logger.debug("Removed {} empty DJSets.".format(empty.count()))
+    app.logger.debug("Trackman: Removed {} empty DJSets.".format(
+        empty.count()))
 
 
 @periodic_task(run_every=timedelta(minutes=1))
@@ -132,4 +135,5 @@ def update_lastfm(artist, title, album, played):
                 timestamp=int(time.mktime(played.timetuple())),
                 album=album)
         except Exception as exc:
-            app.logger.warning("Last.fm scrobble failed: {}".format(exc))
+            app.logger.warning("Trackman: Last.fm scrobble failed: {}".format(
+                exc))

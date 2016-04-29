@@ -138,7 +138,8 @@ def disable_automation():
     if automation_enabled is not None and automation_enabled == 'true':
         redis_conn.set("automation_enabled", "false")
         automation_set_id = redis_conn.get("automation_set")
-        app.logger.info("Automation disabled with DJSet.id = {}".format(automation_set_id))
+        app.logger.info("Trackman: Automation disabled with DJSet.id "
+                        "= {}".format(automation_set_id))
         if automation_set_id is not None:
             automation_set = DJSet.query.get(int(automation_set_id))
             if automation_set is not None:
@@ -146,8 +147,8 @@ def disable_automation():
                 db.session.commit()
             else:
                 app.logger.warning(
-                    "The provided automation set ({0}) was not found in the "
-                    "database.".format(automation_set_id))
+                    "Trackman: The provided automation set ({0}) was not "
+                    "found in the database.".format(automation_set_id))
 
 
 def enable_automation():
@@ -157,7 +158,8 @@ def enable_automation():
     automation_set = DJSet(1)
     db.session.add(automation_set)
     db.session.commit()
-    app.logger.info("Automation enabled with DJSet.id = {}".format(automation_set.id))
+    app.logger.info("Trackman: Automation enabled with DJSet.id = {}".format(
+        automation_set.id))
     redis_conn.set('automation_set', str(automation_set.id))
 
 
@@ -202,7 +204,8 @@ def stream_listeners(url):
         listeners = doc.xpath('//icestats/listeners/text()')[0]
         return int(listeners)
     except Exception as e:
-        app.logger.error(e)
+        app.logger.error("Trackman: Error fetching stream listeners: "
+                         "{}".format(e))
         return None
 
 

@@ -584,7 +584,8 @@ def search_tracks():
 
     # This means there was a bad search, stop searching
     if somesearch is False:
-        current_app.logger.info("An empty search was submitted to the API")
+        current_app.logger.info(
+            "Trackman: An empty search was submitted to the API")
         return jsonify(success=False, error="No search entires")
 
     # Check if results

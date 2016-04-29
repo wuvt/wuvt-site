@@ -33,8 +33,8 @@ def login():
                     errors.append("Invalid username or password.")
                 except (ldap.CONNECT_ERROR, ldap.SERVER_DOWN) as e:
                     errors.append("Could not contact the LDAP server.")
-                    app.logger.error("Could not contact the LDAP server: "
-                        "{}".format(e))
+                    app.logger.error("wuvt-site: Could not contact the LDAP "
+                        "server: {}".format(e))
                 else:
                     result = client.search_s(dn, ldap.SCOPE_SUBTREE)
                     user = User.query.filter(

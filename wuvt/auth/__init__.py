@@ -63,7 +63,8 @@ def check_access(*sections):
 
 def log_auth_success(method, user, req):
     return app.logger.warning(
-        "{method} user {user} logged in from {ip} using {ua}".format(
+        "wuvt-site: {method} user {user} logged in from {ip} using "
+        "{ua}".format(
             method=method,
             user=user,
             ip=req.remote_addr,
@@ -72,7 +73,8 @@ def log_auth_success(method, user, req):
 
 def log_auth_failure(method, user, req):
     return app.logger.warning(
-        "Failed login for {method} user {user} from {ip} using {ua}".format(
+        "wuvt-site: Failed login for {method} user {user} from {ip} using "
+        "{ua}".format(
             method=method,
             user=user,
             ip=req.remote_addr,
