@@ -24,7 +24,7 @@ function initPlayer() {
     for(i in streams) {
         var stream = streams[i];
         if(audioTag.canPlayType(stream[0])) {
-            initStream(stream[1]);
+            initStream(stream[0], stream[1]);
             return;
         }
     }
@@ -36,7 +36,7 @@ function initPlayer() {
     $('#volume_btn').click(warnBrokenPlayer);
 }
 
-function initStream(streamUrl) {
+function initStream(streamMime, streamUrl) {
     // This doesn't work on Chrome for Android:
     // https://code.google.com/p/chromium/issues/detail?id=178297
 
@@ -44,8 +44,8 @@ function initStream(streamUrl) {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
             $(stream).attr('id', "wuvt_stream");
+            $(stream).attr('type', streamMime);
             $(stream).attr('src', streamUrl);
-            $(stream).attr('autoplay', "autoplay");
             $('body').append(stream);
 
             stream.addEventListener('play', function() {
@@ -68,6 +68,8 @@ function initStream(streamUrl) {
                 $('#wuvt_stream').attr('src', streamUrl);
                 $('#wuvt_stream').trigger('play');
             });
+
+            stream.play();
 
             // display an alert after 5 seconds if the stream hasn't started
             window.setTimeout(function() {
