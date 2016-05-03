@@ -37,9 +37,6 @@ function initPlayer() {
 }
 
 function initStream(streamMime, streamUrl) {
-    // This doesn't work on Chrome for Android:
-    // https://code.google.com/p/chromium/issues/detail?id=178297
-
     $('#stream_btn').click(function() {
         if(!streamPlaying) {
             var stream = document.createElement('audio');
