@@ -46,7 +46,7 @@ body {
     background-size: 32px 15px, 52px 34px;
     background-position: 0% 60%, top right;
     background-repeat: no-repeat;
-    font-size: 0.8em;
+    font-size: 12.8px;
 }
 
 #nowplaying ul {
@@ -87,6 +87,7 @@ header #mainheader h1 {
     position: absolute;
     width: 200px;
     height: 90px;
+    font-size: 32px;
     text-indent: -9999px;
 }
 
@@ -104,7 +105,7 @@ header #mainheader h1 span {
     position: absolute;
     display: block;
     color: #000000;
-    font-size: 0.4em;
+    font-size: 12.8px;
     font-weight: bold;
     text-indent: 0;
 }
@@ -268,7 +269,7 @@ header #bubble ul {
     padding: 0;
     list-style: none;
     font-family: "Homestead Display", sans-serif;
-    font-size: 0.9em;
+    font-size: 30px;
     text-transform: uppercase;
 }
 
@@ -276,7 +277,6 @@ header #bubble li {
     display: inline-block;
     padding: 0 6px;
     width: 150px;
-    font-size: 2.1em;
 }
 
 /* make first element in bubble less wide */
@@ -333,6 +333,7 @@ header nav {
     margin: 6px 0 0 0;
     /*padding: 0 0 0 260px;
     font-size: 0.9em;*/
+    font-size: 16px;
     padding: 0 0 0 180px;
 
     /* disable wrapping */
@@ -427,7 +428,7 @@ header nav ul ul {
     display: block;
     margin: 0 0 10px 0;
     padding: 14px;
-    font-size: 1.2em;
+    font-size: 19.2px;
     background-color: #fff;
     color: #000;
     text-align: center;
@@ -443,8 +444,8 @@ header nav ul ul {
     display: block;
     margin: 0 0 10px 0;
     padding: 14px;
-    font-size: 1.2em;
     background-color: #ec1c23;
+    font-size: 19.2px;
 }
 
 #side nav li.active a {
@@ -456,6 +457,7 @@ header nav ul ul {
     padding: 0;
     list-style: none;
     text-align: center;
+    font-size: 12.8px;
 }
 
 #side ul#side_social li {
