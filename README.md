@@ -15,22 +15,10 @@ It has several main components:
 - HTML5 stream player capable of smooth chained OGG playback in Webkit
 
 ### Development Environment Setup
-Install redis and start the daemon. You'll need redis running whenever you want
-to run the site, but it is not necessary to start it on boot.
-
-It is recommended that you use a virtualenv for this so that you can better
-separate dependencies:
+First, install redis and supervisord. For example, on Debian or Ubuntu:
 
 ```
-mkdir -p ~/.local/share/virtualenv
-virtualenv ~/.local/share/virtualenv/wuvt-site
-source ~/.local/share/virtualenv/wuvt-site/bin/activate
-```
-
-Now, within this virtualenv, install the dependencies:
-
-```
-pip install -r requirements.txt
+apt-get install redis supervisor
 ```
 
 You'll also want to get uWSGI. You need at least version 2.0.9. For example:
@@ -47,6 +35,24 @@ uwsgi --build-plugin https://github.com/unbit/uwsgi-sse-offload
 sudo cp sse_offload_plugin.so /usr/lib/uwsgi/plugins/
 ```
 
+Make sure the redis daemon is running; on Debian, this will happen
+automatically.
+
+It is recommended that you use a virtualenv for this so that you can better
+separate dependencies:
+
+```
+mkdir -p ~/.local/share/virtualenv
+virtualenv ~/.local/share/virtualenv/wuvt-site
+source ~/.local/share/virtualenv/wuvt-site/bin/activate
+```
+
+Now, within this virtualenv, install the dependencies:
+
+```
+pip install -r requirements.txt
+```
+
 Next, clone the repo and make a copy of the config:
 
 ```
@@ -56,18 +62,17 @@ cp wuvt/config.py.example wuvt/config.py
 ```
 
 Edit wuvt/config.py to match your desired config, then go ahead and create the
-database and fill it with some sample content:
+database and fill it with some sample content. You only need to do this once.
 
 ```
 python2 create.py
 python2 articles.py
 ```
 
-Finally, start the celery worker and uWSGI workers:
+Finally, use supervisord to start the celery worker and uWSGI workers:
 
 ```
-./run_celery.sh &
-uwsgi --yaml uwsgi.yml:dev
+supervisord -c supervisord_dev.conf
 ```
 
 You can now access the site at http://127.0.0.1:9090/
