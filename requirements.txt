@@ -24,7 +24,7 @@ greenlet==0.4.9
 gunicorn==19.3.0
 html5lib==0.999
 itsdangerous==0.24
-kombu==3.0.26
+kombu==3.0.35
 lxml==3.3.1
 metalsmyth==0.1.5
 netaddr==0.7.18
