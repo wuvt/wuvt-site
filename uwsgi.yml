@@ -38,3 +38,20 @@ dev:
   pull-header: X-SSE-Server SSE_SERVER
   pull-header: X-SSE-Channel SSE_CHANNEL
   response-route-if-not: 'empty:${SSE_OFFLOAD} sse:server=${SSE_SERVER},subscribe=${SSE_CHANNEL}'
+
+dev-docker:
+  procname-prefix-spaced: wuvt-site
+  master: 1
+  http-socket: ':8080'
+  processes: 5
+  offload-threads: 1
+  harakiri: 30
+
+  py-autoreload: 1
+  module: wuvt
+  callable: app
+
+  pull-header: X-SSE-Offload SSE_OFFLOAD
+  pull-header: X-SSE-Server SSE_SERVER
+  pull-header: X-SSE-Channel SSE_CHANNEL
+  response-route-if-not: 'empty:${SSE_OFFLOAD} sse:server=${SSE_SERVER},subscribe=${SSE_CHANNEL}'
