@@ -36,9 +36,9 @@ python-editor==0.4
 python-frontmatter==0.2.1
 python-ldap==2.4.20
 pytz==2015.6
-redis==2.10.3
-requests==2.7.0
+redis==2.10.5
+requests==2.10.0
 six==1.9.0
 stripe==1.21.0
-urllib3==1.12
+urllib3==1.15.1
 wsgiref==0.1.2
