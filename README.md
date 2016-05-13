@@ -21,7 +21,7 @@ First, clone the repo, create an empty config, and build the Docker image:
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
 touch wuvt/config.py
-sudo docker build -t wuvt -f dev.Dockerfile .
+sudo docker build -t wuvt .
 ```
 
 Now run it:
@@ -29,7 +29,7 @@ Now run it:
 sudo docker run -it --rm -p 9090:8080 wuvt:latest
 ```
 
-You can now access the site at http://127.0.0.1:9090/
+You can now access the site at http://localhost:9090/
 
 ### Development Environment Setup (non-Docker)
 First, install redis and supervisord. For example, on Debian or Ubuntu:
@@ -93,7 +93,7 @@ Finally, use supervisord to start the celery worker and uWSGI workers:
 supervisord -c supervisord_dev.conf
 ```
 
-You can now access the site at http://127.0.0.1:9090/
+You can now access the site at http://localhost:9090/
 
 ### Production Environment Setup
 Here are some example instructions to get you started. These are not complete,
