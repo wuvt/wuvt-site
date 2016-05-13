@@ -77,10 +77,9 @@ git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
 ```
 
-Create a blank file, wuvt/config.py, and override any of the defaults from
-wuvt/defaults.py to to match your desired config. Now you can go ahead and
-create the database and fill it with some sample content; you only need to do
-this once.
+Create a blank file, wuvt/config.py; you can override any of the default
+configuration options here if you so desire. Next, you will need to create the
+database and fill it with some sample content:
 
 ```
 python2 create.py
