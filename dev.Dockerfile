@@ -40,7 +40,10 @@ COPY . /usr/src/app
 # create sample content
 RUN python create.py
 RUN python articles.py
-RUN chown www-data:www-data wuvt/config.py .
+
+# set permissions and create media directory
+RUN chown www-data:www-data wuvt/config.py wuvt.db .
 RUN chmod 0600 wuvt/config.py
+RUN install -d -o www-data -g www-data /usr/src/app/media
 
 ENTRYPOINT ["supervisord", "-c", "/usr/src/app/supervisord_dev_docker.conf"]
