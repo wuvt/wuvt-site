@@ -37,9 +37,9 @@ RUN mkdir -p /var/log/supervisord
 
 COPY . /usr/src/app
 
-# create sample content
+# create schema and add sample data
 RUN python create.py
-RUN python articles.py
+RUN python sample_data.py
 
 # set permissions and create media directory
 RUN chown www-data:www-data wuvt/config.py wuvt.db .
