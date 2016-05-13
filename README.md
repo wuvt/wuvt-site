@@ -15,6 +15,23 @@ It has several main components:
 - HTML5 stream player capable of smooth chained OGG playback in Webkit
 
 ### Development Environment Setup
+First, clone the repo, create an empty config, and build the Docker image:
+
+```
+git clone https://github.com/wuvt/wuvt-site.git
+cd wuvt-site
+touch wuvt/config.py
+sudo docker build -t wuvt -f dev.Dockerfile .
+```
+
+Now run it:
+```
+sudo docker run -it --rm -p 9090:8080 wuvt:latest
+```
+
+You can now access the site at http://127.0.0.1:9090/
+
+### Development Environment Setup (non-Docker)
 First, install redis and supervisord. For example, on Debian or Ubuntu:
 
 ```
@@ -53,16 +70,17 @@ Now, within this virtualenv, install the dependencies:
 pip install -r requirements.txt
 ```
 
-Next, clone the repo and make a copy of the config:
+Next, clone the repo:
 
 ```
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
-cp wuvt/config.py.example wuvt/config.py
 ```
 
-Edit wuvt/config.py to match your desired config, then go ahead and create the
-database and fill it with some sample content. You only need to do this once.
+Create a blank file, wuvt/config.py, and override any of the defaults from
+wuvt/defaults.py to to match your desired config. Now you can go ahead and
+create the database and fill it with some sample content; you only need to do
+this once.
 
 ```
 python2 create.py
