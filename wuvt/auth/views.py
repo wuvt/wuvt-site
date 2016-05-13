@@ -1,5 +1,5 @@
 from flask import flash, redirect, render_template, request, url_for, session
-from flask.ext.login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user
 import ldap
 
 from wuvt import app

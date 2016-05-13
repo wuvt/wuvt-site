@@ -3,7 +3,7 @@ from collections import defaultdict
 from sqlalchemy import func
 from flask import abort, flash, jsonify, render_template, redirect, \
         request, url_for, session
-from flask.ext.login import login_required, current_user
+from flask_login import login_required, current_user
 
 from wuvt import app
 from wuvt import db

@@ -1,6 +1,6 @@
 from wuvt import app
 from wuvt import db
-from flask.ext.login import UserMixin
+from flask_login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
 from markdown import markdown
 

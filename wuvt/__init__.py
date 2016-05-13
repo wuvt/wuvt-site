@@ -2,10 +2,10 @@ from dateutil import tz
 from . import config
 from . import session
 from flask import Flask, Request
-from flask.ext.login import LoginManager
-from flask.ext.migrate import Migrate
-from flask.ext.seasurf import SeaSurf
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_seasurf import SeaSurf
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import RedisCache
 import redis
 

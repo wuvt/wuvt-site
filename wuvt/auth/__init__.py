@@ -1,5 +1,5 @@
 from flask import abort, make_response, session, Blueprint
-from flask.ext.login import current_user, UserMixin
+from flask_login import current_user, UserMixin
 from functools import wraps
 import ldap
 
