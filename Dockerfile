@@ -26,8 +26,6 @@ COPY uwsgi_profile.ini buildconf/wuvt.ini
 # build and install uwsgi
 RUN python uwsgiconfig.py --build wuvt && cp uwsgi /usr/local/bin/
 RUN mkdir -p /usr/local/lib/uwsgi/plugins
-RUN git clone https://github.com/unbit/uwsgi-sse-offload plugins/sse_offload
-RUN python uwsgiconfig.py --plugin plugins/sse_offload wuvt
 
 WORKDIR /usr/src/app
 
