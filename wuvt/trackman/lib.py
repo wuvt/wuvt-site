@@ -65,6 +65,9 @@ def perdelta(start, end, td):
 
 
 def list_archives(djset):
+    if len(app.config['ARCHIVE_BASE_URL']) <= 0:
+        return
+
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
 
     if djset.dtend is None:
@@ -228,7 +231,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     tasks.update_lastfm.delay(artist, title, album, played)
 
     # send server-sent event
-    redis_conn.publish(app.config['REDIS_CHANNEL'], json.dumps({
+    redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
         'tracklog': track.full_serialize()
     }, cls=JSONEncoder))

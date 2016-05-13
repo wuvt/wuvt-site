@@ -1,15 +1,21 @@
 from dateutil import tz
-from . import config
+from . import defaults
 from . import session
-from flask import Flask, Request
+from flask import Flask, Request, json
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_seasurf import SeaSurf
 from flask_sqlalchemy import SQLAlchemy
+from kombu.serialization import register
 from werkzeug.contrib.cache import RedisCache
+import os
 import redis
 
 json_mimetypes = ['application/json']
+
+register('flaskjson', json.dumps, json.loads,
+         content_type='application/x-flaskjson',
+         content_encoding='utf-8')
 
 
 def localize_datetime(fromtime):
@@ -37,7 +43,8 @@ class JSONRequest(Request):
 
 
 app = Flask(__name__)
-app.config.from_object(config)
+app.config.from_object(defaults)
+app.config.from_pyfile(os.environ.get('APP_CONFIG_PATH', 'config.py'))
 app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
 app.jinja_env.filters['isodatetime'] = lambda d: d.isoformat() + 'Z'
@@ -62,8 +69,9 @@ app.register_blueprint(admin.bp, url_prefix='/admin')
 from wuvt import auth
 app.register_blueprint(auth.bp, url_prefix='/auth')
 
-from wuvt import donate
-app.register_blueprint(donate.bp, url_prefix='/donate')
+if app.config['DONATE_ENABLE']:
+    from wuvt import donate
+    app.register_blueprint(donate.bp, url_prefix='/donate')
 
 from wuvt import trackman
 app.register_blueprint(trackman.bp)
@@ -108,7 +116,6 @@ Time:               %(asctime)s
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
 
-    syslog_handler = SysLogHandler(
-        address=app.config.get('SYSLOG_ADDRESS', '/dev/log'))
+    syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
     syslog_handler.setLevel(logging.WARNING)
     app.logger.addHandler(syslog_handler)

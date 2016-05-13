@@ -67,7 +67,7 @@ def livestream():
             'Cache-Control': "no-cache",
             'X-SSE-Offload': 'y',
             'X-SSE-Server': app.config['REDIS_URL'][8:],
-            'X-SSE-Channel': app.config['REDIS_CHANNEL'],
+            'X-SSE-Channel': "trackman_live",
         })
     else:
         abort(400)
