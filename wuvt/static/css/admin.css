@@ -81,6 +81,11 @@ td.row-options {
     overflow: hidden;
 }
 
+.trackman-header label,
+.trackman-header button {
+    margin-left: 1em;
+}
+
 .row-table {
     height: 240px;
     overflow-y: auto;

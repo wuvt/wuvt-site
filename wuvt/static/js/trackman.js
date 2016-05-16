@@ -125,19 +125,23 @@ Trackman.prototype.initAutologout = function() {
         dataType: "json",
         success: this.updateAutologout,
     });
-    $("button#trackman-autologout").bind('click', {'instance': this},
-                                         this.toggleAutologout);
+    $('#id_extend_autologout').on('change', null, {'instance': this},
+                                  this.toggleAutologout);
 };
 
 Trackman.prototype.toggleAutologout = function(ev) {
     var inst = ev.data.instance;
+
+    $('#id_extend_autologout').prop('disabled', true);
+
     var formdata = {};
-    if(inst.extendAutologout) {
-        formdata['autologout'] = 'enable';
+
+    if($('#id_extend_autologout').prop('checked')) {
+        formdata['autologout'] = "disable";
+    } else {
+        formdata['autologout'] = "enable";
     }
-    else {
-        formdata['autologout'] = 'disable';
-    }
+
     $.ajax({
         url: "/trackman/api/autologout",
         data: formdata,
@@ -149,18 +153,17 @@ Trackman.prototype.toggleAutologout = function(ev) {
 };
 
 Trackman.prototype.updateAutologout = function(data) {
+    $('#id_extend_autologout').prop('disabled', false);
+
     if(data['success'] == false) {
         alert(data['error']);
-        return;
-    }
-    if(data['autologout']) {
-        $("#trackman-autologout").removeClass("active");
+    } else if(data['autologout'] == true) {
         this.extendAutologout = false;
-    }
-    else {
-        $("#trackman-autologout").addClass("active");
+    } else {
         this.extendAutologout = true;
     }
+
+    $('#id_extend_autologout').prop('checked', this.extendAutologout);
 };
 // }}}
 
