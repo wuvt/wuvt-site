@@ -239,6 +239,24 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     return track
 
 
+def get_current_tracklog():
+    return TrackLog.query.order_by(db.desc(TrackLog.id)).first()
+
+
+def fixup_current_track(event="track_edit"):
+    tracklog = get_current_tracklog()
+
+    from . import tasks
+    tasks.update_stream.delay(tracklog.track.artist, tracklog.track.title,
+                              tracklog.track.album)
+
+    # send server-sent event
+    redis_conn.publish('trackman_live', json.dumps({
+        'event': event,
+        'tracklog': tracklog.full_serialize()
+    }, cls=JSONEncoder))
+
+
 def get_chart_range(period, request):
     if period is not None:
         end = datetime.utcnow()

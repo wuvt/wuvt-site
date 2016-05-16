@@ -11,12 +11,13 @@ from urlparse import urljoin
 from .. import db
 from . import bp
 from .lib import list_archives, generate_cuesheet, \
-        generate_playlist_cuesheet, get_chart_range, get_chart
+        generate_playlist_cuesheet, get_chart_range, get_chart, \
+        get_current_tracklog
 from .models import DJ, DJSet, Track, TrackLog
 
 
 def trackinfo():
-    track = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
+    track = get_current_tracklog()
     if not track:
         return {'artist': "", 'title': "", 'album': "", 'label': "", 'dj': "",
                 'dj_id': 0, 'description': current_app.config['STATION_NAME'],

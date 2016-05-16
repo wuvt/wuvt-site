@@ -9,15 +9,37 @@ function wuvtLive(liveurl) {
     var source = new EventSource(liveurl);
     source.onmessage = function(ev) {
         msg = JSON.parse(ev.data);
-        if(msg['event'] == "track_change") {
-            var track = msg['tracklog']['track'];
-            $('#current_track').text(track['artist'] + " - " +
-                    track['title']);
-            addDJLink('#current_dj', msg['tracklog']);
 
-            if($('#last15tracks').length) {
-                updateLast15(msg['tracklog']);
-            }
+        switch(msg['event']) {
+            case 'track_change':
+            case 'track_delete':
+            case 'track_edit':
+                var track = msg['tracklog']['track'];
+                $('#current_track').text(track['artist'] + " - " +
+                        track['title']);
+                addDJLink('#current_dj', msg['tracklog']);
+                break;
+        }
+
+        switch(msg['event']) {
+            case 'track_delete':
+                if($('#last15tracks').length) {
+                    // reload the last 15 tracks page
+                    loadPage('/last15');
+                }
+                break;
+
+            case 'track_edit':
+                if($('#last15tracks').length) {
+                    // remove the existing entry for the track that was edited
+                    $('#last15tracks tbody tr:first-child').remove();
+                }
+
+            case 'track_change':
+                if($('#last15tracks').length) {
+                    updateLast15(msg['tracklog']);
+                }
+                break;
         }
     };
 }

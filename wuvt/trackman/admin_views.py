@@ -11,7 +11,8 @@ from .. import redis_conn
 from ..view_utils import ajax_only, local_only
 from . import private_bp
 from .lib import log_track, email_playlist, disable_automation, \
-        enable_automation, logout_all, logout_all_but_current
+        enable_automation, logout_all, logout_all_but_current, \
+        fixup_current_track
 from .models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
 from .view_utils import dj_interact
@@ -382,10 +383,20 @@ def edit_tracklog(tracklog_id):
     if tracklog.djset.dtend is not None:
         return jsonify(success=False, error="Session expired, please login again")
 
+    current_tracklog = TrackLog.query.with_entities(TrackLog.id).\
+        order_by(db.desc(TrackLog.id)).first()
+    if current_tracklog is not None:
+        current_tracklog_id = current_tracklog[0]
+    else:
+        current_tracklog_id = None
+
     if request.method == 'DELETE':
-        # TODO: Check if the currently playing track changed
         db.session.delete(tracklog)
         db.session.commit()
+
+        if tracklog_id == current_tracklog_id:
+            fixup_current_track("track_delete")
+
         return jsonify(success=True)
 
     # This is a post time to do data sanitation!
@@ -437,6 +448,9 @@ def edit_tracklog(tracklog_id):
 
     db.session.commit()
 
+    if tracklog_id == current_tracklog_id:
+        fixup_current_track()
+
     return jsonify(success=True)
 
 
@@ -463,9 +477,11 @@ def play_tracklog():
     if not track or not djset:
         return jsonify(success=False, error="Track or DJSet do not exist")
     if djset.dtend is not None:
-        return jsonify(success=False, error="Session expired, please login again")
+        return jsonify(success=False,
+                       error="Session expired, please login again")
 
-    tracklog = log_track(track_id, djset_id, request=is_request, vinyl=vinyl, new=new, rotation=rotation)
+    tracklog = log_track(track_id, djset_id, request=is_request, vinyl=vinyl,
+                         new=new, rotation=rotation)
 
     return jsonify(success=True, tracklog_id=tracklog.id)
 
