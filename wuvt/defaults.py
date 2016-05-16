@@ -6,7 +6,7 @@ CSRF_COOKIE_TIMEOUT = None
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:////usr/src/app/wuvt.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-REDIS_URL = 'redis://127.0.0.1:6379'
+REDIS_URL = 'redis://localhost:6379'
 SYSLOG_ADDRESS = '/dev/log'
 
 POSTS_PER_PAGE = 5
