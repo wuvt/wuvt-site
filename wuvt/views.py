@@ -1,14 +1,12 @@
-from flask import abort, flash, jsonify, make_response, render_template, \
-    redirect, request, url_for, Response, send_from_directory
-import socket
-import urlparse
+from flask import abort, jsonify, make_response, render_template, \
+    redirect, request, url_for, send_from_directory
 
 from . import app
 from . import db
-from .models import User, Page
-from .blog.models import Article, Category
+from .models import Page
+from .blog.models import Article
 from .blog.views import *
-from .view_utils import IPAccessDeniedException
+from .view_utils import IPAccessDeniedException, sse_response
 
 
 @app.context_processor
@@ -39,8 +37,9 @@ def static_from_root():
 @app.route('/index/<int:page>')
 def index(page=1):
     articles = Article.query.filter_by(published=True, front_page=True).\
-        order_by(db.desc(Article.datetime)).paginate(page,
-                                              app.config['POSTS_PER_PAGE'])
+        order_by(db.desc(Article.datetime)).paginate(
+            page,
+            app.config['POSTS_PER_PAGE'])
     return render_template('index.html', articles=articles)
 
 
@@ -62,29 +61,7 @@ def init_js():
 
 @app.route('/live')
 def livestream():
-    if request.headers.get('accept') == 'text/event-stream':
-        # uwsgi-sse-offload requires that we resolve hostnames for it.
-        u = urlparse.urlparse(app.config['REDIS_URL']).netloc.split(':', 1)
-        server = u[0]
-        port = int(u[1])
-
-        if ':' not in server:
-            # Unfortunately, we have to assume that the first entry in DNS
-            # works; we use gethostbyname since redis only listens on IPv4
-            # by default. You can work around this by specifying an IPv6
-            # address directly.
-            server = socket.gethostbyname(server)
-            #addrinfo = socket.getaddrinfo(u[0], port)
-            #server = addrinfo[0][4][0]
-
-        return Response("", mimetype="text/event-stream", headers={
-            'Cache-Control': "no-cache",
-            'X-SSE-Offload': 'y',
-            'X-SSE-Server': '{0}:{1}'.format(server, port),
-            'X-SSE-Channel': "trackman_live",
-        })
-    else:
-        abort(400)
+    return sse_response('trackman_live')
 
 
 @app.errorhandler(400)

@@ -1,12 +1,11 @@
 import dateutil
-import json
 import lxml.etree
 import requests
 import urlparse
 import smtplib
 from datetime import timedelta
 from datetime import datetime
-from flask.json import JSONEncoder
+from flask import json
 from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -230,11 +229,10 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     tasks.update_tunein.delay(artist, title)
     tasks.update_lastfm.delay(artist, title, album, played)
 
-    # send server-sent event
     redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
-        'tracklog': track.full_serialize()
-    }, cls=JSONEncoder))
+        'tracklog': track.full_serialize(),
+    }))
 
     return track
 
@@ -250,11 +248,10 @@ def fixup_current_track(event="track_edit"):
     tasks.update_stream.delay(tracklog.track.artist, tracklog.track.title,
                               tracklog.track.album)
 
-    # send server-sent event
     redis_conn.publish('trackman_live', json.dumps({
         'event': event,
-        'tracklog': tracklog.full_serialize()
-    }, cls=JSONEncoder))
+        'tracklog': tracklog.full_serialize(),
+    }))
 
 
 def get_chart_range(period, request):

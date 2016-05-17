@@ -8,7 +8,7 @@ import dateutil.parser
 from .. import db
 from .. import csrf
 from .. import redis_conn
-from ..view_utils import ajax_only, local_only
+from ..view_utils import ajax_only, local_only, sse_response
 from . import private_bp
 from .lib import log_track, email_playlist, disable_automation, \
         enable_automation, logout_all, logout_all_but_current, \
@@ -298,6 +298,12 @@ def register():
 #############################################################################
 # Trackman API
 #############################################################################
+
+
+@private_bp.route('/api/live')
+@local_only
+def sse():
+    return sse_response('trackman_dj_live')
 
 
 @private_bp.route('/api/djset/<int:djset_id>', methods=['GET'])

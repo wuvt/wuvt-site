@@ -1017,6 +1017,31 @@ Trackman.prototype.reportTrack = function(id) {
     var report_win = window.open(url, "reportWindow", "height=600,width=1200");
 };
 
+Trackman.prototype.initEventHandler = function() {
+    if(typeof EventSource == 'undefined') {
+        // cannot use server-sent events, boo
+        return;
+    }
+
+    var source = new EventSource('/trackman/api/live');
+    source.onmessage = function(ev) {
+        msg = JSON.parse(ev.data);
+
+        switch(msg['event']) {
+            case 'message':
+                // TODO: replace this with something less obnoxious
+                // maybe toaster-style notifications?
+                alert("Message: " + msg['data']);
+                break;
+            case 'session_timeout':
+                // TODO: replace this with something less obnoxious with a link
+                // back to the login page
+                alert("You were logged out for inactivity.");
+                break;
+        }
+    };
+};
+
 Trackman.prototype.init = function() {
     var inst = this;
     $('#trackman_logout_btn').bind('click', {}, function() {
@@ -1029,6 +1054,7 @@ Trackman.prototype.init = function() {
         $('#trackman_logout_form').submit();
     });
 
+    this.initEventHandler();
     this.initAutologout();
     this.initQueue();
     this.initPlaylist();

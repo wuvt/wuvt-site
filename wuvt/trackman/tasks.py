@@ -2,10 +2,10 @@ import hashlib
 import requests
 import time
 import urllib
-from datetime import datetime, timedelta
-
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
+from datetime import datetime, timedelta
+from flask import json
 
 from .. import app
 from .. import db
@@ -75,6 +75,7 @@ def autologout_check():
     if active is None:
         if automation is None:
             # This should never happen
+            # Except, it does happen when the key was never created
             pass
         elif automation == "true":
             # automation is running, carry on
@@ -85,6 +86,10 @@ def autologout_check():
             # automation
             logout_all()
             enable_automation()
+
+            redis_conn.publish('trackman_dj_live', json.dumps({
+                'event': "session_timeout",
+            }))
 
 
 @task

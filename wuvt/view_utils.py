@@ -1,8 +1,9 @@
-from flask import abort, redirect, request, url_for
+from flask import abort, redirect, request, Response, url_for
 from functools import wraps
 from wuvt import app
 import netaddr
 import re
+import socket
 import unidecode
 import urlparse
 
@@ -64,3 +65,29 @@ def slugify(text, delim=u'-'):
     for word in _punct_re.split(text.lower()):
         result.extend(unidecode.unidecode(word).split())
     return unicode(delim.join(result))
+
+
+def sse_response(channel):
+    if request.headers.get('accept') == 'text/event-stream':
+        # uwsgi-sse-offload requires that we resolve hostnames for it.
+        u = urlparse.urlparse(app.config['REDIS_URL']).netloc.split(':', 1)
+        server = u[0]
+        port = int(u[1])
+
+        if ':' not in server:
+            # Unfortunately, we have to assume that the first entry in DNS
+            # works; we use gethostbyname since redis only listens on IPv4
+            # by default. You can work around this by specifying an IPv6
+            # address directly.
+            server = socket.gethostbyname(server)
+            #addrinfo = socket.getaddrinfo(u[0], port)
+            #server = addrinfo[0][4][0]
+
+        return Response("", mimetype="text/event-stream", headers={
+            'Cache-Control': "no-cache",
+            'X-SSE-Offload': 'y',
+            'X-SSE-Server': '{0}:{1}'.format(server, port),
+            'X-SSE-Channel': channel,
+        })
+    else:
+        abort(400)
