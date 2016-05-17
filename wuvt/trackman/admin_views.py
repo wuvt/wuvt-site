@@ -486,42 +486,6 @@ def play_tracklog():
     return jsonify(success=True, tracklog_id=tracklog.id)
 
 
-@private_bp.route('/api/track/edit/<int:track_id>', methods=['POST'])
-@local_only
-@ajax_only
-@csrf.exempt
-@dj_interact
-def edit_track(track_id):
-    track = Track.query.get(track_id)
-    if not track:
-        return jsonify(success=False, error="track_id not found")
-
-    if request.method is 'DELETE':
-        db.session.delete(track)
-        db.session.commit()
-        return jsonify(success=True)
-
-    artist = request.form.get('artist', None)
-    if artist is not None:
-        track.artist = artist.strip()
-    album = request.form.get('album', None)
-    if album is not None:
-        track.album = album.strip()
-    title = request.form.get('title', None)
-    if title is not None:
-        track.title = title.strip()
-    label = request.form.get('label', None)
-    if label is not None:
-        track.label = label.strip()
-
-    if not track.validate():
-        return jsonify(success=False,
-                       error="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
-
-    db.session.commit()
-    return jsonify(success=True)
-
-
 @private_bp.route('/api/track', methods=['POST'])
 @local_only
 @ajax_only
