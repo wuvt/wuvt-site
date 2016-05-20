@@ -1,5 +1,6 @@
-from flask import current_app
+from flask import current_app, request
 from functools import wraps
+from urlparse import urljoin
 from .. import redis_conn
 
 
@@ -19,3 +20,7 @@ def dj_interact(f):
 
         return ret
     return dj_wrapper
+
+
+def make_external(url):
+    return urljoin(request.url_root, url)

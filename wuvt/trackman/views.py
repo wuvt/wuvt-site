@@ -6,7 +6,6 @@ import datetime
 import dateutil
 import re
 from werkzeug.contrib.atom import AtomFeed
-from urlparse import urljoin
 
 from .. import db
 from . import bp
@@ -14,6 +13,7 @@ from .lib import list_archives, generate_cuesheet, \
         generate_playlist_cuesheet, get_chart_range, get_chart, \
         get_current_tracklog
 from .models import DJ, DJSet, Track, TrackLog
+from .view_utils import make_external
 
 
 def trackinfo():
@@ -63,9 +63,6 @@ def last15():
 
 @bp.route('/last15.atom')
 def last15_feed():
-    def make_external(url):
-        return urljoin(request.url_root, url)
-
     tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
     feed = AtomFeed(
         u"{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
@@ -119,6 +116,25 @@ def latest_track_clean():
 
     output = u"{artist} - {title} [DJ: {dj}]".format(**track)
     return Response(output, mimetype="text/plain")
+
+
+@bp.route('/playlists/latest_track_slack')
+def latest_track_slack():
+    track = trackinfo()
+
+    if track['dj_id'] > 0:
+        dj_link = '<{url}|{dj}>'.format(
+            dj=track['dj'],
+            url=make_external(url_for('.playlists_dj_sets',
+                                      dj_id=track['dj_id'])))
+    else:
+        dj_link = track['dj']
+
+    return jsonify({
+        "response_type": "in_channel",
+        "text": "*{artist} - _{title}_*\nDJ: {dj_link}".format(
+            dj_link=dj_link, **track),
+    })
 
 
 @bp.route('/playlists/latest_track_stream')
