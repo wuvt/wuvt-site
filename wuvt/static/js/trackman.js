@@ -1033,7 +1033,7 @@ Trackman.prototype.initEventHandler = function() {
                 // maybe toaster-style notifications?
                 alert("Message: " + msg['data']);
                 break;
-            case 'session_timeout':
+            case 'session_end':
                 location.reload();
                 break;
         }

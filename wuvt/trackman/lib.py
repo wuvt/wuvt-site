@@ -37,6 +37,10 @@ def logout_all():
         djset.dtend = datetime.utcnow()
 
     db.session.commit()
+
+    redis_conn.publish('trackman_dj_live', json.dumps({
+        'event': "session_end",
+    }))
     redis_conn.delete('dj_timeout')
 
 
@@ -51,7 +55,6 @@ def logout_all_but_current(dj):
             djset.dtend = datetime.utcnow()
 
     db.session.commit()
-    redis_conn.delete('dj_timeout')
 
     return current_djset
 

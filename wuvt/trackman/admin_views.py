@@ -1,5 +1,5 @@
-from flask import current_app, flash, jsonify, render_template, redirect, \
-        request, session, url_for, make_response
+from flask import current_app, flash, json, jsonify, render_template, \
+        redirect, request, session, url_for, make_response
 from sqlalchemy import func, desc
 
 import datetime
@@ -159,9 +159,8 @@ def log(setid):
 
         if setid == session.get('djset_id', None):
             flash("""\
-You were logged out for inactivity. You can use the "Let me play longer songs"
-checkbox to extend this inactivity timeout in the future; just remember to use
-the logout button when you're done.
+Your session has ended; you were either automatically logged out for inactivity
+or you pressed the Logout button somewhere else.
 """)
             session.pop('djset_id', None)
 
@@ -246,6 +245,10 @@ def logout(setid):
         # This has already been logged out
         return redirect(url_for('.login'))
     db.session.commit()
+
+    redis_conn.publish('trackman_dj_live', json.dumps({
+        'event': "session_end",
+    }))
 
     # Reset the dj activity timeout period
     redis_conn.delete('dj_timeout')
