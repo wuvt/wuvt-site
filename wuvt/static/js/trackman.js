@@ -1034,9 +1034,7 @@ Trackman.prototype.initEventHandler = function() {
                 alert("Message: " + msg['data']);
                 break;
             case 'session_timeout':
-                // TODO: replace this with something less obnoxious with a link
-                // back to the login page
-                alert("You were logged out for inactivity.");
+                location.reload();
                 break;
         }
     };

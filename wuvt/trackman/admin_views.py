@@ -1,5 +1,5 @@
 from flask import current_app, flash, jsonify, render_template, redirect, \
-        request, url_for, make_response
+        request, session, url_for, make_response
 from sqlalchemy import func, desc
 
 import datetime
@@ -42,6 +42,8 @@ def login():
             djset = DJSet(dj.id)
             db.session.add(djset)
             db.session.commit()
+
+        session['djset_id'] = djset.id
 
         return redirect(url_for('.log', setid=djset.id))
 
@@ -154,6 +156,15 @@ def log(setid):
     djset = DJSet.query.get_or_404(setid)
     if djset.dtend is not None:
         # This is a logged out DJSet
+
+        if setid == session.get('djset_id', None):
+            flash("""\
+You were logged out for inactivity. You can use the "Let me play longer songs"
+checkbox to extend this inactivity timeout in the future; just remember to use
+the logout button when you're done.
+""")
+            session.pop('djset_id', None)
+
         return redirect(url_for('.login'))
 
     rotations = {}
@@ -226,6 +237,8 @@ def report_track(dj_id, track_id):
 @private_bp.route('/log/<int:setid>/end', methods=['POST'])
 @local_only
 def logout(setid):
+    session.pop('djset_id', None)
+
     djset = DJSet.query.get_or_404(setid)
     if djset.dtend is None:
         djset.dtend = datetime.datetime.utcnow()
