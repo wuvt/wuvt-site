@@ -132,7 +132,7 @@ def latest_track_slack():
 
     return jsonify({
         "response_type": "in_channel",
-        "text": "*{artist} - _{title}_*\nDJ: {dj_link}".format(
+        "text": "*{artist} - {title}*\nDJ: {dj_link}".format(
             dj_link=dj_link, **track),
     })
 
