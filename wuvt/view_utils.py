@@ -70,7 +70,7 @@ def slugify(text, delim=u'-'):
 def sse_response(channel):
     if request.headers.get('accept') == 'text/event-stream':
         # uwsgi-sse-offload requires that we resolve hostnames for it.
-        u = urlparse.urlparse(app.config['REDIS_URL']).netloc.split(':', 1)
+        u = urlparse.urlparse(app.config['REDIS_URL']).netloc.rsplit(':', 1)
         server = u[0]
         port = int(u[1])
 
