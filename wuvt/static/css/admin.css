@@ -95,6 +95,19 @@ td.row-options {
     content: " - ";
 }
 
+.floating-alerts {
+    position: fixed;
+    top: 40px;
+    left: 15px;
+    right: 15px;
+    z-index: 100;
+}
+
+.floating-alerts .alert {
+    /* Hide alerts by default; will be shown using JavaScript */
+    display: none;
+}
+
 /* These have to be hardcoded to handle nasty length fields */
 .playlist-actions {
     min-width: 100px;

@@ -1017,6 +1017,22 @@ Trackman.prototype.reportTrack = function(id) {
     var report_win = window.open(url, "reportWindow", "height=600,width=1200");
 };
 
+Trackman.prototype.showAlert = function(msg) {
+    var alertDiv = $('<div>');
+    alertDiv.addClass('alert alert-info');
+    alertDiv.text(msg);
+
+    var closeBtn = $('<button>');
+    closeBtn.addClass('close');
+    closeBtn.attr('type', 'button');
+    closeBtn.attr('data-dismiss', 'alert');
+    closeBtn.html('&times;');
+    alertDiv.prepend(closeBtn);
+
+    $('#trackman_alerts').append(alertDiv);
+    alertDiv.show('fast');
+};
+
 Trackman.prototype.initEventHandler = function() {
     if(typeof EventSource == 'undefined') {
         // cannot use server-sent events, boo
@@ -1024,14 +1040,13 @@ Trackman.prototype.initEventHandler = function() {
     }
 
     var source = new EventSource('/trackman/api/live');
+    source.trackman = this;
     source.onmessage = function(ev) {
         msg = JSON.parse(ev.data);
 
         switch(msg['event']) {
             case 'message':
-                // TODO: replace this with something less obnoxious
-                // maybe toaster-style notifications?
-                alert("Message: " + msg['data']);
+                this.trackman.showAlert(msg['data']);
                 break;
             case 'session_end':
                 location.reload();

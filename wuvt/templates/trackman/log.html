@@ -1,5 +1,7 @@
 {% extends "trackman/base.html" %}
 {% block content %}
+<div class="floating-alerts" id="trackman_alerts"></div> 
+
 <form style="display: none;" action="{{ url_for('trackman_private.logout', setid=djset.id) }}" method="post"
     id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
