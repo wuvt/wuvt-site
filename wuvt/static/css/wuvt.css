@@ -486,16 +486,8 @@ header nav,
 }
 /* }}} */
 
-/* the first element in #content needs spacing for robot's tie */
-#content > :first-child {
-    padding-top: 40px !important;
-}
-
-/* Article/section {{{ */
-#content > article,
-#content > section {
-    padding: 20px;
-    margin: 0px 0px 60px 0px;
+#content {
+    padding: 40px 20px 20px 20px;
     /*background-color: #bcccd3;
     background-color: rgba(209, 223, 229, 0.5);
     background-color: #DAE5EA; */
@@ -503,6 +495,12 @@ header nav,
     border-width: thick;
     border-color: #BCCCD3;
     border-style: solid;
+}
+
+/* Article/section {{{ */
+#content > article,
+#content > section {
+    margin: 0px 0px 60px 0px;
 }
 
 #content > article p,
