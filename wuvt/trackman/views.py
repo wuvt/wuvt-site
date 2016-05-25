@@ -8,6 +8,7 @@ import re
 from werkzeug.contrib.atom import AtomFeed
 
 from .. import db
+from ..view_utils import sse_response
 from . import bp
 from .lib import list_archives, generate_cuesheet, \
         generate_playlist_cuesheet, get_chart_range, get_chart, \
@@ -147,6 +148,12 @@ album={album}
 description={description}
 contact={contact}
 """.format(**trackinfo()), mimetype="text/plain")
+
+
+@bp.route('/playlists/live')
+@bp.route('/live')
+def live():
+    return sse_response('trackman_live')
 
 
 # Playlist Archive (by date) {{{

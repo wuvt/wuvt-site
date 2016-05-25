@@ -6,7 +6,7 @@ from . import db
 from .models import Page
 from .blog.models import Article
 from .blog.views import *
-from .view_utils import IPAccessDeniedException, sse_response
+from .view_utils import IPAccessDeniedException
 
 
 @app.context_processor
@@ -57,11 +57,6 @@ def init_js():
     resp = make_response(render_template('init.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
-
-
-@app.route('/live')
-def livestream():
-    return sse_response('trackman_live')
 
 
 @app.errorhandler(400)

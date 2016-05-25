@@ -318,7 +318,7 @@ def register():
 
 @private_bp.route('/api/live')
 @local_only
-def sse():
+def dj_live():
     return sse_response('trackman_dj_live')
 
 
