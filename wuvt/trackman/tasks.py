@@ -5,6 +5,7 @@ import urllib
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from datetime import datetime, timedelta
+import dateutil.parser
 
 from .. import app
 from .. import db
@@ -119,6 +120,8 @@ def update_lastfm(artist, title, album, played):
     if len(app.config['LASTFM_APIKEY']) > 0:
         import pylast
 
+        played_dt = dateutil.parser.parse(played)
+
         h = hashlib.md5()
         h.update(app.config['LASTFM_PASSWORD'])
         password_hash = h.hexdigest()
@@ -132,7 +135,7 @@ def update_lastfm(artist, title, album, played):
             network.scrobble(
                 artist=artist,
                 title=title,
-                timestamp=int(time.mktime(played.timetuple())),
+                timestamp=int(time.mktime(played_dt.timetuple())),
                 album=album)
         except Exception as exc:
             app.logger.warning("Trackman: Last.fm scrobble failed: {}".format(
