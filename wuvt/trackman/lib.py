@@ -226,12 +226,12 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     artist = track.track.artist
     title = track.track.title
     album = track.track.album
+    timestamp = int(time.mktime(localize_datetime(track.played).timetuple()))
 
     from . import tasks
     tasks.update_stream.delay(artist, title, album)
     tasks.update_tunein.delay(artist, title)
-    tasks.update_lastfm.delay(artist, title, album,
-                              int(time.mktime(track.played.timetuple())))
+    tasks.update_lastfm.delay(artist, title, album, timestamp)
 
     redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
