@@ -10,6 +10,7 @@ from flask import render_template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
+import time
 
 from .. import app
 from .. import cache
@@ -225,12 +226,12 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     artist = track.track.artist
     title = track.track.title
     album = track.track.album
-    played = localize_datetime(track.played)
 
     from . import tasks
     tasks.update_stream.delay(artist, title, album)
     tasks.update_tunein.delay(artist, title)
-    tasks.update_lastfm.delay(artist, title, album, played)
+    tasks.update_lastfm.delay(artist, title, album,
+                              int(time.mktime(track.played.timetuple())))
 
     redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
