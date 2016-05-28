@@ -17,14 +17,21 @@ html {
 body {
     font-family: Helvetica, sans-serif;
     font-size: 100%;
-    width: 1024px;
-    margin: 0 auto;
+    margin: 0 20px;
     padding: 0;
+    min-width: 950px;
     background-color: #cfeeff; 
     background-image: url('/static/img/moon.svg');
     background-size: 1200px 42px;
     background-position: bottom center;
     background-repeat: no-repeat;
+}
+
+body > header,
+body > #wrapper,
+body > footer {
+    margin: 0 auto;
+    max-width: 1100px;
 }
 
 #progress_bar {
@@ -125,7 +132,7 @@ header #mainheader #robot {
     z-index: 999;
     /*margin-bottom: -86px;
     height: 238px;*/
-    margin: 0 0 -64px 200px;
+    margin: 0 0 -64px 220px;
     width: 160px;
     height: 148px;
     border: 0;
@@ -255,7 +262,7 @@ header #mainheader #volume_box #volume_mute_btn {
 /* Header: speech bubble {{{ */
 header #bubble {
     position: absolute;
-    margin: -100px 0 0 350px;
+    margin: -100px 0 0 370px;
     padding: 12px 0 12px 40px;
     width: 520px;
     height: 80px;
@@ -421,7 +428,7 @@ header nav ul ul {
 /* Navigation: side {{{ */
 #side {
     display: block;
-    width: 180px;
+    width: 200px;
 }
 
 #side #radiothon_banner a {
@@ -482,7 +489,7 @@ header nav ul ul {
 header #mainheader img,
 header nav,
 #content {
-    margin-left: 200px;
+    margin-left: 220px;
 }
 /* }}} */
 
@@ -751,7 +758,7 @@ button:active {
 /* }}} */
 
 /* Footer {{{ */
-#content > :last-child {
+#content {
     margin-bottom: 50px;
 }
 
