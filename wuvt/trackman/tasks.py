@@ -6,6 +6,7 @@ from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from datetime import datetime, timedelta
 import dateutil.parser
+import dateutil.tz
 
 from .. import app
 from .. import db
@@ -121,6 +122,7 @@ def update_lastfm(artist, title, album, played):
         import pylast
 
         played_dt = dateutil.parser.parse(played)
+        played_dt = played_dt.replace(tzinfo=dateutil.tz.tzutc())
 
         h = hashlib.md5()
         h.update(app.config['LASTFM_PASSWORD'])
