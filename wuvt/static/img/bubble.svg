@@ -13,7 +13,7 @@
    height="159.2"
    id="svg3963"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="bubble.svg"
    inkscape:export-filename="/home/mutantmonkey/wuvt-site/wuvt/static/img/bubble.png"
    inkscape:export-xdpi="300"
@@ -34,22 +34,22 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
+     inkscape:zoom="2.8"
      inkscape:cx="331.55393"
-     inkscape:cy="-55.582983"
+     inkscape:cy="39.514935"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g3420"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1276"
-     inkscape:window-height="764"
-     inkscape:window-x="1280"
-     inkscape:window-y="34"
+     inkscape:window-width="3820"
+     inkscape:window-height="2102"
+     inkscape:window-x="10"
+     inkscape:window-y="48"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata3968">
@@ -73,9 +73,10 @@
        transform="matrix(1.25,0,0,-1.25,915.94607,458.0292)">
       <path
          inkscape:connector-curvature="0"
-         d="m 0,0 -123,-12 -201,-3 -231,8 -109,6 -8,21.25 -26,-9.25 26,30.25 4.404,26.583 L -663,106 -366,105 -51.984,112.36 15,102 18,41.25 0,0 z"
+         d="m 0,0 -123,-12 -201,-3 -231,8 -109,6 -8,21.25 -25.71428,21.607143 L -672,41.25 -671.88171,72.690143 -663,106 -366,105 -51.984,112.36 15,102 18,41.25 Z"
          style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         id="path3422" />
+         id="path3422"
+         sodipodi:nodetypes="ccccccccccccccc" />
     </g>
   </g>
 </svg>

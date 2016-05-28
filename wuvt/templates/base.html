@@ -58,25 +58,6 @@
     <nav> <!-- top, horizontal nav bar -->
         {% block nav_top %}
         <ul>
-            {% for section in config['NAV_TOP_SECTIONS'] -%}
-            {% if 'hidden' not in section or section['hidden'] == False -%}
-            <li>
-                <span class="menu-heading">{{ section['name'] }}</span>
-                <ul>
-                    {% if section['menu'] == 'playlists' -%}
-                    <li><a href="{{ url_for('trackman.last15') }}">Last 15</a></li>
-                    <li><a href="{{ url_for('trackman.playlists_date') }}">by date</a></li>
-                    <li><a href="{{ url_for('trackman.playlists_dj') }}">by DJ</a></li>
-                    <li><a href="{{ url_for('trackman.charts_index') }}">Charts</a></li>
-                    {% endif -%}
-                    {% for page in menus[section['menu']] -%}
-                    {% if page.published %}
-                    <li><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                    {% endif %}
-                    {% endfor -%}
-                </ul></li>
-            {% endif -%}
-            {% endfor %}
         </ul>
         {% endblock %}
     </nav>
@@ -94,10 +75,36 @@
         <nav id="side_primary">
             {% block nav_side_primary %}
             <ul>
-                {% for cat in categories %}
-                {% if cat.published %}
-                <li><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
-                {% endif %}
+                <li>
+                    <span class="menu-heading">News</span>
+                    <ul>
+                        {% for cat in categories %}
+                        {% if cat.published %}
+                        <li{% if active_category is defined and active_category == cat.id %} class="active"{% endif %}><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                {% for section in config['NAV_TOP_SECTIONS'] -%}
+                {% if 'hidden' not in section or section['hidden'] == False -%}
+                <li>
+                    <span class="menu-heading">{{ section['name'] }}</span>
+                    <ul>
+                        {% if section['menu'] == 'playlists' -%}
+                        <li{% if active_menu == "last15" %} class="active"{% endif %}><a href="{{ url_for('trackman.last15') }}">Last 15</a></li>
+                        <li{% if active_menu == "playlists_date" %} class="active"{% endif %}><a href="{{ url_for('trackman.playlists_date') }}">by date</a></li>
+                        <li{% if active_menu == "playlists_dj" %} class="active"{% endif %}><a href="{{ url_for('trackman.playlists_dj') }}">by DJ</a></li>
+                        <li{% if active_menu == "charts_index" %} class="active"{% endif %}><a href="{{ url_for('trackman.charts_index') }}">Charts</a></li>
+                        {% endif -%}
+                        {% for page in menus[section['menu']] -%}
+                        {% if page.published %}
+                        <li{% if active_page is defined and active_page == page.slug %} class="active"{% endif %}><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
+                        {% endif %}
+                        {% endfor -%}
+                    </ul>
+                </li>
+                {% endif -%}
                 {% endfor %}
             </ul>
             {% endblock %}
@@ -105,15 +112,10 @@
 
         {% block nav_side_social %}
         <ul id="side_social">
-            <li><a href="https://www.facebook.com/WUVTFM" rel="external"><img
-                src="/static/img/facebook.svg" title="WUVT on Facebook"
-                alt="WUVT on Facebook" /></a></li>
-            <li><a href="{{ feedlink or url_for('all_feed') }}"><img
-                src="/static/img/rss.svg" title="WUVT Feed"
-                alt="WUVT Feed" /></a></li>
-            <li><a href="https://twitter.com/wuvtfm" rel="external"><img
-                src="/static/img/twitter.svg" title="WUVT on Twitter"
-                alt="WUVT on Twitter" /></a></li>
+            <li class="facebook-icon"><a href="https://www.facebook.com/WUVTFM" rel="external" title="WUVT on Facebook">WUVT on Facebook</a></li>
+            <li class="feed-icon"><a href="{{ feedlink or url_for('all_feed') }}" title="Atom Feed">Atom Feed</a></li>
+            <li class="twitter-icon"><a href="https://twitter.com/wuvtfm" rel="external" title="WUVT on Twitter">WUVT on Twitter</a></li>
+            <li class="instagram-icon"><a href="https://instagram.com/wuvt" rel="external" title="WUVT on Instagram">WUVT on Instagram</a></li>
         </ul>
         {% endblock %}
     </div>
