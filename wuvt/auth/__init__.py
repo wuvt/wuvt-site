@@ -1,7 +1,6 @@
 from flask import abort, make_response, session, Blueprint
-from flask_login import current_user, UserMixin
+from flask_login import current_user
 from functools import wraps
-import ldap
 
 from wuvt import app
 from wuvt import login_manager
@@ -16,32 +15,9 @@ def load_user(userid):
     return User.query.get(userid)
 
 
-def build_dn(username):
-    return app.config['LDAP_AUTH_DN'].format(ldap.dn.escape_dn_chars(username))
-
-
-def build_group_query(groups):
-    query = '(|'
-    for group in groups:
-        query += '(cn={})'.format(ldap.dn.escape_dn_chars(group))
-    query += ')'
-    return query
-
-
-def ldap_group_test(client, groups, username):
-    result = client.search_s(app.config['LDAP_BASE_DN'], ldap.SCOPE_SUBTREE,
-                             build_group_query(groups))
-    for r in result:
-        if 'memberUid' in r[1]:
-            for u in r[1]['memberUid']:
-                if u == username:
-                    return True
-
-    return False
-
-
 def check_access(*sections):
     sections = set(sections)
+
     def access_decorator(f):
         @wraps(f)
         def access_wrapper(*args, **kwargs):

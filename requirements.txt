@@ -30,7 +30,6 @@ pylast==1.6.0
 python-dateutil==2.5.3
 python-editor==1.0
 python-frontmatter==0.2.1
-python-ldap==2.4.25
 pytz==2016.4
 PyYAML==3.11
 redis==2.10.5
@@ -42,3 +41,4 @@ Unidecode==0.4.19
 urllib3==1.15.1
 virtualenv==15.0.1
 Werkzeug==0.11.9
+git+https://github.com/wuvt/orthrus

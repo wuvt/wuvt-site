@@ -1,11 +1,10 @@
 from flask import flash, redirect, render_template, request, url_for, session
 from flask_login import login_required, login_user, logout_user
-import ldap
+import orthrus
 
 from wuvt import app
 from wuvt import db
-from wuvt.auth import bp, build_dn, ldap_group_test, log_auth_success, \
-        log_auth_failure
+from wuvt.auth import bp, log_auth_success, log_auth_failure
 from wuvt.models import User
 from wuvt.view_utils import redirect_back
 
@@ -17,71 +16,56 @@ def login():
     if 'username' in request.form:
         if app.config['LDAP_AUTH']:
             if len(request.form['password']) > 0:
-                dn = build_dn(request.form['username'])
+                o = orthrus.Orthrus(
+                    ldap_uri=app.config['LDAP_URI'],
+                    user_template_dn=app.config['LDAP_AUTH_DN'],
+                    group_base_dn=app.config['LDAP_BASE_DN'],
+                    role_mapping={
+                        'admin': app.config['LDAP_GROUPS_ADMIN'],
+                        'business': app.config['LDAP_GROUPS_BUSINESS'],
+                        'library': app.config['LDAP_GROUPS_LIBRARY'],
+                        'radiothon': app.config['LDAP_GROUPS_RADIOTHON'],
+                    },
+                    verify=app.config['LDAP_VERIFY'])
 
                 try:
-                    client = ldap.initialize(app.config['LDAP_URI'])
-                    client.set_option(ldap.OPT_REFERRALS, 0)
+                    r = o.authenticate(request.form['username'],
+                                       request.form['password'],
+                                       ['uid', 'cn', 'mail'])
 
-                    if app.config['LDAP_STARTTLS']:
-                        client.start_tls_s()
+                    if r[0] is True:
+                        user = User.query.filter(
+                            User.username == r[1]['uid'][0]).first()
 
-                    client.simple_bind_s(dn, request.form['password'])
-                except ldap.INVALID_CREDENTIALS:
-                    client.unbind()
-                    log_auth_failure("LDAP", request.form['username'], request)
-                    errors.append("Invalid username or password.")
-                except (ldap.CONNECT_ERROR, ldap.SERVER_DOWN) as e:
-                    errors.append("Could not contact the LDAP server.")
-                    app.logger.error("wuvt-site: Could not contact the LDAP "
-                        "server: {}".format(e))
-                else:
-                    result = client.search_s(dn, ldap.SCOPE_SUBTREE)
-                    user = User.query.filter(
-                        User.username == result[0][1]['uid'][0]).first()
+                        if user is None:
+                            # create new user in the database, since one does
+                            # not already exist for this orthrus user
+                            user = User(r[1]['uid'][0],
+                                        r[1]['cn'][0],
+                                        r[1]['mail'][0])
+                            db.session.add(user)
+                            db.session.commit()
+                        else:
+                            # update existing user data in database
+                            user.name = r[1]['cn'][0]
+                            user.email = r[1]['mail'][0]
+                            db.session.commit()
 
-                    if user is None:
-                        # create new user in the database, since one does not
-                        # already exist for this LDAP user
-                        user = User(result[0][1]['uid'][0],
-                                    result[0][1]['cn'][0],
-                                    result[0][1]['mail'][0])
-                        db.session.add(user)
-                        db.session.commit()
+                        login_user(user)
+                        session['username'] = user.username
+                        session['access'] = r[2]
+
+                        log_auth_success("orthrus", user.username, request)
+                        return redirect_back('admin.index')
                     else:
-                        # update existing user data in database
-                        user.name = result[0][1]['cn'][0]
-                        user.email = result[0][1]['mail'][0]
-                        db.session.commit()
-
-                    login_user(user)
-                    session['username'] = user.username
-                    session['access'] = []
-
-                    if ldap_group_test(client, app.config['LDAP_GROUPS_ADMIN'],
-                                       user.username):
-                        session['access'].append('admin')
-
-                    if ldap_group_test(client,
-                                       app.config['LDAP_GROUPS_LIBRARY'],
-                                       user.username):
-                        session['access'].append('library')
-
-                    if ldap_group_test(client,
-                                       app.config['LDAP_GROUPS_RADIOTHON'],
-                                       user.username):
-                        session['access'].append('missioncontrol')
-                    if ldap_group_test(client,
-                                       app.config['LDAP_GROUPS_BUSINESS'],
-                                       user.username):
-                        session['access'].append('business')
-
-                    log_auth_success("LDAP", user.username, request)
-                    client.unbind()
-
-                    return redirect_back('admin.index')
+                        log_auth_failure("orthrus", request.form['username'],
+                                         request)
+                        errors.append("Invalid username or password.")
+                except Exception as e:
+                    app.logger.error("wuvt-site: orthrus: {}".format(e))
+                    errors.append("Authentication backend error.")
             else:
-                log_auth_failure("LDAP", request.form['username'], request)
+                log_auth_failure("orthrus", request.form['username'], request)
                 errors.append("Invalid username or password.")
         else:
             user = User.query.filter(
@@ -89,7 +73,8 @@ def login():
             if user and user.check_password(request.form['password']):
                 login_user(user)
                 session['username'] = user.username
-                session['access'] = ['admin', 'library', 'missioncontrol', 'business']
+                session['access'] = ['admin', 'library', 'missioncontrol',
+                                     'business']
 
                 log_auth_success("DB", user.username, request)
                 return redirect_back('admin.index')

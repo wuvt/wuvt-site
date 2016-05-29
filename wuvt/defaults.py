@@ -70,7 +70,7 @@ LASTFM_PASSWORD = ""
 MIN_PASSWORD_LENGTH = 8
 LDAP_AUTH = False
 LDAP_URI = 'ldap://127.0.0.1:389'
-LDAP_STARTTLS = True
+LDAP_VERIFY = True
 LDAP_BASE_DN = "dc=wuvt,dc=vt,dc=edu"
 LDAP_AUTH_DN = "uid={},ou=Users,dc=wuvt,dc=vt,dc=edu"
 LDAP_GROUPS_ADMIN = ['sudoers', 'webmasters']
