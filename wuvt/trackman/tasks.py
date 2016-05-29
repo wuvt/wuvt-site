@@ -140,14 +140,16 @@ def update_lastfm(artist, title, album, timestamp):
 
 
 @task
-def email_playlist(djset_id):
-    djset = DJSet.query.get(djset_id)
-    tracks = TrackLog.query.filter(TrackLog.djset_id == djset_id).order_by(
-        TrackLog.played).all()
+def email_logout_reminder(dj_id):
+    with app.app_context():
+        dj = DJ.query.get(dj_id)
+        mail.send_logout_reminder(dj)
 
-    try:
+
+@task
+def email_playlist(djset_id):
+    with app.app_context():
+        djset = DJSet.query.get(djset_id)
+        tracks = TrackLog.query.filter(TrackLog.djset_id == djset_id).order_by(
+            TrackLog.played).all()
         mail.send_playlist(djset, tracks)
-    except Exception as exc:
-        app.logger.warning(
-            "Trackman: Failed to send email for DJ set {0}: {1}".format(
-                djset.id, exc))

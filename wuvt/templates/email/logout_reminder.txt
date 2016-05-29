@@ -1,0 +1,12 @@
+Hello {{ dj.airname }},
+
+You were logged out of Trackman automatically due to inactivity. Please make
+sure to use the Logout button in the upper right corner after finishing your
+show. This is necessary to ensure that tracks played by automation are logged,
+which is a licensing requirement.
+
+Did you get this by mistake? If you're playing a track that's longer than 10
+minutes or so, you should use the "Let me play longer songs" check box to
+prevent this from happening.
+
+Thanks!

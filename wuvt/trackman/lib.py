@@ -17,11 +17,16 @@ def get_duplicates(model, attrs):
     return dups
 
 
-def logout_all():
+def logout_all(send_email=False):
+    from . import tasks
+
     open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
         DJSet.dtstart.desc()).all()
     for djset in open_djsets:
         djset.dtend = datetime.utcnow()
+
+        if send_email and djset.dj_id > 1:
+            tasks.email_logout_reminder.delay(djset.dj_id)
 
     db.session.commit()
 

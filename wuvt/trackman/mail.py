@@ -6,6 +6,27 @@ import smtplib
 from .. import format_datetime
 
 
+def send_logout_reminder(dj):
+    msg = MIMEText(render_template('email/logout_reminder.txt',
+                                   dj=dj).encode('utf-8'))
+    msg['Date'] = email.utils.formatdate()
+    msg['From'] = current_app.config['MAIL_FROM']
+    msg['To'] = dj.email
+    msg['Message-Id'] = email.utils.make_msgid()
+    msg['X-Mailer'] = "Trackman"
+    msg['Subject'] = u"[{name}] Logout Reminder".format(
+        name=current_app.config['TRACKMAN_NAME'])
+
+    try:
+        s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
+        s.sendmail(msg['From'], [msg['To']], msg.as_string())
+        s.quit()
+    except Exception as exc:
+        current_app.logger.warning(
+            "Trackman: Failed to send logout reminder to DJ {0}: {1}".format(
+                dj.id, exc))
+
+
 def send_playlist(djset, tracks):
     msg = MIMEMultipart('alternative')
     msg['Date'] = email.utils.formatdate()
@@ -27,6 +48,11 @@ def send_playlist(djset, tracks):
                         djset=djset, tracks=tracks).encode('utf-8'),
         'html'))
 
-    s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
-    s.sendmail(msg['From'], [msg['To']], msg.as_string())
-    s.quit()
+    try:
+        s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
+        s.sendmail(msg['From'], [msg['To']], msg.as_string())
+        s.quit()
+    except Exception as exc:
+        app.logger.warning(
+            "Trackman: Failed to send email for DJ set {0}: {1}".format(
+                djset.id, exc))
