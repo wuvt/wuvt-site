@@ -5,85 +5,86 @@ from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from datetime import datetime, timedelta
 
-from .. import app
-from .. import db
-from .. import redis_conn
+from .. import app, db, redis_conn
 from ..celeryconfig import make_celery
+from . import mail
 from .lib import get_duplicates, logout_all, enable_automation
-from .models import AirLog, DJSet, Track, TrackLog
+from .models import AirLog, DJ, DJSet, Track, TrackLog
 
 celery = make_celery(app)
 
 
 @periodic_task(run_every=crontab(hour=3, minute=0))
 def deduplicate_tracks():
-    dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
-    for artist, title, album, label in dups:
-        track_query = Track.query.filter(db.and_(
-            Track.artist == artist,
-            Track.title == title,
-            Track.album == album,
-            Track.label == label)).order_by(Track.id)
-        count = track_query.count()
-        tracks = track_query.all()
-        track_id = int(tracks[0].id)
+    with app.app_context():
+        dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
+        for artist, title, album, label in dups:
+            track_query = Track.query.filter(db.and_(
+                Track.artist == artist,
+                Track.title == title,
+                Track.album == album,
+                Track.label == label)).order_by(Track.id)
+            count = track_query.count()
+            tracks = track_query.all()
+            track_id = int(tracks[0].id)
 
-        # update TrackLogs
-        TrackLog.query.filter(TrackLog.track_id.in_(
-            [track.id for track in tracks[1:]])).update(
-            {TrackLog.track_id: track_id}, synchronize_session=False)
+            # update TrackLogs
+            TrackLog.query.filter(TrackLog.track_id.in_(
+                [track.id for track in tracks[1:]])).update(
+                {TrackLog.track_id: track_id}, synchronize_session=False)
 
-        # delete existing Track entries
-        map(db.session.delete, tracks[1:])
+            # delete existing Track entries
+            map(db.session.delete, tracks[1:])
 
-        db.session.commit()
+            db.session.commit()
 
-        app.logger.info(
-            "Trackman: Removed {0:d} duplicates of track ID {1:d}".format(
-                count - 1,
-                track_id))
+            app.logger.info(
+                "Trackman: Removed {0:d} duplicates of track ID {1:d}".format(
+                    count - 1,
+                    track_id))
 
 
 @periodic_task(run_every=crontab(hour=6, minute=0))
 def playlist_cleanup():
-    app.logger.debug("Trackman: Starting playlist cleanup...")
+    with app.app_context():
+        app.logger.debug("Trackman: Starting playlist cleanup...")
 
-    prune_before = datetime.utcnow() - timedelta(days=1)
-    empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
-        DJSet.id).filter(db.and_(
-            DJSet.dtend != None,
-            DJSet.dtstart < prune_before
-        )).having(db.and_(
-            db.func.count(TrackLog.id) < 1,
-            db.func.count(AirLog.id) < 1
-        ))
-    for djset in empty.all():
-        db.session.delete(djset)
-    db.session.commit()
+        prune_before = datetime.utcnow() - timedelta(days=1)
+        empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
+            DJSet.id).filter(db.and_(
+                DJSet.dtend != None,
+                DJSet.dtstart < prune_before
+            )).having(db.and_(
+                db.func.count(TrackLog.id) < 1,
+                db.func.count(AirLog.id) < 1
+            ))
+        for djset in empty.all():
+            db.session.delete(djset)
+        db.session.commit()
 
-    app.logger.debug("Trackman: Removed {} empty DJSets.".format(
-        empty.count()))
+        app.logger.debug("Trackman: Removed {} empty DJSets.".format(
+            empty.count()))
 
 
 @periodic_task(run_every=timedelta(minutes=1))
 def autologout_check():
-    active = redis_conn.get('dj_active')
-    automation = redis_conn.get('automation_enabled')
-    # active is None if dj_active has expired (no activity)
-    if active is None:
-        if automation is None:
-            # This should never happen
-            # Except, it does happen when the key was never created
-            pass
-        elif automation == "true":
-            # automation is running, carry on
-            # if automation is enabled, enable_automation was already called
-            pass
-        else:
-            # Automation is not running, end djset if exists and start
-            # automation
-            logout_all()
-            enable_automation()
+    with app.app_context():
+        active = redis_conn.get('dj_active')
+        automation = redis_conn.get('automation_enabled')
+        # active is None if dj_active has expired (no activity)
+        if active is None:
+            if automation is None:
+                # This happens when the key is missing;
+                # We just bail out because we don't know the current state
+                pass
+            elif automation == "true":
+                # Automation is already enabled, carry on
+                pass
+            else:
+                # Automation is disabled; end djset if exists and start
+                # automation
+                logout_all(send_email=True)
+                enable_automation()
 
 
 @task
@@ -136,3 +137,17 @@ def update_lastfm(artist, title, album, timestamp):
         except Exception as exc:
             app.logger.warning("Trackman: Last.fm scrobble failed: {}".format(
                 exc))
+
+
+@task
+def email_playlist(djset_id):
+    djset = DJSet.query.get(djset_id)
+    tracks = TrackLog.query.filter(TrackLog.djset_id == djset_id).order_by(
+        TrackLog.played).all()
+
+    try:
+        mail.send_playlist(djset, tracks)
+    except Exception as exc:
+        app.logger.warning(
+            "Trackman: Failed to send email for DJ set {0}: {1}".format(
+                djset.id, exc))

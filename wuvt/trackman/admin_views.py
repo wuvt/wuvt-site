@@ -5,16 +5,14 @@ from sqlalchemy import func, desc
 import datetime
 import dateutil.parser
 
-from .. import db
-from .. import csrf
-from .. import redis_conn
+from .. import db, csrf, redis_conn
 from ..view_utils import ajax_only, local_only, sse_response
 from . import private_bp
-from .lib import log_track, email_playlist, disable_automation, \
-        enable_automation, logout_all, logout_all_but_current, \
-        fixup_current_track
+from .lib import log_track, disable_automation, enable_automation, \
+        logout_all, logout_all_but_current, fixup_current_track
 from .models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
+from .tasks import email_playlist
 from .view_utils import dj_interact
 
 
@@ -258,8 +256,9 @@ def logout(setid):
     redis_conn.expire('dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
 
     # email playlist
-    if 'email_playlist' in request.form and request.form.get('email_playlist') == 'true':
-        email_playlist(djset)
+    if 'email_playlist' in request.form and \
+            request.form.get('email_playlist') == 'true':
+        email_playlist.delay(djset.id)
 
     return redirect(url_for('.login'))
 

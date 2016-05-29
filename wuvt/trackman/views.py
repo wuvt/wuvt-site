@@ -10,11 +10,11 @@ from werkzeug.contrib.atom import AtomFeed
 from .. import db
 from ..view_utils import sse_response
 from . import bp
-from .lib import list_archives, generate_cuesheet, \
-        generate_playlist_cuesheet, get_chart_range, get_chart, \
-        get_current_tracklog
+from . import charts
+from .lib import get_current_tracklog
 from .models import DJ, DJSet, Track, TrackLog
-from .view_utils import make_external
+from .view_utils import make_external, list_archives, generate_cuesheet, \
+        generate_playlist_cuesheet
 
 
 def trackinfo():
@@ -249,11 +249,11 @@ def charts_index():
 @bp.route('/playlists/charts/albums/<string:period>')
 def charts_albums(period=None):
     try:
-        start, end = get_chart_range(period, request)
+        start, end = charts.get_range(period, request)
     except ValueError:
         abort(400)
 
-    results = get_chart(
+    results = charts.charts.get(
         'albums_{0}_{1}'.format(start, end),
         Track.query.with_entities(
             Track.artist, Track.album, db.func.count(TrackLog.id)).
@@ -276,7 +276,7 @@ def charts_albums(period=None):
 @bp.route('/playlists/charts/albums/dj/<int:dj_id>')
 def charts_albums_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
-    results = get_chart(
+    results = charts.get(
         'albums_dj_{}'.format(dj_id),
         Track.query.with_entities(
             Track.artist, Track.album, db.func.count(TrackLog.id)).
@@ -297,11 +297,11 @@ def charts_albums_dj(dj_id):
 @bp.route('/playlists/charts/artists/<string:period>')
 def charts_artists(period=None):
     try:
-        start, end = get_chart_range(period, request)
+        start, end = charts.get_range(period, request)
     except ValueError:
         abort(400)
 
-    results = get_chart(
+    results = charts.get(
         'artists_{0}_{1}'.format(start, end),
         Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
         join(TrackLog).filter(db.and_(
@@ -323,7 +323,7 @@ def charts_artists(period=None):
 @bp.route('/playlists/charts/artists/dj/<int:dj_id>')
 def charts_artists_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
-    results = get_chart(
+    results = charts.get(
         'artists_dj_{}'.format(dj_id),
         Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
         join(TrackLog).filter(TrackLog.dj_id == dj.id).
@@ -343,11 +343,11 @@ def charts_artists_dj(dj_id):
 @bp.route('/playlists/charts/tracks/<string:period>')
 def charts_tracks(period=None):
     try:
-        start, end = get_chart_range(period, request)
+        start, end = charts.get_range(period, request)
     except ValueError:
         abort(400)
 
-    results = get_chart(
+    results = charts.get(
         'tracks_{start}_{end}'.format(start=start, end=end),
         Track.query.with_entities(Track, db.func.count(TrackLog.id)).
         join(TrackLog).filter(db.and_(
@@ -369,7 +369,7 @@ def charts_tracks(period=None):
 @bp.route('/playlists/charts/tracks/dj/<int:dj_id>')
 def charts_tracks_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
-    results = get_chart(
+    results = charts.get(
         'tracks_dj_{}'.format(dj_id),
         Track.query.with_entities(Track, db.func.count(TrackLog.id)).
         join(TrackLog).filter(TrackLog.dj_id == dj.id).
@@ -387,7 +387,7 @@ def charts_tracks_dj(dj_id):
 
 @bp.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
-    results = get_chart(
+    results = charts.get(
         'dj_spins',
         TrackLog.query.with_entities(
             TrackLog.dj_id, DJ, db.func.count(TrackLog.id)).
