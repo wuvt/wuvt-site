@@ -1,13 +1,11 @@
 alembic==0.8.6
 amqp==1.4.9
 anyjson==0.3.3
-bcrypt==2.0.0
 billiard==3.3.0.23
 bleach==1.4.2
 celery==3.1.23
 cffi==1.6.0
-Flask==0.10.1
-Flask-Bcrypt==0.7.1
+Flask==0.11
 Flask-Login==0.3.2
 Flask-Migrate==1.8.0
 Flask-Script==2.0.5
@@ -24,7 +22,6 @@ MarkupSafe==0.23
 metalsmyth==0.1.5
 netaddr==0.7.18
 passlib==1.6.5
-py-bcrypt==0.4
 pycparser==2.14
 pylast==1.6.0
 python-dateutil==2.5.3
