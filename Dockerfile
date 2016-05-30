@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/uwsgi
 
 # prepare uwsgi
-RUN wget -O uwsgi-2.0.12.tar.gz https://github.com/unbit/uwsgi/archive/2.0.12.tar.gz
-RUN tar --strip-components=1 -axvf uwsgi-2.0.12.tar.gz
+RUN wget -O uwsgi-2.0.13.1.tar.gz https://github.com/unbit/uwsgi/archive/2.0.13.1.tar.gz
+RUN tar --strip-components=1 -axvf uwsgi-2.0.13.1.tar.gz
 COPY uwsgi_profile.ini buildconf/wuvt.ini
 
 # build and install uwsgi
