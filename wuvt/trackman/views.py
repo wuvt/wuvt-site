@@ -253,7 +253,7 @@ def charts_albums(period=None):
     except ValueError:
         abort(400)
 
-    results = charts.charts.get(
+    results = charts.get(
         'albums_{0}_{1}'.format(start, end),
         Track.query.with_entities(
             Track.artist, Track.album, db.func.count(TrackLog.id)).

@@ -644,4 +644,14 @@ def donation_index():
     donations = Order.query.all()
     stats = db.session.query(func.sum(Order.amount).label("total_paid"),
                              func.max(Order.amount).label("max_paid")).all()
-    return render_template('admin/donation_index.html', donations=donations, total=stats[0][0], max=stats[0][1])
+
+    total = stats[0][0]
+    if total is None:
+        total = 0
+
+    max_donation = stats[0][1]
+    if max_donation is None:
+        max_donation = 0
+
+    return render_template('admin/donation_index.html', donations=donations,
+                           total=total, max=max_donation)

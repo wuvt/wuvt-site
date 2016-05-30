@@ -25,7 +25,10 @@ def get_range(period, request):
                                                "%Y-%m-%dT%H:%M:%S.%fZ")
         else:
             first_track = TrackLog.query.order_by(TrackLog.played).first()
-            start = first_track.played
+            if first_track is not None:
+                start = first_track.played
+            else:
+                start = datetime.datetime.utcnow()
 
         if 'end' in request.args:
             end = datetime.datetime.strptime(request.args['end'],
