@@ -53,6 +53,6 @@ def send_playlist(djset, tracks):
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
     except Exception as exc:
-        app.logger.warning(
+        current_app.logger.warning(
             "Trackman: Failed to send email for DJ set {0}: {1}".format(
                 djset.id, exc))
