@@ -19,7 +19,7 @@
         {% for track, plays in results %}
         <tr>
             <td>{{ track.artist }}</td>
-            <td>{{ track.title }}</td>
+            <td><a href="{{ url_for('trackman.playlists_track', track_id=track.id) }}">{{ track.title }}</a></td>
             <td>{{ track.album }}</td>
             <td class="text-right">{{ plays }}</td>
         </tr>
