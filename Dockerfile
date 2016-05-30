@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
             git \
             libcap-dev \
             libjansson-dev \
-            libldap2-dev \
             libpcre3-dev \
             libsasl2-dev \
             libyaml-dev \
