@@ -22,22 +22,12 @@ function wuvtLive(liveurl) {
         }
 
         switch(msg['event']) {
+            case 'track_change':
             case 'track_delete':
+            case 'track_edit':
                 if($('#last15tracks').length) {
                     // reload the last 15 tracks page
                     loadPage('/last15');
-                }
-                break;
-
-            case 'track_edit':
-                if($('#last15tracks').length) {
-                    // remove the existing entry for the track that was edited
-                    $('#last15tracks tbody tr:first-child').remove();
-                }
-
-            case 'track_change':
-                if($('#last15tracks').length) {
-                    updateLast15(msg['tracklog']);
                 }
                 break;
         }
@@ -56,74 +46,6 @@ function addDJLink(elem, tracklog) {
     else {
         $(elem).text(tracklog['dj']);
     }
-}
-
-function updateLast15(tracklog) {
-    if($('#last15tracks tbody tr').length >= 15) {
-        // remove last item if already 15 tracks
-        $('#last15tracks tbody tr:last-child').remove();
-    }
-
-    function pad(value) {
-        return ("00" + value).slice(-2);
-    }
-
-    var track = tracklog['track'];
-    var tr = document.createElement('tr');
-    var td = document.createElement('td');
-
-    var t = document.createElement('time');
-    var played = moment(tracklog['played']);
-    $(t).text(played.format('HH:mm:ss'));
-    $(t).attr('datetime', played.format());
-    $(t).attr('title', played.format('LLLL'));
-    $(td).append(t);
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    if(tracklog['new'] == true) {
-        var span = document.createElement('span');
-        span.className = "glyphicon glyphicon-fire new-track";
-        span.title = "New";
-        $(td).append(span);
-    }
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    $(td).text(track['artist']);
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    $(td).text(track['title']);
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    $(td).text(track['album']);
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    addDJLink(td, tracklog);
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    if(tracklog['request'] == true) {
-        var span = document.createElement('span');
-        span.className = "glyphicon glyphicon-earphone";
-        span.title = "Request";
-        $(td).append(span);
-    }
-    $(tr).append(td);
-
-    var td = document.createElement('td');
-    if(tracklog['vinyl'] == true) {
-        var span = document.createElement('span');
-        span.className = "glyphicon glyphicon-cd";
-        span.title = "Vinyl";
-        $(td).append(span);
-    }
-    $(tr).append(td);
-
-    $('#last15tracks tbody').prepend(tr);
 }
 
 function makeAjaxLink(item) {
