@@ -25,7 +25,7 @@
             <td><time datetime="{{ track.played|isodatetime }}" data-format="HH:mm:ss">{{ track.played|datetime("%H:%M:%S") }}</time></td>
             <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track" title="New"></span>{% endif %}</td>
             <td>{{ track.track.artist }}</td>
-            <td>{{ track.track.title }}</td>
+            <td><a href="{{ url_for('trackman.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></td>
             <td>{{ track.track.album }}</td>
             <td>
                 {% if track.dj.visible -%}

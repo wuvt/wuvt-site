@@ -457,3 +457,13 @@ def playlist_cuesheet(set_id, ext):
 
     return Response(generate_playlist_cuesheet(djset, ext),
                     mimetype="audio/x-cue")
+
+
+@bp.route('/playlists/track/<int:track_id>')
+def playlists_track(track_id):
+    track = Track.query.get_or_404(track_id)
+    tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
+        order_by(TrackLog.played).all()
+
+    return render_template('playlists_track.html', track=track,
+                           tracklogs=tracklogs)
