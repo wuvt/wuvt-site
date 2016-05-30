@@ -5,13 +5,17 @@ uwsgi:
   chmod-socket: 600
   touch-reload: /srv/http/wuvt-site/reload.txt
   processes: 20
-  offload-threads: 2
+  offload-threads: 4
   harakiri: 30
 
   chdir: /srv/http/wuvt-site
   plugins: python,sse_offload
   module: wuvt
   callable: app
+
+  static-map: /robots.txt=wuvt/static/robots.txt
+  static-map: /static=wuvt/static
+  static-map: /static/media=media
 
   pull-header: X-SSE-Offload SSE_OFFLOAD
   pull-header: X-SSE-Server SSE_SERVER
@@ -22,9 +26,10 @@ dev:
   procname-prefix-spaced: wuvt-site
   master: 1
   http-socket: ':9090'
-  processes: 5
+  processes: 2
   offload-threads: 1
   harakiri: 30
+  catch-exceptions: 1
 
   plugins: python,sse_offload
   py-autoreload: 1
@@ -33,6 +38,11 @@ dev:
   endif: 
   module: wuvt
   callable: app
+
+  add-header: 'X-Frame-Options: SAMEORIGIN'
+  static-map: /robots.txt=wuvt/static/robots.txt
+  static-map: /static=wuvt/static
+  static-map: /static/media=media
 
   pull-header: X-SSE-Offload SSE_OFFLOAD
   pull-header: X-SSE-Server SSE_SERVER
@@ -43,13 +53,19 @@ dev-docker:
   procname-prefix-spaced: wuvt-site
   master: 1
   http-socket: ':8080'
-  processes: 5
+  processes: 2
   offload-threads: 1
   harakiri: 30
+  catch-exceptions: 1
 
   py-autoreload: 1
   module: wuvt
   callable: app
+
+  add-header: 'X-Frame-Options: SAMEORIGIN'
+  static-map: /robots.txt=wuvt/static/robots.txt
+  static-map: /static=wuvt/static
+  static-map: /static/media=media
 
   pull-header: X-SSE-Offload SSE_OFFLOAD
   pull-header: X-SSE-Server SSE_SERVER
