@@ -47,7 +47,7 @@ body > footer {
 /* Now playing bar {{{ */
 #nowplaying {
     height: 34px;
-    margin: 8px 0px 8px 0px;
+    margin: 8px 0px -8px 0px;
     padding: 8px 50px 8px 16px;
     background-image: url('/static/img/nowplaying_banner_left.svg'), url('/static/img/nowplaying_banner_right.svg');
     background-size: 32px 15px, 52px 34px;
