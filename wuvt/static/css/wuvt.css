@@ -141,7 +141,7 @@ header #mainheader #robot {
     height: 148px;
     border: 0;
     background-color: transparent;
-    background-image: url('/static/img/robot.svg');
+    background-image: url('/static/img/robot.svg?v=1');
     background-repeat: no-repeat;
     background-size: 160px, 148px;
 }
