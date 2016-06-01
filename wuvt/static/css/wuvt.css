@@ -59,21 +59,22 @@ body > footer {
 #nowplaying ul {
     position: relative;
     margin: 0;
-    padding: 0;
+    padding: 2px 4px 0px 4px;
     background: #bcccd3;
     list-style: none;
 }
 
 #nowplaying li {
     display: inline-block;
-    padding: 4px;
-    background-color: #bcccd3;
+    width: 49%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 #nowplaying li:last-child {
-    position: absolute;
-    right: 0px;
-    padding-left: 15px;
+    float: right;
+    text-align: right;
 }
 
 #nowplaying strong {
@@ -98,6 +99,7 @@ header #mainheader h1 {
     position: absolute;
     width: 200px;
     height: 90px;
+    margin: 20px 0px;
     font-size: 32px;
     text-indent: -9999px;
 }
