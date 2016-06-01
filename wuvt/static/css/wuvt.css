@@ -59,7 +59,7 @@ body > footer {
 #nowplaying ul {
     position: relative;
     margin: 0;
-    padding: 2px 4px 0px 4px;
+    padding: 4px 4px 0px 4px;
     background: #bcccd3;
     list-style: none;
 }
