@@ -1,12 +1,6 @@
+{% set active_category = category.id %}
 {% extends "base.html" %}
 {% block title %}{{ category.name }} - {{ super() }}{% endblock %}
-{% block nav_side_primary %}
-<ul>
-    {% for cat in categories %}
-    <li{% if cat.id == category.id %} class='active'{% endif %}><a href="{{ url_for('category', slug=cat.slug) }}">{{ cat.name }}</a></li>
-    {% endfor %}
-</ul>
-{% endblock %}
 {% block content %}
 
 {% if articles.items %}
