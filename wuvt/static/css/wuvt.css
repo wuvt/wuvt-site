@@ -47,7 +47,7 @@ body > footer {
 /* Now playing bar {{{ */
 #nowplaying {
     height: 34px;
-    margin: 8px 0 15px 0;
+    margin: 8px 0px 8px 0px;
     padding: 8px 50px 8px 16px;
     background-image: url('/static/img/nowplaying_banner_left.svg'), url('/static/img/nowplaying_banner_right.svg');
     background-size: 32px 15px, 52px 34px;
@@ -449,10 +449,7 @@ nav > ul > li > ul > li > a {
 /* }}} */
 
 #content {
-    padding: 40px 20px 20px 20px;
-    /*background-color: #bcccd3;
-    background-color: rgba(209, 223, 229, 0.5);
-    background-color: #DAE5EA; */
+    padding: 30px 20px 20px 20px;
     background-color: rgba(255,255,255,0.72);
     border-width: thick;
     border-color: #BCCCD3;
