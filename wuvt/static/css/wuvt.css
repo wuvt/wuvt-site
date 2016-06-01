@@ -427,6 +427,8 @@ nav > ul > li > ul > li > a {
 
 #side ul#side_social li a {
     display: block;
+    width: 100%;
+    height: 100%;
 }
 /* }}} */
 
