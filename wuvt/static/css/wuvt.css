@@ -345,10 +345,13 @@ nav > ul > li {
     list-style-type: square;
 }
 
+nav > ul > li li {
+    list-style-type: none;
+}
+
 nav > ul > li > ul {
     margin: 0 0 12px 0;
 }
-
 
 nav > ul > li > ul > li:hover {
     border-right: 4px solid #ec1c23;
