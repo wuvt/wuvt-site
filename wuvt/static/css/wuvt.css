@@ -390,51 +390,6 @@ nav > ul > li > ul > li > a {
     color: #0071BC;
     text-decoration: underline;
 }
-
-#side ul#side_social {
-    margin: 32px 0 0 0;
-    padding: 0;
-    list-style: none;
-    font-size: 1px;
-}
-
-#side ul#side_social li {
-    display: inline-block;
-    margin: 0px 6px;
-    text-indent: -9999px;
-    background-repeat: no-repeat;
-}
-
-#side ul#side_social li.facebook-icon {
-    background-image: url('/static/img/facebook.svg');
-    background-size: 66px 28px;
-    width: 66px;
-    height: 28px;
-}
-
-#side ul#side_social li.feed-icon {
-    background-image: url('/static/img/rss.svg');
-    background-size: 42px 28px;
-    width: 42px;
-    height: 28px;
-}
-
-#side ul#side_social li.twitter-icon {
-    background-image: url('/static/img/twitter.svg');
-    background-size: 42px 28px;
-    width: 42px;
-    height: 28px;
-}
-
-#side ul#side_social li.instagram-icon {
-    display: none;
-}
-
-#side ul#side_social li a {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
 /* }}} */
 
 /* Navbar and content positioning {{{ */
