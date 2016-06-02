@@ -59,6 +59,10 @@ function makeAjaxLink(item) {
         return;
     }
 
+    if($(item).attr('rel') == 'feed') {
+        return;
+    }
+
     $(item).click(function(ev) {
         path = $(this).attr('href');
         window.history.pushState({'path': path}, item.innerText, path);

@@ -112,8 +112,8 @@
                     <ul>
                         <li><a href="https://www.facebook.com/WUVTFM" rel="external" title="WUVT on Facebook">Facebook</a></li>
                         <li><a href="https://twitter.com/wuvtfm" rel="external" title="WUVT on Twitter">Twitter</a></li>
-                        <li><a href="https://instagram.com/wuvt" rel="external" title="WUVT on Instagram">Instagram</a></li>
-                        <li><a href="{{ feedlink or url_for('all_feed') }}" title="Atom Feed">Feed</a></li>
+                        <li><a href="https://www.instagram.com/wuvt" rel="external" title="WUVT on Instagram">Instagram</a></li>
+                        <li><a href="{{ feedlink or url_for('all_feed') }}" rel="feed" title="Atom Feed">Feed</a></li>
                     </ul>
                 </li>
             </ul>
@@ -141,7 +141,7 @@
 <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/global.js') }}"></script>
-<script src="{{ url_for('static', filename='js/live.js') }}"></script>
+<script src="{{ url_for('static', filename='js/live.js', v=1) }}"></script>
 <script src="{{ url_for('static', filename='js/stream.js') }}"></script>
 <script src="{{ url_for('static', filename='js/playlists_by_date.js') }}"></script>
 <script src="{{ url_for('init_js') }}"></script>
