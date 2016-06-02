@@ -78,7 +78,7 @@ LDAP_GROUPS_BUSINESS = ['sudoers']
 LDAP_GROUPS_LIBRARY = ['sudoers', 'librarians']
 LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
 
-UPLOAD_DIR = "/usr/src/app/media"
+UPLOAD_DIR = "/data/media"
 
 RADIOTHON = False
 
