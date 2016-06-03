@@ -4,6 +4,7 @@ import urllib
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from datetime import datetime, timedelta
+from flask import json
 
 from .. import app, db, redis_conn
 from ..celeryconfig import make_celery
@@ -85,6 +86,18 @@ def autologout_check():
                 # automation
                 logout_all(send_email=True)
                 enable_automation()
+
+
+@periodic_task(run_every=timedelta(seconds=55))
+def publish_keepalive():
+    with app.app_context():
+        redis_conn.publish('trackman_live', json.dumps({
+            'event': "keepalive",
+        }))
+
+        redis_conn.publish('trackman_dj_live', json.dumps({
+            'event': "keepalive",
+        }))
 
 
 @task
