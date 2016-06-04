@@ -58,6 +58,9 @@ ADMINS = []
 MAIL_FROM = "noreply@wuvt.vt.edu"
 SMTP_SERVER = "localhost"
 
+PROXY_FIX = False
+PROXY_FIX_NUM_PROXIES = 1
+
 TUNEIN_PARTNERID = ""
 TUNEIN_PARTNERKEY = ""
 TUNEIN_STATIONID = ""
