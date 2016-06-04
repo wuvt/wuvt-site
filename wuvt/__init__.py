@@ -121,6 +121,7 @@ Time:               %(asctime)s
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
 
-    syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
-    syslog_handler.setLevel(logging.WARNING)
-    app.logger.addHandler(syslog_handler)
+    if 'SYSLOG_ADDRESS' in app.config:
+        syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
+        syslog_handler.setLevel(logging.WARNING)
+        app.logger.addHandler(syslog_handler)
