@@ -51,6 +51,11 @@ app.jinja_env.filters['isodatetime'] = lambda d: d.isoformat() + 'Z'
 app.jinja_env.filters['format_currency'] = format_currency
 app.static_folder = 'static'
 
+if app.config['PROXY_FIX']:
+    from werkzeug.contrib.fixers import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app,
+                            num_proxies=app.config['PROXY_FIX_NUM_PROXIES'])
+
 redis_conn = redis.from_url(app.config['REDIS_URL'])
 app.session_interface = session.RedisSessionInterface(redis_conn)
 
@@ -116,6 +121,7 @@ Time:               %(asctime)s
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
 
-    syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
-    syslog_handler.setLevel(logging.WARNING)
-    app.logger.addHandler(syslog_handler)
+    if 'SYSLOG_ADDRESS' in app.config:
+        syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
+        syslog_handler.setLevel(logging.WARNING)
+        app.logger.addHandler(syslog_handler)

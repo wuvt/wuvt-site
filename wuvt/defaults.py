@@ -7,7 +7,6 @@ CSRF_COOKIE_TIMEOUT = None
 SQLALCHEMY_DATABASE_URI = 'sqlite:////usr/src/app/wuvt.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 REDIS_URL = 'redis://localhost:6379'
-SYSLOG_ADDRESS = '/dev/log'
 
 POSTS_PER_PAGE = 5
 ARTISTS_PER_PAGE = 500
@@ -55,8 +54,11 @@ TRACKMAN_LABEL_BLACKLIST = ["same"]
 ARCHIVE_BASE_URL = ""
 
 ADMINS = []
-MAIL_FROM = "noreply@wuvt.vt.edu"
+MAIL_FROM = "noreply@localhost"
 SMTP_SERVER = "localhost"
+
+PROXY_FIX = False
+PROXY_FIX_NUM_PROXIES = 1
 
 TUNEIN_PARTNERID = ""
 TUNEIN_PARTNERKEY = ""
@@ -78,7 +80,7 @@ LDAP_GROUPS_BUSINESS = ['sudoers']
 LDAP_GROUPS_LIBRARY = ['sudoers', 'librarians']
 LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
 
-UPLOAD_DIR = "/usr/src/app/media"
+UPLOAD_DIR = "/data/media"
 
 RADIOTHON = False
 
