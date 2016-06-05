@@ -49,14 +49,22 @@ class RedisSessionInterface(SessionInterface):
 
     def save_session(self, app, session, response):
         domain = self.get_cookie_domain(app)
+        path = self.get_cookie_path(app)
+
         if not session:
             self.redis.delete(self.prefix + session.sid)
             if session.modified:
                 response.delete_cookie(app.session_cookie_name,
                                        domain=domain)
             return
+
+        if not self.should_set_cookie(app, session):
+            return
+
         redis_exp = self.get_redis_expiration_time(app, session)
-        cookie_exp = self.get_expiration_time(app, session)
+        httponly = self.get_cookie_httponly(app)
+        secure = self.get_cookie_secure(app)
+        expires = self.get_expiration_time(app, session)
         val = self.serializer.dumps(dict(session))
 
         if sys.version_info < (2, 7, 0):
@@ -70,5 +78,5 @@ class RedisSessionInterface(SessionInterface):
                              int(redis_exp.total_seconds()))
 
         response.set_cookie(app.session_cookie_name, session.sid,
-                            expires=cookie_exp, httponly=True,
-                            domain=domain)
+                            expires=expires, httponly=httponly,
+                            domain=domain, path=path, secure=secure)
