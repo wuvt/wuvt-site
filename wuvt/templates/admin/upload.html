@@ -13,7 +13,7 @@
         <form action="upload" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-            <div id="file-uploader" style="min-width: 400px;">
+            <div id="file-uploader">
                     <br />
                     <input type="file" name="file" id="file_upload" name="file_upload"><br/ ><br/ >
                     <input id ="upload_btn" type="submit" value="Upload">
@@ -22,21 +22,14 @@
             <div id="choices">
                 <div id="destination">
                     <label>Destination: 
-                    <select name="destination" id="destination" onchange="uploader.setParams({destination: $('#destination').val()})">
+                    <select name="destination" id="destination">
                     </label>
                         <option value="default">default</option>
                     </select>
                 </div>
 
             </div>
-
         </form>
-
-        <div style="clear:both;"></div>
-
     </div>
 </div>
-
-
-
 {% endblock %}

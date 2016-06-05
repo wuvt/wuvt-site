@@ -1,8 +1,8 @@
 import datetime
 from collections import defaultdict
 from sqlalchemy import func
-from flask import abort, flash, jsonify, render_template, redirect, \
-        request, url_for, session
+from flask import abort, flash, jsonify, make_response, render_template, \
+        redirect, request, url_for, session
 from flask_login import login_required, current_user
 
 from wuvt import app
@@ -53,6 +53,14 @@ def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
                            categories=categories)
+
+
+@bp.route('/js/categories.js')
+@check_access('admin')
+def categories_js():
+    resp = make_response(render_template('admin/categories.js'))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
 
 
 @bp.route('/categories/add', methods=['GET', 'POST'])
@@ -240,6 +248,14 @@ def articles():
     articles = Article.query.order_by(Article.datetime.desc()).all()
     return render_template('admin/articles.html',
                            articles=articles)
+
+
+@bp.route('/js/articles.js')
+@check_access('admin')
+def articles_js():
+    resp = make_response(render_template('admin/articles.js'))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
 
 
 @bp.route('/articles/draft/<int:art_id>')
@@ -535,6 +551,14 @@ def article_edit(art_id):
 def pages():
     pages = Page.query.all()
     return render_template('admin/pages.html', pages=pages)
+
+
+@bp.route('/js/pages.js')
+@check_access('admin')
+def pages_js():
+    resp = make_response(render_template('admin/pages.js'))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
 
 
 @bp.route('/users')

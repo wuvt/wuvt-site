@@ -2,8 +2,8 @@
 {% block content %}
 <div class="floating-alerts" id="trackman_alerts"></div> 
 
-<form style="display: none;" action="{{ url_for('trackman_private.logout', setid=djset.id) }}" method="post"
-    id="trackman_logout_form">
+<form action="{{ url_for('trackman_private.logout', setid=djset.id) }}"
+        method="post" id="trackman_logout_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="email_playlist" value="0" />
 </form>
@@ -193,7 +193,7 @@
 </div>
 -->
 
-<div class="row row-table" style="height: 200px;">
+<div class="row row-table trackman-queue">
     <table class='table table-condensed table-striped table-hover' id='queue'>
         <thead>
             <tr>
@@ -213,7 +213,7 @@
     </table>
 </div>
 
-<div class="row row-table" style="height: 340px;">
+<div class="row row-table trackman-search-results">
     <h4>Search Results</h4>
     <table class='table table-condensed table-striped table-hover' id="search">
         <thead>
@@ -236,6 +236,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman.js') }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=1) }}"></script>
 <script src="{{ url_for('trackman_private.log_js', setid=djset.id) }}"></script>
 {% endblock %}

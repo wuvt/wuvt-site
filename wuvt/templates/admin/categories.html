@@ -33,25 +33,5 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script>
-var csrf_token = "{{ csrf_token() }}";
-
-$('button.delete-button').bind('click', function(ev) {
-    if(!confirm("Are you sure you want to delete this category?")) {
-        return;
-    }
-
-    $.ajax({
-        'type': "DELETE",
-        'url': $(this).closest('tr').attr('data-edit-url'),
-        'headers': {'X-CSRFToken': csrf_token},
-    }).done(function(msg) {
-        csrf_token = msg['_csrf_token']
-        $(ev.currentTarget).closest('tr').fadeTo('fast', 0, function() {
-            $(this).remove();
-        });
-    });
-    return false;
-});
-</script>
+<script src="{{ url_for('admin.categories_js') }}"></script>
 {% endblock %}

@@ -118,3 +118,15 @@ td.row-options {
 .search-actions {
     min-width: 133px;
 }
+
+#trackman_logout_form {
+    display: none;
+}
+
+.trackman-queue {
+    height: 200px;
+}
+
+.trackman-search-results {
+    height: 340px;
+}
