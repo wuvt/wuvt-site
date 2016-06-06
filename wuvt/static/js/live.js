@@ -27,7 +27,19 @@ function wuvtLive(liveurl) {
             case 'track_edit':
                 if($('#last15tracks').length) {
                     // reload the last 15 tracks page
-                    loadPage('/last15');
+                    $.ajax({
+                        'url': '/last15',
+                        'dataType': 'html',
+                    }).done(function(data) {
+                        var doc = $('<div>').append($.parseHTML(data));
+
+                        $('#last15tracks').html(doc.find('#last15tracks > *'));
+                        $.each($('#last15tracks a'), function(i, item) {
+                            makeAjaxLink(item);
+                        });
+
+                        initLocalDates();
+                    });
                 }
                 break;
         }
