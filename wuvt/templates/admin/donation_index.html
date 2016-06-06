@@ -64,9 +64,5 @@ Max donation: {{ (max / 100)|format_currency }}
 {% block js %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
-<script>
-$('#donations').DataTable({
-    'order': [[3, 'desc']],
-});
-</script>
+<script src="{{ url_for('static', filename='js/admin/donation_index.js') }}"></script>
 {% endblock %}

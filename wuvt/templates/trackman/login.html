@@ -42,9 +42,5 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script>
-$('#automation_btn').click(function() {
-    $('#automation_start_form').submit();
-});
-</script>
+<script src="{{ url_for('static', filename='js/trackman/login.js') }}"></script>
 {% endblock %}

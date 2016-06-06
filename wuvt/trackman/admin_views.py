@@ -189,20 +189,6 @@ def log_js(setid):
     return resp
 
 
-@private_bp.route('/edit/<int:tracklog_id>', methods=['GET'])
-@local_only
-def edit(tracklog_id):
-    track = TrackLog.query.get_or_404(tracklog_id)
-
-    rotations = {}
-    for i in Rotation.query.order_by(Rotation.id).all():
-        rotations[i.id] = i.rotation
-
-    return render_template('trackman/edit.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
-                           rotations=rotations, track=track)
-
-
 @private_bp.route('/report/<int:dj_id>/<int:track_id>', methods=['GET', 'POST'])
 @local_only
 @dj_interact
