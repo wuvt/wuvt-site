@@ -33,10 +33,10 @@ class Article(db.Model):
     author = db.relationship('User', backref=db.backref('author',
                                                         lazy='dynamic'))
     datetime = db.Column(db.DateTime, default=datetime.datetime.now)
-    summary = db.Column(db.UnicodeText)
-    content = db.Column(db.UnicodeText)
-    html_summary = db.Column(db.UnicodeText)
-    html_content = db.Column(db.UnicodeText)
+    summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    html_summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    html_content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     published = db.Column(db.Boolean, default=False, nullable=False)
     front_page = db.Column(db.Boolean, default=False, nullable=False)
 

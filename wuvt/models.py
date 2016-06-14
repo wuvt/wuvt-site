@@ -34,8 +34,8 @@ class Page(db.Model):
     name = db.Column(db.Unicode(255), nullable=False)
     slug = db.Column(db.Unicode(255), nullable=False)
     menu = db.Column(db.Unicode(255))
-    content = db.Column(db.UnicodeText, nullable=False)
-    html = db.Column(db.UnicodeText)
+    content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'), nullable=False)
+    html = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     published = db.Column(db.Boolean, default=True, nullable=False)
 
 

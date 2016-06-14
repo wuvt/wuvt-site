@@ -211,8 +211,8 @@ class Track(db.Model):
 class TrackReport(db.Model):
     __tablename__ = "trackreport"
     id = db.Column(db.Integer, primary_key=True)
-    reason = db.Column(db.UnicodeText)
-    resolution = db.Column(db.UnicodeText)
+    reason = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    resolution = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     open = db.Column(db.Boolean, default=True)
     # Track being reported
     track_id = db.Column(db.Integer, db.ForeignKey('track.id'))
