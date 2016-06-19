@@ -36,12 +36,12 @@ def logout_all(send_email=False):
     redis_conn.delete('dj_timeout')
 
 
-def logout_all_but_current(dj):
+def logout_all_except(dj_id):
     current_djset = None
     open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
         DJSet.dtstart.desc()).all()
     for djset in open_djsets:
-        if current_djset is None and djset.dj_id == dj.id:
+        if current_djset is None and djset.dj_id == dj_id:
             current_djset = djset
         else:
             djset.dtend = datetime.utcnow()
@@ -80,10 +80,13 @@ def disable_automation():
 def enable_automation():
     redis_conn.set('automation_enabled', "true")
 
-    # Create automation set for automation to log to
-    automation_set = DJSet(1)
-    db.session.add(automation_set)
-    db.session.commit()
+    # try to reuse existing DJSet if possible
+    automation_set = logout_all_except(1)
+    if automation_set is None:
+        automation_set = DJSet(1)
+        db.session.add(automation_set)
+        db.session.commit()
+
     current_app.logger.info("Trackman: Automation enabled with DJSet.id "
                             "= {}".format(automation_set.id))
     redis_conn.set('automation_set', str(automation_set.id))

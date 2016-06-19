@@ -9,7 +9,7 @@ from .. import db, csrf, redis_conn
 from ..view_utils import ajax_only, local_only, sse_response
 from . import private_bp
 from .lib import log_track, disable_automation, enable_automation, \
-        logout_all, logout_all_but_current, fixup_current_track
+        logout_all, logout_all_except, fixup_current_track
 from .models import DJ, DJSet, Track, TrackLog, AirLog, Rotation, \
         TrackReport
 from .tasks import email_playlist
@@ -35,7 +35,7 @@ def login():
                 ua=request.user_agent))
 
         # close open DJSets, and see if we have one we can use
-        djset = logout_all_but_current(dj)
+        djset = logout_all_except(dj.id)
         if djset is None:
             djset = DJSet(dj.id)
             db.session.add(djset)
@@ -63,7 +63,6 @@ def login():
 def start_automation():
     automation = redis_conn.get('automation_enabled') == "true"
     if not automation:
-        logout_all()
         enable_automation()
 
         current_app.logger.warning(
