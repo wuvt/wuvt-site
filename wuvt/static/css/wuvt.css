@@ -203,7 +203,7 @@ header #mainheader #volume_box {
     position: absolute;
     visibility: hidden;
     z-index: 9999;
-    width: 201px;
+    width: 205px;
     height: 29px;
     margin: -60px 0 0 358px;
     padding: 8px;
