@@ -143,7 +143,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 The following files are JavaScript libraries, freely available under the MIT
 license as noted in their headers:
 * wuvt/static/js/jquery.js
-* wuvt/static/js/jquery-ui.min.js
+* wuvt/static/js/jquery.dataTables.min.js
 * wuvt/static/js/moment.min.js
 
 The following font file was designed by Humberto Gregorio and is in the public
