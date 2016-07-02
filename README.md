@@ -21,12 +21,12 @@ First, clone the repo, create an empty config, and build the Docker image:
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
 touch wuvt/config.py
-sudo docker build -t wuvt .
+docker build -t wuvt .
 ```
 
 Now run it:
 ```
-sudo docker run -it --rm -p 9090:8080 wuvt:latest
+docker run -it --rm -p 9090:8080 wuvt:latest
 ```
 
 You can now access the site at http://localhost:9090/
