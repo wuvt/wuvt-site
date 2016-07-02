@@ -155,8 +155,8 @@ header #mainheader button {
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 15px, 15px;
-    text-indent: -99999px;
     cursor: pointer;
+    font-size: 20px;
 }
 
 header #mainheader #robot > button {
@@ -166,11 +166,6 @@ header #mainheader #robot > button {
     height: 45px;
     background-position: 50% 50%;
     border-radius: 30px;
-}
-
-header #mainheader #robot #stream_btn {
-    margin-left: 39px;
-    background-image: url('/static/img/play.svg');
 }
 
 header #mainheader #robot button:disabled,
@@ -183,13 +178,13 @@ header #mainheader #robot button.disabled {
             transition: all 0.5s ease-in-out;
 }
 
-header #mainheader #robot #stream_btn.playing {
-    background-image: url('/static/img/stop.svg');
+header #mainheader #robot #stream_btn {
+    margin-left: 39px;
 }
 
 header #mainheader #robot #volume_btn {
     margin-left: 93px;
-    background-image: url('/static/img/volume.svg');
+    padding-left: 15px;
 }
 
 header #mainheader #robot #volume_btn.active {
@@ -213,8 +208,7 @@ header #mainheader #volume_box {
 }
 
 header #mainheader #volume_box button {
-    width: 15px;
-    height: 15px;
+    margin: -12px;
 }
 
 header #mainheader #volume_box.visible {
@@ -234,7 +228,6 @@ header #mainheader #volume_box #volume_slider {
 
 header #mainheader #volume_box #volume_mute_btn {
     margin-top: 12px;
-    background-image: url('/static/img/mute.svg');
 }
 
 .ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; cursor: default; }

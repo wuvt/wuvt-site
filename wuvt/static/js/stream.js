@@ -10,13 +10,19 @@ function initPlayer() {
     var playBtn = $('<button>');
     playBtn.attr('title', "Play");
     playBtn.attr('id', "stream_btn");
-    playBtn.text("Play/Stop");
+    var playIcon = $('<span>');
+    playIcon.addClass('glyphicon');
+    playIcon.addClass('glyphicon-play');
+    playBtn.append(playIcon);
     $('#robot').append(playBtn);
 
     var volBtn = $('<button>');
     volBtn.attr('title', "Volume Control");
     volBtn.attr('id', "volume_btn");
-    volBtn.text("Volume Control");
+    var volIcon = $('<span>');
+    volIcon.addClass('glyphicon');
+    volIcon.addClass('glyphicon-volume-down');
+    volBtn.append(volIcon);
     $('#robot').append(volBtn);
 
     var audioTag = document.createElement('audio');
@@ -48,6 +54,8 @@ function initStream(streamMime, streamUrl) {
             stream.addEventListener('play', function() {
                 $('#stream_btn').addClass('playing');
                 $('#stream_btn').attr('title', "Stop");
+                $('#stream_btn span').removeClass('glyphicon-play');
+                $('#stream_btn span').addClass('glyphicon-stop');
                 $('#stream_btn').removeAttr('disabled');
             });
 
@@ -86,6 +94,8 @@ function initStream(streamMime, streamUrl) {
             streamPlaying = false;
             $('#stream_btn').removeClass('playing');
             $('#stream_btn').attr('title', "Play");
+            $('#stream_btn span').removeClass('glyphicon-stop');
+            $('#stream_btn span').addClass('glyphicon-play');
 
             $('#volume_box').removeClass('visible');
         }
@@ -106,11 +116,14 @@ function initVolume() {
     $(volbox).append(slider);
 
     // create mute button
-    var mutebtn = document.createElement('button');
-    $(mutebtn).attr('id', "volume_mute_btn");
-    $(mutebtn).attr('title', "Mute");
-    $(mutebtn).text("Mute");
-    $(volbox).append(mutebtn);
+    var muteBtn = document.createElement('button');
+    $(muteBtn).attr('id', "volume_mute_btn");
+    $(muteBtn).attr('title', "Mute");
+    var muteIcon = document.createElement('span');
+    $(muteIcon).addClass('glyphicon');
+    $(muteIcon).addClass('glyphicon-volume-off');
+    $(muteBtn).append(muteIcon);
+    $(volbox).append(muteBtn);
 
     $('#mainheader').append(volbox);
 
