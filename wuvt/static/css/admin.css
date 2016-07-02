@@ -74,6 +74,12 @@ td.row-options {
     color: red;
 }
 
+.panel-5-columns {
+    -webkit-column-count: 5;
+       -moz-column-count: 5;
+            column-count: 5;
+}
+
 .trackman-header h1 {
     font-size: 30px;
     margin: 4px 0;
