@@ -5,6 +5,7 @@ var streams = [
     ['audio/aac', "http://engine.wuvt.vt.edu:8000/wuvt.aac"]
 ];
 var streamPlaying = false;
+var defaultVolume = 50;
 
 function initPlayer() {
     var playBtn = $('<button>');
@@ -49,6 +50,7 @@ function initStream(streamMime, streamUrl) {
             $(stream).attr('id', "wuvt_stream");
             $(stream).attr('type', streamMime);
             $(stream).attr('src', streamUrl);
+            $(stream).prop('volume', $('#volume_slider').val() / 100);
             $('body').append(stream);
 
             stream.addEventListener('play', function() {
@@ -56,7 +58,7 @@ function initStream(streamMime, streamUrl) {
                 $('#stream_btn').attr('title', "Stop");
                 $('#stream_btn span').removeClass('glyphicon-play');
                 $('#stream_btn span').addClass('glyphicon-stop');
-                $('#stream_btn').removeAttr('disabled');
+                $('#stream_btn').prop('disabled', false);
             });
 
             // workaround to deal with playback stopping when metadata changes
@@ -85,7 +87,7 @@ function initStream(streamMime, streamUrl) {
 
             streamPlaying = true;
             $('#stream_btn').attr('title', "Buffering...");
-            $('#stream_btn').attr('disabled', "disabled");
+            $('#stream_btn').prop('disabled', true);
         }
         else {
             $('#wuvt_stream').attr('src', "");
@@ -97,7 +99,11 @@ function initStream(streamMime, streamUrl) {
             $('#stream_btn span').removeClass('glyphicon-stop');
             $('#stream_btn span').addClass('glyphicon-play');
 
+            // restore state of volume controls to default
+            $('#volume_btn').removeClass('active');
             $('#volume_box').removeClass('visible');
+            $('#volume_slider').prop('disabled', false);
+            $('#volume_mute_btn').removeClass('active');
         }
 
         return false;
@@ -111,8 +117,13 @@ function initVolume() {
     $(volbox).attr('id', "volume_box");
 
     // create volume slider
-    var slider = document.createElement('div');
+    var slider = document.createElement('input');
     $(slider).attr('id', "volume_slider");
+    $(slider).attr('type', 'range');
+    $(slider).attr('min', '0');
+    $(slider).attr('max', '100');
+    $(slider).attr('step', '1');
+    $(slider).val(defaultVolume);
     $(volbox).append(slider);
 
     // create mute button
@@ -127,51 +138,31 @@ function initVolume() {
 
     $('#mainheader').append(volbox);
 
-    // adjust volume box placement
-    $(document).ready(positionVolumeBox);
-    $(document).on('pageChange', positionVolumeBox);
-
-    $('#volume_btn').click(function() {
+    $('#volume_btn').on('click', function() {
         $('#volume_btn').toggleClass('active');
         $('#volume_box').toggleClass('visible');
     });
 
-    $('#volume_slider').slider({
-        'orientation': "vertical",
-        'value': 1,
-        'step': 0.05,
-        'range': "min",
-        'max': 1,
-        'animate': false,
-        'slide': function(e, slider) {
-            $('#wuvt_stream').prop('muted', false);
-            $('#wuvt_stream').prop('volume', slider.value);
-        },
-    });
+    function updateVolume(e) {
+        $('#wuvt_stream').prop('muted', false);
+        $('#wuvt_stream').prop('volume', this.value / 100);
+    }
 
-    $('#volume_mute_btn').click(function() {
-        if(!$('#wuvt_stream').prop('muted')) {
+    $('#volume_slider').on('change', updateVolume);
+    $('#volume_slider').on('input', updateVolume);
+
+    $('#volume_mute_btn').on('click', function() {
+        if(!$('#volume_slider').prop('disabled')) {
             $('#wuvt_stream').prop('muted', true);
-            $('#volume_slider').slider('option', 'value', 0);
+            $('#volume_slider').prop('disabled', true);
+            $('#volume_mute_btn').addClass('active');
         }
         else {
             $('#wuvt_stream').prop('muted', false);
-            $('#volume_slider').slider('option', 'value',
-                $('#wuvt_stream').prop('volume'));
+            $('#volume_slider').prop('disabled', false);
+            $('#volume_mute_btn').removeClass('active');
         }
     });
-}
-
-function positionVolumeBox() {
-    $('#volume_btn').removeClass('active');
-    $('#volume_box').removeClass('visible');
-
-    var btn = $('#volume_btn');
-    var offsetTop = btn.offset().top + btn.outerHeight();
-    var offsetLeft = btn.offset().left + (btn.outerWidth() / 2) -
-        ($('#volume_box').outerWidth() / 2);
-    $('#volume_box').css('top', offsetTop + "px");
-    $('#volume_box').css('left', offsetLeft + "px");
 }
 
 function warnBrokenPlayer() {

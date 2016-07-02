@@ -6,8 +6,8 @@
 /* remove focus outline */
 :focus,
 ::-moz-focus-inner {
-    border: 0;
-    outline: 0;
+    border: none;
+    outline: none;
 }
 
 html {
@@ -152,9 +152,7 @@ header #mainheader #robot {
 /* Header: live stream player {{{ */
 header #mainheader button {
     border: 0;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-size: 15px, 15px;
+    background: transparent;
     cursor: pointer;
     font-size: 20px;
 }
@@ -178,6 +176,10 @@ header #mainheader #robot button.disabled {
             transition: all 0.5s ease-in-out;
 }
 
+header #mainheader #robot button > span {
+    margin-top: 4px;
+}
+
 header #mainheader #robot #stream_btn {
     margin-left: 39px;
 }
@@ -185,77 +187,119 @@ header #mainheader #robot #stream_btn {
 header #mainheader #robot #volume_btn {
     margin-left: 93px;
     padding-left: 15px;
-}
-
-header #mainheader #robot #volume_btn.active {
-    background-color: #808080;
-    border-radius: 30px 30px 0 0;
 
     -webkit-transition: all 0.1s ease-in-out;
        -moz-transition: all 0.1s ease-in-out;
          -o-transition: all 0.1s ease-in-out;
             transition: all 0.1s ease-in-out;
+}
 
+header #mainheader #robot #volume_btn.active {
+    background-color: #808080;
+    border-radius: 30px 0 0 30px;
 }
 
 header #mainheader #volume_box {
     position: absolute;
     visibility: hidden;
     z-index: 9999;
-    padding: 20px 15px 15px 15px;
+    width: 201px;
+    height: 29px;
+    margin: -60px 0 0 358px;
+    padding: 8px;
     background: #808080;
     opacity: 0;
 }
 
-header #mainheader #volume_box button {
-    margin: -12px;
-}
-
-header #mainheader #volume_box.visible {
-    visibility: visible;
-    opacity: 1.0;
-
+#volume_box,
+#volume_slider {
     -webkit-transition: all 0.2s ease-in-out;
        -moz-transition: all 0.2s ease-in-out;
          -o-transition: all 0.2s ease-in-out;
             transition: all 0.2s ease-in-out;
 }
 
-header #mainheader #volume_box #volume_slider {
-    position: relative;
-    background: #aaaaaa;
+header #mainheader #volume_box.visible {
+    visibility: visible;
+    opacity: 1.0;
+}
+
+input#volume_slider {
+    -webkit-appearance: none;
+    width: 150px;
+}
+
+input#volume_slider:disabled {
+    opacity: 0.5;
+}
+
+input#volume_slider::-moz-range-track {
+    width: 150px;
+    height: 10px;
+    background: #aaa;
+    border: none;
+    border-radius: 3px;
+}
+
+input#volume_slider::-ms-track {
+    width: 150px;
+    height: 10px;
+    border-color: transparent;
+    border-width: 6px 0;
+    border-radius: 3px;
+}
+
+input#volume_slider::-ms-fill-lower,
+input#volume_slider::-ms-fill-upper {
+    background: #aaa;
+    border-radius: 10px;
+}
+
+input#volume_slider::-webkit-slider-runnable-track {
+    width: 150px;
+    height: 10px;
+    background: #aaa;
+    border: none;
+    border-radius: 3px;
+}
+
+input#volume_slider::-moz-range-thumb {
+    border: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+input#volume_slider::-ms-thumb {
+    border: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+input#volume_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    margin-top: -3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
 }
 
 header #mainheader #volume_box #volume_mute_btn {
-    margin-top: 12px;
+    padding: 4px;
+    box-shadow: none;
 }
 
-.ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; cursor: default; }
-.ui-slider .ui-slider-range { position: absolute; z-index: 1; font-size: .7em; display: block; border: 0; background-position: 0 0; }
-
-.ui-slider-horizontal { height: .8em; }
-.ui-slider-horizontal .ui-slider-handle { top: -.3em; margin-left: -.6em; }
-.ui-slider-horizontal .ui-slider-range { top: 0; height: 100%; }
-.ui-slider-horizontal .ui-slider-range-min { left: 0; }
-.ui-slider-horizontal .ui-slider-range-max { right: 0; }
-
-.ui-slider-vertical { width: .8em; height: 100px; }
-.ui-slider-vertical .ui-slider-range { left: 0; width: 100%; }
-.ui-slider-vertical .ui-slider-range-min { bottom: 0; }
-.ui-slider-vertical .ui-slider-range-max { top: 0; }
-
-.ui-slider-vertical .ui-slider-handle {
-    left: -0.2em;
-    margin-left: 0;
-    margin-bottom: -0.6em;
-    background: #ffffff;
-
-    -webkit-border-radius: 8px;
-       -moz-border-radius: 8px;
-         -o-border-radius: 8px;
-            border-radius: 8px;
+header #mainheader #volume_box #volume_mute_btn:active,
+header #mainheader #volume_box #volume_mute_btn.active {
+    background: #666;
+    border-radius: 50%;
+    box-shadow: inset 0 0 5px 0 #333;
 }
-
 /* }}} */
 
 /* Header: speech bubble {{{ */
