@@ -15,6 +15,7 @@ from wuvt.view_utils import slugify
 
 from werkzeug import secure_filename
 import os
+from wuvt.admin.charts import views as charts_views
 from wuvt.admin.library import views as library_views
 
 
