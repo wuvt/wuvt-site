@@ -33,6 +33,8 @@ def charts_bmi():
                               track.track.title.encode("utf8"),
                               track.track.artist.encode("utf8")]) + "\n")
 
+        f.seek(0)
+
         filename = end.strftime("bmirep-%Y-%m-%d.csv")
         return send_file(f, mimetype="text/csv", as_attachment=True,
                          attachment_filename=filename)
