@@ -1,9 +1,9 @@
-from flask import render_template, request, url_for, send_file
+from flask import render_template, request, send_file
 import dateutil.parser
 import io
 
 from wuvt import app
-from wuvt import db
+from wuvt import format_datetime
 from wuvt.admin import bp
 from wuvt.auth import check_access
 from wuvt.trackman.models import TrackLog
