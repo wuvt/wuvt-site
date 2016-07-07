@@ -1,4 +1,5 @@
 from flask import render_template, request, send_file
+import csv
 import dateutil.parser
 import io
 
@@ -24,14 +25,16 @@ def charts_bmi():
         end = end.replace(hour=23, minute=59, second=59)
 
         f = io.BytesIO()
+        writer = csv.writer(f)
 
         tracks = TrackLog.query.filter(TrackLog.played >= start,
                                        TrackLog.played <= end).all()
         for track in tracks:
-            f.write(','.join([app.config['TRACKMAN_NAME'],
-                              format_datetime(track.played),
-                              track.track.title.encode("utf8"),
-                              track.track.artist.encode("utf8")]) + "\n")
+            writer.writerow([
+                app.config['TRACKMAN_NAME'],
+                format_datetime(track.played),
+                track.track.title.encode("utf8"),
+                track.track.artist.encode("utf8")])
 
         f.seek(0)
 
