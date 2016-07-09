@@ -1,3 +1,4 @@
+{% import "admin/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Library" %}
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
@@ -15,10 +16,14 @@
 </ul>
 
 <div class="panel-body">
+    {{ macros.render_pagination(djs, 'admin.library_djs') }}
+
     <ul>
-        {% for dj in djs -%}
+        {% for dj in djs.items -%}
         <li><a href="{{ url_for('admin.library_dj', id=dj.id) }}">{{ dj.airname }}</a></li>
         {% endfor -%}
     </ul>
+
+    {{ macros.render_pagination(djs, 'admin.library_djs') }}
 </div>
 {% endblock %}

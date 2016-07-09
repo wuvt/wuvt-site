@@ -37,9 +37,11 @@ def library_letter(letter, page=1):
 
 
 @bp.route('/library/djs')
+@bp.route('/library/djs/<int:page>')
 @check_access('library')
-def library_djs():
-    djs = DJ.query.order_by(DJ.airname).all()
+def library_djs(page=1):
+    djs = DJ.query.order_by(DJ.airname).paginate(
+        page, app.config['ARTISTS_PER_PAGE'])
     return render_template('admin/library_djs.html', djs=djs)
 
 

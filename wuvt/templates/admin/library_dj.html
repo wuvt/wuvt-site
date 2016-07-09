@@ -1,3 +1,4 @@
+{% import "admin/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Library" %}
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
@@ -9,6 +10,8 @@
 </ol>
 
 <h1>DJ: {{ dj.airname }}</h1>
+
+{{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
 
 <table class="table table-striped table-hover">
     <tr>
@@ -28,18 +31,5 @@
     {% endfor -%}
 </table>
 
-{% if tracks.has_prev or tracks.has_next -%}
-<nav>
-    <ul class="pager">
-        {% if tracks.has_prev -%}
-        <li class="previous"><a href="{{ url_for('admin.library_dj', id=dj.id, page=tracks.prev_num) }}"><span aria-hidden="true">&larr;</span> Previous</a></li>
-        {% endif -%}
-
-        {% if tracks.has_next -%}
-        <li class="next"><a href="{{ url_for('admin.library_dj', id=dj.id, page=tracks.next_num) }}">Next <span aria-hidden="true">&rarr;</span></a></li>
-        {% endif -%}
-    </ul>
-</nav>
-{% endif -%}
-
+{{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
 {% endblock %}

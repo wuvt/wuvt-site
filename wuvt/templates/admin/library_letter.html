@@ -1,3 +1,4 @@
+{% import "admin/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Library" %}
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
@@ -16,24 +17,14 @@
 </ul>
 
 <div class="panel-body">
+    {{ macros.render_pagination(artists, 'admin.library_letter', letter=letter) }}
+
     <ul>
         {% for artist in artists.items -%}
         <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
         {% endfor -%}
     </ul>
+
+    {{ macros.render_pagination(artists, 'admin.library_letter', letter=letter) }}
 </div>
-
-{% if artists.has_prev or artists.has_next -%}
-<nav>
-    <ul class="pager">
-        {% if artists.has_prev -%}
-        <li class="previous"><a href="{{ url_for('admin.library_letter', letter=letter, page=artists.prev_num) }}"><span aria-hidden="true">&larr;</span> Previous</a></li>
-        {% endif -%}
-
-        {% if artists.has_next -%}
-        <li class="next"><a href="{{ url_for('admin.library_letter', letter=letter, page=artists.next_num) }}">Next <span aria-hidden="true">&rarr;</span></a></li>
-        {% endif -%}
-    </ul>
-</nav>
-{% endif -%}
 {% endblock %}
