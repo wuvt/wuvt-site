@@ -115,7 +115,7 @@ Once set-up, you can visit:
 ### API
 TODO
 
-Look at submit_track.sh for an example of sending metadata to Trackman.
+Look at submit_tracks.py for an example of sending metadata to Trackman.
 
 
 ### License
