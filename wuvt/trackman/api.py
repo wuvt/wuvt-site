@@ -21,6 +21,7 @@ class AutomationLog(TrackmanResource):
         """
         Log a track played by automation
         ---
+        operationId: logAutomationTrack
         tags:
         - trackman
         - tracklog
@@ -59,6 +60,10 @@ class AutomationLog(TrackmanResource):
               properties:
                 success:
                   type: boolean
+          400:
+            description: Bad request
+          401:
+            description: Invalid automation password
         """
 
         if 'password' not in request.form or \
@@ -142,6 +147,7 @@ class DJSet(TrackmanResource):
         """
         Get information about a DJSet
         ---
+        operationId: getDjsetById
         tags:
         - trackman
         - djset
@@ -151,14 +157,19 @@ class DJSet(TrackmanResource):
           type: integer
           required: true
           description: The ID of an existing DJSet
+        responses:
+          401:
+            description: Session expired
+          404:
+            description: DJSet not found
         """
 
         djset = models.DJSet.query.get(djset_id)
         if not djset:
-            abort(404, message="djset_id not found")
+            abort(404, message="DJSet not found")
 
         if djset.dtend is not None:
-            abort(400, message="Session expired, please login again")
+            abort(401, message="Session expired, please login again")
 
         if request.args.get('merged', False):
             logs = [i.full_serialize() for i in djset.tracks]
@@ -182,6 +193,7 @@ class DJSetList(TrackmanResource):
         """
         Create a new DJSet
         ---
+        operation: createDjset
         tags:
         - trackman
         - djset
@@ -233,6 +245,7 @@ class TrackSearch(TrackmanResource):
         """
         Search the track database for a particular track
         ---
+        operationId: searchTracks
         tags:
         - trackman
         - track
@@ -286,6 +299,8 @@ class TrackSearch(TrackmanResource):
                 results:
                   type: array
                   $ref: '#/definitions/Track'
+          400:
+            description: Bad request
         """
 
         base_query = db.session.query(models.Track, db.func.count(models.Track.plays)).outerjoin(models.TrackLog).group_by(models.Track).order_by(db.desc(db.func.count(models.Track.plays)))
@@ -374,6 +389,7 @@ class TrackList(TrackmanResource):
         """
         Create a new track in the database
         ---
+        operationId: createTrack
         tags:
         - trackman
         - track
@@ -409,6 +425,8 @@ class TrackList(TrackmanResource):
                 track_id:
                   type: integer
                   description: The ID of the track
+          400:
+            description: Bad request
         """
 
         title = request.form['title'].strip()
@@ -433,9 +451,9 @@ class TrackLog(TrackmanResource):
     def _load(self, tracklog_id):
         tracklog = models.TrackLog.query.get(tracklog_id)
         if not tracklog:
-            abort(404, message="tracklog_id not found")
+            abort(404, message="TrackLog not found")
         if tracklog.djset.dtend is not None:
-            abort(404, message="Session expired, please login again")
+            abort(401, message="Session expired, please login again")
 
         return tracklog
 
@@ -451,6 +469,7 @@ class TrackLog(TrackmanResource):
         """
         Delete an existing logged track entry
         ---
+        operationId: deleteTrackLog
         tags:
         - trackman
         - tracklog
@@ -468,6 +487,12 @@ class TrackLog(TrackmanResource):
               properties:
                 success:
                   type: boolean
+          400:
+            description: Bad request
+          401:
+            description: Session expired
+          404:
+            description: TrackLog not found
         """
 
         tracklog = self._load(tracklog_id)
@@ -484,6 +509,7 @@ class TrackLog(TrackmanResource):
         """
         Modify an existing logged track entry
         ---
+        operationId: modifyTrackLog
         tags:
         - trackman
         - tracklog
@@ -516,6 +542,12 @@ class TrackLog(TrackmanResource):
         responses:
           200:
             description: Logged track entry modified
+          400:
+            description: Bad request
+          401:
+            description: Session expired
+          404:
+            description: TrackLog not found
         """
 
         tracklog = self._load(tracklog_id)
@@ -576,6 +608,7 @@ class TrackLogList(TrackmanResource):
         """
         Log a track that already exists in the database
         ---
+        operationId: createTrackLog
         tags:
         - trackman
         - tracklog
@@ -602,6 +635,10 @@ class TrackLogList(TrackmanResource):
                 tracklog_id:
                   type: integer
                   description: The ID of the logged track
+          400:
+            description: Bad request
+          401:
+            description: Session expired
         """
 
         track_id = int(request.form['track_id'])
@@ -619,10 +656,10 @@ class TrackLogList(TrackmanResource):
         track = models.Track.query.get(track_id)
         djset = models.DJSet.query.get(djset_id)
         if not track or not djset:
-            abort(404, message="Track and/or DJSet does not exist")
+            abort(400, message="Track and/or DJSet does not exist")
 
         if djset.dtend is not None:
-            abort(400, message="Session expired, please login again")
+            abort(401, message="Session expired, please login again")
 
         tracklog = log_track(track_id, djset_id, request=is_request,
                              vinyl=vinyl, new=new, rotation=rotation)
@@ -638,9 +675,19 @@ class AutologoutControl(TrackmanResource):
         """
         Get the current autologout status
         ---
+        operationId: getAutologout
         tags:
         - trackman
         - autologout
+        responses:
+          200:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                autologout:
+                  type: boolean
         """
 
         dj_timeout = redis_conn.get('dj_timeout')
@@ -653,6 +700,7 @@ class AutologoutControl(TrackmanResource):
         """
         Enable/disable the autologout functionality
         ---
+        operationId: setAutologout
         tags:
         - trackman
         - autologout
@@ -666,7 +714,16 @@ class AutologoutControl(TrackmanResource):
                 description: Use a value of "enable" to enable, otherwise disable
         responses:
           200:
-            description: Autologout preferences update
+            description: Autologout preferences updated
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                autologout:
+                  type: boolean
+          400:
+            description: Bad request
         """
 
         if 'autologout' not in request.form:
@@ -694,6 +751,7 @@ class AirLog(TrackmanResource):
         """
         Delete an existing AirLog entry
         ---
+        operationId: deleteAirLog
         tags:
         - trackman
         - airlog
@@ -711,11 +769,13 @@ class AirLog(TrackmanResource):
               properties:
                 success:
                   type: boolean
+          404:
+            description: AirLog entry not found
         """
 
         airlog = models.AirLog.query.get(airlog_id)
         if not airlog:
-            abort(404, message="airlog_id not found")
+            abort(404, message="AirLog entry not found")
 
         db.session.delete(airlog)
         db.session.commit()
@@ -726,6 +786,7 @@ class AirLog(TrackmanResource):
         """
         Modify an existing logged AirLog entry
         ---
+        operationId: modifyAirLog
         tags:
         - trackman
         - airlog
@@ -755,11 +816,15 @@ class AirLog(TrackmanResource):
               properties:
                 success:
                   type: boolean
+          400:
+            description: Bad request
+          404:
+            description: AirLog entry not found
         """
 
         airlog = models.AirLog.query.get(airlog_id)
         if not airlog:
-            abort(404, message="airlog_id not found")
+            abort(404, message="AirLog entry not found")
 
         # Update aired time
         airtime = request.form.get('airtime', None)
@@ -785,6 +850,7 @@ class AirLogList(TrackmanResource):
         """
         Create a new AirLog entry
         ---
+        operationId: createAirLog
         tags:
         - trackman
         - airlog
@@ -814,6 +880,8 @@ class AirLogList(TrackmanResource):
                 airlog_id:
                   type: integer
                   description: The ID of the new AirLog entry
+          400:
+            description: Bad request
         """
 
         djset_id = int(request.form['djset_id'])
