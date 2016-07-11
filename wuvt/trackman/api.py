@@ -19,22 +19,46 @@ class AutomationLog(TrackmanResource):
 
     def post(self):
         """
-        Log a track played by automation.
+        Log a track played by automation
         ---
         tags:
         - trackman
         - tracklog
         - automation
         parameters:
-        - in: body
-          name: track
-          schema:
-            id: Track
+        - in: form
+          name: artist
+          type: string
+          required: true
+          description: Artist name
+        - in: form
+          name: title
+          type: string
+          required: true
+          description: Track title
+        - in: form
+          name: album
+          type: string
+          description: Album title
+        - in: form
+          name: label
+          type: string
+          description: Record label
         responses:
           200:
             description: Track accepted, but not necessarily logged
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
           201:
             description: Track logged
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
         """
 
         if 'password' not in request.form or \
@@ -116,7 +140,7 @@ class AutomationLog(TrackmanResource):
 class DJSet(TrackmanResource):
     def get(self, djset_id):
         """
-        Get information about a DJ set.
+        Get information about a DJSet
         ---
         tags:
         - trackman
@@ -156,21 +180,28 @@ class DJSet(TrackmanResource):
 class DJSetList(TrackmanResource):
     def post(self):
         """
-        Create a new DJ set.
+        Create a new DJSet
         ---
         tags:
         - trackman
         - djset
         parameters:
-        - in: body
+        - in: form
           name: dj
-          schema:
-            required:
-            - dj
-            properties:
-              dj:
-                type: integer
-                description: The ID of an existing DJ
+          type: integer
+          required: true
+          description: The ID of an existing DJ
+        responses:
+          201:
+            description: DJSet created
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                djset_id:
+                  type: integer
+                  description: The ID of the new DJSet
         """
         disable_automation()
 
@@ -191,15 +222,42 @@ class DJSetList(TrackmanResource):
 
         session['djset_id'] = djset.id
 
+        return {
+            'success': True,
+            'djset_id': djset.id,
+        }, 201
+
 
 class TrackSearch(TrackmanResource):
     def get(self):
         """
-        Search the track database for a particular track.
+        Search the track database for a particular track
         ---
         tags:
         - trackman
         - track
+        definitions:
+        - schema:
+            id: Track
+            properties:
+              id:
+                type: integer
+                description: The ID of the track
+              title:
+                type: string
+                description: Track title
+              artist:
+                type: string
+                description: Artist name
+              album:
+                type: string
+                description: Album name
+              label:
+                type: string
+                description: Record label
+              added:
+                type: string
+                description: Date added
         parameters:
         - in: query
           name: artist
@@ -217,6 +275,17 @@ class TrackSearch(TrackmanResource):
           name: label
           type: string
           description: Partial record label
+        responses:
+          200:
+            description: Search results
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                results:
+                  type: array
+                  $ref: '#/definitions/Track'
         """
 
         base_query = db.session.query(models.Track, db.func.count(models.Track.plays)).outerjoin(models.TrackLog).group_by(models.Track).order_by(db.desc(db.func.count(models.Track.plays)))
@@ -303,35 +372,43 @@ class TrackSearch(TrackmanResource):
 class TrackList(TrackmanResource):
     def post(self):
         """
-        Create a new track in the database.
+        Create a new track in the database
         ---
         tags:
         - trackman
         - track
-        definitions:
-        - schema:
-            id: Track
-            properties:
-              artist:
-                type: string
-                description: Artist name
-              title:
-                type: string
-                description: Track title
-              album:
-                type: string
-                description: Album title
-              label:
-                type: string
-                description: Record label
         parameters:
-        - in: body
-          name: track
-          schema:
-            id: Track
+        - in: form
+          name: artist
+          type: string
+          required: true
+          description: Artist name
+        - in: form
+          name: title
+          type: string
+          required: true
+          description: Track title
+        - in: form
+          name: album
+          type: string
+          required: true
+          description: Album title
+        - in: form
+          name: label
+          type: string
+          required: true
+          description: Record label
         responses:
           201:
             description: Track created
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                track_id:
+                  type: integer
+                  description: The ID of the track
         """
 
         title = request.form['title'].strip()
@@ -372,7 +449,7 @@ class TrackLog(TrackmanResource):
 
     def delete(self, tracklog_id):
         """
-        Delete an existing logged track entry.
+        Delete an existing logged track entry
         ---
         tags:
         - trackman
@@ -384,8 +461,13 @@ class TrackLog(TrackmanResource):
           required: true
           description: Logged track ID
         responses:
-         200:
-           description: Logged track entry deleted
+          200:
+            description: Logged track entry deleted
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
         """
 
         tracklog = self._load(tracklog_id)
@@ -400,7 +482,7 @@ class TrackLog(TrackmanResource):
 
     def post(self, tracklog_id):
         """
-        Modify an existing logged track entry.
+        Modify an existing logged track entry
         ---
         tags:
         - trackman
@@ -411,10 +493,26 @@ class TrackLog(TrackmanResource):
           type: integer
           required: true
           description: Logged track ID
-        - in: body
-          name: track
-          schema:
-            id: Track
+        - in: form
+          name: artist
+          type: string
+          required: true
+          description: Artist name
+        - in: form
+          name: title
+          type: string
+          required: true
+          description: Track title
+        - in: form
+          name: album
+          type: string
+          required: true
+          description: Album title
+        - in: form
+          name: label
+          type: string
+          required: true
+          description: Record label
         responses:
           200:
             description: Logged track entry modified
@@ -476,33 +574,34 @@ class TrackLog(TrackmanResource):
 class TrackLogList(TrackmanResource):
     def post(self):
         """
-        Log a track that already exists in the database.
+        Log a track that already exists in the database
         ---
         tags:
         - trackman
         - tracklog
         - track
-        definitions:
-        - schema:
-            id: TrackLog
-            properties:
-              track_id:
-                type: integer
-                description: The ID of an existing track
-              djset_id:
-                type: integer
-                description: The ID of an existing DJ set
         parameters:
-        - in: body
-          name: body
-          schema:
-            id: TrackLog
-            required:
-            - track_id
-            - djset_id
-          responses:
-            201:
-              description: Track logged
+        - in: form
+          name: track_id
+          type: integer
+          required: true
+          description: The ID of an existing track
+        - in: form
+          name: djset_id
+          type: integer
+          required: true
+          description: The ID of an existing DJSet
+        responses:
+          201:
+            description: Track logged
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                tracklog_id:
+                  type: integer
+                  description: The ID of the logged track
         """
 
         track_id = int(request.form['track_id'])
@@ -537,7 +636,7 @@ class TrackLogList(TrackmanResource):
 class AutologoutControl(TrackmanResource):
     def get(self):
         """
-        Get the current autologout status.
+        Get the current autologout status
         ---
         tags:
         - trackman
@@ -552,13 +651,13 @@ class AutologoutControl(TrackmanResource):
 
     def post(self):
         """
-        Enable/disable the autologout functionality.
+        Enable/disable the autologout functionality
         ---
         tags:
         - trackman
         - autologout
         parameters:
-        - in: body
+        - in: form
           name: autologout
           schema:
             parameters:
@@ -593,7 +692,7 @@ class AutologoutControl(TrackmanResource):
 class AirLog(TrackmanResource):
     def delete(self, airlog_id):
         """
-        Delete an existing AirLog entry.
+        Delete an existing AirLog entry
         ---
         tags:
         - trackman
@@ -607,6 +706,11 @@ class AirLog(TrackmanResource):
         responses:
           200:
             description: AirLog entry deleted
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
         """
 
         airlog = models.AirLog.query.get(airlog_id)
@@ -620,7 +724,7 @@ class AirLog(TrackmanResource):
 
     def post(self, airlog_id):
         """
-        Modify an existing logged AirLog entry.
+        Modify an existing logged AirLog entry
         ---
         tags:
         - trackman
@@ -631,13 +735,26 @@ class AirLog(TrackmanResource):
           type: integer
           required: true
           description: AirLog ID
-        - in: body
-          name: airlog
-          schema:
-            id: AirLog
+        - in: form
+          name: airtime
+          type: string
+          description: Air time
+        - in: form
+          name: logtype
+          type: integer
+          description: Log type
+        - in: form
+          name: logid
+          type: integer
+          description: Log ID
         responses:
           200:
             description: AirLog entry modified
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
         """
 
         airlog = models.AirLog.query.get(airlog_id)
@@ -666,32 +783,37 @@ class AirLog(TrackmanResource):
 class AirLogList(TrackmanResource):
     def post(self):
         """
-        Create a new AirLog entry.
+        Create a new AirLog entry
         ---
         tags:
         - trackman
         - airlog
-        definitions:
-        - schema:
-            id: AirLog
-            properties:
-              logtype:
-                type: integer
-                description: Log type
-              logid:
-                type: integer
-                description: Log ID
         parameters:
-        - in: body
-          name: airlog
-          schema:
-            id: AirLog
-            required:
-            - djset_id
-            - logtype
+        - in: form
+          name: djset_id
+          type: integer
+          required: true
+          description: The ID of an existing DJSet
+        - in: form
+          name: logtype
+          type: integer
+          required: true
+          description: Log type
+        - in: form
+          name: logid
+          type: integer
+          description: Log ID
         responses:
           201:
             description: AirLog entry created
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                airlog_id:
+                  type: integer
+                  description: The ID of the new AirLog entry
         """
 
         djset_id = int(request.form['djset_id'])
@@ -706,6 +828,7 @@ class AirLogList(TrackmanResource):
             'success': True,
             'airlog_id': airlog.id,
         }, 201
+
 
 api = Api(api_bp)
 api.add_resource(AutomationLog, '/automation/log')
