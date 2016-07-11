@@ -81,6 +81,7 @@ if app.config['DONATE_ENABLE']:
 from wuvt import trackman
 app.register_blueprint(trackman.bp)
 app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
+app.register_blueprint(trackman.api_bp, url_prefix='/trackman/api')
 
 
 @app.context_processor
