@@ -347,15 +347,16 @@ def charts_tracks(period=None):
     except ValueError:
         abort(400)
 
+    subquery = TrackLog.query.\
+        with_entities(TrackLog, db.func.count(TrackLog.id).label('count')).\
+        filter(TrackLog.dj_id > 1,
+               TrackLog.played >= start,
+               TrackLog.played <= end).\
+        subquery()
     results = charts.get(
         'tracks_{start}_{end}'.format(start=start, end=end),
-        Track.query.with_entities(Track, db.func.count(TrackLog.id)).
-        join(TrackLog).filter(db.and_(
-            TrackLog.dj_id > 1,
-            TrackLog.played >= start,
-            TrackLog.played <= end)).
-        group_by(TrackLog.track_id).
-        order_by(db.func.count(TrackLog.id).desc()))
+        Track.query.with_entities(Track, subquery.c.count).
+        join(subquery).order_by(subquery.c.count))
 
     if request.wants_json():
         return jsonify({
@@ -369,12 +370,14 @@ def charts_tracks(period=None):
 @bp.route('/playlists/charts/tracks/dj/<int:dj_id>')
 def charts_tracks_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
+
+    subquery = TrackLog.query.\
+        with_entities(TrackLog, db.func.count(TrackLog.id).label('count')).\
+        filter(TrackLog.dj_id == dj.id).subquery()
     results = charts.get(
         'tracks_dj_{}'.format(dj_id),
-        Track.query.with_entities(Track, db.func.count(TrackLog.id)).
-        join(TrackLog).filter(TrackLog.dj_id == dj.id).
-        group_by(TrackLog.track_id).
-        order_by(db.func.count(TrackLog.id).desc()))
+        Track.query.with_entities(Track, subquery.c.count).
+        join(subquery).order_by(subquery.c.count))
 
     if request.wants_json():
         return jsonify({
@@ -387,16 +390,18 @@ def charts_tracks_dj(dj_id):
 
 @bp.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
+    subquery = TrackLog.query.\
+        with_entities(TrackLog, db.func.count(TrackLog.id).label('count')).\
+        group_by(TrackLog.dj_id).subquery()
+
     results = charts.get(
         'dj_spins',
-        TrackLog.query.with_entities(
-            TrackLog.dj_id, DJ, db.func.count(TrackLog.id)).
-        join(DJ).filter(DJ.visible == True).group_by(TrackLog.dj_id).
-        order_by(db.func.count(TrackLog.id).desc()))
+        DJ.query.with_entities(DJ, subquery.c.count).
+        join(subquery).filter(DJ.visible == True).order_by(subquery.c.count))
 
     if request.wants_json():
         return jsonify({
-            'results': [(x[1].serialize(), x[2]) for x in results],
+            'results': [(x[0].serialize(), x[1]) for x in results],
         })
 
     return render_template('chart_dj_spins.html', results=results)
