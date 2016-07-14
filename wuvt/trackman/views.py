@@ -348,15 +348,16 @@ def charts_tracks(period=None):
         abort(400)
 
     subquery = TrackLog.query.\
-        with_entities(TrackLog, db.func.count(TrackLog.id).label('count')).\
+        with_entities(TrackLog.track_id,
+                      db.func.count(TrackLog.id).label('count')).\
         filter(TrackLog.dj_id > 1,
                TrackLog.played >= start,
                TrackLog.played <= end).\
-        subquery()
+        group_by(TrackLog.track_id).subquery()
     results = charts.get(
         'tracks_{start}_{end}'.format(start=start, end=end),
         Track.query.with_entities(Track, subquery.c.count).
-        join(subquery).order_by(subquery.c.count))
+        join(subquery).order_by(db.desc(subquery.c.count)))
 
     if request.wants_json():
         return jsonify({
@@ -372,12 +373,14 @@ def charts_tracks_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
 
     subquery = TrackLog.query.\
-        with_entities(TrackLog, db.func.count(TrackLog.id).label('count')).\
-        filter(TrackLog.dj_id == dj.id).subquery()
+        with_entities(TrackLog.track_id,
+                      db.func.count(TrackLog.id).label('count')).\
+        filter(TrackLog.dj_id == dj.id).\
+        group_by(TrackLog.track_id).subquery()
     results = charts.get(
         'tracks_dj_{}'.format(dj_id),
         Track.query.with_entities(Track, subquery.c.count).
-        join(subquery).order_by(subquery.c.count))
+        join(subquery).order_by(db.desc(subquery.c.count)))
 
     if request.wants_json():
         return jsonify({
@@ -391,13 +394,15 @@ def charts_tracks_dj(dj_id):
 @bp.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
     subquery = TrackLog.query.\
-        with_entities(TrackLog, db.func.count(TrackLog.id).label('count')).\
+        with_entities(TrackLog.dj_id,
+                      db.func.count(TrackLog.id).label('count')).\
         group_by(TrackLog.dj_id).subquery()
 
     results = charts.get(
         'dj_spins',
         DJ.query.with_entities(DJ, subquery.c.count).
-        join(subquery).filter(DJ.visible == True).order_by(subquery.c.count))
+        join(subquery).filter(DJ.visible == True).
+        order_by(db.desc(subquery.c.count)))
 
     if request.wants_json():
         return jsonify({
