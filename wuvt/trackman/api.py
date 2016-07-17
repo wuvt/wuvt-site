@@ -1,7 +1,6 @@
 import dateutil.parser
 from flask import current_app, json, make_response, request, session
 from flask_restful import abort, Api, Resource
-from sqlalchemy import desc, func
 from .. import csrf, db, redis_conn
 from ..view_utils import ajax_only, local_only
 from . import api_bp, models
@@ -304,7 +303,8 @@ class TrackSearch(TrackmanResource):
             description: Bad request
         """
 
-        base_query = db.session.query(models.Track, func.count(models.Track.plays)).outerjoin(models.TrackLog).group_by(models.Track).order_by(desc(func.count(models.Track.plays)))
+        base_query = models.Track.query.outerjoin(models.TrackLog).\
+            order_by(models.Track.plays)
 
         # To verify some data was searched for
         somesearch = False
@@ -375,7 +375,7 @@ class TrackSearch(TrackmanResource):
             tracks = tracks.limit(8).all()
 
         if len(tracks) > 0:
-            results = [t[0].serialize() for t in tracks]
+            results = [t.serialize() for t in tracks]
         else:
             results = []
 
