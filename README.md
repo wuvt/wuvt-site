@@ -32,10 +32,10 @@ docker run -it --rm -p 9090:8080 wuvt-site:latest
 You can now access the site at http://localhost:9090/
 
 ### Development Environment Setup (non-Docker)
-First, install redis and supervisord. For example, on Debian or Ubuntu:
+First, install redis. For example, on Debian or Ubuntu:
 
 ```
-apt-get install redis supervisor
+apt-get install redis
 ```
 
 You'll also want to get uWSGI. You need at least version 2.0.9. For example:
@@ -86,10 +86,10 @@ python2 create.py
 python2 articles.py
 ```
 
-Finally, use supervisord to start the celery worker and uWSGI workers:
+Finally, start uWSGI:
 
 ```
-supervisord -c supervisord_dev.conf
+uwsgi --ini uwsgi.ini:dev
 ```
 
 You can now access the site at http://localhost:9090/
