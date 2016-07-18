@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 {% set page_title="Edit User: " + user.username %}
-{% block nav_admin_categories %}<li class="active"><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
+{% block nav_admin_users %}<li class="active"><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}
 
 {% block content %}
 <h1>Edit User: {{ user.username }}</h1>
