@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y \
             libsasl2-dev \
             libyaml-dev \
             redis-server \
-            supervisor \
             uuid-dev
 
 WORKDIR /usr/src/uwsgi
@@ -40,6 +39,7 @@ RUN python create.py && python sample_data.py
 RUN chown www-data:www-data wuvt wuvt/config.py wuvt.db . && \
         chmod 0600 wuvt/config.py && \
         install -d -o www-data -g www-data /data/media && \
-        mkdir -p /var/log/supervisord
+        install -d -o redis -g redis -m 0700 /var/lib/redis && \
+        install -d -o redis -g redis -m 0700 /var/run/redis
 
-ENTRYPOINT ["supervisord", "-c", "/usr/src/app/supervisord_dev_docker.conf"]
+ENTRYPOINT ["uwsgi", "--ini", "uwsgi_docker.ini:dev"]
