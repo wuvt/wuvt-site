@@ -26,7 +26,7 @@ docker build -t wuvt-site -f Dockerfile.dev .
 
 Now run it:
 ```
-docker run -it --rm -p 9090:8080 wuvt-site:latest
+docker run --rm -p 9090:8080 wuvt-site:latest
 ```
 
 You can now access the site at http://localhost:9090/
