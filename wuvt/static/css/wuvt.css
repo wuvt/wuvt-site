@@ -96,10 +96,10 @@ header #mainheader {
 }
 
 header #mainheader h1 {
-    position: absolute;
+    position: relative;
     width: 200px;
     height: 90px;
-    margin: 20px 0px;
+    margin: 20px 0px 0px 0px;
     font-size: 32px;
     text-indent: -9999px;
 }
@@ -138,7 +138,7 @@ header #mainheader #robot {
     z-index: 999;
     /*margin-bottom: -86px;
     height: 238px;*/
-    margin: 0 0 -64px 220px;
+    margin: -110px 0 -64px 220px;
     width: 160px;
     height: 148px;
     border: 0;
@@ -305,9 +305,9 @@ header #mainheader #volume_box #volume_mute_btn.active {
 
 /* Header: speech bubble {{{ */
 header #bubble {
-    position: absolute;
-    margin: -110px 0 0 370px;
-    padding: 12px 0 12px 40px;
+    position: relative;
+    margin: -130px 0 0 370px;
+    padding: 12px 0 18px 40px;
     width: 520px;
     height: 80px;
     background-image: url('/static/img/bubble.svg');
