@@ -1,6 +1,4 @@
 from dateutil import tz
-from . import defaults
-from . import session
 from flask import Flask, Request, json
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -10,6 +8,8 @@ from kombu.serialization import register
 from werkzeug.contrib.cache import RedisCache
 import os
 import redis
+import defaults
+import session
 
 json_mimetypes = ['application/json']
 
