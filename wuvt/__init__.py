@@ -27,6 +27,13 @@ def format_datetime(value, format=None):
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
 
 
+def format_isodatetime(value):
+    if value.utcoffset() is None:
+        value = value.replace(tzinfo=tz.tzutc())
+
+    return value.isoformat()
+
+
 def format_currency(value):
     return "${:,.2f}".format(value)
 
@@ -47,7 +54,7 @@ app.config.from_object(defaults)
 app.config.from_pyfile(os.environ.get('APP_CONFIG_PATH', 'config.py'))
 app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
-app.jinja_env.filters['isodatetime'] = lambda d: d.isoformat() + 'Z'
+app.jinja_env.filters['isodatetime'] = format_isodatetime
 app.jinja_env.filters['format_currency'] = format_currency
 app.static_folder = 'static'
 
