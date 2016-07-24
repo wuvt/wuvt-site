@@ -40,7 +40,7 @@ def ajax_only(f):
 
     @wraps(f)
     def ajax_only_wrapper(*args, **kwargs):
-        if request.headers.get('X-Requested-With', '') == "XMLHttpRequest":
+        if request.headers.get('X-Requested-With', '') != "":
             return f(*args, **kwargs)
         else:
             return abort(403)
