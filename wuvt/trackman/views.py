@@ -446,7 +446,7 @@ def playlist_cuesheet_ts(filename):
 
     # assume time in URL is local time, so convert to UTC for DB lookup
     start = start.replace(tzinfo=dateutil.tz.tzlocal()).astimezone(
-        dateutil.tz.tzutc()).replace(tzinfo=None)
+        dateutil.tz.tzutc())
     end = start + datetime.timedelta(hours=1)
 
     prev = db.session.query(TrackLog.id).filter(TrackLog.played <= start).\
