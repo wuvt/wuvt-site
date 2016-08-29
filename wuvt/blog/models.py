@@ -32,7 +32,7 @@ class Article(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     author = db.relationship('User', backref=db.backref('author',
                                                         lazy='dynamic'))
-    datetime = db.Column(db.DateTime, default=datetime.datetime.now)
+    datetime = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     html_summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
