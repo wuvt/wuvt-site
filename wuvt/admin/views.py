@@ -440,7 +440,7 @@ def article_add():
             # have to add constructors for each new field
             article.front_page = front_page
             if article.published is True:
-                article.datetime = datetime.datetime.now()
+                article.datetime = datetime.datetime.utcnow()
 
             db.session.add(article)
             article.render_html()   # markdown to html
@@ -493,7 +493,7 @@ def article_edit(art_id):
         if published is not False:
             published = True
         if article.published is False and published is not None:
-            article.datetime = datetime.datetime.now()
+            article.datetime = datetime.datetime.utcnow()
         # front page
         front_page = request.form.get('front_page', False)
         if front_page is not False:
