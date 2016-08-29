@@ -492,8 +492,8 @@ def article_edit(art_id):
         published = request.form.get('published', False)
         if published is not False:
             published = True
-        if article.published is False and published is not None:
-            article.datetime = datetime.datetime.utcnow()
+        #if article.published is False and published is not None:
+        #    article.datetime = datetime.datetime.utcnow()
         # front page
         front_page = request.form.get('front_page', False)
         if front_page is not False:
