@@ -560,6 +560,26 @@ section.pagination a {
 @-webkit-keyframes blink-red {
     50% { color: #ec1c23; }
 }
+
+.album_tracklist {
+    padding: 12px;
+    background: #cfeeff;
+    font-size: 10pt;
+}
+
+.album_tracklist h2 {
+    display: block;
+    margin: 0px 0px 12px 0px !important;
+}
+
+.album_tracklist img {
+    width: 300px;
+    margin: 0px;
+}
+
+.album_tracklist ol {
+    margin: 0px 0px 0px 300px;
+}
 /* }}} */
 
 /* Tables {{{ */
