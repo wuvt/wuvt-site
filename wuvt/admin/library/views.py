@@ -7,6 +7,7 @@ from wuvt import db
 from wuvt.admin import bp
 from wuvt.auth import check_access
 from wuvt.trackman.models import DJ, Track, TrackLog
+from wuvt.trackman.tasks import deduplicate_track_by_id
 
 
 @bp.route('/library')
@@ -100,7 +101,8 @@ def library_track(id):
         if len(label) <= 0:
             error_fields.append('label')
 
-        # TODO: merge with any tracks that exactly match
+        # merge with any tracks that exactly match
+        deduplicate_track_by_id.delay(id)
 
         if len(error_fields) <= 0:
             track.artist = artist
