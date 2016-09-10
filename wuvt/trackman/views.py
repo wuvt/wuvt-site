@@ -410,6 +410,28 @@ def charts_dj_spins():
         })
 
     return render_template('chart_dj_spins.html', results=results)
+
+
+@bp.route('/playlists/charts/dj/vinyl_spins')
+def charts_dj_vinyl_spins():
+    subquery = TrackLog.query.\
+        with_entities(TrackLog.dj_id,
+                      db.func.count(TrackLog.id).label('count')).\
+        filter(TrackLog.vinyl == True).\
+        group_by(TrackLog.dj_id).subquery()
+
+    results = charts.get(
+        'dj_vinyl_spins',
+        DJ.query.with_entities(DJ, subquery.c.count).
+        join(subquery).filter(DJ.visible == True).
+        order_by(db.desc(subquery.c.count)))
+
+    if request.wants_json():
+        return jsonify({
+            'results': [(x[0].serialize(), x[1]) for x in results],
+        })
+
+    return render_template('chart_dj_vinyl_spins.html', results=results)
 # }}}
 
 
