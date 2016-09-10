@@ -50,10 +50,13 @@ def library_djs(page=1):
 @check_access('library')
 def library_dj(id, page=1):
     dj = DJ.query.get_or_404(id)
-    tracks = TrackLog.query.join(Track).\
+    subquery = TrackLog.query.\
+        with_entities(TrackLog.track_id).\
         filter(TrackLog.dj_id == id).\
-        group_by(TrackLog.track_id).order_by(Track.artist, Track.title).\
+        group_by(TrackLog.track_id).subquery()
+    tracks = Track.query.join(subquery).order_by(Track.artist, Track.title).\
         paginate(page, app.config['ARTISTS_PER_PAGE'])
+
     return render_template('admin/library_dj.html', dj=dj, tracks=tracks)
 
 

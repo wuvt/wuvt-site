@@ -21,12 +21,12 @@
         <th>Label</th>
     </tr>
 
-    {% for tracklog in tracks.items -%}
+    {% for track in tracks.items -%}
     <tr>
-        <td><a href="{{ url_for('admin.library_artist', artist=tracklog.track.artist) }}">{{ tracklog.track.artist }}</a></td>
-        <td><a href="{{ url_for('admin.library_track', id=tracklog.track.id) }}">{{ tracklog.track.title }}</a></td>
-        <td>{{ tracklog.track.album }}</td>
-        <td>{{ tracklog.track.label }}</td>
+        <td><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></td>
+        <td><a href="{{ url_for('admin.library_track', id=track.id) }}">{{ track.title }}</a></td>
+        <td>{{ track.album }}</td>
+        <td>{{ track.label }}</td>
     </tr>
     {% endfor -%}
 </table>
