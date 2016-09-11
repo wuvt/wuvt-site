@@ -97,15 +97,15 @@ def library_track(id):
         if len(label) <= 0:
             error_fields.append('label')
 
-        # merge with any tracks that exactly match
-        deduplicate_track_by_id.delay(id)
-
         if len(error_fields) <= 0:
             track.artist = artist
             track.title = title
             track.album = album
             track.label = label
             db.session.commit()
+
+            # merge with any tracks that exactly match
+            deduplicate_track_by_id.delay(id)
 
             return redirect(url_for('admin.library_artist',
                                     artist=track.artist))
