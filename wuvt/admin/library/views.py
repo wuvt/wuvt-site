@@ -72,6 +72,51 @@ def library_artist():
                            tracks=tracks)
 
 
+@bp.route('/library/fixup')
+@check_access('library')
+def library_fixup():
+    return render_template('admin/library_fixup.html')
+
+
+@bp.route('/library/fixup/<string:key>')
+@bp.route('/library/fixup/<string:key>/<int:page>')
+@check_access('library')
+def library_fixup_tracks(key, page=1):
+    if key == 'bad_album':
+        title = "Invalid Album"
+        query = Track.query.filter(db.or_(
+            Track.album == "?",
+            Track.album == "7\"",
+            Track.album == "Not Available",
+            Track.album == "s/t"
+        ))
+    elif key == 'bad_label':
+        title = "Invalid Label"
+        query = Track.query.filter(db.or_(
+            Track.label == "?",
+            Track.label == "NONE",
+            Track.label == "None",
+            Track.label == "Not Available",
+            Track.label == "n/a",
+            Track.label == "none",
+            Track.label == "same"
+        ))
+    elif key == 'redundant_label':
+        title = "Label Ending with \"Records\" or Similar"
+        query = Track.query.filter(db.or_(
+            Track.label.ilike("% records"),
+            Track.label.ilike("% recordings")
+        ))
+    else:
+        abort(404)
+
+    tracks = query.order_by(Track.artist, Track.title).\
+        paginate(page, app.config['ARTISTS_PER_PAGE'])
+
+    return render_template('admin/library_fixup_tracks.html', key=key,
+                           title=title, tracks=tracks)
+
+
 @bp.route('/library/track/<int:id>', methods=['GET', 'POST'])
 @check_access('library')
 def library_track(id):

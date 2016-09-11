@@ -27,24 +27,6 @@
 </dl>
 
 {{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
-
-<table class="table table-striped table-hover">
-    <tr>
-        <th>Artist</th>
-        <th>Title</th>
-        <th>Album</th>
-        <th>Label</th>
-    </tr>
-
-    {% for track in tracks.items -%}
-    <tr>
-        <td><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></td>
-        <td><a href="{{ url_for('admin.library_track', id=track.id) }}">{{ track.title }}</a></td>
-        <td>{{ track.album }}</td>
-        <td>{{ track.label }}</td>
-    </tr>
-    {% endfor -%}
-</table>
-
+{{ macros.library_tracklist(tracks.items) }}
 {{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
 {% endblock %}
