@@ -11,6 +11,21 @@
 
 <h1>DJ: {{ dj.airname }}</h1>
 
+<dl>
+    <dt>Name:</dt>
+    <dd>{{ dj.name }}</dd>
+
+    {% if dj.phone is not none %}
+    <dt>Phone Number:</dt>
+    <dd>{{ dj.phone }}</dd>
+    {% endif %}
+
+    {% if dj.email is not none %}
+    <dt>Email Address:</dt>
+    <dd><a href="mailto:{{ dj.email }}">{{ dj.email }}</a></dd>
+    {% endif %}
+</dl>
+
 {{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
 
 <table class="table table-striped table-hover">
