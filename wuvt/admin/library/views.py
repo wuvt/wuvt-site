@@ -65,15 +65,11 @@ def library_dj(id, page=1):
 @check_access('library')
 def library_artist():
     artist = request.args['artist']
-    track_dict = defaultdict(list)
-
     tracks = Track.query.filter(Track.artist == artist).\
         order_by(Track.album, Track.title).all()
-    for track in tracks:
-        track_dict[track.album].append(track)
 
     return render_template('admin/library_artist.html', artist=artist,
-                           albums=sorted(track_dict.items()))
+                           tracks=tracks)
 
 
 @bp.route('/library/track/<int:id>', methods=['GET', 'POST'])

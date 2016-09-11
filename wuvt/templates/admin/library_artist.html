@@ -10,16 +10,21 @@
 
 <h1>Artist: {{ artist }}</h1>
 
-<ul>
-    {% for album, tracks in albums -%}
-    <li>
-        <strong>{{ album }}</strong>
-        <ul>
-            {% for track in tracks -%}
-            <li><a href="{{ url_for('admin.library_track', id=track.id, from='artist') }}">{{ track.title }}</a></li>
-            {% endfor -%}
-        </ul>
-    </li>
+<table class="table table-striped table-hover">
+    <tr>
+        <th>Artist</th>
+        <th>Title</th>
+        <th>Album</th>
+        <th>Label</th>
+    </tr>
+
+    {% for track in tracks -%}
+    <tr>
+        <td>{{ track.artist }}</td>
+        <td><a href="{{ url_for('admin.library_track', id=track.id, from='artist') }}">{{ track.title }}</a></td>
+        <td>{{ track.album }}</td>
+        <td>{{ track.label }}</td>
+    </tr>
     {% endfor -%}
-</ul>
+</table>
 {% endblock %}
