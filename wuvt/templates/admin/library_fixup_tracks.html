@@ -11,7 +11,7 @@
 
 <h1>Fixup: {{ title }}</h1>
 
-{{ macros.render_pagination(tracks, 'admin.library_fixup', key=key) }}
+{{ macros.render_pagination(tracks, 'admin.library_fixup_tracks', key=key) }}
 {{ macros.library_tracklist(tracks.items) }}
-{{ macros.render_pagination(tracks, 'admin.library_fixup', key=key) }}
+{{ macros.render_pagination(tracks, 'admin.library_fixup_tracks', key=key) }}
 {% endblock %}
