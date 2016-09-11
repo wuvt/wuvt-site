@@ -1,0 +1,26 @@
+{% import "admin/macros.html" as macros %}
+{% extends "admin/base.html" %}
+{% set page_title="Library" %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li class="active">Library</li>
+</ol>
+
+<h1>Library</h1>
+
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="{{ url_for('admin.library_index') }}">By Artist</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_djs') }}">By DJ</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('admin.library_fixup') }}">Fixup</a></li>
+</ul>
+
+<div class="panel-body">
+    <ul>
+        <li><a href="{{ url_for('admin.library_fixup_tracks', key='bad_album') }}">Invalid Album</a></li>
+        <li><a href="{{ url_for('admin.library_fixup_tracks', key='bad_label') }}">Invalid Label</a></li>
+        <li><a href="{{ url_for('admin.library_fixup_tracks', key='redundant_label') }}">Label Ending with "Records" or Similar</a></li>
+    </ul>
+</div>
+{% endblock %}

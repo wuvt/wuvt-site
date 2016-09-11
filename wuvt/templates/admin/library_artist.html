@@ -1,3 +1,4 @@
+{% import "admin/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Artist: " + artist %}
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
@@ -10,21 +11,5 @@
 
 <h1>Artist: {{ artist }}</h1>
 
-<table class="table table-striped table-hover">
-    <tr>
-        <th>Artist</th>
-        <th>Title</th>
-        <th>Album</th>
-        <th>Label</th>
-    </tr>
-
-    {% for track in tracks -%}
-    <tr>
-        <td>{{ track.artist }}</td>
-        <td><a href="{{ url_for('admin.library_track', id=track.id, from='artist') }}">{{ track.title }}</a></td>
-        <td>{{ track.album }}</td>
-        <td>{{ track.label }}</td>
-    </tr>
-    {% endfor -%}
-</table>
+{{ macros.library_tracklist(tracks) }}
 {% endblock %}
