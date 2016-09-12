@@ -65,6 +65,11 @@
     </div>
 </form>
 
+<h2>Metadata Lookup</h2>
+<ul>
+    <li><a href="https://musicbrainz.org/search?query={{ track.artist|lower|urlencode }}%20{{ track.album|lower|urlencode }}%20{{ track.title|lower|urlencode }}&amp;type=recording&amp;method=indexed">MusicBrainz</a></li>
+</ul>
+
 {% if tracklogs %}
 <h2>Plays</h2>
 <ul>
