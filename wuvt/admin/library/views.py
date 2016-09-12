@@ -88,7 +88,8 @@ def library_fixup_tracks(key, page=1):
             Track.album == "?",
             Track.album == "7\"",
             Track.album == "Not Available",
-            Track.album == "s/t"
+            Track.album == "s/t",
+            Track.album == "Self-Titled"
         ))
     elif key == 'bad_label':
         title = "Invalid Label"
