@@ -98,8 +98,10 @@ def library_fixup_tracks(key, page=1):
             Track.label == "NONE",
             Track.label == "None",
             Track.label == "Not Available",
+            Track.label == "idk",
             Track.label == "n/a",
             Track.label == "none",
+            Track.label == "Record Label",
             Track.label == "same"
         ))
     elif key == 'redundant_label':
