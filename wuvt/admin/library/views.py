@@ -7,7 +7,7 @@ from wuvt import db
 from wuvt.admin import bp
 from wuvt.auth import check_access
 from wuvt.trackman.models import DJ, Track, TrackLog
-from wuvt.trackman.tasks import deduplicate_track_by_id
+from wuvt.trackman.lib import deduplicate_track_by_id
 
 
 @bp.route('/library')
@@ -153,7 +153,7 @@ def library_track(id):
             db.session.commit()
 
             # merge with any tracks that exactly match
-            deduplicate_track_by_id.delay(id)
+            deduplicate_track_by_id(id)
 
             return redirect(url_for('admin.library_artist',
                                     artist=track.artist))
