@@ -6,7 +6,7 @@ from flask import current_app, json
 import time
 
 from .. import db, localize_datetime, redis_conn
-from .models import TrackLog, DJSet
+from .models import Track, TrackLog, DJSet
 
 
 def get_duplicates(model, attrs):
@@ -156,3 +156,38 @@ def fixup_current_track(event="track_edit"):
         'event': event,
         'tracklog': tracklog.full_serialize(),
     }))
+
+
+def deduplicate_track_by_id(dedup_id):
+    source_track = Track.query.get(dedup_id)
+    if source_track is None:
+        current_app.logger.info(
+            "Trackman: Track ID {0:d} not found.".format(dedup_id))
+        return
+
+    track_query = Track.query.filter(db.and_(
+        Track.artist == source_track.artist,
+        Track.title == source_track.title,
+        Track.album == source_track.album,
+        Track.label == source_track.label)).order_by(Track.id)
+
+    count = track_query.count()
+    tracks = track_query.all()
+    track_id = int(tracks[0].id)
+
+    # update TrackLogs
+    TrackLog.query.filter(TrackLog.track_id.in_(
+        [track.id for track in tracks[1:]])).update(
+        {TrackLog.track_id: track_id}, synchronize_session=False)
+
+    # delete existing Track entries
+    map(db.session.delete, tracks[1:])
+
+    db.session.commit()
+
+    current_app.logger.info(
+        "Trackman: Merged {0:d} duplicates of track ID {1:d} into track "
+        "ID {2:d}".format(
+            count - 1,
+            dedup_id,
+            track_id))
