@@ -8,9 +8,8 @@ from flask import json
 
 from .. import app, db, redis_conn
 from ..celeryconfig import make_celery
-from . import mail
 from .lib import get_duplicates, logout_all, enable_automation
-from .models import AirLog, DJ, DJSet, Track, TrackLog
+from .models import AirLog, DJSet, TrackLog
 
 celery = make_celery(app)
 
@@ -150,19 +149,3 @@ def update_lastfm(artist, title, album, timestamp):
         except Exception as exc:
             app.logger.warning("Trackman: Last.fm scrobble failed: {}".format(
                 exc))
-
-
-@task
-def email_logout_reminder(dj_id):
-    with app.app_context():
-        dj = DJ.query.get(dj_id)
-        mail.send_logout_reminder(dj)
-
-
-@task
-def email_playlist(djset_id):
-    with app.app_context():
-        djset = DJSet.query.get(djset_id)
-        tracks = TrackLog.query.filter(TrackLog.djset_id == djset_id).order_by(
-            TrackLog.played).all()
-        mail.send_playlist(djset, tracks)
