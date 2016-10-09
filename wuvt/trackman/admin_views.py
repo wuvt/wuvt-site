@@ -5,10 +5,9 @@ import datetime
 
 from .. import db, redis_conn
 from ..view_utils import local_only, sse_response
-from . import private_bp
+from . import private_bp, mail
 from .lib import disable_automation, enable_automation, logout_all_except
-from .models import DJ, DJSet, Track, Rotation, TrackReport
-from .tasks import email_playlist
+from .models import DJ, DJSet, Track, TrackLog, Rotation, TrackReport
 from .view_utils import dj_interact
 
 
@@ -157,7 +156,9 @@ def logout(setid):
     # email playlist
     if 'email_playlist' in request.form and \
             request.form.get('email_playlist') == 'true':
-        email_playlist.delay(djset.id)
+        tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
+            TrackLog.played).all()
+        mail.send_playlist(djset, tracks)
 
     if request.wants_json():
         return jsonify(success=True)
