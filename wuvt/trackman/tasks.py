@@ -1,6 +1,8 @@
 import hashlib
 import requests
 import urllib
+
+from sqlalchemy import func, desc
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from datetime import datetime, timedelta
@@ -13,6 +15,16 @@ from .models import AirLog, DJSet, TrackLog
 
 celery = make_celery(app)
 
+
+@periodic_task(run_every=crontab(day_of_week=1,hour=0, minute=0))
+def email_weekly_charts():
+    with app.app_context():
+        chart = db.session.query(Track.artist, Track.album,
+                func.count(Track.album)).filter(TrackLog.played >
+                        datetime.utcnow() -
+                        timedelta(days=7), TrackLog.new ==
+                        True).join(TrackLog).group_by(Track.album,Track.artist).order_by(desc(func.count(Track.album))).all()
+        mail.send_chart(chart)
 
 #@periodic_task(run_every=crontab(hour=3, minute=0))
 #def deduplicate_tracks():
