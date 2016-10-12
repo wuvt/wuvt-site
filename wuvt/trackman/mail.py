@@ -58,18 +58,18 @@ def send_playlist(djset, tracks):
             "Trackman: Failed to send email for DJ set {0}: {1}".format(
                 djset.id, exc))
 
-def send_chart(chart):
-    print(chart)
 
+def send_chart(chart):
     msg = MIMEMultipart('alternative')
     msg['Date'] = email.utils.formatdate()
     msg['From'] = current_app.config['MAIL_FROM']
-    msg['To'] = current_app.config['CHART_DEST']
+    msg['To'] = current_app.config['CHART_MAIL_DEST']
     msg['Message-Id'] = email.utils.make_msgid()
     msg['X-Mailer'] = "Trackman"
-    timestamp = datetime.now()
-    msg['Subject'] = u"[New Music Chart] {0}".format(
-        format_datetime(timestamp, "%Y-%m-%d"))
+    timestamp = datetime.utcnow()
+    msg['Subject'] = u"[{name}] New Music Chart {timestamp}".format(
+        name=current_app.config['TRACKMAN_NAME'],
+        timestamp=format_datetime(timestamp, "%Y-%m-%d"))
 
     msg.attach(MIMEText(
         render_template('email/new_chart.txt',
@@ -81,5 +81,4 @@ def send_chart(chart):
         s.quit()
     except Exception as exc:
         current_app.logger.warning(
-            "Trackman: Failed to send weekly chart - {0}".format(
-                exc))
+            "Trackman: Failed to send weekly chart - {0}".format(exc))

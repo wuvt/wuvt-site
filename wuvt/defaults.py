@@ -56,7 +56,8 @@ ARCHIVE_BASE_URL = ""
 ADMINS = []
 MAIL_FROM = "noreply@localhost"
 SMTP_SERVER = "localhost"
-CHART_DEST = "music@wuvt.vt.edu"
+CHART_MAIL = False
+CHART_MAIL_DEST = "charts@localhost"
 
 PROXY_FIX = False
 PROXY_FIX_NUM_PROXIES = 1
