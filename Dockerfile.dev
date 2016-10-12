@@ -37,8 +37,9 @@ COPY . /usr/src/app
 RUN python create.py && python sample_data.py
 
 # set permissions and create media directory
-RUN chown www-data:www-data wuvt wuvt/config.py wuvt.db . && \
-        chmod 0600 wuvt/config.py && \
+RUN chown www-data:www-data wuvt . && \
+        (chown -f www-data:www-data wuvt/config.py wuvt.db || true ) && \
+        (chmod -f 0600 wuvt/config.py wuvt.db || true) && \
         install -d -o www-data -g www-data /data/media && \
         install -d -o redis -g redis -m 0700 /var/lib/redis && \
         install -d -o redis -g redis -m 0700 /var/run/redis
