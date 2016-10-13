@@ -1,8 +1,4 @@
-import hashlib
-import requests
-import urllib
-
-from celery.decorators import periodic_task, task
+from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from datetime import datetime, timedelta
 from flask import json
@@ -113,55 +109,3 @@ def publish_keepalive():
         redis_conn.publish('trackman_dj_live', json.dumps({
             'event': "keepalive",
         }))
-
-
-@task
-def update_stream(artist, title, album):
-    for mount in app.config['ICECAST_MOUNTS']:
-        requests.get(app.config['ICECAST_ADMIN'] + u'metadata', params={
-            u'mount': mount,
-            u'mode': u'updinfo',
-            u'album': album,
-            u'artist': artist,
-            u'title': title,
-        })
-
-
-@task
-def update_tunein(artist, title):
-    if len(app.config['TUNEIN_PARTNERID']) > 0:
-        requests.get(
-            u'http://air.radiotime.com/Playing.ashx?partnerId={partner_id}'
-            u'&partnerKey={partner_key}&id={station_id}&title={title}'
-            u'&artist={artist}'.format(
-                partner_id=urllib.quote(app.config['TUNEIN_PARTNERID']),
-                partner_key=urllib.quote(app.config['TUNEIN_PARTNERKEY']),
-                station_id=urllib.quote(app.config['TUNEIN_STATIONID']),
-                artist=urllib.quote(artist.encode('utf-8')),
-                title=urllib.quote(title.encode('utf-8'))
-            ))
-
-
-@task
-def update_lastfm(artist, title, album, timestamp):
-    if len(app.config['LASTFM_APIKEY']) > 0:
-        import pylast
-
-        h = hashlib.md5()
-        h.update(app.config['LASTFM_PASSWORD'])
-        password_hash = h.hexdigest()
-
-        try:
-            network = pylast.LastFMNetwork(
-                api_key=app.config['LASTFM_APIKEY'],
-                api_secret=app.config['LASTFM_SECRET'],
-                username=app.config['LASTFM_USERNAME'],
-                password_hash=password_hash)
-            network.scrobble(
-                artist=artist,
-                title=title,
-                timestamp=timestamp,
-                album=album)
-        except Exception as exc:
-            app.logger.warning("Trackman: Last.fm scrobble failed: {}".format(
-                exc))

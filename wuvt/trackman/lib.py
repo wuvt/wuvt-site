@@ -3,7 +3,6 @@ import requests
 import urlparse
 from datetime import datetime
 from flask import current_app, json
-import time
 
 from .. import db, localize_datetime, redis_conn
 from . import mail
@@ -123,16 +122,6 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
     db.session.add(track)
     db.session.commit()
 
-    artist = track.track.artist
-    title = track.track.title
-    album = track.track.album
-    timestamp = int(time.mktime(localize_datetime(track.played).timetuple()))
-
-    from . import tasks
-    tasks.update_stream.delay(artist, title, album)
-    tasks.update_tunein.delay(artist, title)
-    tasks.update_lastfm.delay(artist, title, album, timestamp)
-
     redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
         'tracklog': track.full_serialize(),
@@ -147,10 +136,6 @@ def get_current_tracklog():
 
 def fixup_current_track(event="track_edit"):
     tracklog = get_current_tracklog()
-
-    from . import tasks
-    tasks.update_stream.delay(tracklog.track.artist, tracklog.track.title,
-                              tracklog.track.album)
 
     redis_conn.publish('trackman_live', json.dumps({
         'event': event,
