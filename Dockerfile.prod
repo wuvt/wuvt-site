@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/uwsgi
 
 # prepare uwsgi
-RUN wget -O uwsgi-2.0.13.1.tar.gz https://github.com/unbit/uwsgi/archive/2.0.13.1.tar.gz && \
-        tar --strip-components=1 -axvf uwsgi-2.0.13.1.tar.gz
+RUN wget -O uwsgi-2.0.14.tar.gz https://github.com/unbit/uwsgi/archive/2.0.14.tar.gz && \
+        tar --strip-components=1 -axvf uwsgi-2.0.14.tar.gz
 COPY uwsgi_profile.ini buildconf/wuvt.ini
 
 # build and install uwsgi
@@ -35,4 +35,5 @@ VOLUME ["/data/config", "/data/media", "/data/ssl"]
 
 EXPOSE 8443
 ENV FLASK_APP /usr/src/app/wuvt/__init__.py
+ENV APP_CONFIG_PATH /data/config/config.py
 ENTRYPOINT ["uwsgi", "--ini", "uwsgi_docker.ini"]
