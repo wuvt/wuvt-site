@@ -99,7 +99,7 @@ Fusce tempor pretium mattis. Curabitur congue erat et lorem consectetur tristiqu
 
 Nam feugiat porta commodo. Vestibulum tellus arcu, sollicitudin luctus vulputate in, pretium et erat. Maecenas tellus erat, scelerisque non ultricies ut, sagittis id lacus. Ut et aliquet justo. Donec sed aliquet ex. Cras hendrerit, libero a mollis hendrerit, risus metus laoreet urna, porta ornare diam nibh condimentum risus. Curabitur eget lacinia velit.
 
-Mauris egestas lectus dolor. Donec non augue id tellus volutpat ultricies. Sed consectetur magna semper tincidunt bibendum. Cras eget tempus orci. Cras pharetra ex in mauris placerat, vitae facilisis nisl egestas. Sed molestie ex mollis dolor congue posuere. Nulla sagittis lacinia tempus. Nulla et vestibulum diam. Cras id molestie metus. Aenean condimentum tellus sapien, at aliquam dui consequat vel. Cras posuere ultrices lectus. Quisque placerat velit lorem, volutpat rhoncus turpis sodales ac. Sed viverra mi elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Mauris egestas lectus dolor. Donec non augue id tellus volutpat ultricies. Sed consectetur magna semper tincidunt bibendum. Cras eget tempus orci. Cras pharetra ex in mauris placerat, vitae facilisis nisl egestas. Sed molestie ex mollis dolor congue posuere. Nulla sagittis lacinia tempus. Nulla et vestibulum diam. Cras id molestie metus. Aenean condimentum tellus sapien, at aliquam dui consequat vel. Cras posuere ultrices lectus. Quisque placerat velit lorem, volutpat rhoncus turpis sodales ac. Sed viverra mi elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 """, True, u"contact"))
     db.session.commit()
 
