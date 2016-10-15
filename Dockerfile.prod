@@ -29,9 +29,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy application
 ADD migrations /usr/src/app/migrations
 ADD wuvt /usr/src/app/wuvt
-COPY create.py LICENSE manage.py README.md sample_data.py uwsgi_docker.ini /usr/src/app/
+COPY create.py LICENSE README.md sample_data.py uwsgi_docker.ini /usr/src/app/
 
 VOLUME ["/data/config", "/data/media", "/data/ssl"]
 
 EXPOSE 8443
+ENV FLASK_APP /usr/src/app/wuvt/__init__.py
 ENTRYPOINT ["uwsgi", "--ini", "uwsgi_docker.ini"]

@@ -45,4 +45,5 @@ RUN chown www-data:www-data wuvt . && \
         install -d -o redis -g redis -m 0700 /var/run/redis
 
 EXPOSE 8080
+ENV FLASK_APP /usr/src/app/wuvt/__init__.py
 ENTRYPOINT ["uwsgi", "--ini", "uwsgi_docker.ini:dev"]
