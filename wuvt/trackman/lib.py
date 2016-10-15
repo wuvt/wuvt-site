@@ -1,10 +1,9 @@
-import lxml.etree
 import requests
 import urlparse
 from datetime import datetime
 from flask import current_app, json
 
-from .. import db, localize_datetime, redis_conn
+from .. import db, redis_conn
 from . import mail
 from .models import Track, TrackLog, DJ, DJSet
 
@@ -91,18 +90,24 @@ def enable_automation():
     redis_conn.set('automation_set', str(automation_set.id))
 
 
-def stream_listeners(url):
+def stream_listeners(url, mounts=None, timeout=5):
     if len(url) <= 0:
         return None
 
-    url += 'stats.xml'
-    parsed = urlparse.urlparse(url)
-
     try:
-        r = requests.get(url, auth=(parsed.username, parsed.password))
-        doc = lxml.etree.fromstring(r.text)
-        listeners = doc.xpath('//icestats/listeners/text()')[0]
-        return int(listeners)
+        # this requires icecast 2.4
+        r = requests.get(urlparse.urljoin(url, 'status-json.xsl'),
+                         timeout=timeout)
+        data = r.json()
+        listeners = 0
+        for source in data['icestats']['source']:
+            if mounts is not None and len(mounts) > 0:
+                parsed_url = urlparse.urlparse(source['listenurl'])
+                if parsed_url.path not in mounts:
+                    continue
+            listeners += int(source['listeners'])
+
+        return listeners
     except Exception as e:
         current_app.logger.error("Trackman: Error fetching stream listeners: "
                                  "{}".format(e))
@@ -118,7 +123,8 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         vinyl=vinyl,
         new=new,
         rotation=rotation,
-        listeners=stream_listeners(current_app.config['ICECAST_ADMIN']))
+        listeners=stream_listeners(current_app.config['ICECAST_URL'],
+                                   current_app.config['ICECAST_MOUNTS']))
     db.session.add(track)
     db.session.commit()
 
