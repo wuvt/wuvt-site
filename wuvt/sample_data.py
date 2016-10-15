@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 from wuvt import db
 from wuvt.blog.models import Article
 from wuvt.trackman.models import DJ, Track
@@ -115,10 +113,3 @@ def add_sample_tracks():
     db.session.add(Track(u'The Divine Conspiracy', u'Epica', u'The Divine Conspiracy', u'Avalon'))
     db.session.add(Track(u'Second Stone', u'Epica', u'The Quantum Enigma', u'Nuclear Blast'))
     db.session.commit()
-
-
-if __name__ == '__main__':
-    add_sample_articles()
-    add_sample_pages()
-    add_sample_djs()
-    add_sample_tracks()

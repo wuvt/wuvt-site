@@ -109,6 +109,7 @@ def inject_nowplaying():
     }
 
 
+from wuvt import commands
 from wuvt import models
 from wuvt import views
 

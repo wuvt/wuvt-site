@@ -82,8 +82,8 @@ configuration options here if you so desire. Next, you will need to create the
 database and fill it with some sample content:
 
 ```
-python2 create.py
-python2 articles.py
+export FLASK_APP=$PWD/wuvt/__init__.py
+flask initdb && flask sampledata
 ```
 
 Finally, start uWSGI:
@@ -103,8 +103,8 @@ be kept up-to-date.
 - Install redis, start the daemon, and configure it to start at boot
 - Run `sudo pip install -r requirements.txt` to install requirements
 - Copy `wuvt/config.py.example` to `wuvt/config.py` and edit it to match your desired config
-- Run `python2 create.py` to setup the website
-- Run `python2 articles.py` to create some sample articles
+- Set the `FLASK_APP` environment variable to the full path of `wuvt/__init__.py`
+- Run `flask initdb` to setup the website
 - Start celery; e.g. `celery -A wuvt.trackman.tasks.celery worker -B -l info`
 - Start uWSGI; e.g. `uwsgi --ini uwsgi.ini`
 
