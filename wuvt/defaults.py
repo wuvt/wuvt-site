@@ -58,6 +58,7 @@ MAIL_FROM = "noreply@localhost"
 SMTP_SERVER = "localhost"
 CHART_MAIL = False
 CHART_MAIL_DEST = "charts@localhost"
+DONATE_MAIL_FROM = "donations@localhost"
 
 PROXY_FIX = False
 PROXY_FIX_NUM_PROXIES = 1

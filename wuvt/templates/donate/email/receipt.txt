@@ -1,0 +1,16 @@
+Hello {{ order.name }},
+
+We have received your payment of {{ (order.amount / 100)|format_currency }}.
+Thank you for your generous donation!
+
+{% if config.DONATE_PREMIUMS -%}
+If you ordered premiums, please check our website for more information, but
+they are usually available for pickup or shipped out within 4-6 weeks.
+{% endif -%}
+
+If you have any questions or concerns, please feel free to contact us by
+replying to this email.
+
+Thanks again,
+
+{{ config.STATION_NAME }}
