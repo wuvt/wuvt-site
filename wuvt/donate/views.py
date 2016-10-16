@@ -4,7 +4,7 @@ from wuvt import app
 from wuvt import auth
 from wuvt import db
 from wuvt.donate import bp
-from wuvt.donate import get_plan, list_plans, process_stripe_onetime, \
+from wuvt.donate import get_plan, list_plans, mail, process_stripe_onetime, \
         process_stripe_recurring
 from wuvt.donate.models import Order
 from wuvt.view_utils import local_only
@@ -78,12 +78,14 @@ def process_order(method):
         if recurring:
             if process_stripe_recurring(order, token, plan, shipping_cost):
                 order.set_paid(u'stripe')
+                mail.send_receipt(order)
             else:
                 return False, "Your card was declined. Please try again with "\
                         "a different method of payment."
         else:
             if process_stripe_onetime(order, token, amount + shipping_cost):
                 order.set_paid(u'stripe')
+                mail.send_receipt(order)
             else:
                 return False, "Your card was declined. Please try again with "\
                         "a different method of payment."

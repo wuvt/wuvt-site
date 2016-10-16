@@ -1,4 +1,3 @@
-import json
 import stripe
 from flask import Blueprint
 from wuvt import app

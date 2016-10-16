@@ -16,7 +16,7 @@ class Order(db.Model):
     thank_on_air = db.Column(db.Boolean, default=False)
     first_time = db.Column(db.Boolean, default=True)
 
-    premiums = db.Column(db.Unicode(255))               #*mail, pickup, or none   
+    premiums = db.Column(db.Unicode(255))               #*mail, pickup, or none
     address1 = db.Column(db.Unicode(255))
     address2 = db.Column(db.Unicode(255))
     city = db.Column(db.Unicode(255))
@@ -24,7 +24,7 @@ class Order(db.Model):
     zipcode = db.Column(db.Integer)
 
     amount = db.Column(db.Integer)                      # amount charged (in US cents)
-    recurring = db.Column(db.Boolean, unique=False, default=False) 
+    recurring = db.Column(db.Boolean, unique=False, default=False)
     paid_date = db.Column(db.DateTime, default=None)
     shipped_date = db.Column(db.DateTime, default=None)
 
