@@ -1,5 +1,6 @@
 from collections import defaultdict
 from flask import abort, render_template, redirect, request, url_for
+import musicbrainzngs
 import string
 
 from wuvt import app
@@ -164,3 +165,28 @@ def library_track(id):
 
     return render_template('admin/library_track.html', track=track,
                            tracklogs=tracklogs, error_fields=error_fields)
+
+
+@bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
+@check_access('library')
+def library_track_musicbrainz(id):
+    track = Track.query.get_or_404(id)
+
+    musicbrainzngs.set_useragent("wuvt-site Trackman", "20161016",
+                                 "https://github.com/wuvt/wuvt-site")
+
+    if request.method == 'POST':
+        result = musicbrainzngs.get_recording_by_id(
+            request.form['recording_mbid'])
+
+        track.recording_mbid = result['recording']['id']
+        db.session.commit()
+
+        return redirect(url_for('admin.library_track', id=track.id))
+
+    results = musicbrainzngs.search_recordings(artist=track.artist,
+                                               recording=track.title,
+                                               release=track.album)
+
+    return render_template('admin/library_track_musicbrainz.html', track=track,
+                           results=results['recording-list'])

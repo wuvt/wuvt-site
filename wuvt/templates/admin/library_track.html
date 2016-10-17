@@ -65,45 +65,51 @@
     </div>
 </form>
 
-{% if track.artist_mbid or track.recording_mbid or track.release_mbid or track.releasegroup_mbid %}
-<h2>MusicBrainz</h2>
-<dl>
-    {% if track.artist_mbid %}
-    <dt>Artist MBID:</dt>
-    <dd><a href="https://musicbrainz.org/artist/{{ track.artist_mbid }}" rel="external">{{ track.artist_mbid }}</a></dd>
-    {% endif %}
+<section>
+    <h2>MusicBrainz</h2>
+    <dl>
+        {% if track.artist_mbid %}
+        <dt>Artist MBID:</dt>
+        <dd><a href="https://musicbrainz.org/artist/{{ track.artist_mbid }}" rel="external">{{ track.artist_mbid }}</a></dd>
+        {% endif %}
 
-    {% if track.recording_mbid %}
-    <dt>Recording MBID:</dt>
-    <dd><a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}" rel="external">{{ track.recording_mbid }}</a></dd>
-    {% endif %}
+        {% if track.recording_mbid %}
+        <dt>Recording MBID:</dt>
+        <dd><a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}" rel="external">{{ track.recording_mbid }}</a></dd>
+        {% endif %}
 
-    {% if track.release_mbid %}
-    <dt>Release MBID:</dt>
-    <dd><a href="https://musicbrainz.org/release/{{ track.release_mbid }}" rel="external">{{ track.release_mbid }}</a></dd>
-    {% endif %}
+        {% if track.release_mbid %}
+        <dt>Release MBID:</dt>
+        <dd><a href="https://musicbrainz.org/release/{{ track.release_mbid }}" rel="external">{{ track.release_mbid }}</a></dd>
+        {% endif %}
 
-    {% if track.releasegroup_mbid %}
-    <dt>Release Group MBID:</dt>
-    <dd><a href="https://musicbrainz.org/release-group/{{ track.releasegroup_mbid }}" rel="external">{{ track.releasegroup_mbid }}</a></dd>
-    {% endif %}
-</dl>
-{% else %}
-<h2>Metadata Lookup</h2>
-<ul>
-    <li><a href="https://musicbrainz.org/search?query={{ track.artist|lower|urlencode }}%20{{ track.album|lower|urlencode }}%20{{ track.title|lower|urlencode }}&amp;type=recording&amp;method=indexed">MusicBrainz</a></li>
-</ul>
-{% endif %}
+        {% if track.releasegroup_mbid %}
+        <dt>Release Group MBID:</dt>
+        <dd><a href="https://musicbrainz.org/release-group/{{ track.releasegroup_mbid }}" rel="external">{{ track.releasegroup_mbid }}</a></dd>
+        {% endif %}
+    </dl>
+
+    <a href="{{ url_for('.library_track_musicbrainz', id=track.id) }}">Search MusicBrainz</a>
+</section>
+
+<section>
+    <h2>External Metadata Lookup</h2>
+    <ul>
+        <li><a href="https://musicbrainz.org/search?query={{ track.artist|lower|urlencode }}%20{{ track.album|lower|urlencode }}%20{{ track.title|lower|urlencode }}&amp;type=recording&amp;method=indexed">MusicBrainz</a></li>
+    </ul>
+</section>
 
 {% if tracklogs %}
-<h2>Plays</h2>
-<ul>
-    {% for tracklog in tracklogs %}
-    {% if tracklog.djset_id > 0 -%}
-    <li><a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('admin.library_dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
-    {% endif -%}
-    {% endfor %}
-</ul>
+<section>
+    <h2>Plays</h2>
+    <ul>
+        {% for tracklog in tracklogs %}
+        {% if tracklog.djset_id > 0 -%}
+        <li><a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('admin.library_dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
+        {% endif -%}
+        {% endfor %}
+    </ul>
+</section>
 {% endif %}
 
 {% endblock %}
