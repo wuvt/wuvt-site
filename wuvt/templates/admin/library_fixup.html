@@ -21,6 +21,7 @@
         <li><a href="{{ url_for('admin.library_fixup_tracks', key='bad_album') }}">Invalid Album</a></li>
         <li><a href="{{ url_for('admin.library_fixup_tracks', key='bad_label') }}">Invalid Label</a></li>
         <li><a href="{{ url_for('admin.library_fixup_tracks', key='redundant_label') }}">Label Ending with "Records" or Similar</a></li>
+        <li><a href="{{ url_for('admin.library_fixup_tracks', key='one_play') }}">Only One Play</a></li>
     </ul>
 </div>
 {% endblock %}
