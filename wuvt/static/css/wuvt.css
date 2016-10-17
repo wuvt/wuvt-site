@@ -350,7 +350,7 @@ header #bubble ul li.active a {
 
 /* Side navigation {{{ */
 nav {
-    position: relative;
+    position: absolute;
     z-index: 20;
 }
 
@@ -434,7 +434,7 @@ nav > ul > li > ul > li > a {
 
 #side {
     /*float: right;*/
-    float: left;
+    /*float: left;*/
 }
 
 #content {
