@@ -1,5 +1,6 @@
 import datetime
 from flask import current_app
+from sqlalchemy_utils import UUIDType
 
 from .. import db
 
@@ -175,6 +176,10 @@ class Track(db.Model):
     album = db.Column(db.Unicode(255))
     label = db.Column(db.Unicode(255))
     added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    artist_mbid = db.Column(UUIDType())
+    recording_mbid = db.Column(UUIDType())
+    release_mbid = db.Column(UUIDType())
+    releasegroup_mbid = db.Column(UUIDType())
 
     def __init__(self, title, artist, album, label):
         self.title = title
@@ -205,6 +210,10 @@ class Track(db.Model):
             'album': self.album,
             'label': self.label,
             'added': str(self.added),
+            'artist_mbid': self.artist_mbid,
+            'recording_mbid': self.recording_mbid,
+            'release_mbid': self.release_mbid,
+            'releasegroup_mbid': self.releasegroup_mbid,
         }
 
 
