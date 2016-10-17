@@ -9,9 +9,9 @@ It has several main components:
   control of articles and pages and may upload files. 
 - **Trackman**, a track logger with a UI and an API compatible with WinAmp's
   POST plugin, [mpd-automation](https://github.com/wuvt/mpd-automation),
-  and [johnny-six](https://github.com/wuvt/johnny-six).
-  Upon track changes, metadata is sent to Icecast, TuneIn, and Last.fm. Logged 
-  playlists are publicly available on the main website. 
+  and [johnny-six](https://github.com/wuvt/johnny-six). The included SSE
+  endpoint can be used by external scripts for live track updates, similar to
+  how it is used on the website. Logged playlists are also available.
 - HTML5 stream player capable of smooth chained OGG playback in Webkit
 
 ### Development Environment Setup
