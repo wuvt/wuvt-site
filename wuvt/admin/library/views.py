@@ -110,6 +110,10 @@ def library_fixup_tracks(key, page=1):
             Track.label.ilike("% records"),
             Track.label.ilike("% recordings")
         ))
+    elif key == 'one_play':
+        title = "Only One Play"
+        query = Track.query.join(Track.plays).having(
+            db.func.count(TrackLog.id) == 1).group_by(Track)
     else:
         abort(404)
 
