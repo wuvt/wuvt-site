@@ -497,5 +497,10 @@ def playlists_track(track_id):
     tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
         order_by(TrackLog.played).all()
 
+    if request.wants_json():
+        data = track.serialize()
+        data['plays'] = [tl.serialize() for tl in tracklogs]
+        return jsonify(data)
+
     return render_template('playlists_track.html', track=track,
                            tracklogs=tracklogs)
