@@ -350,7 +350,6 @@ header #bubble ul li.active a {
 
 /* Side navigation {{{ */
 nav {
-    position: absolute;
     z-index: 20;
 }
 
@@ -430,11 +429,8 @@ nav > ul > li > ul > li > a {
 /* }}} */
 
 /* Navbar and content positioning {{{ */
-/* to move nav to right side, uncomment float: right and delete margin-left */
-
 #side {
-    /*float: right;*/
-    /*float: left;*/
+    position: absolute;
 }
 
 #content {
