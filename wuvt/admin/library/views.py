@@ -1,4 +1,3 @@
-from collections import defaultdict
 from flask import abort, render_template, redirect, request, url_for
 import musicbrainzngs
 import string
