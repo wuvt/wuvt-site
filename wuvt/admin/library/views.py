@@ -1,5 +1,4 @@
 from flask import abort, render_template, redirect, request, url_for
-import musicbrainzngs
 import string
 
 from wuvt import app
@@ -8,6 +7,7 @@ from wuvt.admin import bp
 from wuvt.auth import check_access
 from wuvt.trackman.models import DJ, Track, TrackLog
 from wuvt.trackman.lib import deduplicate_track_by_id
+from wuvt.trackman.musicbrainz import musicbrainzngs
 
 
 @bp.route('/library')
@@ -171,12 +171,27 @@ def library_track(id):
 def library_track_musicbrainz(id):
     track = Track.query.get_or_404(id)
 
-    musicbrainzngs.set_useragent("wuvt-site Trackman", "20161016",
-                                 "https://github.com/wuvt/wuvt-site")
-
     if request.method == 'POST':
         result = musicbrainzngs.get_recording_by_id(
-            request.form['recording_mbid'])
+            request.form['recording_mbid'],
+            includes=['artist-credits'])
+
+        if 'artist-credit' in result['recording']:
+            if len(result['recording']['artist-credit']) == 1:
+                # if there's only one artist, use that ID
+                track.artist_mbid = \
+                    result['recording']['artist-credit'][0]['artist']['id']
+            else:
+                track.artist_mbid = None
+                for entry in result['recording']['artist-credit']:
+                    if entry['artist']['name'] == track.artist:
+                        # if there's an exact artist match, use that ID
+                        # otherwise artist will be left blank
+                        track.artist_mbid = entry['artist']['id']
+                        break
+        else:
+            track.artist_mbid = None
+            app.logger.warning("No artist-credit in MusicBrainz result")
 
         track.recording_mbid = result['recording']['id']
         db.session.commit()
