@@ -1,4 +1,4 @@
-from flask import abort, render_template, redirect, request, url_for
+from flask import abort, flash, render_template, redirect, request, url_for
 import string
 
 from wuvt import app
@@ -172,6 +172,16 @@ def library_track_musicbrainz(id):
     track = Track.query.get_or_404(id)
 
     if request.method == 'POST':
+        if request.form.get('clear_mbids', None) == "true":
+            track.artist_mbid = None
+            track.recording_mbid = None
+            track.release_mbid = None
+            track.releasegroup_mbid = None
+            db.session.commit()
+
+            flash("The MusicBrainz IDs for the track have been cleared.")
+            return redirect(url_for('admin.library_track', id=track.id))
+
         result = musicbrainzngs.get_recording_by_id(
             request.form['recording_mbid'],
             includes=['artist-credits'])
