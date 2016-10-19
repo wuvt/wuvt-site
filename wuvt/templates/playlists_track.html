@@ -7,6 +7,13 @@
     <h3>On {{ track.album }} by {{ track.artist }}</h3>
 </header>
 
+<p>This track has been spun {{ tracklogs|length }} times.</p>
+
+{% if track.recording_mbid %}
+<p><a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}" rel="external">See more information about this recording on MusicBrainz</a></p>
+{% endif %}
+
+<h2>Spins</h2>
 <ul>
     {% for tracklog in tracklogs %}
     {% if tracklog.djset_id > 0 -%}
