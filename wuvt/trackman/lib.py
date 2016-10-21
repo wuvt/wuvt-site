@@ -1,11 +1,11 @@
 import requests
 import urlparse
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import current_app, json
 
 from .. import db, redis_conn
 from . import mail
-from .models import Track, TrackLog, DJ, DJSet
+from .models import AirLog, Track, TrackLog, DJ, DJSet
 
 
 def get_duplicates(model, attrs):
@@ -182,3 +182,62 @@ def deduplicate_track_by_id(dedup_id):
             count - 1,
             dedup_id,
             track_id))
+
+
+def deduplicate_all_tracks():
+    dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
+    for artist, title, album, label in dups:
+        track_query = Track.query.filter(db.and_(
+            Track.artist == artist,
+            Track.title == title,
+            Track.album == album,
+            Track.label == label)).order_by(Track.id)
+
+        count = track_query.count()
+        tracks = track_query.all()
+        track_id = int(tracks[0].id)
+
+        # update TrackLogs
+        TrackLog.query.filter(TrackLog.track_id.in_(
+            [track.id for track in tracks[1:]])).update(
+            {TrackLog.track_id: track_id}, synchronize_session=False)
+
+        # delete existing Track entries
+        map(db.session.delete, tracks[1:])
+
+        db.session.commit()
+
+        current_app.logger.info(
+            "Trackman: Merged {0:d} duplicates into track ID {1:d}".format(
+                count - 1,
+                track_id))
+
+
+def email_weekly_charts():
+    if current_app.config['CHART_MAIL']:
+        chart = db.session.query(
+            Track.artist, Track.album,
+            db.func.count(Track.album)).filter(
+                TrackLog.played > datetime.utcnow() - timedelta(days=7),
+                TrackLog.new == True).join(TrackLog).group_by(
+                    Track.album, Track.artist).order_by(
+                        db.desc(db.func.count(Track.album))).all()
+        mail.send_chart(chart)
+
+
+def prune_empty_djsets():
+    prune_before = datetime.utcnow() - timedelta(days=1)
+    empty = DJSet.query.outerjoin(TrackLog).outerjoin(AirLog).group_by(
+        DJSet.id).filter(db.and_(
+            DJSet.dtend != None,
+            DJSet.dtstart < prune_before
+        )).having(db.and_(
+            db.func.count(TrackLog.id) < 1,
+            db.func.count(AirLog.id) < 1
+        ))
+    for djset in empty.all():
+        db.session.delete(djset)
+    db.session.commit()
+
+    current_app.logger.debug("Trackman: Removed {} empty DJSets.".format(
+        empty.count()))
