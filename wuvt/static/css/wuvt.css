@@ -11,7 +11,7 @@
 }
 
 html {
-    min-height: 1000px;
+    min-height: 100%;
 }
 
 body {
@@ -25,6 +25,10 @@ body {
     background-size: 1200px 42px;
     background-position: bottom center;
     background-repeat: no-repeat;
+}
+
+body > #wrapper {
+    min-height: 800px;
 }
 
 body > header,
