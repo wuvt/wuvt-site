@@ -128,8 +128,6 @@ def library_fixup_tracks(key, page=1):
 @check_access('library')
 def library_track(id):
     track = Track.query.get_or_404(id)
-    tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
-        order_by(TrackLog.played).all()
     error_fields = []
 
     if request.method == 'POST':
@@ -163,7 +161,7 @@ def library_track(id):
                                     artist=track.artist))
 
     return render_template('admin/library_track.html', track=track,
-                           tracklogs=tracklogs, error_fields=error_fields)
+                           error_fields=error_fields)
 
 
 @bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
@@ -214,3 +212,33 @@ def library_track_musicbrainz(id):
 
     return render_template('admin/library_track_musicbrainz.html', track=track,
                            results=results['recording-list'])
+
+
+@bp.route('/library/track/<int:id>/similar')
+@bp.route('/library/track/<int:id>/similar/<int:page>')
+@check_access('library')
+def library_track_similar(id, page=1):
+    track = Track.query.get_or_404(id)
+
+    similar_tracks = Track.query.\
+        filter(db.and_(
+            db.func.lower(Track.artist) == db.func.lower(track.artist),
+            db.func.lower(Track.album) == db.func.lower(track.album),
+            db.func.lower(Track.title) == db.func.lower(track.title)
+        )).\
+        group_by(Track.id).order_by(Track.artist).\
+        paginate(page, app.config['ARTISTS_PER_PAGE'])
+
+    return render_template('admin/library_track_similar.html', track=track,
+                           similar_tracks=similar_tracks)
+
+
+@bp.route('/library/track/<int:id>/spins')
+@check_access('library')
+def library_track_spins(id):
+    track = Track.query.get_or_404(id)
+    tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
+        order_by(TrackLog.played).all()
+
+    return render_template('admin/library_track_spins.html', track=track,
+                           tracklogs=tracklogs)
