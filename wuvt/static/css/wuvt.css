@@ -458,7 +458,6 @@ nav > ul > li > ul > li > a {
 
 #content > article p,
 #content > section p {
-    /*font-family: serif; */
     margin-bottom: 1.176em;
     line-height: 1.5;
 }
@@ -480,12 +479,13 @@ nav > ul > li > ul > li > a {
     padding: 0px;
     border-bottom: 2px solid rgba(188, 204, 211, 0.75);
     font-size: 1.8em;
-    font-family: 'Gotham SSm',Helvetica,Arial,sans-serif;
     font-weight: 500;
 }
 
 #content > article h2 a,
-#content > section h2 a {
+#content > section h2 a,
+#content > article h3 a,
+#content > article h3 a {
     color: #000000;
     text-decoration: none;
 }
@@ -493,7 +493,19 @@ nav > ul > li > ul > li > a {
 #content > article h3,
 #content > section h3 {
     margin: 0px;
-    /*padding: 0px;*/
+    padding: 0px;
+    font-size: 1.4em;
+    font-weight: 500;
+}
+
+#content > article header,
+#content > section header {
+    margin-bottom: 25px;
+}
+
+#content > article header h3,
+#content > section header h3 {
+    margin: 0px;
     padding-top: 5px;
     font-size: 0.8em;
     font-style: italic;
@@ -501,16 +513,11 @@ nav > ul > li > ul > li > a {
     color: gray;
 }
 
-#content > article h3 a,
-#content > section h3 a,
+#content > article header h3 a,
+#content > section header h3 a,
 body > footer > a {
     color: gray;
     text-decoration: underline;
-}
-
-#content > article header,
-#content > section header {
-    margin-bottom: 25px;
 }
 
 #content > article img,
