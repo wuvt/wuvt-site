@@ -1,0 +1,43 @@
+{% import "admin/macros.html" as macros %}
+{% extends "admin/base.html" %}
+{% set page_title="Similar Tracks: " + track.artist + " - " + track.title %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Artist: {{ track.artist }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Album: {{ track.album }}</a></li>
+    <li class="active">{{ track.title }}</li>
+</ol>
+
+<h1>Similar Tracks: {{ track.artist }} - {{ track.title }}</h1>
+
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="{{ url_for('admin.library_track', id=track.id) }}">Track Info</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track_musicbrainz', id=track.id) }}">MusicBrainz Search</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('admin.library_track_similar', id=track.id) }}">Similar Tracks</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track_spins', id=track.id) }}">Spins</a></li>
+</ul>
+
+<div class="panel-body">
+    <dl>
+        <dt>Artist:</dt>
+        <dd>{{ track.artist }}</dd>
+
+        <dt>Title:</dt>
+        <dd>{{ track.title }}</dd>
+
+        <dt>Album:</dt>
+        <dd>{{ track.album }}</dd>
+
+        <dt>Label:</dt>
+        <dd>{{ track.label }}</dd>
+    </dl>
+
+{{ macros.render_pagination(similar_tracks, 'admin.library_track_similar', id=track.id) }}
+{{ macros.library_tracklist(similar_tracks.items) }}
+{{ macros.render_pagination(similar_tracks, 'admin.library_track_similar', id=track.id) }}
+</div>
+
+{% endblock %}

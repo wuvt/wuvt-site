@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% set page_title="Spins for Track: " + track.artist + " - " + track.title %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Artist: {{ track.artist }}</a></li>
+    <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Album: {{ track.album }}</a></li>
+    <li class="active">{{ track.title }}</li>
+</ol>
+
+<h1>Spins for Track: {{ track.artist }} - {{ track.title }}</h1>
+
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="{{ url_for('admin.library_track', id=track.id) }}">Track Info</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track_musicbrainz', id=track.id) }}">MusicBrainz Search</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track_similar', id=track.id) }}">Similar Tracks</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('admin.library_track_spins', id=track.id) }}">Spins</a></li>
+</ul>
+
+<div class="panel-body">
+    <ul>
+        {% for tracklog in tracklogs %}
+        {% if tracklog.djset_id > 0 -%}
+        <li><a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('admin.library_dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
+        {% endif -%}
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
