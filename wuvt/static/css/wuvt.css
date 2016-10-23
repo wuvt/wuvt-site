@@ -678,14 +678,22 @@ label input[type='email'],
 label input[type='text'],
 label select {
     display: block;
+    border: 1px solid #000 !important;
+    background: #fff;
+    color: #000;
 }
 
 input[type='email'],
 input[type='text'] {
-    border: 1px solid #000;
     padding: 2px;
-    background: #fff;
-    color: #000;
+}
+
+select {
+    padding: 0px 6px 0px 0px;
+}
+
+select option {
+    padding: 2px 6px 2px 2px;
 }
 
 button {
