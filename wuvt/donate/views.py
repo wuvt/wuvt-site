@@ -12,12 +12,13 @@ from wuvt.view_utils import local_only
 
 @bp.route('/onetime')
 def donate_onetime():
-    return render_template('donate/premium_form.html')
+    return render_template('donate/premium_form.html', active_flow='donate')
 
 
 @bp.route('/monthly')
 def donate_recurring():
-    return render_template('donate/recurring_form.html', plans=list_plans())
+    return render_template('donate/recurring_form.html', plans=list_plans(),
+                           active_flow='donate')
 
 
 def process_order(method):

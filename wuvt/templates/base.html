@@ -66,7 +66,7 @@
 <div id="wrapper">
 
     <div id="side">
-        {% if config.RADIOTHON -%}
+        {% if config.RADIOTHON and active_page != 'donate' and active_flow != 'donate' -%}
         <div id="radiothon_banner">
             <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
         </div>
@@ -140,7 +140,7 @@
 <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
 <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/global.js') }}"></script>
-<script src="{{ url_for('static', filename='js/live.js', v=2) }}"></script>
+<script src="{{ url_for('static', filename='js/live.js', v=3) }}"></script>
 <script src="{{ url_for('static', filename='js/stream.js', v=1) }}"></script>
 <script src="{{ url_for('static', filename='js/playlists_by_date.js') }}"></script>
 <script src="{{ url_for('init_js') }}"></script>

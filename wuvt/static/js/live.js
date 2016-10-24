@@ -113,10 +113,10 @@ function updatePage(srcDoc) {
     var doc = $('<div>').append(srcDoc);
 
     $('title').text(doc.find('title').text());
-    $('#side_primary').html(doc.find('#side_primary > *'));
+    $('#side').html(doc.find('#side > *'));
     $('#content').html(doc.find('#content > *'));
 
-    $.each($('#side_primary a'), function(i, item){makeAjaxLink(item);});
+    $.each($('#side a'), function(i, item){makeAjaxLink(item);});
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
     // load scripts if necessary
