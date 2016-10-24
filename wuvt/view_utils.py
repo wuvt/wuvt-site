@@ -69,25 +69,35 @@ def slugify(text, delim=u'-'):
 
 def sse_response(channel):
     if request.headers.get('accept') == 'text/event-stream':
-        # uwsgi-sse-offload requires that we resolve hostnames for it.
-        u = urlparse.urlparse(app.config['REDIS_URL']).netloc.rsplit(':', 1)
-        server = u[0]
-        port = int(u[1])
+        u = urlparse.urlparse(app.config['REDIS_URL'])
 
+        server = u.hostname
         if ':' not in server:
-            # Unfortunately, we have to assume that the first entry in DNS
-            # works; we use gethostbyname since redis only listens on IPv4
-            # by default. You can work around this by specifying an IPv6
-            # address directly.
+            # uwsgi-sse-offload requires that we resolve hostnames for it, but
+            # unfortunately, we have to assume that the first entry in DNS
+            # works. To do this, we use gethostbyname since Redis only listens
+            # on IPv4 by default. You can work around this by specifying an
+            # IPv6 address directly.
             server = socket.gethostbyname(server)
             #addrinfo = socket.getaddrinfo(u[0], port)
             #server = addrinfo[0][4][0]
+
+        if u.port is not None:
+            port = u.port
+        else:
+            port = 6379
+
+        if u.password is not None:
+            password = u.password
+        else:
+            password = ""
 
         return Response("", mimetype="text/event-stream", headers={
             'Cache-Control': "no-cache",
             'X-SSE-Offload': 'y',
             'X-SSE-Server': '{0}:{1}'.format(server, port),
             'X-SSE-Channel': channel,
+            'X-SSE-Password': password,
         })
     else:
         abort(400)
