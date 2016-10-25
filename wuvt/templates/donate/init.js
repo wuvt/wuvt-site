@@ -7,9 +7,11 @@ n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', '492011194322828');
-fbq('track', "PageView");
-fbq('track', 'InitiateCheckout');
+if(typeof fbq != "undefined") {
+    fbq('init', '492011194322828');
+    fbq('track', "PageView");
+    fbq('track', 'InitiateCheckout');
+}
 /* End Facebook Pixel Code */
 
 var shippingMin = parseInt("{{ config.DONATE_SHIPPING_MINIMUM }}") * 100;
@@ -27,6 +29,10 @@ var handler = StripeCheckout.configure({
             'data': $('#donate_form').serialize(),
         }).done(function(data) {
             $('#donate_form button[type=submit]').prop('disabled', true);
+
+            if(typeof fbq != "undefined") {
+                fbq('track', 'Purchase', {value: '1.00', currency: 'USD'});
+            }
 
             var path = "{{ url_for('donate.thanks') }}";
             window.history.replaceState({'path': path}, "Donate Online", path);

@@ -14,9 +14,3 @@
 </section>
 
 {% endblock %}
-{% block js %}
-{{ super() }}
-<div id="extra_js">
-<script src="{{ url_for('static', filename='js/donate_thanks.js') }}"></script>
-</div>
-{% endblock %}
