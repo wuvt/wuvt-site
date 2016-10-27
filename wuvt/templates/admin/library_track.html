@@ -28,34 +28,71 @@
             <label for="id_artist" class="col-sm-3 control-label">Artist</label>
             <div class="col-sm-9">
                 <input type="text" name="artist" id="id_artist"
-                    value="{{ track.artist }}" required="required"
+                    value="{{ data.artist }}" required="required"
                     class="form-control"/>
             </div>
         </div>
         
         <div class="form-group{% if 'title' in error_fields %} has-error{% endif %}">
-            <label for="id_name" class="col-sm-3 control-label">Title</label>
+            <label for="id_title" class="col-sm-3 control-label">Title</label>
             <div class="col-sm-9">
                 <input type="text" name="title" id="id_title"
-                    value="{{ track.title }}" required="required"
+                    value="{{ data.title }}" required="required"
                     class="form-control"/>
             </div>
         </div>
 
         <div class="form-group{% if 'album' in error_fields %} has-error{% endif %}">
-            <label for="id_artist" class="col-sm-3 control-label">Album</label>
+            <label for="id_album" class="col-sm-3 control-label">Album</label>
             <div class="col-sm-9">
                 <input type="text" name="album" id="id_album"
-                    value="{{ track.album }}" required="required"
+                    value="{{ data.album }}" required="required"
                     class="form-control"/>
             </div>
         </div>
         
         <div class="form-group{% if 'label' in error_fields %} has-error{% endif %}">
-            <label for="id_name" class="col-sm-3 control-label">Label</label>
+            <label for="id_label" class="col-sm-3 control-label">Label</label>
             <div class="col-sm-9">
                 <input type="text" name="label" id="id_label"
-                    value="{{ track.label }}" required="required"
+                    value="{{ data.label }}" required="required"
+                    class="form-control"/>
+            </div>
+        </div>
+
+        <div class="form-group{% if 'artist_mbid' in error_fields %} has-error{% endif %}">
+            <label for="id_artist_mbid" class="col-sm-3 control-label">Artist MBID</label>
+            <div class="col-sm-9">
+                <input type="text" name="artist_mbid" id="id_artist_mbid"
+                    value="{{ data.artist_mbid or "" }}"
+                    class="form-control"/>
+            </div>
+        </div>
+
+        <div class="form-group{% if 'recording_mbid' in error_fields %} has-error{% endif %}">
+            <label for="id_recording_mbid" class="col-sm-3 control-label">Recording MBID</label>
+            <div class="col-sm-9">
+                <input type="text" name="recording_mbid" id="id_recording_mbid"
+                    value="{{ data.recording_mbid or "" }}"
+                    class="form-control"/>
+            </div>
+        </div>
+
+        <div class="form-group{% if 'release_mbid' in error_fields %} has-error{% endif %}">
+            <label for="id_release_mbid" class="col-sm-3 control-label">Release MBID</label>
+            <div class="col-sm-9">
+                <input type="text" name="release_mbid" id="id_release_mbid"
+                    value="{{ data.release_mbid or "" }}"
+                    class="form-control"/>
+            </div>
+        </div>
+
+        <div class="form-group{% if 'releasegroup_mbid' in error_fields %} has-error{% endif %}">
+            <label for="id_releasegroup_mbid" class="col-sm-3 control-label">Release Group MBID</label>
+            <div class="col-sm-9">
+                <input type="text" name="releasegroup_mbid"
+                    id="id_releasegroup_mbid"
+                    value="{{ data.releasegroup_mbid or "" }}"
                     class="form-control"/>
             </div>
         </div>
