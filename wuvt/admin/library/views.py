@@ -129,8 +129,17 @@ def library_fixup_tracks(key, page=1):
 def library_track(id):
     track = Track.query.get_or_404(id)
     error_fields = []
+    data = {}
+
+    fields = ['artist', 'title', 'album', 'label', 'artist_mbid',
+              'recording_mbid', 'release_mbid', 'releasegroup_mbid']
+    for field in fields:
+        data[field] = request.args.get(field, getattr(track, field))
 
     if request.method == 'POST':
+        for field in fields:
+            data[field] = request.form[field]
+
         artist = request.form['artist'].strip()
         if len(artist) <= 0:
             error_fields.append('artist')
@@ -147,6 +156,26 @@ def library_track(id):
         if len(label) <= 0:
             error_fields.append('label')
 
+        musicbrainz_fields = [
+            ('artist_mbid', musicbrainzngs.get_artist_by_id),
+            ('recording_mbid', musicbrainzngs.get_recording_by_id),
+            ('release_mbid', musicbrainzngs.get_release_by_id),
+            ('releasegroup_mbid', musicbrainzngs.get_release_group_by_id),
+        ]
+
+        for field in musicbrainz_fields:
+            value = request.form[field[0]].strip()
+            if value != getattr(track, field[0]):
+                if len(value) > 0:
+                    try:
+                        result = field[1](value)
+                    except musicbrainzngs.ResponseError:
+                        error_fields.append(field[0])
+                    else:
+                        setattr(track, field[0], value)
+                else:
+                    setattr(track, field[0], None)
+
         if len(error_fields) <= 0:
             track.artist = artist
             track.title = title
@@ -161,7 +190,7 @@ def library_track(id):
                                     artist=track.artist))
 
     return render_template('admin/library_track.html', track=track,
-                           error_fields=error_fields)
+                           error_fields=error_fields, data=data)
 
 
 @bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
