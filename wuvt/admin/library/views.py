@@ -192,7 +192,11 @@ def library_track_musicbrainz(id):
             else:
                 track.artist_mbid = None
                 for entry in result['recording']['artist-credit']:
-                    if entry['artist']['name'] == track.artist:
+                    # it seems it's sometimes possible for us to get something
+                    # that isn't well-formed, so deal with that case
+                    if type(entry) == dict and \
+                            entry['artist'] == dict and \
+                            entry['artist'].get('name', None) == track.artist:
                         # if there's an exact artist match, use that ID
                         # otherwise artist will be left blank
                         track.artist_mbid = entry['artist']['id']
