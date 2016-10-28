@@ -1,3 +1,4 @@
+import datetime
 from flask import flash, make_response, redirect, render_template, request, \
         url_for, Response
 from wuvt import app
@@ -141,7 +142,10 @@ def thanks():
 @local_only
 #@auth.check_access('missioncontrol')
 def missioncontrol_index():
-    orders = Order.query.order_by(db.desc(Order.id)).limit(app.config['ARTISTS_PER_PAGE'])
+    cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=12)
+    orders = Order.query.\
+        filter(Order.placed_date > cutoff).\
+        order_by(db.desc(Order.id)).limit(app.config['ARTISTS_PER_PAGE'])
     return render_template('donate/missioncontrol/index.html',
                            plans=list_plans(), orders=orders)
 
