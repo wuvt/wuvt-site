@@ -1,10 +1,9 @@
 from dateutil import tz
-from flask import Flask, Request, json
+from flask import Flask, Request
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_seasurf import SeaSurf
 from flask_sqlalchemy import SQLAlchemy
-from kombu.serialization import register
 from werkzeug.contrib.cache import RedisCache
 import os
 import redis
@@ -12,10 +11,6 @@ import defaults
 import session
 
 json_mimetypes = ['application/json']
-
-register('flaskjson', json.dumps, json.loads,
-         content_type='application/x-flaskjson',
-         content_encoding='utf-8')
 
 
 def localize_datetime(fromtime):
