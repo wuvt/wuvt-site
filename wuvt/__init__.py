@@ -113,7 +113,10 @@ from wuvt import cli
 from wuvt import models
 from wuvt import views
 
-if not app.debug:
+if app.debug:
+    from werkzeug.debug import DebuggedApplication
+    app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
+else:
     import logging
     from logging.handlers import SMTPHandler, SysLogHandler
 
