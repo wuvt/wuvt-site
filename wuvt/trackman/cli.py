@@ -26,7 +26,7 @@ def prune_empty_djsets():
 
 
 @trackman.command()
-@click.option('--message')
+@click.option('--message', prompt=True)
 def send_message(message):
     r = redis_conn.publish('trackman_dj_live', json.dumps({
         'event': "message",
