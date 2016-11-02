@@ -140,7 +140,7 @@ def thanks():
 
 @bp.route('/missioncontrol')
 @local_only
-#@auth.check_access('missioncontrol')
+@auth.check_access('missioncontrol')
 def missioncontrol_index():
     cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=12)
     orders = Order.query.\
@@ -152,7 +152,7 @@ def missioncontrol_index():
 
 @bp.route('/missioncontrol/process', methods=['POST'])
 @local_only
-#@auth.check_access('missioncontrol')
+@auth.check_access('missioncontrol')
 def missioncontrol_process():
     success, msg = process_order(request.form['method'])
     if success:
@@ -171,7 +171,7 @@ def init_js():
 
 @bp.route('/missioncontrol/js/donate_init.js')
 @local_only
-#@auth.check_access('missioncontrol')
+@auth.check_access('missioncontrol')
 def missioncontrol_donate_js():
     resp = make_response(render_template(
         'donate/missioncontrol/donate.js'))
