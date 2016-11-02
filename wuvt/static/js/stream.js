@@ -1,8 +1,8 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
 
 var streams = [
-    ['audio/ogg', "https://stream.wuvt.vt.edu:8443/wuvt.ogg"],
-    ['audio/aac', "https://stream.wuvt.vt.edu:8443/wuvt.aac"]
+    ['audio/ogg', "https://stream.wuvt.vt.edu/wuvt.ogg"],
+    ['audio/aac', "https://stream.wuvt.vt.edu/wuvt.aac"]
 ];
 var streamPlaying = false;
 var defaultVolume = 50;
