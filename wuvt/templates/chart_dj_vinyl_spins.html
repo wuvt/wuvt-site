@@ -1,3 +1,4 @@
+{% import "chart_macros.html" as macros %}
 {% extends "base.html" %}
 {% block title %}Top DJs by Vinyl Spins - Charts - {{ super() }}{% endblock %}
 {% block content %}
@@ -6,19 +7,6 @@
     <h2>Charts: Top DJs by Vinyl Spins</h2>
 </header>
 
-<table class="tracklist chart">
-    <thead>
-        <th>DJ</th>
-        <th class="text-right">Vinyl Spins</th>
-    </thead>
-    <tbody>
-        {% for dj, spins in results %}
-        <tr>
-            <td><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></td>
-            <td class="text-right">{{ spins }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{{ macros.render_chart_dj(results) }}
 </section>
 {% endblock %}

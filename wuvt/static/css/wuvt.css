@@ -646,6 +646,11 @@ table.tracklist .glyphicon {
 table.tracklist .new-track {
     color: #ff0000;
 }
+
+table.tracklist-ranked tr td:first-child {
+    color: #777;
+    text-align: right;
+}
 /* }}} */
 
 /* Donate button {{{ */

@@ -1,3 +1,4 @@
+{% import "chart_macros.html" as macros %}
 {% extends "base.html" %}
 {% block title %}{{ dj.airname }} - Top Tracks by DJ - Charts - {{ super() }}{% endblock %}
 {% block content %}
@@ -7,23 +8,6 @@
     <h3><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></h3>
 </header>
 
-<table class="tracklist chart">
-    <thead>
-        <th>Artist</th>
-        <th>Track</th>
-        <th>Album</th>
-        <th class="text-right">Plays</th>
-    </thead>
-    <tbody>
-        {% for track, plays in results %}
-        <tr>
-            <td>{{ track.artist }}</td>
-            <td><a href="{{ url_for('trackman.playlists_track', track_id=track.id) }}">{{ track.title }}</a></td>
-            <td>{{ track.album }}</td>
-            <td class="text-right">{{ plays }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{{ macros.render_chart_tracks(results) }}
 </section>
 {% endblock %}
