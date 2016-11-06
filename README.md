@@ -16,9 +16,14 @@ It has several main components:
 - A simple donation system with Stripe integration for processing credit
   card/Bitcoin transactions.
 
-### Development Environment Setup
-First, clone the repo, create an empty config, and build the Docker image:
+### Deployment
+First, clone the repo, create an empty config, and build the appropriate Docker
+image for your environment. We provide Dockerfile.dev which is configured to
+use SQLite and runs Redis directly in the image, and Dockerfile.prod, which is
+recommended for production deployments as it does not run any of the required
+services inside the container itself.
 
+For Dockerfile.dev:
 ```
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
@@ -33,7 +38,7 @@ docker run --rm -p 9090:8080 wuvt-site:latest
 
 You can now access the site at http://localhost:9090/
 
-### Development Environment Setup (non-Docker)
+### Non-Docker Deployment
 First, install redis. For example, on Debian or Ubuntu:
 
 ```
@@ -50,7 +55,7 @@ Now, build the SSE offload plugin. For example, on Debian:
 
 ```
 apt-get install uuid-dev libcap-dev libpcre3-dev
-uwsgi --build-plugin https://github.com/unbit/uwsgi-sse-offload
+uwsgi --build-plugin https://github.com/wuvt/uwsgi-sse-offload
 sudo cp sse_offload_plugin.so /usr/lib/uwsgi/plugins/
 ```
 
@@ -95,14 +100,6 @@ uwsgi --ini uwsgi.ini:dev
 ```
 
 You can now access the site at http://localhost:9090/
-
-### Production Environment Setup
-We use Docker for our production deployments and do not have the resources to
-provide standalone setup instructions.
-
-Once set-up, you can visit:
-- `/admin` to manage website content
-- `/trackman` to enter tracks
 
 ### API
 TODO
