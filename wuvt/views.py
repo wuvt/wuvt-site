@@ -46,7 +46,7 @@ def index(page=1):
 @app.route('/<string:slug>')
 def page(slug):
     page = Page.query.filter(Page.slug == slug).first()
-    if not page:
+    if not page or page.published == False:
         abort(404)
 
     return render_template('page.html', page=page)
