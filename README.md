@@ -97,21 +97,8 @@ uwsgi --ini uwsgi.ini:dev
 You can now access the site at http://localhost:9090/
 
 ### Production Environment Setup
-Here are some example instructions to get you started; they will require some
-tweaking for your environment. We recommend that you either refer to our
-Ansible playbooks or Dockerfile.prod, as they are easier and are more likely to
-be kept up-to-date.
-
-- Install redis, start the daemon, and configure it to start at boot
-- Run `sudo pip install -r requirements.txt` to install requirements
-- Copy `wuvt/config.py.example` to `wuvt/config.py` and edit it to match your desired config
-- Set the `FLASK_APP` environment variable to the full path of `wuvt/__init__.py`
-- Run `flask initdb` to setup the website
-- Start celery; e.g. `celery -A wuvt.trackman.tasks.celery worker -B -l info`
-- Start uWSGI; e.g. `uwsgi --ini uwsgi.ini`
-
-Check-out [our ansible playbooks](https://github.com/wuvt/wuvt-ansible) for
-example setup with Nginx.
+We use Docker for our production deployments and do not have the resources to
+provide standalone setup instructions.
 
 Once set-up, you can visit:
 - `/admin` to manage website content
