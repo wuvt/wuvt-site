@@ -63,37 +63,91 @@
         <div class="form-group{% if 'artist_mbid' in error_fields %} has-error{% endif %}">
             <label for="id_artist_mbid" class="col-sm-3 control-label">Artist MBID</label>
             <div class="col-sm-9">
-                <input type="text" name="artist_mbid" id="id_artist_mbid"
-                    value="{{ data.artist_mbid or "" }}"
-                    class="form-control"/>
+                <div class="input-group">
+                    <input type="text" name="artist_mbid" id="id_artist_mbid"
+                        value="{{ data.artist_mbid or "" }}"
+                        class="form-control"/>
+                    <span class="input-group-btn">
+                        {% if track.artist_mbid %}
+                        <a href="https://musicbrainz.org/artist/{{ track.artist_mbid }}"
+                                rel="external noreferrer"
+                                class="btn btn-default">
+                        {% else %}
+                        <a href="#" class="btn btn-default disabled">
+                        {% endif %}
+                            <span class="glyphicon glyphicon-link"></span>
+                        </a>
+                    </span>
+                </div>
+
             </div>
         </div>
 
         <div class="form-group{% if 'recording_mbid' in error_fields %} has-error{% endif %}">
             <label for="id_recording_mbid" class="col-sm-3 control-label">Recording MBID</label>
             <div class="col-sm-9">
-                <input type="text" name="recording_mbid" id="id_recording_mbid"
-                    value="{{ data.recording_mbid or "" }}"
-                    class="form-control"/>
+                <div class="input-group">
+                    <input type="text" name="recording_mbid"
+                        id="id_recording_mbid"
+                        value="{{ data.recording_mbid or "" }}"
+                        class="form-control"/>
+                    <span class="input-group-btn">
+                        {% if track.recording_mbid %}
+                        <a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}"
+                                rel="external noreferrer"
+                                class="btn btn-default">
+                        {% else %}
+                        <a href="#" class="btn btn-default disabled">
+                        {% endif %}
+                            <span class="glyphicon glyphicon-link"></span>
+                        </a>
+                    </span>
+                </div>
             </div>
         </div>
 
         <div class="form-group{% if 'release_mbid' in error_fields %} has-error{% endif %}">
             <label for="id_release_mbid" class="col-sm-3 control-label">Release MBID</label>
             <div class="col-sm-9">
-                <input type="text" name="release_mbid" id="id_release_mbid"
-                    value="{{ data.release_mbid or "" }}"
-                    class="form-control"/>
+                <div class="input-group">
+                    <input type="text" name="release_mbid" id="id_release_mbid"
+                        value="{{ data.release_mbid or "" }}"
+                        class="form-control"/>
+                    <span class="input-group-btn">
+                        {% if track.release_mbid %}
+                        <a href="https://musicbrainz.org/release/{{ track.release_mbid }}"
+                                rel="external noreferrer"
+                                class="btn btn-default">
+                        {% else %}
+                        <a href="#" class="btn btn-default disabled">
+                        {% endif %}
+                            <span class="glyphicon glyphicon-link"></span>
+                        </a>
+                    </span>
+                </div>
             </div>
         </div>
 
         <div class="form-group{% if 'releasegroup_mbid' in error_fields %} has-error{% endif %}">
             <label for="id_releasegroup_mbid" class="col-sm-3 control-label">Release Group MBID</label>
             <div class="col-sm-9">
-                <input type="text" name="releasegroup_mbid"
-                    id="id_releasegroup_mbid"
-                    value="{{ data.releasegroup_mbid or "" }}"
-                    class="form-control"/>
+                <div class="input-group">
+                    <input type="text" name="releasegroup_mbid"
+                        id="id_releasegroup_mbid"
+                        value="{{ data.releasegroup_mbid or "" }}"
+                        class="form-control"/>
+                    <span class="input-group-btn">
+                        {% if track.releasegroup_mbid %}
+                        <a href="https://musicbrainz.org/release-group/{{ track.releasegroup_mbid }}"
+                                rel="external noreferrer"
+                                class="btn btn-default">
+                        {% else %}
+                        <a href="#" class="btn btn-default disabled">
+                        {% endif %}
+                            <span class="glyphicon glyphicon-link"></span>
+                        </a>
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -109,33 +163,6 @@
             </a>
         </div>
     </form>
-
-    {% if track.artist_mbid or track.recording_mbid or track.release_mbid or track.releasegroup_mbid %}
-    <section>
-        <h2>MusicBrainz</h2>
-        <dl>
-            {% if track.artist_mbid %}
-            <dt>Artist MBID:</dt>
-            <dd><a href="https://musicbrainz.org/artist/{{ track.artist_mbid }}" rel="external">{{ track.artist_mbid }}</a></dd>
-            {% endif %}
-
-            {% if track.recording_mbid %}
-            <dt>Recording MBID:</dt>
-            <dd><a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}" rel="external">{{ track.recording_mbid }}</a></dd>
-            {% endif %}
-
-            {% if track.release_mbid %}
-            <dt>Release MBID:</dt>
-            <dd><a href="https://musicbrainz.org/release/{{ track.release_mbid }}" rel="external">{{ track.release_mbid }}</a></dd>
-            {% endif %}
-
-            {% if track.releasegroup_mbid %}
-            <dt>Release Group MBID:</dt>
-            <dd><a href="https://musicbrainz.org/release-group/{{ track.releasegroup_mbid }}" rel="external">{{ track.releasegroup_mbid }}</a></dd>
-            {% endif %}
-        </dl>
-    </section>
-    {% endif %}
 </div>
 
 {% endblock %}
