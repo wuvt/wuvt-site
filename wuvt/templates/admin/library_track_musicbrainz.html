@@ -31,6 +31,9 @@
         <dd>{{ track.album }}</dd>
     </dl>
 
+    <form action="{{ url_for('.library_track_musicbrainz', id=track.id) }}"
+        method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <table class="table table-striped table-hover">
         <tr>
             <th>Score</th>
@@ -46,39 +49,38 @@
             <td>{{ result['artist-credit-phrase'] }}</td>
             <td><a href="https://musicbrainz.org/recording/{{ result['id'] }}" rel="external">{{ result['title'] }}</a></td>
             <td>
-                <ul>
-                    {% for release in result['release-list'] %}
-                    <li><a href="https://musicbrainz.org/release/{{ release['id'] }}" rel="external">{{ release['title'] }}</a></li>
-                    {% endfor %}
-                </ul>
+                {% for release in result['release-list'] %}
+                <div class="radio">
+                    <label>
+                        <input type="radio"
+                            name="recording_{{ result['id'] }}_release"
+                            value="{{ release['id'] }}"
+                            {% if loop.first %}checked="checked" {% endif %}/>
+                        <a href="https://musicbrainz.org/release/{{ release['id'] }}" rel="external"><strong>{{ release['title'] }}</strong></a>&mdash;{{ release['date'] }}, {{ release['country'] }}
+                    </label>
+                </div>
+                {% endfor %}
             </td>
             <td class="row-options">
-                <form action="{{ url_for('.library_track_musicbrainz', id=track.id) }}"
-                        method="post">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-                    <input type="hidden" name="recording_mbid" value="{{ result['id'] }}" />
-                    <button type="submit" class="btn btn-primary btn-sm">Select</button>
-                </form>
+                <button type="submit" name="recording_mbid"
+                        value="{{ result['id'] }}" class="btn btn-primary">
+                    Select
+                </button>
             </td>
         </tr>
         {% endfor -%}
 
         <tr>
             <td colspan="5">
-                 <form action="{{ url_for('.library_track_musicbrainz', id=track.id) }}"
-                        method="post">
-                    <input type="hidden" name="_csrf_token"
-                        value="{{ csrf_token() }}" />
-                    <input type="hidden" name="clear_mbids" value="true" />
-
-                    <button type="submit" class="btn btn-danger">
-                        <span class="glyphicon glyphicon-trash"></span>
-                        Clear Existing
-                    </button>
-                </form>
+                <button type="submit" name="clear_mbids" value="true"
+                        class="btn btn-danger">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    Clear Existing
+                </button>
             </td>
         </tr>
     </table>
+    </form>
 </div>
 
 {% endblock %}

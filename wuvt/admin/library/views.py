@@ -211,7 +211,7 @@ def library_track_musicbrainz(id):
 
         result = musicbrainzngs.get_recording_by_id(
             request.form['recording_mbid'],
-            includes=['artist-credits'])
+            includes=['artist-credits', 'releases'])
 
         if 'artist-credit' in result['recording']:
             if len(result['recording']['artist-credit']) == 1:
@@ -235,6 +235,24 @@ def library_track_musicbrainz(id):
             app.logger.warning("No artist-credit in MusicBrainz result")
 
         track.recording_mbid = result['recording']['id']
+
+        selected_release_mbid = request.form.get(
+            'recording_{}_release'.format(track.recording_mbid),
+            '').strip()
+        if len(selected_release_mbid) > 0:
+            for release in result['recording']['release-list']:
+                if release['id'] == selected_release_mbid:
+                    track.release_mbid = release['id']
+                    rresult = musicbrainzngs.get_release_by_id(
+                        track.release_mbid,
+                        includes=['release-groups'])
+                    track.releasegroup_mbid = \
+                        rresult['release']['release-group']['id']
+                    break
+        else:
+            track.release_mbid = None
+            track.releasegroup_mbid = None
+
         db.session.commit()
 
         return redirect(url_for('admin.library_track', id=track.id))
