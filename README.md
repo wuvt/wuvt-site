@@ -11,8 +11,10 @@ It has several main components:
   POST plugin, [mpd-automation](https://github.com/wuvt/mpd-automation),
   and [johnny-six](https://github.com/wuvt/johnny-six). The included SSE
   endpoint can be used by external scripts for live track updates, similar to
-  how it is used on the website. Logged playlists are also available.
-- HTML5 stream player capable of smooth chained OGG playback in Webkit
+  how it is used on the website. It also provides access to previous playlists
+  and can generate charts of what has been played.
+- A simple donation system with Stripe integration for processing credit
+  card/Bitcoin transactions.
 
 ### Development Environment Setup
 First, clone the repo, create an empty config, and build the Docker image:
