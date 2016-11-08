@@ -1,7 +1,7 @@
-from flask import abort, flash, render_template, redirect, request, url_for
+from flask import abort, current_app, flash, render_template, redirect, \
+    request, url_for
 import string
 
-from wuvt import app
 from wuvt import db
 from wuvt.admin import bp
 from wuvt.auth import check_access
@@ -31,7 +31,7 @@ def library_letter(letter, page=1):
         abort(400)
 
     artists = artists_query.group_by(Track.artist).order_by(Track.artist).\
-        paginate(page, app.config['ARTISTS_PER_PAGE'])
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
     artists.items = [x[0] for x in artists.items]
     return render_template('admin/library_letter.html', letter=letter,
                            artists=artists)
@@ -42,7 +42,7 @@ def library_letter(letter, page=1):
 @check_access('library')
 def library_djs(page=1):
     djs = DJ.query.order_by(DJ.airname).paginate(
-        page, app.config['ARTISTS_PER_PAGE'])
+        page, current_app.config['ARTISTS_PER_PAGE'])
     return render_template('admin/library_djs.html', djs=djs)
 
 
@@ -56,7 +56,7 @@ def library_dj(id, page=1):
         filter(TrackLog.dj_id == id).\
         group_by(TrackLog.track_id).subquery()
     tracks = Track.query.join(subquery).order_by(Track.artist, Track.title).\
-        paginate(page, app.config['ARTISTS_PER_PAGE'])
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
     return render_template('admin/library_dj.html', dj=dj, tracks=tracks)
 
@@ -118,7 +118,7 @@ def library_fixup_tracks(key, page=1):
         abort(404)
 
     tracks = query.order_by(Track.artist, Track.title).\
-        paginate(page, app.config['ARTISTS_PER_PAGE'])
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
     return render_template('admin/library_fixup_tracks.html', key=key,
                            title=title, tracks=tracks)
@@ -232,7 +232,8 @@ def library_track_musicbrainz(id):
                         break
         else:
             track.artist_mbid = None
-            app.logger.warning("No artist-credit in MusicBrainz result")
+            current_app.logger.warning(
+                "No artist-credit in MusicBrainz result")
 
         track.recording_mbid = result['recording']['id']
 
@@ -265,11 +266,32 @@ def library_track_musicbrainz(id):
                            results=results['recording-list'])
 
 
-@bp.route('/library/track/<int:id>/similar')
-@bp.route('/library/track/<int:id>/similar/<int:page>')
+@bp.route('/library/track/<int:id>/similar', methods=['GET', 'POST'])
+@bp.route('/library/track/<int:id>/similar/<int:page>', methods=['GET', 'POST'])
 @check_access('library')
 def library_track_similar(id, page=1):
     track = Track.query.get_or_404(id)
+
+    if request.method == 'POST':
+        merge = [int(x) for x in request.form.getlist('merge[]')]
+        if len(merge) > 0:
+            # update TrackLogs
+            TrackLog.query.filter(TrackLog.track_id.in_(merge)).update(
+                {TrackLog.track_id: track.id}, synchronize_session=False)
+
+            # delete existing Track entries
+            Track.query.filter(Track.id.in_(merge)).delete(
+                synchronize_session=False)
+
+            db.session.commit()
+
+            current_app.logger.warning(
+                "Trackman: Merged tracks {0} into track {1}".format(
+                    ", ".join([str(x) for x in merge]),
+                    track.id))
+            flash("Tracks merged.")
+
+            return redirect(url_for('admin.library_track', id=track.id))
 
     similar_tracks = Track.query.\
         filter(db.and_(
@@ -278,7 +300,7 @@ def library_track_similar(id, page=1):
             db.func.lower(Track.title) == db.func.lower(track.title)
         )).\
         group_by(Track.id).order_by(Track.artist).\
-        paginate(page, app.config['ARTISTS_PER_PAGE'])
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
     return render_template('admin/library_track_similar.html', track=track,
                            similar_tracks=similar_tracks)

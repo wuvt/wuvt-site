@@ -21,22 +21,46 @@
 </ul>
 
 <div class="panel-body">
-    <dl>
-        <dt>Artist:</dt>
-        <dd>{{ track.artist }}</dd>
-
-        <dt>Title:</dt>
-        <dd>{{ track.title }}</dd>
-
-        <dt>Album:</dt>
-        <dd>{{ track.album }}</dd>
-
-        <dt>Label:</dt>
-        <dd>{{ track.label }}</dd>
-    </dl>
-
 {{ macros.render_pagination(similar_tracks, 'admin.library_track_similar', id=track.id) }}
-{{ macros.library_tracklist(similar_tracks.items) }}
+<form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <table class="table table-striped table-hover">
+        <tr>
+            <th></th>
+            <th>Artist</th>
+            <th>Title</th>
+            <th>Album</th>
+            <th>Label</th>
+        </tr>
+
+        <tr class="active">
+            <td></td>
+            <td>{{ track.artist }}</td>
+            <td>{{ track.title }}</td>
+            <td>{{ track.album }}</td>
+            <td>{{ track.label }}</td>
+        </tr>
+
+        {% for similar in similar_tracks.items if similar.id != track.id -%}
+        <tr>
+            <td><input type="checkbox" name="merge[]" value="{{ similar.id }}" /></td>
+            <td><a href="{{ url_for('admin.library_artist', artist=similar.artist) }}">{{ similar.artist }}</a></td>
+            <td><a href="{{ url_for('admin.library_track', id=similar.id) }}">{{ similar.title }}</a></td>
+            <td>{{ similar.album }}</td>
+            <td>{{ similar.label }}</td>
+        </tr>
+        {% endfor -%}
+
+        <tr>
+            <td colspan="5">
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-ok"></span>
+                    Merge
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
 {{ macros.render_pagination(similar_tracks, 'admin.library_track_similar', id=track.id) }}
 </div>
 
