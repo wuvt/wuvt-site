@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% set page_title="MusicBrainz for Track: " + track.artist + " - " + track.title %}
+{% set page_title="MusicBrainz Search: " + track.artist + " - " + track.title %}
 {% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
     <li class="active">{{ track.title }}</li>
 </ol>
 
-<h1>MusicBrainz for Track: {{ track.artist }} - {{ track.title }}</h1>
+<h1>MusicBrainz Search: {{ track.artist }} - {{ track.title }}</h1>
 
 <ul class="nav nav-tabs">
     <li role="presentation"><a href="{{ url_for('admin.library_track', id=track.id) }}">Track Info</a></li>
@@ -20,19 +20,7 @@
 </ul>
 
 <div class="panel-body">
-    <dl>
-        <dt>Artist:</dt>
-        <dd>{{ track.artist }}</dd>
-
-        <dt>Title:</dt>
-        <dd>{{ track.title }}</dd>
-
-        <dt>Album:</dt>
-        <dd>{{ track.album }}</dd>
-    </dl>
-
-    <form action="{{ url_for('.library_track_musicbrainz', id=track.id) }}"
-        method="post">
+<form method="post">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
     <table class="table table-striped table-hover">
         <tr>
@@ -41,6 +29,14 @@
             <th>Title</th>
             <th>Releases</th>
             <th></th>
+        </tr>
+
+        <tr class="active">
+            <td></td>
+            <td>{{ track.artist }}</td>
+            <td>{{ track.title }}</td>
+            <td>{{ track.album }}</td>
+            <td></td>
         </tr>
 
         {% for result in results -%}
@@ -80,7 +76,7 @@
             </td>
         </tr>
     </table>
-    </form>
+</form>
 </div>
 
 {% endblock %}
