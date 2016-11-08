@@ -5,7 +5,7 @@ import string
 from wuvt import db
 from wuvt.admin import bp
 from wuvt.auth import check_access
-from wuvt.trackman.models import DJ, Track, TrackLog
+from wuvt.trackman.models import DJ, Track, TrackLog, TrackReport
 from wuvt.trackman.lib import deduplicate_track_by_id
 from wuvt.trackman.musicbrainz import musicbrainzngs
 
@@ -278,6 +278,15 @@ def library_track_similar(id, page=1):
             # update TrackLogs
             TrackLog.query.filter(TrackLog.track_id.in_(merge)).update(
                 {TrackLog.track_id: track.id}, synchronize_session=False)
+
+            # update TrackReports
+            TrackReport.query.filter(TrackReport.track_id.in_(merge)).update(
+                {
+                    TrackReport.track_id: track.id,
+                    TrackReport.resolution: "Merged track",
+                    TrackReport.open: False
+                },
+                synchronize_session=False)
 
             # delete existing Track entries
             Track.query.filter(Track.id.in_(merge)).delete(
