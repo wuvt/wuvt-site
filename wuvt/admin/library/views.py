@@ -102,13 +102,10 @@ def library_fixup_tracks(key, page=1):
             Track.label == "n/a",
             Track.label == "none",
             Track.label == "Record Label",
-            Track.label == "same"
-        ))
-    elif key == 'redundant_label':
-        title = "Label Ending with \"Records\" or Similar"
-        query = Track.query.filter(db.or_(
-            Track.label.ilike("% records"),
-            Track.label.ilike("% recordings")
+            Track.label == "same",
+            Track.label == "-",
+            Track.label == "--",
+            Track.label == "---"
         ))
     elif key == 'one_play':
         title = "Only One Play"
