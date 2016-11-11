@@ -97,3 +97,11 @@ def error403_ipaccess(error):
         return jsonify({'errors': "403 Forbidden"}), 403
 
     return render_template('error403_ipaccess.html'), 403
+
+
+@app.errorhandler(500)
+def error500(error):
+    if request.wants_json():
+        return jsonify({'errors': "500 Internal Server Error"}), 500
+
+    return send_from_directory(app.static_folder, '500.html'), 500
