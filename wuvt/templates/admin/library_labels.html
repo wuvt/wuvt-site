@@ -12,20 +12,20 @@
 
 <ul class="nav nav-tabs">
     <li role="presentation"><a href="{{ url_for('admin.library_index') }}">By Artist</a></li>
-    <li role="presentation"><a href="{{ url_for('admin.library_labels') }}">By Label</a></li>
-    <li role="presentation" class="active"><a href="{{ url_for('admin.library_djs') }}">By DJ</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('admin.library_labels') }}">By Label</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_djs') }}">By DJ</a></li>
     <li role="presentation"><a href="{{ url_for('admin.library_fixup') }}">Fixup</a></li>
 </ul>
 
 <div class="panel-body">
-    {{ macros.render_pagination(djs, 'admin.library_djs') }}
+    {{ macros.render_pagination(labels, 'admin.library_labels') }}
 
     <ul>
-        {% for dj in djs.items -%}
-        <li><a href="{{ url_for('admin.library_dj', id=dj.id) }}">{{ dj.airname }}</a></li>
+        {% for label in labels.items -%}
+        <li><a href="{{ url_for('admin.library_label', label=label) }}">{{ label }}</a></li>
         {% endfor -%}
     </ul>
 
-    {{ macros.render_pagination(djs, 'admin.library_djs') }}
+    {{ macros.render_pagination(labels, 'admin.library_labels') }}
 </div>
 {% endblock %}

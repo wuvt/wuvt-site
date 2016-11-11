@@ -5,18 +5,22 @@
 {% block content %}
 <ol class="breadcrumb">
     <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    {% if edit_from == 'label' %}
+    <li><a href="{{ url_for('admin.library_label', label=track.label) }}">Label: {{ track.label }}</a></li>
+    {% else %}
     <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Artist: {{ track.artist }}</a></li>
     <li><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">Album: {{ track.album }}</a></li>
+    {% endif %}
     <li class="active">{{ track.title }}</li>
 </ol>
 
 <h1>Spins for Track: {{ track.artist }} - {{ track.title }}</h1>
 
 <ul class="nav nav-tabs">
-    <li role="presentation"><a href="{{ url_for('admin.library_track', id=track.id) }}">Track Info</a></li>
-    <li role="presentation"><a href="{{ url_for('admin.library_track_musicbrainz', id=track.id) }}">MusicBrainz Search</a></li>
-    <li role="presentation"><a href="{{ url_for('admin.library_track_similar', id=track.id) }}">Similar Tracks</a></li>
-    <li role="presentation" class="active"><a href="{{ url_for('admin.library_track_spins', id=track.id) }}">Spins</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track', id=track.id, from=edit_from) }}">Track Info</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track_musicbrainz', id=track.id, from=edit_from) }}">MusicBrainz Search</a></li>
+    <li role="presentation"><a href="{{ url_for('admin.library_track_similar', id=track.id, from=edit_from) }}">Similar Tracks</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('admin.library_track_spins', id=track.id, from=edit_from) }}">Spins</a></li>
 </ul>
 
 <div class="panel-body">
