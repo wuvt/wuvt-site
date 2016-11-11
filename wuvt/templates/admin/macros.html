@@ -28,7 +28,7 @@
 {% endif %}
 {% endmacro %}
 
-{% macro library_tracklist(tracks) %}
+{% macro library_tracklist(tracks, track_from=None) %}
 <table class="table table-striped table-hover">
     <tr>
         <th>Artist</th>
@@ -40,9 +40,9 @@
     {% for track in tracks -%}
     <tr>
         <td><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></td>
-        <td><a href="{{ url_for('admin.library_track', id=track.id) }}">{{ track.title }}</a></td>
+        <td><a href="{{ url_for('admin.library_track', id=track.id, from=track_from) }}">{{ track.title }}</a></td>
         <td>{{ track.album }}</td>
-        <td>{{ track.label }}</td>
+        <td><a href="{{ url_for('admin.library_label', label=track.label) }}">{{ track.label }}</a></td>
     </tr>
     {% endfor -%}
 </table>

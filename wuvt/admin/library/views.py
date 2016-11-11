@@ -72,6 +72,30 @@ def library_artist():
                            tracks=tracks)
 
 
+@bp.route('/library/labels')
+@bp.route('/library/labels/<int:page>')
+@check_access('library')
+def library_labels(page=1):
+    labels = Track.query.with_entities(Track.label).\
+        group_by(Track.label).order_by(Track.label).\
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
+    labels.items = [x[0] for x in labels.items]
+    return render_template('admin/library_labels.html', labels=labels)
+
+
+@bp.route('/library/label')
+@check_access('library')
+def library_label():
+    label = request.args['label']
+    page = request.args.get('page', 1)
+    tracks = Track.query.filter(Track.label == label).\
+        order_by(Track.album, Track.title).\
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
+
+    return render_template('admin/library_label.html', label=label,
+                           tracks=tracks)
+
+
 @bp.route('/library/fixup')
 @check_access('library')
 def library_fixup():
@@ -125,6 +149,7 @@ def library_fixup_tracks(key, page=1):
 @check_access('library')
 def library_track(id):
     track = Track.query.get_or_404(id)
+    edit_from = request.args.get('from', None)
     error_fields = []
     data = {}
 
@@ -183,17 +208,25 @@ def library_track(id):
             # merge with any tracks that exactly match
             deduplicate_track_by_id(id)
 
-            return redirect(url_for('admin.library_artist',
-                                    artist=track.artist))
+            if edit_from == 'label':
+                return redirect(url_for('admin.library_label',
+                                        label=track.label))
+            else:
+                return redirect(url_for('admin.library_artist',
+                                        artist=track.artist))
 
-    return render_template('admin/library_track.html', track=track,
-                           error_fields=error_fields, data=data)
+    return render_template('admin/library_track.html',
+                           track=track,
+                           edit_from=edit_from,
+                           error_fields=error_fields,
+                           data=data)
 
 
 @bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
 @check_access('library')
 def library_track_musicbrainz(id):
     track = Track.query.get_or_404(id)
+    edit_from = request.args.get('from', None)
 
     if request.method == 'POST':
         if request.form.get('clear_mbids', None) == "true":
@@ -204,7 +237,8 @@ def library_track_musicbrainz(id):
             db.session.commit()
 
             flash("The MusicBrainz IDs for the track have been cleared.")
-            return redirect(url_for('admin.library_track', id=track.id))
+            return redirect(url_for('admin.library_track', id=track.id,
+                                    **{'from': edit_from}))
 
         result = musicbrainzngs.get_recording_by_id(
             request.form['recording_mbid'],
@@ -253,13 +287,16 @@ def library_track_musicbrainz(id):
 
         db.session.commit()
 
-        return redirect(url_for('admin.library_track', id=track.id))
+        return redirect(url_for('admin.library_track', id=track.id,
+                                **{'from': edit_from}))
 
     results = musicbrainzngs.search_recordings(artist=track.artist,
                                                recording=track.title,
                                                release=track.album)
 
-    return render_template('admin/library_track_musicbrainz.html', track=track,
+    return render_template('admin/library_track_musicbrainz.html',
+                           track=track,
+                           edit_from=edit_from,
                            results=results['recording-list'])
 
 
@@ -268,6 +305,7 @@ def library_track_musicbrainz(id):
 @check_access('library')
 def library_track_similar(id, page=1):
     track = Track.query.get_or_404(id)
+    edit_from = request.args.get('from', None)
 
     if request.method == 'POST':
         merge = [int(x) for x in request.form.getlist('merge[]')]
@@ -297,7 +335,8 @@ def library_track_similar(id, page=1):
                     track.id))
             flash("Tracks merged.")
 
-            return redirect(url_for('admin.library_track', id=track.id))
+            return redirect(url_for('admin.library_track', id=track.id,
+                                    **{'from': edit_from}))
 
     similar_tracks = Track.query.\
         filter(db.and_(
@@ -309,15 +348,16 @@ def library_track_similar(id, page=1):
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
     return render_template('admin/library_track_similar.html', track=track,
-                           similar_tracks=similar_tracks)
+                           edit_from=edit_from, similar_tracks=similar_tracks)
 
 
 @bp.route('/library/track/<int:id>/spins')
 @check_access('library')
 def library_track_spins(id):
     track = Track.query.get_or_404(id)
+    edit_from = request.args.get('from', None)
     tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
         order_by(TrackLog.played).all()
 
     return render_template('admin/library_track_spins.html', track=track,
-                           tracklogs=tracklogs)
+                           edit_from=edit_from, tracklogs=tracklogs)
