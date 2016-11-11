@@ -87,7 +87,7 @@ def library_labels(page=1):
 @check_access('library')
 def library_label():
     label = request.args['label']
-    page = request.args.get('page', 1)
+    page = int(request.args.get('page', 1))
     tracks = Track.query.filter(Track.label == label).\
         order_by(Track.album, Track.title).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
