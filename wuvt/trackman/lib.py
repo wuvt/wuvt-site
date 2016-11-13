@@ -8,11 +8,16 @@ from . import mail
 from .models import AirLog, Track, TrackLog, DJ, DJSet
 
 
-def get_duplicates(model, attrs):
+def get_duplicates(model, attrs, ignore_case=False):
+    if ignore_case:
+        model_attrs = [db.func.lower(getattr(model, attr)) for attr in attrs]
+    else:
+        model_attrs = [getattr(model, attr) for attr in attrs]
+
     dups = model.query.with_entities(
-        *[getattr(model, attr) for attr in attrs]).group_by(
-        *[getattr(model, attr) for attr in attrs]).having(db.and_(
-            *[db.func.count(getattr(model, attr)) > 1 for attr in attrs])).all()
+        *model_attrs).group_by(
+        *model_attrs).having(db.and_(
+            *[db.func.count(attr) > 1 for attr in model_attrs])).all()
     return dups
 
 
@@ -149,18 +154,8 @@ def fixup_current_track(event="track_edit"):
     }))
 
 
-def deduplicate_track_by_id(dedup_id):
-    source_track = Track.query.get(dedup_id)
-    if source_track is None:
-        current_app.logger.info(
-            "Trackman: Track ID {0:d} not found.".format(dedup_id))
-        return
-
-    track_query = Track.query.filter(db.and_(
-        Track.artist == source_track.artist,
-        Track.title == source_track.title,
-        Track.album == source_track.album,
-        Track.label == source_track.label)).order_by(Track.id)
+def merge_duplicate_tracks(*args, **kwargs):
+    track_query = Track.query.filter(*args, **kwargs).order_by(Track.id)
 
     count = track_query.count()
     tracks = track_query.all()
@@ -176,6 +171,29 @@ def deduplicate_track_by_id(dedup_id):
 
     db.session.commit()
 
+    return count, track_id
+
+
+def deduplicate_track_by_id(dedup_id, ignore_case=False):
+    source_track = Track.query.get(dedup_id)
+    if source_track is None:
+        current_app.logger.info(
+            "Trackman: Track ID {0:d} not found.".format(dedup_id))
+        return
+
+    fields = ['artist', 'title', 'album', 'label']
+    if ignore_case:
+        count, track_id = merge_duplicate_tracks(db.and_(*[
+            db.func.lower(getattr(Track, field)) == \
+                    db.func.lower(getattr(source_track, field))
+            for field in fields
+        ]))
+    else:
+        count, track_id = merge_duplicate_tracks(db.and_(*[
+            getattr(Track, field) == getattr(source_track, field)
+            for field in fields
+        ]))
+
     current_app.logger.info(
         "Trackman: Merged {0:d} duplicates of track ID {1:d} into track "
         "ID {2:d}".format(
@@ -184,28 +202,22 @@ def deduplicate_track_by_id(dedup_id):
             track_id))
 
 
-def deduplicate_all_tracks():
-    dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'])
+def deduplicate_all_tracks(ignore_case=False):
+    dups = get_duplicates(Track, ['artist', 'title', 'album', 'label'],
+                          ignore_case=ignore_case)
     for artist, title, album, label in dups:
-        track_query = Track.query.filter(db.and_(
-            Track.artist == artist,
-            Track.title == title,
-            Track.album == album,
-            Track.label == label)).order_by(Track.id)
-
-        count = track_query.count()
-        tracks = track_query.all()
-        track_id = int(tracks[0].id)
-
-        # update TrackLogs
-        TrackLog.query.filter(TrackLog.track_id.in_(
-            [track.id for track in tracks[1:]])).update(
-            {TrackLog.track_id: track_id}, synchronize_session=False)
-
-        # delete existing Track entries
-        map(db.session.delete, tracks[1:])
-
-        db.session.commit()
+        if ignore_case:
+            count, track_id = merge_duplicate_tracks(db.and_(
+                db.func.lower(Track.artist) == db.func.lower(artist),
+                db.func.lower(Track.title) == db.func.lower(title),
+                db.func.lower(Track.album) == db.func.lower(album),
+                db.func.lower(Track.label) == db.func.lower(label)))
+        else:
+            count, track_id = merge_duplicate_tracks(db.and_(
+                Track.artist == artist,
+                Track.title == title,
+                Track.album == album,
+                Track.label == label))
 
         current_app.logger.info(
             "Trackman: Merged {0:d} duplicates into track ID {1:d}".format(

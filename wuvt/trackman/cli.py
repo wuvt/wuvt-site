@@ -11,9 +11,11 @@ def trackman():
 
 
 @trackman.command()
-def deduplicate_all_tracks():
+@click.option('--ignore-case/--no-ignore-case', default=False,
+              help="Ignore capitalization.")
+def deduplicate_all_tracks(ignore_case):
     """Merge identical tracks."""
-    lib.deduplicate_all_tracks()
+    lib.deduplicate_all_tracks(ignore_case)
 
 
 @trackman.command()
