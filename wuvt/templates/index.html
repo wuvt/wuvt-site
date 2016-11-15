@@ -5,14 +5,14 @@
 {% for article in articles.items %}
 <article>
     <header>
-        <h2><a href="{{ url_for('article', slug=article.slug) }}">{{ article.title }}</a></h2>
+        <h2><a href="{{ url_for('.article', slug=article.slug) }}">{{ article.title }}</a></h2>
         <h3>written by {{ article.author.name }} on <time datetime="{{ article.datetime|isodatetime }}" data-format="MMMM D, YYYY, HH:mm">{{ article.datetime|datetime("%B %d, %Y, %H:%M") }}</time></h3>
     </header>
 
 {{ article.html_summary|safe }}
 
     <footer>
-        <a href="{{ url_for('article', slug=article.slug) }}">Read more...</a>
+        <a href="{{ url_for('.article', slug=article.slug) }}">Read more...</a>
     </footer>
 </article>
 {% endfor %}
@@ -20,11 +20,11 @@
 {% if articles.has_prev or articles.has_next -%}
 <section class="pagination">
     {% if articles.has_prev -%}
-    <a href="{{ url_for('index', page=articles.prev_num) }}">« Previous</a>
+    <a href="{{ url_for('.index', page=articles.prev_num) }}">« Previous</a>
     {% endif -%}
 
     {% if articles.has_next -%}
-    <a href="{{ url_for('index', page=articles.next_num) }}">Next »</a>
+    <a href="{{ url_for('.index', page=articles.next_num) }}">Next »</a>
     {% endif -%}
 </section>
 {% endif -%}

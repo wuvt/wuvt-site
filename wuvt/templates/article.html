@@ -12,7 +12,7 @@
 
     <footer>
         Filed under
-        <a href="{{ url_for('category', slug=article.category.slug) }}">{{ article.category.name }}</a>
+        <a href="{{ url_for('blog.category', slug=article.category.slug) }}">{{ article.category.name }}</a>
     </footer>
 </article>
 {% endblock %}

@@ -1,9 +1,8 @@
 import bleach
 import datetime
 
-from wuvt import app
-from wuvt import db
-from wuvt.blog import SUMMARY_ALLOWED_TAGS, SUMMARY_ALLOWED_ATTRIBUTES, \
+from .. import db
+from . import SUMMARY_ALLOWED_TAGS, SUMMARY_ALLOWED_ATTRIBUTES, \
     SUMMARY_ALLOWED_STYLES
 from markdown import markdown
 
@@ -54,7 +53,7 @@ class Article(db.Model):
         if self.summary is not None:
             self.html_summary = markdown(self.summary)
 
-            if app.config['SANITIZE_SUMMARY'] is True:
+            if current_app.config['SANITIZE_SUMMARY'] is True:
                 self.html_summary = bleach.clean(
                     self.html_summary,
                     tags=SUMMARY_ALLOWED_TAGS,

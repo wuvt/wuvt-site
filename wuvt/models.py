@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
 from markdown import markdown
 
+
 class User(db.Model, UserMixin):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +38,6 @@ class Page(db.Model):
     content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'), nullable=False)
     html = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     published = db.Column(db.Boolean, default=True, nullable=False)
-
 
     def __init__(self, name, slug, content, published, menu=None):
         self.name = name

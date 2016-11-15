@@ -1,11 +1,9 @@
-from flask import abort, jsonify, make_response, render_template, \
-    redirect, request, url_for, send_from_directory
+from flask import abort, jsonify, make_response, render_template, request, \
+        send_from_directory
 
 from . import app
 from . import db
 from .models import Page
-from .blog.models import Article
-from .blog.views import *
 from .view_utils import IPAccessDeniedException
 
 
@@ -23,24 +21,9 @@ def inject_menus():
     return {'menus': menus}
 
 
-@app.route('/index.php')
-def redir_index():
-    return redirect(url_for('index'))
-
-
 @app.route('/robots.txt')
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
-
-
-@app.route('/')
-@app.route('/index/<int:page>')
-def index(page=1):
-    articles = Article.query.filter_by(published=True, front_page=True).\
-        order_by(db.desc(Article.datetime)).paginate(
-            page,
-            app.config['POSTS_PER_PAGE'])
-    return render_template('index.html', articles=articles)
 
 
 @app.route('/<string:slug>')

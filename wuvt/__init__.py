@@ -71,25 +71,11 @@ login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.init_app(app)
 
-from wuvt import admin
-app.register_blueprint(admin.bp, url_prefix='/admin')
-
-from wuvt import auth
-app.register_blueprint(auth.bp, url_prefix='/auth')
-
-if app.config['DONATE_ENABLE']:
-    from wuvt import donate
-    app.register_blueprint(donate.bp, url_prefix='/donate')
-
-from wuvt import trackman
-app.register_blueprint(trackman.bp)
-app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
-app.register_blueprint(trackman.api_bp, url_prefix='/trackman/api')
-
 
 @app.context_processor
 def inject_nowplaying():
-    track = trackman.trackinfo()
+    from wuvt.trackman import trackinfo
+    track = trackinfo()
     if not track:
         return {
             'current_track': u"Not Available",
@@ -104,9 +90,12 @@ def inject_nowplaying():
     }
 
 
-from wuvt import cli
-from wuvt import models
-from wuvt import views
+@app.context_processor
+def inject_categories():
+    from wuvt.blog.models import Category
+    categories = Category.query.order_by(Category.name).all()
+    return {'categories': categories}
+
 
 if app.debug:
     from werkzeug.debug import DebuggedApplication
@@ -133,3 +122,30 @@ Time:               %(asctime)s
         syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
         syslog_handler.setLevel(logging.WARNING)
         app.logger.addHandler(syslog_handler)
+
+
+def init_app():
+    from wuvt import admin
+    app.register_blueprint(admin.bp, url_prefix='/admin')
+
+    from wuvt import auth
+    app.register_blueprint(auth.bp, url_prefix='/auth')
+
+    from wuvt import blog
+    app.register_blueprint(blog.bp)
+
+    if app.config['DONATE_ENABLE']:
+        from wuvt import donate
+        app.register_blueprint(donate.bp, url_prefix='/donate')
+
+    from wuvt import trackman
+    app.register_blueprint(trackman.bp)
+    app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
+    app.register_blueprint(trackman.api_bp, url_prefix='/trackman/api')
+
+    from wuvt import cli
+    from wuvt import models
+    from wuvt import views
+
+
+init_app()

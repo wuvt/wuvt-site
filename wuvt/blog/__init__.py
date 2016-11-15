@@ -1,3 +1,5 @@
+from flask import Blueprint
+
 SUMMARY_ALLOWED_TAGS = [
     'a',
     'abbr',
@@ -38,3 +40,7 @@ SUMMARY_ALLOWED_ATTRIBUTES = {
 }
 
 SUMMARY_ALLOWED_STYLES = ['color', 'clear', 'text-align']
+
+bp = Blueprint('blog', __name__)
+
+from . import views

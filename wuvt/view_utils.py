@@ -79,8 +79,8 @@ def sse_response(channel):
             # on IPv4 by default. You can work around this by specifying an
             # IPv6 address directly.
             server = socket.gethostbyname(server)
-            #addrinfo = socket.getaddrinfo(u[0], port)
-            #server = addrinfo[0][4][0]
+            # addrinfo = socket.getaddrinfo(u[0], port)
+            # server = addrinfo[0][4][0]
 
         if u.port is not None:
             port = u.port
