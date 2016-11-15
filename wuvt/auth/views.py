@@ -24,7 +24,7 @@ def login():
                         'admin': app.config['LDAP_GROUPS_ADMIN'],
                         'business': app.config['LDAP_GROUPS_BUSINESS'],
                         'library': app.config['LDAP_GROUPS_LIBRARY'],
-                        'radiothon': app.config['LDAP_GROUPS_RADIOTHON'],
+                        'missioncontrol': app.config['LDAP_GROUPS_RADIOTHON'],
                     },
                     verify=app.config['LDAP_VERIFY'])
 
