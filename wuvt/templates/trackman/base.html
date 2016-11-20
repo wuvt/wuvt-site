@@ -7,7 +7,7 @@
 
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=1) }}" />
 
         <link rel="shortcut icon"
             href="{{ url_for('static', filename='img/favicon.ico') }}" />
@@ -15,6 +15,9 @@
             href="{{ url_for('static', filename='img/icon.png') }}" />
     </head>
     <body{% block bodyattrib %}{% endblock %}>
+{% block header %}
+{% endblock %}
+
 <div class="container-fluid">
     {% for msg in get_flashed_messages() %}
     <div class="alert alert-info">

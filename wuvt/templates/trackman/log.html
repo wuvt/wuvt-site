@@ -1,77 +1,95 @@
 {% extends "trackman/base.html" %}
-{% block content %}
-<div class="floating-alerts" id="trackman_alerts"></div> 
-
-<form action="{{ url_for('trackman_private.logout', setid=djset.id) }}"
-        method="post" id="trackman_logout_form">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-    <input type="hidden" name="email_playlist" value="0" />
-</form>
-<div class="row trackman-header">
-    <div class="col-md-3">
-        <h1>{{ trackman_name }}: {{ djset.dj.airname }}</h1>
+{% block header %}
+<nav class="navbar navbar-default trackman-header">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#trackman-top-collapse" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <span class="navbar-brand">{{ trackman_name }}</span>
     </div>
-    <div class="col-md-6 text-center">
+
+    <div class="collapse navbar-collapse" id="trackman-top-collapse">
+        <p class="navbar-text">{{ djset.dj.airname }}</p>
+
+        <form action="{{ url_for('trackman_private.logout', setid=djset.id) }}"
+                method="post" class="navbar-form navbar-right"
+                id="trackman_logout_form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+            <label class="checkbox-inline">
+                <input type="checkbox" name="email_playlist"
+                    id="id_email_playlist"
+                    {% if email_playlist %}checked="checked"{% endif %} />
+                Email me my playlist
+            </label>
+
+            <label class="checkbox-inline">
+                <input type="checkbox" name="extend_autologout"
+                    id="id_extend_autologout" />
+                Let me play longer songs
+            </label>
+
+            <button type="button" class="btn btn-warning">
+                <span class="glyphicon glyphicon-log-out"></span>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <div class="text-center trackman-metadata-reminder">
         <h4>
             <span class="glyphicon glyphicon-flag"></span>
             If you can't fill in the blanks, you can't play it.
         </h4>
-
-        You may find these sites helpful to find missing information:
+        <p>You may find these sites helpful to find missing information:</p>
         <ul class="list-inline">
             <li><a href="http://www.allmusic.com/"
-                rel="external" target="_blank">AllMusic</a></li>
+                rel="external noopener noreferrer"
+                target="_blank">AllMusic</a></li>
             <li><a href="http://www.amazon.com/music/"
-                rel="external" target="_blank">Amazon.com Music</a></li>
+                rel="external noopener noreferrer"
+                target="_blank">Amazon.com Music</a></li>
             <li><a href="http://www.discogs.com/"
-                rel="external" target="_blank">Discogs</a></li>
+                rel="external noopener noreferrer"
+                target="_blank">Discogs</a></li>
             <li><a href="http://musicbrainz.org/search.html"
-                rel="external" target="_blank">MusicBrainz</a></li>
+                rel="external noopener noreferrer"
+                target="_blank">MusicBrainz</a></li>
             <li><a href="http://metal-archives.com" 
-                rel="external" target="_blank">Metal Archives</a></li>
+                rel="external noopener noreferrer"
+                target="_blank">Metal Archives</a></li>
         </ul>
     </div>
-    <div class="col-md-3 text-right">
-        <div class="btn-toolbar" role="group">
-            <button type="button" class="btn btn-warning" id="trackman_logout_btn">
-                <span class="glyphicon glyphicon-log-out"></span>
-                Logout
-            </button>
-        </div>
+</nav>
+{% endblock %}
 
-        <label>
-            Email me my playlist
-            <input type="checkbox" name="email_playlist"
-                id="id_email_playlist"
-                {% if email_playlist %}checked="checked"{% endif %} />
-        </label>
+{% block content %}
+<div class="floating-alerts" id="trackman_alerts"></div> 
 
-        <label>
-            Let me play longer songs
-            <input type="checkbox" name="extend_autologout"
-                id="id_extend_autologout" />
-        </label>
+<div class="panel panel-default">
+    <div class="row-table">
+        <table class='table table-condensed table-striped table-hover' id="playlist">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Artist</th>
+                    <th>Title</th>
+                    <th>Album</th>
+                    <th>Label</th>
+                    <th>Request</th>
+                    <th>Vinyl</th>
+                    <th>New</th>
+                    <th>Rotation</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
-</div>
-<div class="row row-table">
-    <table class='table table-condensed table-striped table-hover' id="playlist">
-        <thead>
-            <tr>
-                <th>Time</th>
-                <th>Artist</th>
-                <th>Title</th>
-                <th>Album</th>
-                <th>Label</th>
-                <th>Request</th>
-                <th>Vinyl</th>
-                <th>New</th>
-                <th>Rotation</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
 </div>
 
 <div class="trackman-entry">
@@ -107,24 +125,18 @@
             <div class="form-inline">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="checkbox">
-                            <label>
-                                Request
-                                <input type="checkbox" class="request" name="request"/>
-                            </label>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                Vinyl
-                                <input type="checkbox" class="vinyl" name="vinyl"/>
-                            </label>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                New
-                                <input type="checkbox" class="new" name="new"/>
-                            </label>
-                        </div>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" class="request" name="request"/>
+                            Request
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" class="vinyl" name="vinyl"/>
+                            Vinyl
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" class="new" name="new"/>
+                            New
+                        </label>
                     </div>
                 </div>
             </div>
@@ -193,49 +205,55 @@
 </div>
 -->
 
-<div class="row row-table trackman-queue">
-    <table class='table table-condensed table-striped table-hover' id='queue'>
-        <thead>
-            <tr>
-                <th>Artist</th>
-                <th>Title</th>
-                <th>Album</th>
-                <th>Label</th>
-                <th>Request</th>
-                <th>Vinyl</th>
-                <th>New</th>
-                <th>Rotation</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+<div class="panel panel-default"> 
+    <div class="row-table trackman-queue">
+        <table class='table table-condensed table-striped table-hover' id='queue'>
+            <thead>
+                <tr>
+                    <th>Artist</th>
+                    <th>Title</th>
+                    <th>Album</th>
+                    <th>Label</th>
+                    <th>Request</th>
+                    <th>Vinyl</th>
+                    <th>New</th>
+                    <th>Rotation</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="row row-table trackman-search-results">
-    <h4>Search Results</h4>
-    <table class='table table-condensed table-striped table-hover' id="search">
-        <thead>
-            <tr>
-                <th>Artist</th>
-                <th>Title</th>
-                <th>Album</th>
-                <th>Label</th>
-                <th>Request</th>
-                <th>Vinyl</th>
-                <th>New</th>
-                <th>Rotation</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Search Results</h3>
+    </div>
+    <div class="row-table trackman-search-results">
+        <table class='table table-condensed table-striped table-hover' id="search">
+            <thead>
+                <tr>
+                    <th>Artist</th>
+                    <th>Title</th>
+                    <th>Album</th>
+                    <th>Label</th>
+                    <th>Request</th>
+                    <th>Vinyl</th>
+                    <th>New</th>
+                    <th>Rotation</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=1) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=2) }}"></script>
 <script src="{{ url_for('trackman_private.log_js', setid=djset.id) }}"></script>
 {% endblock %}
