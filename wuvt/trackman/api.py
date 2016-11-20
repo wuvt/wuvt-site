@@ -529,7 +529,6 @@ class TrackAutoComplete(TrackmanResource):
         }
 
 
-
 class TrackList(TrackmanResource):
     def post(self):
         """
