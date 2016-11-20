@@ -20,7 +20,7 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
             <label class="checkbox-inline">
-                <input type="checkbox" name="email_playlist"
+                <input type="checkbox" name="email_playlist" value="true"
                     id="id_email_playlist"
                     {% if email_playlist %}checked="checked"{% endif %} />
                 Email me my playlist
