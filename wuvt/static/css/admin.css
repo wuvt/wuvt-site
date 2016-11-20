@@ -80,16 +80,18 @@ td.row-options {
             column-count: 5;
 }
 
-.trackman-header h1 {
-    font-size: 30px;
-    margin: 4px 0;
-    max-height: 100px;
-    overflow: hidden;
-}
-
-.trackman-header label,
 .trackman-header button {
     margin-left: 1em;
+}
+
+.trackman-metadata-reminder h4,
+.trackman-metadata-reminder p,
+.trackman-metadata-reminder ul.list-inline {
+    display: inline-block;
+}
+
+.trackman-metadata-reminder p {
+    margin-right: 5px;
 }
 
 .row-table {
@@ -97,13 +99,9 @@ td.row-options {
     overflow-y: auto;
 }
 
-.lookup-controls div.checkbox:not(:first-child) label:before {
-    content: " - ";
-}
-
 .floating-alerts {
     position: fixed;
-    top: 40px;
+    top: 70px;
     left: 15px;
     right: 15px;
     z-index: 100;
@@ -125,8 +123,8 @@ td.row-options {
     min-width: 133px;
 }
 
-#trackman_logout_form {
-    display: none;
+.trackman-entry {
+    margin-bottom: 20px;
 }
 
 .trackman-queue {
@@ -134,5 +132,5 @@ td.row-options {
 }
 
 .trackman-search-results {
-    height: 340px;
+    height: 200px;
 }

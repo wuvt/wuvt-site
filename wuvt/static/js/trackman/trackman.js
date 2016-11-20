@@ -1057,14 +1057,9 @@ Trackman.prototype.initEventHandler = function() {
 
 Trackman.prototype.init = function() {
     var inst = this;
-    $('#trackman_logout_btn').bind('click', {}, function() {
-        var email = ($('#id_email_playlist:checked').val() == "on") ? 'true' : 'false';
-        $("#trackman_logout_form input[name='email_playlist']").val(email);
-
+    $('#trackman_logout_form').bind('submit', {}, function() {
         inst.clearQueue();
         inst.saveQueue();
-
-        $('#trackman_logout_form').submit();
     });
 
     this.initEventHandler();
