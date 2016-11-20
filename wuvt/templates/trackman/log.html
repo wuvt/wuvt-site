@@ -97,26 +97,26 @@
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Artist</span>
-                <input type="test" name="artist" id="artist" value="" class="form-control">
+                <input type="text" name="artist" id="artist" value="" class="form-control">
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Title</span>
-                <input type="test" name="title" id="title" value="" class="form-control">
+                <input type="text" name="title" id="title" value="" class="form-control">
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Album</span>
-                <input type="test" name="album" id="album" value="" class="form-control">
+                <input type="text" name="album" id="album" value="" class="form-control">
     
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Label</span>
-                <input type="test" name="rlabel" id="rlabel" value="" class="form-control">
+                <input type="text" name="rlabel" id="rlabel" value="" class="form-control">
             </div>
         </div>
     </div>
@@ -254,6 +254,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=2) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=3) }}"></script>
 <script src="{{ url_for('trackman_private.log_js', setid=djset.id) }}"></script>
 {% endblock %}

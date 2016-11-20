@@ -505,6 +505,16 @@ Trackman.prototype.clearTimer = function(tableclass) {
 Trackman.prototype.initSearch = function() {
     this.searchResults = [];
     this.bindSearchListeners();
+
+    this.searchLists = ['artist', 'title', 'album', 'rlabel'];
+    for(var i in this.searchLists) {
+        var listId = this.searchLists[i] + '_autocomplete';
+        var listElem = $('<datalist>');
+        listElem.prop('id', listId);
+        $('body').append(listElem);
+        $('input#' + this.searchLists[i]).attr('list', listId);
+        $('input#' + this.searchLists[i]).prop('autocomplete', "off");
+    }
 };
 
 Trackman.prototype.logSearch = function(element) {
@@ -569,15 +579,42 @@ Trackman.prototype.updateHistory = function() {
     // Remove old history results
     $("table#search tbody tr").remove();
 
+    var resultLists = {};
+    for(var i in this.searchLists) {
+        resultLists[this.searchLists[i]] = {};
+    }
+
+    function addUnique(listName, value) {
+        if(!(value in resultLists[listName])) {
+            resultLists[listName][value] = 1;
+        }
+    }
+
     // Add new results
     for(var i = 0; i < this.searchResults.length; i++) {
         var result = this.searchResults[i];
+
+        addUnique('artist', result['artist']);
+        addUnique('title', result['title']);
+        addUnique('album', result['album']);
+        addUnique('rlabel', result['label']);
+
         $("table#search tbody").append(this.renderSearchRow(i, result));
         var row = $("table#search tbody tr#s" + i);
         row.find(".request input").prop("checked", result['request']);
         row.find(".vinyl input").prop("checked", result['vinyl']);
         row.find(".new input").prop("checked", result['new']);
         this.renderRotation(row.find("select.rotation"), result['rotation']);
+    }
+
+    for(var k in resultLists) {
+        var listElem = $('#' + k + '_autocomplete');
+        listElem.empty();
+        for(var value in resultLists[k]) {
+            var elem = $('<option>');
+            elem.prop('value', value);
+            listElem.append(elem);
+        }
     }
 
     this.bindSearchListeners();
