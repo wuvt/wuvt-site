@@ -240,6 +240,86 @@ class DJSetList(TrackmanResource):
         }, 201
 
 
+class Track(TrackmanResource):
+    def get(self, track_id):
+        """
+        Get information about a Track
+        ---
+        operationId: getTrackById
+        tags:
+        - trackman
+        - djset
+        parameters:
+        - in: path
+          name: track_id
+          type: integer
+          required: true
+          description: The ID of an existing Track
+        responses:
+          404:
+            description: Track not found
+        """
+        track = models.Track.query.get(track_id)
+        if not track:
+            abort(404, message="Track not found")
+
+        return {
+            'success': True,
+            'track': track.serialize(),
+        }
+
+
+class TrackReport(TrackmanResource):
+    def post(self, track_id):
+        """
+        Report a Track
+        ---
+        operationId: getTrackById
+        tags:
+        - trackman
+        - djset
+        parameters:
+        - in: path
+          name: track_id
+          type: integer
+          required: true
+          description: The ID of an existing Track
+        - in: form
+          name: reason
+          type: string
+          required: true
+          description: The reason for reporting the track
+        - in: form
+          name: dj_id
+          type: integer
+          required: true
+          description: The DJ to associate with the report
+        responses:
+          201:
+            description: Track report created
+          404:
+            description: Track not found
+        """
+        track = models.Track.query.get(track_id)
+        if not track:
+            abort(404, message="Track not found")
+
+        reason = request.form['reason'].strip()
+        if len(reason) <= 0:
+            abort(400, message="A reason must be provided")
+
+        # XXX: The dj_id provided by the client should not be blindly trusted
+        dj_id = int(request.form['dj_id'])
+
+        report = models.TrackReport(dj_id, track_id, reason)
+        db.session.add(report)
+        db.session.commit()
+
+        return {
+            'success': True,
+        }
+
+
 class TrackSearch(TrackmanResource):
     def get(self):
         """
@@ -1047,6 +1127,8 @@ api = Api(api_bp)
 api.add_resource(AutomationLog, '/automation/log')
 api.add_resource(DJSet, '/djset/<int:djset_id>')
 api.add_resource(DJSetList, '/djset')
+api.add_resource(Track, '/track/<int:track_id>')
+api.add_resource(TrackReport, '/track/<int:track_id>/report')
 api.add_resource(TrackSearch, '/search')
 api.add_resource(TrackAutoComplete, '/autocomplete')
 api.add_resource(TrackList, '/track')

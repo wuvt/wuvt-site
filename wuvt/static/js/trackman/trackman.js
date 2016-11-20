@@ -1080,8 +1080,57 @@ Trackman.prototype.inlineEditTrack = function(ev) {
 };
 
 Trackman.prototype.reportTrack = function(id) {
-    url = "/trackman/report/" + dj_id + "/" + id;
-    var report_win = window.open(url, "reportWindow", "height=600,width=1200");
+    var inst = this;
+
+    $('#report_modal').modal();
+    $('#report_modal_tbody').empty();
+
+    $.ajax({
+        url: "/trackman/api/track/" + id,
+        dataType: "json",
+        context: this,
+        success: function(data) {
+            if(data['success'] == false) {
+                alert(data['error']);
+                return;
+            }
+
+            var tr = $('<tr>');
+
+            var fields = ['artist', 'title', 'album', 'label'];
+            for(var i in fields) {
+                var td = $('<td>');
+                td.text(data['track'][fields[i]]);
+                tr.append(td);
+            }
+
+            $('#report_modal_tbody').append(tr);
+        },
+    });
+
+    $('#report_submit_btn').off('click');
+    $('#report_submit_btn').on('click', function() {
+        $.ajax({
+            url: "/trackman/api/track/" + id + "/report",
+            data: {
+                'dj_id': inst.djId,
+                'reason': $('#id_report_reason').val(),
+            },
+            dataType: "json",
+            type: "POST",
+            context: this,
+            success: function(data) {
+                if(data['success'] == false) {
+                    alert(data['error']);
+                    return;
+                }
+
+                inst.showAlert("Your report has been submitted. Thanks for helping to improve our track library!");
+                $('#id_report_reason').val('');
+                $('#report_modal').modal('hide');
+            },
+        });
+    });
 };
 
 Trackman.prototype.showAlert = function(msg) {

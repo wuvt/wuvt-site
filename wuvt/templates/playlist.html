@@ -10,7 +10,7 @@
     <h4>Listen Online</h4>
     <ol>
         {% for link, text in archives %}
-        <li><a target="_blank" href='{{ link }}'>{{ text }}</a></li>
+        <li><a href="{{ link }}" rel="external noreferrer">{{ text }}</a></li>
         {% endfor %}
     </ol>
 </div>

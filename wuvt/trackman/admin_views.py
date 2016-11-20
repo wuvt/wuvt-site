@@ -7,7 +7,7 @@ from .. import db, redis_conn
 from ..view_utils import local_only, sse_response
 from . import private_bp, mail
 from .lib import disable_automation, enable_automation, logout_all_except
-from .models import DJ, DJSet, Track, TrackLog, Rotation, TrackReport
+from .models import DJ, DJSet, Track, TrackLog, Rotation
 from .view_utils import dj_interact
 
 
@@ -99,34 +99,6 @@ def log_js(setid):
                          rotations=rotations))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
-
-
-@private_bp.route('/report/<int:dj_id>/<int:track_id>', methods=['GET', 'POST'])
-@local_only
-@dj_interact
-def report_track(dj_id, track_id):
-    track = Track.query.get_or_404(track_id)
-    dj = DJ.query.get_or_404(dj_id)
-    if request.method == 'GET':
-        return render_template('trackman/report.html', track=track, dj=dj,
-                               trackman_name=current_app.config['TRACKMAN_NAME'])
-    else:
-        # This is a POST
-        if 'reason' not in request.form:
-            return render_template('trackman/report.html', track=track, dj=dj,
-                                   trackman_name=current_app.config['TRACKMAN_NAME'],
-                                   error="A reason is required")
-
-        reason = request.form['reason'].strip()
-        if len(reason) == 0:
-            return render_template('trackman/report.html', track=track, dj=dj,
-                                   trackman_name=current_app.config['TRACKMAN_NAME'],
-                                   error="A reason is required")
-
-        report = TrackReport(dj_id, track_id, reason)
-        db.session.add(report)
-        db.session.commit()
-        return render_template('trackman/reportsuccess.html', dj=dj)
 
 
 @private_bp.route('/log/<int:setid>/end', methods=['POST'])
