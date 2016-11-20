@@ -559,7 +559,7 @@ Trackman.prototype.searchHistory = function() {
         dataType: "json",
         success: function(data) {
             if(data['success'] == false) { 
-                alert(data['error']);
+                //alert(data['error']);
                 return;
             }
             results = data['results'];
@@ -579,25 +579,9 @@ Trackman.prototype.updateHistory = function() {
     // Remove old history results
     $("table#search tbody tr").remove();
 
-    var resultLists = {};
-    for(var i in this.searchLists) {
-        resultLists[this.searchLists[i]] = {};
-    }
-
-    function addUnique(listName, value) {
-        if(!(value in resultLists[listName])) {
-            resultLists[listName][value] = 1;
-        }
-    }
-
     // Add new results
     for(var i = 0; i < this.searchResults.length; i++) {
         var result = this.searchResults[i];
-
-        addUnique('artist', result['artist']);
-        addUnique('title', result['title']);
-        addUnique('album', result['album']);
-        addUnique('rlabel', result['label']);
 
         $("table#search tbody").append(this.renderSearchRow(i, result));
         var row = $("table#search tbody tr#s" + i);
@@ -607,17 +591,40 @@ Trackman.prototype.updateHistory = function() {
         this.renderRotation(row.find("select.rotation"), result['rotation']);
     }
 
-    for(var k in resultLists) {
-        var listElem = $('#' + k + '_autocomplete');
-        listElem.empty();
-        for(var value in resultLists[k]) {
-            var elem = $('<option>');
-            elem.prop('value', value);
-            listElem.append(elem);
-        }
+    this.bindSearchListeners();
+};
+
+Trackman.prototype.autocompleteField = function(name) {
+    var inst = this;
+    var searchData = this.getFormData();
+
+    if(name == 'rlabel') {
+        searchData['field'] = "label";
+    }
+    else {
+        searchData['field'] = name;
     }
 
-    this.bindSearchListeners();
+    $.ajax({
+        url: "/trackman/api/autocomplete",
+        data: searchData,
+        dataType: "json",
+        success: function(data) {
+            if(data['success'] == false) {
+                return;
+            }
+            results = data['results'];
+
+            var listElem = $('#' + name + '_autocomplete');
+            listElem.empty();
+
+            for(var i = 0; i < results.length; i++) {
+                var elem = $('<option>');
+                elem.prop('value', results[i]);
+                listElem.append(elem);
+            }
+        },
+    });
 };
 
 Trackman.prototype.searchForm = function() {
@@ -625,6 +632,7 @@ Trackman.prototype.searchForm = function() {
     $(".trackman-entry input.form-control").each(function(index) {
         if($(this).val().length >= 2) {
             inst.searchHistory();
+            inst.autocompleteField($(this).prop('name'));
             return false;
         }
     });

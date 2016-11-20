@@ -385,6 +385,151 @@ class TrackSearch(TrackmanResource):
         }
 
 
+class TrackAutoComplete(TrackmanResource):
+    def get(self):
+        """
+        Search the track database for a particular field
+        ---
+        operationId: autocompleteTracks
+        tags:
+        - trackman
+        - track
+        parameters:
+        - in: query
+          name: artist
+          type: string
+          description: Partial artist name
+        - in: query
+          name: title
+          type: string
+          description: Partial track title
+        - in: query
+          name: album
+          type: string
+          description: Partial album title
+        - in: query
+          name: label
+          type: string
+          description: Partial record label
+        - in: query
+          name: field
+          type: string
+          required: true
+          description: The field to autocomplete
+        responses:
+          200:
+            description: Search results
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                results:
+                  type: array
+          400:
+            description: Bad request
+        """
+
+        field = request.args['field']
+        if field == 'artist':
+            base_query = models.Track.query.\
+                with_entities(models.Track.artist).\
+                group_by(models.Track.artist)
+        elif field == 'title':
+            base_query = models.Track.query.\
+                with_entities(models.Track.title).\
+                group_by(models.Track.title)
+        elif field == 'album':
+            base_query = models.Track.query.\
+                with_entities(models.Track.album).\
+                group_by(models.Track.album)
+        elif field == 'label':
+            base_query = models.Track.query.\
+                with_entities(models.Track.label).\
+                group_by(models.Track.label)
+        else:
+            abort(400)
+
+        # To verify some data was searched for
+        somesearch = False
+
+        tracks = base_query
+
+        # Do case-insensitive exact matching first
+
+        artist = request.args.get('artist', '').strip()
+        if len(artist) > 0:
+            somesearch = True
+            tracks = tracks.filter(
+                db.func.lower(models.Track.artist) == db.func.lower(artist))
+
+        title = request.args.get('title', '').strip()
+        if len(title) > 0:
+            somesearch = True
+            tracks = tracks.filter(
+                db.func.lower(models.Track.title) == db.func.lower(title))
+
+        album = request.args.get('album', '').strip()
+        if len(album) > 0:
+            somesearch = True
+            tracks = tracks.filter(
+                db.func.lower(models.Track.album) == db.func.lower(album))
+
+        label = request.args.get('label', '').strip()
+        if len(label) > 0:
+            somesearch = True
+            tracks = tracks.filter(
+                db.func.lower(models.Track.label) == db.func.lower(label))
+
+        # This means there was a bad search, stop searching
+        if somesearch is False:
+            abort(400, message="No search entires")
+
+        # Check if results
+
+        tracks = tracks.limit(8).all()
+        if len(tracks) == 0:
+            tracks = base_query
+
+            # if there are too few results, append some similar results
+            artist = request.args.get('artist', '').strip()
+            if len(artist) > 0:
+                somesearch = True
+                tracks = tracks.filter(
+                    models.Track.artist.ilike(''.join(['%', artist, '%'])))
+
+            title = request.args.get('title', '').strip()
+            if len(title) > 0:
+                somesearch = True
+                tracks = tracks.filter(
+                    models.Track.title.ilike(''.join(['%', title, '%'])))
+
+            album = request.args.get('album', '').strip()
+            if len(album) > 0:
+                somesearch = True
+                tracks = tracks.filter(
+                    models.Track.album.ilike(''.join(['%', album, '%'])))
+
+            label = request.args.get('label', '').strip()
+            if len(label) > 0:
+                somesearch = True
+                tracks = tracks.filter(
+                    models.Track.label.ilike(''.join(['%', label, '%'])))
+
+            tracks = tracks.limit(8).all()
+
+        if len(tracks) > 0:
+            results = [t[0] for t in tracks]
+        else:
+            results = []
+
+        return {
+            'success': True,
+            'results': results,
+        }
+
+
+
 class TrackList(TrackmanResource):
     def post(self):
         """
@@ -904,6 +1049,7 @@ api.add_resource(AutomationLog, '/automation/log')
 api.add_resource(DJSet, '/djset/<int:djset_id>')
 api.add_resource(DJSetList, '/djset')
 api.add_resource(TrackSearch, '/search')
+api.add_resource(TrackAutoComplete, '/autocomplete')
 api.add_resource(TrackList, '/track')
 api.add_resource(TrackLog, '/tracklog/edit/<int:tracklog_id>')
 api.add_resource(TrackLogList, '/tracklog')
