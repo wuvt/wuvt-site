@@ -315,7 +315,7 @@ Trackman.prototype.initPlaylist = function() {
 
         clearTimeout(thread);
         thread = setTimeout(function() {
-            inst.searchForm(ev);
+            inst.searchForm();
         }, 350);
     });
     $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
