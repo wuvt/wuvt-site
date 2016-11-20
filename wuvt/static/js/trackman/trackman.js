@@ -65,6 +65,7 @@ function Trackman(csrfToken, djsetId, djId, rotations) {
     this.djId = djId;
     this.rotations = rotations;
     this.timers = {'queue': null, 'search': null};
+    this.completeTimer = null;
 }
 
 Trackman.prototype.clearForm = function(ev) {
@@ -301,12 +302,21 @@ Trackman.prototype.initPlaylist = function() {
     this.playlist = [];
 
     var inst = this;
+
+    $(".trackman-entry input").on('focus', function () {
+        inst.delayAutoCompleteField($(this).prop('name'));
+    });
+
     var thread = null;
     $(".trackman-entry input").keyup(function () {
-        clearTimeout(thread);
         var target = $(this);
-        thread = setTimeout(function(){inst.searchForm();}, 350);
 
+        inst.delayAutoCompleteField($(this).prop('name'));
+
+        clearTimeout(thread);
+        thread = setTimeout(function() {
+            inst.searchForm(ev);
+        }, 350);
     });
     $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
     $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
@@ -594,7 +604,7 @@ Trackman.prototype.updateHistory = function() {
     this.bindSearchListeners();
 };
 
-Trackman.prototype.autocompleteField = function(name) {
+Trackman.prototype.autoCompleteField = function(name) {
     var inst = this;
     var searchData = this.getFormData();
 
@@ -627,12 +637,24 @@ Trackman.prototype.autocompleteField = function(name) {
     });
 };
 
+Trackman.prototype.delayAutoCompleteField = function(name) {
+    var inst = this;
+    if($('#' + name + '_autocomplete').length == 0) {
+        this.autoCompleteField(name);
+    }
+    else {
+        clearTimeout(inst.completeTimer);
+        inst.completeTimer = setTimeout(function() {
+            inst.autoCompleteField(name);
+        }, 350);
+    }
+};
+
 Trackman.prototype.searchForm = function() {
     var inst = this;
     $(".trackman-entry input.form-control").each(function(index) {
         if($(this).val().length >= 2) {
             inst.searchHistory();
-            inst.autocompleteField($(this).prop('name'));
             return false;
         }
     });
