@@ -184,8 +184,8 @@ def deduplicate_track_by_id(dedup_id, ignore_case=False):
     fields = ['artist', 'title', 'album', 'label']
     if ignore_case:
         count, track_id = merge_duplicate_tracks(db.and_(*[
-            db.func.lower(getattr(Track, field)) == \
-                    db.func.lower(getattr(source_track, field))
+            db.func.lower(getattr(Track, field)) ==
+            db.func.lower(getattr(source_track, field))
             for field in fields
         ]))
     else:
@@ -223,6 +223,27 @@ def deduplicate_all_tracks(ignore_case=False):
             "Trackman: Merged {0:d} duplicates into track ID {1:d}".format(
                 count - 1,
                 track_id))
+
+
+def autofill_na_labels():
+    na_label_tracks = Track.query.filter(Track.label == u"Not Available").all()
+    for na_track in na_label_tracks:
+        other_track = Track.query.filter(db.and_(
+            Track.artist == na_track.artist,
+            Track.title == na_track.title,
+            Track.album == na_track.album,
+            Track.label != u"Not Available")).first()
+        if other_track is not None:
+            # update TrackLogs to point to other Track
+            TrackLog.query.filter(TrackLog.track_id == na_track.id).update(
+                {TrackLog.track_id: other_track.id}, synchronize_session=False)
+
+            db.session.delete(na_track)
+            db.session.commit()
+
+            current_app.logger.info(
+                "Trackman: Found a track with a label for track ID {0:d}, "
+                "merged into {1:d}".format(na_track.id, other_track.id))
 
 
 def email_weekly_charts():

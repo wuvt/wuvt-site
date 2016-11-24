@@ -19,6 +19,12 @@ def deduplicate_all_tracks(ignore_case):
 
 
 @trackman.command()
+def autofill_na_labels():
+    """Try to find an appropriate label for tracks without one."""
+    lib.autofill_na_labels()
+
+
+@trackman.command()
 def email_weekly_charts():
     """If configured, email the weekly charts."""
     lib.email_weekly_charts()
