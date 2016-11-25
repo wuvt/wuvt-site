@@ -161,15 +161,16 @@ def merge_duplicate_tracks(*args, **kwargs):
     tracks = track_query.all()
     track_id = int(tracks[0].id)
 
-    # update TrackLogs
-    TrackLog.query.filter(TrackLog.track_id.in_(
-        [track.id for track in tracks[1:]])).update(
-        {TrackLog.track_id: track_id}, synchronize_session=False)
+    if len(tracks) > 1:
+        # update TrackLogs
+        TrackLog.query.filter(TrackLog.track_id.in_(
+            [track.id for track in tracks[1:]])).update(
+            {TrackLog.track_id: track_id}, synchronize_session=False)
 
-    # delete existing Track entries
-    map(db.session.delete, tracks[1:])
+        # delete existing Track entries
+        map(db.session.delete, tracks[1:])
 
-    db.session.commit()
+        db.session.commit()
 
     return count, track_id
 
