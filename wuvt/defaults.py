@@ -52,6 +52,7 @@ TRACKMAN_ARTIST_BLACKLIST = ["?"]
 TRACKMAN_LABEL_BLACKLIST = ["same"]
 
 ARCHIVE_BASE_URL = ""
+MUSICBRAINZ_HOSTNAME = "musicbrainz.org"
 
 ADMINS = []
 MAIL_FROM = "noreply@localhost"

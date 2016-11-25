@@ -148,6 +148,8 @@ def library_fixup_tracks(key, page=1):
 @bp.route('/library/track/<int:id>', methods=['GET', 'POST'])
 @check_access('library')
 def library_track(id):
+    musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
+
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
     error_fields = []
@@ -225,6 +227,8 @@ def library_track(id):
 @bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
 @check_access('library')
 def library_track_musicbrainz(id):
+    musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
+
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
 
