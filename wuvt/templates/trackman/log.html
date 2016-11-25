@@ -97,26 +97,29 @@
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Artist</span>
-                <input type="text" name="artist" id="artist" value="" class="form-control">
+                <input type="text" name="artist" id="artist" value="" class="form-control"
+                    title="Enter the name of the artist for the track. If there is no clear artist listed, please use Various Artists as the artist."/>
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Title</span>
-                <input type="text" name="title" id="title" value="" class="form-control">
+                <input type="text" name="title" id="title" value="" class="form-control"
+                    title="Enter the name of the track. Please log multiple tracks separately, even if they are on the same album."/>
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Album</span>
-                <input type="text" name="album" id="album" value="" class="form-control">
-    
+                <input type="text" name="album" id="album" value="" class="form-control"
+                    title="Enter the name of the release this track is on. For historical reasons, this is referred to as an album even if it is not."/>
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
                 <span class="input-group-addon">Label</span>
-                <input type="text" name="rlabel" id="rlabel" value="" class="form-control">
+                <input type="text" name="rlabel" id="rlabel" value="" class="form-control"
+                    title="Enter the record label for the release the track is on. Please be as specific as possible and include only one label; for example, use Sub Pop Records instead of the parent company, Warner Music Group."/>
             </div>
         </div>
     </div>
@@ -157,15 +160,18 @@
         </div>
         <div class="col-md-6">
             <div class="btn-group">
-                <button id="new-queue" class="btn btn-primary">
+                <button id="new-queue" class="btn btn-primary"
+                    title="Add this track to the queue below so it can be easily logged later.">
                     <span class="glyphicon glyphicon-plus"></span>
                     Queue New Track
                 </button>
-                <button id="new-log" class="btn btn-default">
+                <button id="new-log" class="btn btn-default"
+                    title="Immediately log this track.">
                     <span class="glyphicon glyphicon-play"></span>
                     Log New Track
                 </button>
-                <button id="clear-form" class="btn btn-default">
+                <button id="clear-form" class="btn btn-default"
+                    title="Clear the track entry form.">
                     <span class="glyphicon glyphicon-erase"></span>
                     Clear Form
                 </button>
