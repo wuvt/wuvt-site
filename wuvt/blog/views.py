@@ -3,9 +3,23 @@ from flask import abort, current_app, redirect, render_template, request, \
 from urlparse import urljoin
 from werkzeug.contrib.atom import AtomFeed
 
-from .. import db
+from .. import cache, db
 from . import bp
 from .models import Article, Category
+
+
+def list_categories():
+    categories = Category.query.order_by(Category.name).all()
+    return [c.serialize() for c in categories]
+
+
+def list_categories_cached():
+    data = cache.get('blog_categories')
+    if data is None:
+        data = list_categories()
+        cache.set('blog_categories', data)
+
+    return data
 
 
 def make_external(url):

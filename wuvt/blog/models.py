@@ -20,6 +20,13 @@ class Category(db.Model):
         self.slug = slug
         self.published = published
 
+    def serialize(self):
+        return {
+            'name': self.name,
+            'slug': self.slug,
+            'published': self.published,
+        }
+
 
 class Article(db.Model):
     __tablename__ = "article"

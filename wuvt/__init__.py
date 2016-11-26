@@ -92,9 +92,8 @@ def inject_nowplaying():
 
 @app.context_processor
 def inject_categories():
-    from wuvt.blog.models import Category
-    categories = Category.query.order_by(Category.name).all()
-    return {'categories': categories}
+    from wuvt.blog import list_categories_cached
+    return {'categories': list_categories_cached()}
 
 
 if app.debug:

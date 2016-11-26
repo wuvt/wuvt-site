@@ -5,9 +5,11 @@ from flask import abort, flash, jsonify, make_response, render_template, \
 from flask_login import current_user
 
 from wuvt import app
+from wuvt import cache
 from wuvt import db
 from wuvt.admin import bp
 from wuvt.auth import check_access
+from wuvt.blog import list_categories
 from wuvt.blog.models import Category, Article
 from wuvt.donate.models import Order
 from wuvt.models import User, Page
@@ -87,6 +89,8 @@ def category_add():
             db.session.add(Category(name, slug, published))
             db.session.commit()
 
+            cache.set('blog_categories', list_categories())
+
             flash("Category added.")
             return redirect(url_for('admin.categories'))
 
@@ -125,11 +129,15 @@ def category_edit(cat_id):
             category.published = published
             db.session.commit()
 
+            cache.set('blog_categories', list_categories())
+
             flash("Category saved.")
             return redirect(url_for('admin.categories'))
     elif request.method == 'DELETE':
         db.session.delete(category)
         db.session.commit()
+
+        cache.set('blog_categories', list_categories())
 
         return jsonify({
             '_csrf_token': app.jinja_env.globals['csrf_token'](),

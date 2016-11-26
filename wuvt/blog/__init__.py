@@ -44,3 +44,4 @@ SUMMARY_ALLOWED_STYLES = ['color', 'clear', 'text-align']
 bp = Blueprint('blog', __name__)
 
 from . import views
+from .views import list_categories, list_categories_cached

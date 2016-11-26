@@ -7,7 +7,7 @@ from .. import db, redis_conn
 from ..view_utils import local_only, sse_response
 from . import private_bp, mail
 from .lib import disable_automation, enable_automation, logout_all_except
-from .models import DJ, DJSet, Track, TrackLog, Rotation
+from .models import DJ, DJSet, TrackLog, Rotation
 from .view_utils import dj_interact
 
 
