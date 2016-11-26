@@ -1,6 +1,7 @@
 from flask import abort, current_app, flash, render_template, redirect, \
     request, url_for
 import string
+import uuid
 
 from wuvt import db
 from wuvt.admin import bp
@@ -8,6 +9,15 @@ from wuvt.auth import check_access
 from wuvt.trackman.models import DJ, Track, TrackLog, TrackReport
 from wuvt.trackman.lib import deduplicate_track_by_id
 from wuvt.trackman.musicbrainz import musicbrainzngs
+
+
+def validate_uuid(uuid_str):
+    try:
+        value = uuid.UUID(uuid_str)
+    except ValueError:
+        return False
+
+    return value.hex == uuid_str.replace('-', '')
 
 
 @bp.route('/library')
@@ -148,8 +158,6 @@ def library_fixup_tracks(key, page=1):
 @bp.route('/library/track/<int:id>', methods=['GET', 'POST'])
 @check_access('library')
 def library_track(id):
-    musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
-
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
     error_fields = []
@@ -181,24 +189,22 @@ def library_track(id):
             error_fields.append('label')
 
         musicbrainz_fields = [
-            ('artist_mbid', musicbrainzngs.get_artist_by_id),
-            ('recording_mbid', musicbrainzngs.get_recording_by_id),
-            ('release_mbid', musicbrainzngs.get_release_by_id),
-            ('releasegroup_mbid', musicbrainzngs.get_release_group_by_id),
+            'artist_mbid',
+            'recording_mbid',
+            'release_mbid',
+            'releasegroup_mbid',
         ]
 
         for field in musicbrainz_fields:
-            value = request.form[field[0]].strip()
-            if value != getattr(track, field[0]):
+            value = request.form[field].strip()
+            if value != getattr(track, field):
                 if len(value) > 0:
-                    try:
-                        result = field[1](value)
-                    except musicbrainzngs.ResponseError:
-                        error_fields.append(field[0])
+                    if validate_uuid(value):
+                        setattr(track, field, value)
                     else:
-                        setattr(track, field[0], value)
+                        error_fields.append(field)
                 else:
-                    setattr(track, field[0], None)
+                    setattr(track, field, None)
 
         if len(error_fields) <= 0:
             track.artist = artist
