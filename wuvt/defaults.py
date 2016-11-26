@@ -53,6 +53,7 @@ TRACKMAN_LABEL_BLACKLIST = ["same"]
 
 ARCHIVE_BASE_URL = ""
 MUSICBRAINZ_HOSTNAME = "musicbrainz.org"
+MUSICBRAINZ_RATE_LIMIT = 1.0
 
 ADMINS = []
 MAIL_FROM = "noreply@localhost"
