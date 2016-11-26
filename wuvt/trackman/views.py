@@ -7,40 +7,21 @@ import dateutil
 import re
 from werkzeug.contrib.atom import AtomFeed
 
-from .. import db
+from .. import cache, db
 from ..view_utils import sse_response
-from . import bp
-from . import charts
-from .lib import get_current_tracklog
+from . import bp, charts
+from .lib import get_current_tracklog, serialize_trackinfo
 from .models import DJ, DJSet, Track, TrackLog
 from .view_utils import make_external, list_archives, generate_cuesheet, \
         generate_playlist_cuesheet
 
 
 def trackinfo():
-    track = get_current_tracklog()
-    if not track:
-        return {'artist': "", 'title': "", 'album': "", 'label': "", 'dj': "",
-                'dj_id': 0, 'description': current_app.config['STATION_NAME'],
-                'contact': current_app.config['STATION_URL']}
+    data = cache.get('trackman_now_playing')
+    if data is None:
+        data = serialize_trackinfo(get_current_tracklog())
+        cache.set('trackman_now_playing', data)
 
-    data = track.track.serialize()
-    data['listeners'] = track.listeners
-    data['played'] = str(track.played)
-
-    if track.djset == None:
-        dj = DJ.query.filter_by(name="Automation").first()
-        data['dj'] = dj.airname
-        data['dj_id'] = 0
-    else:
-        data['dj'] = track.djset.dj.airname
-        if track.djset.dj.visible:
-            data['dj_id'] = track.djset.dj_id
-        else:
-            data['dj_id'] = 0
-
-    data['description'] = current_app.config['STATION_NAME']
-    data['contact'] = current_app.config['STATION_URL']
     return data
 
 

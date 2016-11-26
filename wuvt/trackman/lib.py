@@ -3,7 +3,7 @@ import urlparse
 from datetime import datetime, timedelta
 from flask import current_app, json
 
-from .. import db, redis_conn
+from .. import cache, db, redis_conn
 from . import mail
 from .models import AirLog, Track, TrackLog, DJ, DJSet
 
@@ -121,7 +121,7 @@ def stream_listeners(url, mounts=None, timeout=5):
 
 def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
               rotation=None):
-    track = TrackLog(
+    tracklog = TrackLog(
         track_id,
         djset_id,
         request=request,
@@ -130,15 +130,47 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         rotation=rotation,
         listeners=stream_listeners(current_app.config['ICECAST_URL'],
                                    current_app.config['ICECAST_MOUNTS']))
-    db.session.add(track)
+    db.session.add(tracklog)
     db.session.commit()
 
+    cache.set('trackman_now_playing', serialize_trackinfo(tracklog))
     redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
-        'tracklog': track.full_serialize(),
+        'tracklog': tracklog.full_serialize(),
     }))
 
-    return track
+    return tracklog
+
+
+def serialize_trackinfo(tracklog):
+    if tracklog is not None:
+        data = tracklog.track.serialize()
+        data['listeners'] = tracklog.listeners
+        data['played'] = str(tracklog.played)
+
+        if tracklog.djset == None:
+            dj = DJ.query.filter_by(name="Automation").first()
+            data['dj'] = dj.airname
+            data['dj_id'] = 0
+        else:
+            data['dj'] = tracklog.djset.dj.airname
+            if tracklog.djset.dj.visible:
+                data['dj_id'] = tracklog.djset.dj_id
+            else:
+                data['dj_id'] = 0
+    else:
+        data = {
+            'artist': "",
+            'title': "",
+            'album': "",
+            'label': "",
+            'dj': "",
+            'dj_id': 0,
+        }
+
+    data['description'] = current_app.config['STATION_NAME']
+    data['contact'] = current_app.config['STATION_URL']
+    return data
 
 
 def get_current_tracklog():
@@ -148,6 +180,7 @@ def get_current_tracklog():
 def fixup_current_track(event="track_edit"):
     tracklog = get_current_tracklog()
 
+    cache.set('trackman_now_playing', serialize_trackinfo(tracklog))
     redis_conn.publish('trackman_live', json.dumps({
         'event': event,
         'tracklog': tracklog.full_serialize(),
