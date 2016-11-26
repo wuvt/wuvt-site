@@ -254,30 +254,27 @@ def library_track_musicbrainz(id):
             request.form['recording_mbid'],
             includes=['artist-credits', 'releases'])
 
-        if 'artist-credit' in result['recording']:
-            if len(result['recording']['artist-credit']) == 1:
-                # if there's only one artist, use that ID
-                track.artist_mbid = \
-                    result['recording']['artist-credit'][0]['artist']['id']
-            else:
-                track.artist_mbid = None
-                for entry in result['recording']['artist-credit']:
-                    # it seems it's sometimes possible for us to get something
-                    # that isn't well-formed, so deal with that case
-                    if type(entry) == dict and \
-                            entry['artist'] == dict and \
-                            entry['artist'].get('name', None) == track.artist:
-                        # if there's an exact artist match, use that ID
-                        # otherwise artist will be left blank
-                        track.artist_mbid = entry['artist']['id']
-                        break
+        track.artist = result['recording']['artist-credit-phrase']
+        track.title = result['recording']['title']
+        track.recording_mbid = result['recording']['id']
+
+        current_app.logger.warning(
+            "MusicBrainz: Recording {0} has been associated with track {1}"
+            .format(track.recording_mbid, track.id))
+
+        # Find an artist_mbid for the track. We can only handle recordings with
+        # one artist right now; if there's more than one, artist_mbid will be
+        # left blank.
+        artist_credits = result['recording'].get('artist-credit', [])
+        if len(artist_credits) == 1:
+            track.artist_mbid = artist_credits[0]['artist']['id']
         else:
             track.artist_mbid = None
             current_app.logger.warning(
-                "No artist-credit in MusicBrainz result")
+                "MusicBrainz: The artist-credit for recording {} did not "
+                "contain exactly one artist.".format(track.recording_mbid))
 
-        track.recording_mbid = result['recording']['id']
-
+        # Find the selected release for the track.
         selected_release_mbid = request.form.get(
             'recording_{}_release'.format(track.recording_mbid),
             '').strip()
@@ -285,14 +282,32 @@ def library_track_musicbrainz(id):
             for release in result['recording']['release-list']:
                 if release['id'] == selected_release_mbid:
                     track.release_mbid = release['id']
-                    rresult = musicbrainzngs.get_release_by_id(
-                        track.release_mbid,
-                        includes=['release-groups'])
-                    track.releasegroup_mbid = \
-                        rresult['release']['release-group']['id']
+                    track.album = release['title']
                     break
         else:
             track.release_mbid = None
+
+        # If release_mbid is not None, load additional release information to
+        # get the releasegroup_mbid and label.
+        if track.release_mbid is not None:
+            current_app.logger.warning(
+                "MusicBrainz: Release {0} has been associated with track {1}"
+                .format(track.release_mbid, track.id))
+
+            rresult = musicbrainzngs.get_release_by_id(
+                track.release_mbid,
+                includes=['labels', 'release-groups'])
+
+            track.releasegroup_mbid = rresult['release']['release-group']['id']
+
+            release_labels = rresult['release'].get('label-info-list', [])
+            if len(release_labels) == 1:
+                track.label = release_labels[0]['label']['name']
+            else:
+                current_app.logger.warning(
+                    "MusicBrainz: The label-info-list for release {} did not "
+                    "contain exactly one label.".format(track.release_mbid))
+        else:
             track.releasegroup_mbid = None
 
         db.session.commit()
