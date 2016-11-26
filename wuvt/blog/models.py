@@ -1,3 +1,4 @@
+from flask import current_app
 import bleach
 import datetime
 
