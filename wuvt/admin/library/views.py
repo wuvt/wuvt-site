@@ -234,6 +234,7 @@ def library_track(id):
 @check_access('library')
 def library_track_musicbrainz(id):
     musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
+    musicbrainzngs.set_rate_limit(current_app.config['MUSICBRAINZ_RATE_LIMIT'])
 
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
