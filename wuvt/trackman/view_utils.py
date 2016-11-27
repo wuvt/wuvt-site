@@ -31,7 +31,7 @@ def make_external(url):
 
 
 def list_archives(djset):
-    if len(current_app.config['ARCHIVE_BASE_URL']) <= 0:
+    if len(current_app.config['ARCHIVE_URL_FORMAT']) <= 0:
         return
 
     start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
@@ -42,7 +42,7 @@ def list_archives(djset):
         end = djset.dtend.replace(minute=0, second=0, microsecond=0)
 
     for loghour in perdelta(start, end, timedelta(hours=1)):
-        yield (current_app.config['ARCHIVE_BASE_URL'] + format_datetime(loghour, "%Y%m%d%H"),
+        yield ( format_datetime(loghour, current_app.config['ARCHIVE_URL_FORMAT']),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                         format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
 
