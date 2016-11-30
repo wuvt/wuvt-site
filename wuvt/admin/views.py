@@ -13,6 +13,7 @@ from wuvt.blog import list_categories
 from wuvt.blog.models import Category, Article
 from wuvt.donate.models import Order
 from wuvt.models import User, Page
+from wuvt.views import get_menus
 from wuvt.view_utils import slugify
 
 from werkzeug import secure_filename
@@ -326,12 +327,16 @@ def page_edit(page_id):
             page.update_content(content)    # render HTML
             db.session.commit()
 
+            cache.set('menus', get_menus())
+
             flash("Page Saved")
             return redirect(url_for('admin.pages'))
 
     elif request.method == 'DELETE':
         db.session.delete(page)
         db.session.commit()
+
+        cache.set('menus', get_menus())
 
         return jsonify({
             '_csrf_token': app.jinja_env.globals['csrf_token'](),
@@ -383,6 +388,8 @@ def page_add():
 
             db.session.add(page)
             db.session.commit()
+
+            cache.set('menus', get_menus())
 
             flash("Page Saved")
             return redirect(url_for('admin.pages'))

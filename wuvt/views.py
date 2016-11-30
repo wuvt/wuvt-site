@@ -2,21 +2,31 @@ from flask import abort, jsonify, make_response, render_template, request, \
         send_from_directory
 
 from . import app
-from . import db
+from . import cache
 from .models import Page
 from .view_utils import IPAccessDeniedException
 
 
-@app.context_processor
-def inject_menus():
+def get_menus():
     menus = {}
-    pages = db.session.query(Page.name, Page.slug, Page.menu, Page.published).\
+    pages = Page.query.\
+        with_entities(Page.name, Page.slug, Page.menu, Page.published).\
         filter(Page.menu is not None).order_by(Page.name).all()
     for page in pages:
         menu = str(page.menu)
         if menu not in menus:
             menus[menu] = []
         menus[menu].append(page)
+
+    return menus
+
+
+@app.context_processor
+def inject_menus():
+    menus = cache.get('menus')
+    if menus is None:
+        menus = get_menus()
+        cache.set('menus', menus)
 
     return {'menus': menus}
 
