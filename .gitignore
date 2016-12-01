@@ -9,3 +9,4 @@ __pycache__
 wuvt.db
 config.py
 celerybeat-schedule
+/wuvt/static/img/*-?x.png

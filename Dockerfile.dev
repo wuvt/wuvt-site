@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y \
             libcap-dev \
             libjansson-dev \
             libpcre3-dev \
+            librsvg2-bin \
             libsasl2-dev \
             libyaml-dev \
+            optipng \
             redis-server \
             uuid-dev
 
@@ -34,6 +36,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /usr/src/app
 
 ENV FLASK_APP /usr/src/app/wuvt/__init__.py
+
+RUN flask render_images
 
 # create schema and add sample data
 RUN flask initdb --password "Password1!" && flask sampledata

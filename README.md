@@ -85,12 +85,12 @@ cd wuvt-site
 ```
 
 Create a blank file, wuvt/config.py; you can override any of the default
-configuration options here if you so desire. Next, you will need to create the
-database and fill it with some sample content:
+configuration options here if you so desire. Next, you will need to render
+images, create the database, and add some sample content to the site:
 
 ```
 export FLASK_APP=$PWD/wuvt/__init__.py
-flask initdb && flask sampledata
+flask render_images && flask initdb && flask sampledata
 ```
 
 Finally, start uWSGI:
