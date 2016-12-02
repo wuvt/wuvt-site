@@ -1,5 +1,6 @@
 import datetime
 import dateutil
+import pytz
 from .. import cache
 from .models import TrackLog
 
@@ -41,6 +42,13 @@ def get_range(period=None, year=None, month=None, week=None):
     else:
         raise ValueError(
             "Period must be one of 'weekly', 'monthly', 'yearly', or None.")
+
+    if first_track.played.tzinfo is not None:
+        # add tzinfo to now to avoid attempted comparison of offset-aware and
+        # offset-naive timezones
+        now = now.replace(tzinfo=pytz.UTC)
+        start = start.replace(tzinfo=pytz.UTC)
+        end = end.replace(tzinfo=pytz.UTC)
 
     # reduce date resolution to 1 hour windows to make caching work
     start = start.replace(minute=0, second=0, microsecond=0)

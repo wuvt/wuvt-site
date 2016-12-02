@@ -11,8 +11,8 @@
     {% for path, name in periodic_charts %}
     <ul>
         <li><a href="{{ url_for(path, period='weekly') }}">{{ name }} in the last week</a></li>
-        <li><a href="{{ url_for(path, period='monthly') }}">{{ name }} in the last month</a></li>
-        <li><a href="{{ url_for(path, period='yearly') }}">{{ name }} in the last year</a></li>
+        <li><a href="{{ url_for(path, period='monthly') }}">{{ name }} of the month</a></li>
+        <li><a href="{{ url_for(path, period='yearly') }}">{{ name }} of the year</a></li>
         <li><a href="{{ url_for(path) }}">{{ name }} of all time</a></li>
     </ul>
     {% endfor %}
