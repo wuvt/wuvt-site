@@ -9,6 +9,7 @@ import os
 import redis
 import defaults
 import session
+import uuid
 
 json_mimetypes = ['application/json']
 
@@ -33,6 +34,13 @@ def format_currency(value):
     return "${:,.2f}".format(value)
 
 
+def format_uuid(value):
+    try:
+        return uuid.UUID(value)
+    except:
+        return None
+
+
 class JSONRequest(Request):
     # from http://flask.pocoo.org/snippets/45/
     def wants_json(self):
@@ -52,6 +60,7 @@ app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
 app.jinja_env.filters['isodatetime'] = format_isodatetime
 app.jinja_env.filters['format_currency'] = format_currency
+app.jinja_env.filters['uuid'] = format_uuid
 app.static_folder = 'static'
 
 if app.config['PROXY_FIX']:

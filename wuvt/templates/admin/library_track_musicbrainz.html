@@ -45,7 +45,7 @@
 
         {% for result in results -%}
         {% for release in result['release-list'] -%}
-        <tr>
+        <tr{% if track.recording_mbid == result['id']|uuid and track.release_mbid == release['id']|uuid %} class="info"{% endif %}>
             <td>{{ result['ext:score'] }}</td>
             <td>{{ result['artist-credit-phrase'] }}</td>
             <td><a href="https://musicbrainz.org/recording/{{ result['id'] }}" rel="external">{{ result['title'] }}</a></td>
@@ -67,7 +67,7 @@
             </td>
         </tr>
         {% else -%}
-        <tr>
+        <tr{% if track.recording_mbid == result['id']|uuid and track.release_mbid is none %} class="info"{% endif %}>
             <td>{{ result['ext:score'] }}</td>
             <td>{{ result['artist-credit-phrase'] }}</td>
             <td><a href="https://musicbrainz.org/recording/{{ result['id'] }}" rel="external">{{ result['title'] }}</a></td>
