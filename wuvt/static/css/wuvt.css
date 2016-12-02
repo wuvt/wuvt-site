@@ -57,6 +57,10 @@ body > footer {
     background-color: #ec1c23;
 }
 
+.clearfix {
+    clear: both;
+}
+
 /* Now playing bar {{{ */
 #nowplaying {
     height: 34px;
