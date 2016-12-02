@@ -1,7 +1,7 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
-from flask import abort, current_app, jsonify, render_template, request, \
-        url_for, Response
+from flask import abort, current_app, jsonify, render_template, redirect, \
+        request, url_for, Response
 import datetime
 import dateutil
 import re
@@ -228,11 +228,16 @@ def charts_index():
 
 @bp.route('/playlists/charts/albums')
 @bp.route('/playlists/charts/albums/<string:period>')
-def charts_albums(period=None):
+@bp.route('/playlists/charts/albums/<string:period>/<int:year>')
+@bp.route('/playlists/charts/albums/<string:period>/<int:year>/<int:month>')
+def charts_albums(period=None, year=None, month=None):
+    if period == 'dj' and year is not None:
+        return redirect(url_for('.charts_albums_dj', dj_id=year))
+
     try:
-        start, end = charts.get_range(period, request)
+        start, end = charts.get_range(period, year, month)
     except ValueError:
-        abort(400)
+        abort(404)
 
     results = charts.get(
         'albums_{0}_{1}'.format(start, end),
@@ -254,7 +259,7 @@ def charts_albums(period=None):
                            results=results)
 
 
-@bp.route('/playlists/charts/albums/dj/<int:dj_id>')
+@bp.route('/playlists/charts/dj/<int:dj_id>/albums')
 def charts_albums_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
     results = charts.get(
@@ -276,11 +281,16 @@ def charts_albums_dj(dj_id):
 
 @bp.route('/playlists/charts/artists')
 @bp.route('/playlists/charts/artists/<string:period>')
-def charts_artists(period=None):
+@bp.route('/playlists/charts/artists/<string:period>/<int:year>')
+@bp.route('/playlists/charts/artists/<string:period>/<int:year>/<int:month>')
+def charts_artists(period=None, year=None, month=None):
+    if period == 'dj' and year is not None:
+        return redirect(url_for('.charts_artists_dj', dj_id=year))
+
     try:
-        start, end = charts.get_range(period, request)
+        start, end = charts.get_range(period, year, month)
     except ValueError:
-        abort(400)
+        abort(404)
 
     results = charts.get(
         'artists_{0}_{1}'.format(start, end),
@@ -301,7 +311,7 @@ def charts_artists(period=None):
                            results=results)
 
 
-@bp.route('/playlists/charts/artists/dj/<int:dj_id>')
+@bp.route('/playlists/charts/dj/<int:dj_id>/artists')
 def charts_artists_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
     results = charts.get(
@@ -322,11 +332,16 @@ def charts_artists_dj(dj_id):
 
 @bp.route('/playlists/charts/tracks')
 @bp.route('/playlists/charts/tracks/<string:period>')
-def charts_tracks(period=None):
+@bp.route('/playlists/charts/tracks/<string:period>/<int:year>')
+@bp.route('/playlists/charts/tracks/<string:period>/<int:year>/<int:month>')
+def charts_tracks(period=None, year=None, month=None):
+    if period == 'dj' and year is not None:
+        return redirect(url_for('.charts_tracks_dj', dj_id=year))
+
     try:
-        start, end = charts.get_range(period, request)
+        start, end = charts.get_range(period, year, month)
     except ValueError:
-        abort(400)
+        abort(404)
 
     subquery = TrackLog.query.\
         with_entities(TrackLog.track_id,
@@ -349,7 +364,7 @@ def charts_tracks(period=None):
                            results=results)
 
 
-@bp.route('/playlists/charts/tracks/dj/<int:dj_id>')
+@bp.route('/playlists/charts/dj/<int:dj_id>/tracks')
 def charts_tracks_dj(dj_id):
     dj = DJ.query.get_or_404(dj_id)
 
