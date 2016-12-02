@@ -31,7 +31,7 @@
             <th>Score</th>
             <th>Artist</th>
             <th>Title</th>
-            <th>Releases</th>
+            <th>Release</th>
             <th></th>
         </tr>
 
@@ -44,31 +44,44 @@
         </tr>
 
         {% for result in results -%}
+        {% for release in result['release-list'] -%}
         <tr>
             <td>{{ result['ext:score'] }}</td>
             <td>{{ result['artist-credit-phrase'] }}</td>
             <td><a href="https://musicbrainz.org/recording/{{ result['id'] }}" rel="external">{{ result['title'] }}</a></td>
             <td>
-                {% for release in result['release-list'] %}
-                <div class="radio">
-                    <label>
-                        <input type="radio"
-                            name="recording_{{ result['id'] }}_release"
-                            value="{{ release['id'] }}"
-                            {% if loop.first %}checked="checked" {% endif %}/>
-                        <a href="https://musicbrainz.org/release/{{ release['id'] }}" rel="external"><strong>{{ release['title'] }}</strong></a>&mdash;{{ release['date'] }}, {{ release['country'] }}
-                    </label>
-                </div>
-                {% endfor %}
+                <a href="https://musicbrainz.org/release/{{ release['id'] }}" rel="external"><strong>{{ release['title'] }}</strong></a>
+                {% if release['medium-list']|length > 0 -%}
+                {% set release_info = [release['medium-list'][0]['format'], release['date'], release['country']] -%}
+                {% else -%}
+                {% set release_info = [release['date'], release['country']] -%}
+                {% endif -%}
+                ({{ release_info|map('trim')|reject('equalto', '')|join(', ') }})
             </td>
             <td class="row-options">
-                <button type="submit" name="recording_mbid"
-                        value="{{ result['id'] }}" class="btn btn-primary">
+                <button type="submit" name="mbids"
+                        value="{{ result['id'] }},{{ release['id'] }}"
+                        class="btn btn-primary">
+                    Select
+                </button>
+            </td>
+        </tr>
+        {% else -%}
+        <tr>
+            <td>{{ result['ext:score'] }}</td>
+            <td>{{ result['artist-credit-phrase'] }}</td>
+            <td><a href="https://musicbrainz.org/recording/{{ result['id'] }}" rel="external">{{ result['title'] }}</a></td>
+            <td>Unreleased</td>
+            <td class="row-options">
+                <button type="submit" name="mbids"
+                        value="{{ result['id'] }},"
+                        class="btn btn-primary">
                     Select
                 </button>
             </td>
         </tr>
         {% endfor -%}
+        {% endfor %}
 
         <tr>
             <td colspan="5">

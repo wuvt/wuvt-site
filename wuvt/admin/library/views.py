@@ -251,8 +251,12 @@ def library_track_musicbrainz(id):
             return redirect(url_for('admin.library_track', id=track.id,
                                     **{'from': edit_from}))
 
+        mbids = request.form['mbids'].split(',')
+        if len(mbids) < 1:
+            abort(400)
+
         result = musicbrainzngs.get_recording_by_id(
-            request.form['recording_mbid'],
+            mbids[0],
             includes=['artist-credits', 'releases'])
 
         track.artist = result['recording']['artist-credit-phrase']
@@ -276,12 +280,9 @@ def library_track_musicbrainz(id):
                 "contain exactly one artist.".format(track.recording_mbid))
 
         # Find the selected release for the track.
-        selected_release_mbid = request.form.get(
-            'recording_{}_release'.format(track.recording_mbid),
-            '').strip()
-        if len(selected_release_mbid) > 0:
+        if len(mbids) > 1 and len(mbids[1]) > 0:
             for release in result['recording']['release-list']:
-                if release['id'] == selected_release_mbid:
+                if release['id'] == mbids[1]:
                     track.release_mbid = release['id']
                     track.album = release['title']
                     break
