@@ -2,6 +2,7 @@ import requests
 import urlparse
 from datetime import datetime, timedelta
 from flask import current_app, json
+from redis_lock import Lock
 
 from .. import cache, db, redis_conn
 from . import mail
@@ -19,6 +20,19 @@ def get_duplicates(model, attrs, ignore_case=False):
         *model_attrs).having(db.and_(
             *[db.func.count(attr) > 1 for attr in model_attrs])).all()
     return dups
+
+
+def renew_dj_lease(expire=None):
+    redis_conn.set('dj_active', 'true')
+
+    if expire is None:
+        # logout/login must delete this dj_timeout
+        expire = redis_conn.get('dj_timeout')
+        if expire is None:
+            expire = current_app.config['DJ_TIMEOUT']
+        expire = int(expire)
+
+    redis_conn.expire('dj_active', expire)
 
 
 def logout_all(send_email=False):
@@ -62,37 +76,40 @@ def perdelta(start, end, td):
 
 
 def disable_automation():
-    automation_enabled = redis_conn.get("automation_enabled")
-    # Make sure automation is actually enabled before changing the end time
-    if automation_enabled is not None and automation_enabled == 'true':
-        redis_conn.set("automation_enabled", "false")
-        automation_set_id = redis_conn.get("automation_set")
-        current_app.logger.info("Trackman: Automation disabled with DJSet.id "
-                                "= {}".format(automation_set_id))
-        if automation_set_id is not None:
-            automation_set = DJSet.query.get(int(automation_set_id))
-            if automation_set is not None:
-                automation_set.dtend = datetime.utcnow()
-                db.session.commit()
-            else:
-                current_app.logger.warning(
-                    "Trackman: The provided automation set ({0}) was not "
-                    "found in the database.".format(automation_set_id))
+    with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
+        # Make sure automation is actually enabled before changing the end time
+        if redis_conn.get("automation_enabled") == "true":
+            redis_conn.set("automation_enabled", "false")
+            automation_set_id = redis_conn.get("automation_set")
+            current_app.logger.info("Trackman: Automation disabled with "
+                                    "DJSet.id = {}".format(automation_set_id))
+            if automation_set_id is not None:
+                automation_set = DJSet.query.get(int(automation_set_id))
+                if automation_set is not None:
+                    automation_set.dtend = datetime.utcnow()
+                    db.session.commit()
+                else:
+                    current_app.logger.warning(
+                        "Trackman: The provided automation set ({0}) was not "
+                        "found in the database.".format(automation_set_id))
+
+            renew_dj_lease()
 
 
 def enable_automation():
-    redis_conn.set('automation_enabled', "true")
+    with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
+        redis_conn.set('automation_enabled', "true")
 
-    # try to reuse existing DJSet if possible
-    automation_set = logout_all_except(1)
-    if automation_set is None:
-        automation_set = DJSet(1)
-        db.session.add(automation_set)
-        db.session.commit()
+        # try to reuse existing DJSet if possible
+        automation_set = logout_all_except(1)
+        if automation_set is None:
+            automation_set = DJSet(1)
+            db.session.add(automation_set)
+            db.session.commit()
 
-    current_app.logger.info("Trackman: Automation enabled with DJSet.id "
-                            "= {}".format(automation_set.id))
-    redis_conn.set('automation_set', str(automation_set.id))
+        current_app.logger.info("Trackman: Automation enabled with DJSet.id "
+                                "= {}".format(automation_set.id))
+        redis_conn.set('automation_set', str(automation_set.id))
 
 
 def stream_listeners(url, mounts=None, timeout=5):
@@ -194,16 +211,28 @@ def merge_duplicate_tracks(*args, **kwargs):
     tracks = track_query.all()
     track_id = int(tracks[0].id)
 
+    def delete_track(track):
+        lock = Lock(redis_conn, 'track_{}'.format(track.id), expire=60,
+                    auto_renewal=True)
+        if lock.acquire(timeout=1):
+            ret = db.session.delete(track)
+            lock.release()
+            return ret
+        else:
+            return False
+
     if len(tracks) > 1:
-        # update TrackLogs
-        TrackLog.query.filter(TrackLog.track_id.in_(
-            [track.id for track in tracks[1:]])).update(
-            {TrackLog.track_id: track_id}, synchronize_session=False)
+        with Lock(redis_conn, 'track_{}'.format(track_id), expire=60,
+                  auto_renewal=True):
+            # update TrackLogs
+            TrackLog.query.filter(TrackLog.track_id.in_(
+                [track.id for track in tracks[1:]])).update(
+                {TrackLog.track_id: track_id}, synchronize_session=False)
 
-        # delete existing Track entries
-        map(db.session.delete, tracks[1:])
+            # delete existing Track entries
+            map(delete_track, tracks[1:])
 
-        db.session.commit()
+            db.session.commit()
 
     return count, track_id
 
@@ -268,12 +297,21 @@ def autofill_na_labels():
             Track.album == na_track.album,
             Track.label != u"Not Available")).first()
         if other_track is not None:
-            # update TrackLogs to point to other Track
-            TrackLog.query.filter(TrackLog.track_id == na_track.id).update(
-                {TrackLog.track_id: other_track.id}, synchronize_session=False)
+            with Lock(redis_conn, 'track_{}'.format(other_track.id), expire=60,
+                      auto_renewal=True):
+                # update TrackLogs to point to other Track
+                TrackLog.query.\
+                    filter(TrackLog.track_id == na_track.id).\
+                    update({TrackLog.track_id: other_track.id},
+                           synchronize_session=False)
 
-            db.session.delete(na_track)
-            db.session.commit()
+                na_lock = Lock(redis_conn, 'track_{}'.format(na_track.id),
+                               expire=60, auto_renewal=True)
+                if na_lock.acquire(timeout=1):
+                    db.session.delete(na_track)
+                    na_lock.release()
+
+                db.session.commit()
 
             current_app.logger.info(
                 "Trackman: Found a track with a label for track ID {0:d}, "
