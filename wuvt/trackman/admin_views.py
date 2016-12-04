@@ -49,12 +49,12 @@ def login():
 def start_automation():
     automation = redis_conn.get('automation_enabled') == "true"
     if not automation:
-        enable_automation()
-
         current_app.logger.warning(
-            "Trackman: Automation started from {ip} using {ua}".format(
+            "Trackman: Start automation from {ip} using {ua}".format(
                 ip=request.remote_addr,
                 ua=request.user_agent))
+
+        enable_automation()
 
     return redirect(url_for('.login'))
 
