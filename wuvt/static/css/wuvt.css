@@ -37,7 +37,7 @@ body {
 }
 
 body > #wrapper {
-    min-height: 860px;
+    min-height: 960px;
 }
 
 body > header,
@@ -781,7 +781,7 @@ button:active {
 /* Playlists by date {{{ */
 #playlists_by_date {
     position: relative;
-    height: 500px;
+    height: 700px;
     overflow-y: auto;
 }
 
