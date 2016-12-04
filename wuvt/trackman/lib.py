@@ -22,6 +22,19 @@ def get_duplicates(model, attrs, ignore_case=False):
     return dups
 
 
+def renew_dj_lease(expire=None):
+    redis_conn.set('dj_active', 'true')
+
+    if expire is None:
+        # logout/login must delete this dj_timeout
+        expire = redis_conn.get('dj_timeout')
+        if expire is None:
+            expire = current_app.config['DJ_TIMEOUT']
+        expire = int(expire)
+
+    redis_conn.expire('dj_active', expire)
+
+
 def logout_all(send_email=False):
     open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
         DJSet.dtstart.desc()).all()
@@ -79,6 +92,8 @@ def disable_automation():
                     current_app.logger.warning(
                         "Trackman: The provided automation set ({0}) was not "
                         "found in the database.".format(automation_set_id))
+
+            renew_dj_lease()
 
 
 def enable_automation():
