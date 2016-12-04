@@ -140,7 +140,9 @@ def live():
 # Playlist Archive (by date) {{{
 @bp.route('/playlists/date')
 def playlists_date():
-    return render_template('playlists_date_list.html')
+    today = datetime.datetime.utcnow().replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    return render_template('playlists_date_list.html', today=today)
 
 
 @bp.route('/playlists/date/data')
@@ -164,15 +166,45 @@ def playlists_date_data():
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
     dtstart = datetime.datetime(year, month, day, 0, 0, 0)
-    sets = DJSet.query.filter(DJSet.dtstart >= dtstart).all()
+    dtend = datetime.datetime(year, month, day, 23, 59, 59)
+    sets = DJSet.query.\
+        filter(DJSet.dtstart >= dtstart, DJSet.dtend <= dtend).\
+        all()
+
+    status_code = 200
+    if len(sets) <= 0:
+        # return 404 if no playlists found
+        status_code = 404
+
+    next_date = dtstart + datetime.timedelta(hours=24)
+    next_url = url_for('.playlists_date_sets', year=next_date.year,
+                       month=next_date.month, day=next_date.day)
+
+    now = datetime.datetime.utcnow()
+    if dtstart < now:
+        prev_date = dtstart - datetime.timedelta(hours=24)
+        prev_url = url_for('.playlists_date_sets', year=prev_date.year,
+                           month=prev_date.month, day=prev_date.day)
+    else:
+        prev_url = None
 
     if request.wants_json():
         return jsonify({
             'dtstart': dtstart,
             'sets': [s.serialize() for s in sets],
-        })
+            'prev_url': prev_url,
+            'next_url': next_url,
+        }), status_code
 
-    return render_template('playlists_date_sets.html', date=dtstart, sets=sets)
+    return render_template('playlists_date_sets.html', date=dtstart, sets=sets,
+                           prev_url=prev_url, next_url=next_url), status_code
+
+
+@bp.route('/playlists/date/jump', methods=['POST'])
+def playlists_date_jump():
+    jumpdate = datetime.datetime.strptime(request.form['date'], "%Y-%m-%d")
+    return redirect(url_for('.playlists_date_sets', year=jumpdate.year,
+                            month=jumpdate.month, day=jumpdate.day))
 # }}}
 
 

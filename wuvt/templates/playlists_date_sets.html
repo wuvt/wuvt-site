@@ -3,16 +3,44 @@
 
 {% block content %}
 <section>
-<header>
-    <h2>Playlist Archive (by date)</h2>
-    <h3><time datetime="{{ date|isodatetime }}" data-format="YYYY-MM-DD">{{ date|datetime("%Y-%m-%d") }}</time></h3>
-</header>
+    <header>
+        <h2>Playlist Archive (by date)</h2>
+    </header>
 
-<section>
+    <h3><time datetime="{{ date|isodatetime }}" data-format="YYYY-MM-DD">{{ date|datetime("%Y-%m-%d") }}</time></h3>
+
+    {% if sets|length > 0 -%}
     <ul>
         {% for set in sets %}
         <li><a href="{{ url_for('trackman.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="HH:mm">{{ set.dtstart|datetime("%H:%M") }}</time>-{% if set.dtend %}<time datetime="{{ set.dtend|isodatetime }}" data-format="HH:mm">>{{ set.dtend|datetime("%H:%M") }}</time>{% endif %}: {{ set.dj.airname }}</a></li>
         {% endfor %}
     </ul>
+    {% else -%}
+    <p>There are no playlists available for this day.</p>
+    {% endif %}
+</section>
+
+{% if prev_url or next_url -%}
+<section class="pagination">
+    {% if prev_url -%}
+    <a href="{{ prev_url }}">« Previous Day</a>
+    {% endif -%}
+
+    {% if next_url -%}
+    <a href="{{ next_url }}">Next Day »</a>
+    {% endif -%}
+</section>
+{% endif -%}
+
+<section>
+    <header>
+        <h2>Jump to a Date</h2>
+    </header>
+
+    <form action="{{ url_for('.playlists_date_jump') }}" method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+        <input type="date" name="date" id="date_entry" value="" placeholder="yyyy-mm-dd" />
+        <button type="submit">Jump</button>
+    </form>
 </section>
 {% endblock %}

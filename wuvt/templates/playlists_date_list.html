@@ -4,19 +4,24 @@
 
 {% block content %}
 <section>
-<header>
-    <h2>Playlist Archive (by date)</h2>
-</header>
+    <header>
+        <h2>Playlist Archive (by date)</h2>
+    </header>
 
-<section>
-    <noscript>Sorry, but you need to enable JavaScript to use the date
-    picker.</noscript>
+    <noscript>
+        <p>Our default playlist history viewer requires JavaScript, but you can <a href="{{ url_for('.playlists_date_sets', year=today.year, month=today.month, day=today.day) }}">browse by day</a> instead.</p>
+    </noscript>
 
     <div id="playlists_by_date">
     </div>
 
+<section>
+    <header>
+        <h2>Jump to a Date</h2>
+    </header>
+
     <form id="date_jump_form">
-        <input type="text" name="date" id="date_entry" value="" placeholder="yyyy-mm-dd" />
+        <input type="date" name="date" id="date_entry" value="" placeholder="yyyy-mm-dd" />
         <button type="submit">Jump to Date</button>
     </form>
 </section>
