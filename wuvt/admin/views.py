@@ -594,6 +594,9 @@ def users():
 @bp.route('/donations', methods=['GET'])
 @check_access('business')
 def donation_index():
+    if not app.config['DONATE_ENABLE']:
+        abort(404)
+
     donations = Order.query.all()
     stats = db.session.query(func.sum(Order.amount).label("total_paid"),
                              func.max(Order.amount).label("max_paid")).all()

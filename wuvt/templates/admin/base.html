@@ -36,7 +36,7 @@
                     {% block nav_admin_upload %}<li><a href="{{ url_for('admin.upload') }}">Upload</a></li>{% endblock %}
                     {% block nav_admin_charts %}<li><a href="{{ url_for('admin.charts_index') }}">Charts</a></li>{% endblock %}
                     {% block nav_admin_library %}<li><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
-                    {% block nav_admin_donation %}<li><a href="{{ url_for('admin.donation_index') }}">Donations</a></li>{% endblock %}
+		    {% if config.DONATE_ENABLE %}{% block nav_admin_donation %}<li><a href="{{ url_for('admin.donation_index') }}">Donations</a></li>{% endblock %}{% endif %}
                 </ul>
                 <form action="{{ url_for('auth.logout') }}" method="post" class="navbar-form navbar-right">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
