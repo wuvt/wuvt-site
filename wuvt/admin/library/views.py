@@ -304,7 +304,8 @@ def library_track_musicbrainz(id):
 
             release_labels = rresult['release'].get('label-info-list', [])
             if len(release_labels) == 1:
-                track.label = release_labels[0]['label']['name']
+                if 'label' in release_labels[0]:
+                    track.label = release_labels[0]['label']['name']
             else:
                 current_app.logger.warning(
                     "MusicBrainz: The label-info-list for release {} did not "
