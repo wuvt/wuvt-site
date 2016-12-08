@@ -168,7 +168,7 @@ def playlists_date_sets(year, month, day):
     dtstart = datetime.datetime(year, month, day, 0, 0, 0)
     dtend = datetime.datetime(year, month, day, 23, 59, 59)
     sets = DJSet.query.\
-        filter(DJSet.dtstart >= dtstart, DJSet.dtend <= dtend).\
+        filter(DJSet.dtstart >= dtstart, DJSet.dtstart <= dtend).\
         all()
 
     status_code = 200
@@ -176,11 +176,16 @@ def playlists_date_sets(year, month, day):
         # return 404 if no playlists found
         status_code = 404
 
+    now = datetime.datetime.utcnow()
+    if dtstart > now:
+        abort(404)
+
     next_date = dtstart + datetime.timedelta(hours=24)
     next_url = url_for('.playlists_date_sets', year=next_date.year,
                        month=next_date.month, day=next_date.day)
+    if next_date > now:
+        next_url = None
 
-    now = datetime.datetime.utcnow()
     if dtstart < now:
         prev_date = dtstart - datetime.timedelta(hours=24)
         prev_url = url_for('.playlists_date_sets', year=prev_date.year,
