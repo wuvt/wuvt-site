@@ -300,23 +300,26 @@ Trackman.prototype.queueFromList = function(tracks) {
 // Playlist {{{
 Trackman.prototype.initPlaylist = function() {
     this.playlist = [];
-
     var inst = this;
 
-    $(".trackman-entry input").on('focus', function () {
-        inst.delayAutoCompleteField($(this).prop('name'));
-    });
-
     var thread = null;
-    $(".trackman-entry input").keyup(function () {
-        var target = $(this);
-
-        inst.delayAutoCompleteField($(this).prop('name'));
+    function entryChanged(target) {
+        inst.delayAutoCompleteField(target.prop('name'));
 
         clearTimeout(thread);
         thread = setTimeout(function() {
             inst.searchForm();
         }, 350);
+    }
+
+    $(".trackman-entry input").on('blur', function () {
+        entryChanged($(this));
+    });
+    $(".trackman-entry input").on('focus', function () {
+        entryChanged($(this));
+    });
+    $(".trackman-entry input").on('keydown', function () {
+        entryChanged($(this));
     });
     $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
     $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
