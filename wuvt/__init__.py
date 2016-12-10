@@ -54,8 +54,13 @@ class JSONRequest(Request):
 
 app = Flask(__name__)
 app.config.from_object(defaults)
-app.config.from_pyfile(os.environ.get('APP_CONFIG_PATH', 'config.py'),
-                       silent=True)
+
+config_path = os.environ.get('APP_CONFIG_PATH', 'config.py')
+if config_path.endswith('.py'):
+    app.config.from_pyfile(config_path, silent=True)
+else:
+    app.config.from_json(config_path, silent=True)
+
 app.request_class = JSONRequest
 app.jinja_env.filters['datetime'] = format_datetime
 app.jinja_env.filters['isodatetime'] = format_isodatetime
