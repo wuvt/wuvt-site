@@ -142,6 +142,47 @@ class AutomationLog(TrackmanResource):
             return {'success': False}
 
 
+class DJ(TrackmanResource):
+    def post(self, dj_id):
+        """
+        Make changes to a DJ
+        ---
+        operationId: editDj
+        tags:
+        - trackman
+        - dj
+        parameters:
+        - in: path
+          name: dj_id
+          type: integer
+          required: true
+          description: The ID of an existing DJ
+        - in: form
+          name: visible
+          type: boolean
+          description: Whether or not a DJ is visible in the list
+        """
+
+        if dj_id == 1:
+            abort(403, message="This DJ cannot be modified")
+
+        dj = models.DJ.query.get_or_404(dj_id)
+
+        if 'visible' in request.form:
+            visible = request.form['active'] == "true"
+            if visible is True:
+                dj.visible = True
+            else:
+                abort(403, message="DJs cannot be hidden through this API.")
+
+        db.session.commit()
+
+        return {
+            'success': True,
+            'dj': dj.serialize(),
+        }
+
+
 class DJSet(TrackmanResource):
     def get(self, djset_id):
         """
@@ -1125,6 +1166,7 @@ class AirLogList(TrackmanResource):
 
 api = Api(api_bp)
 api.add_resource(AutomationLog, '/automation/log')
+api.add_resource(DJ, '/dj/<int:djset_id>')
 api.add_resource(DJSet, '/djset/<int:djset_id>')
 api.add_resource(DJSetList, '/djset')
 api.add_resource(Track, '/track/<int:track_id>')
