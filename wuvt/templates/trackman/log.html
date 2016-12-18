@@ -12,7 +12,7 @@
     </div>
 
     <div class="collapse navbar-collapse" id="trackman-top-collapse">
-        <p class="navbar-text">{{ djset.dj.airname }}</p>
+        <p class="navbar-text trackman-dj-name">{{ djset.dj.airname }}</p>
 
         <form action="{{ url_for('trackman_private.logout', setid=djset.id) }}"
                 method="post" class="navbar-form navbar-right"

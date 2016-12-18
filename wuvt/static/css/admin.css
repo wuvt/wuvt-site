@@ -93,6 +93,12 @@ td.row-options {
     margin-left: 1em;
 }
 
+.trackman-dj-name {
+    max-width: 49%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .trackman-metadata-reminder h4,
 .trackman-metadata-reminder p,
 .trackman-metadata-reminder ul.list-inline {
