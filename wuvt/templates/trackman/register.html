@@ -1,8 +1,14 @@
+{% import "trackman/macros.html" as macros %}
 {% extends "trackman/base.html" %}
 {% set page_title="DJ Registration" %}
 {% block content %}
 
-<h1>{{ trackman_name }}: DJ Registration</h1>
+<div class="container">
+<h1>{{ trackman_name }}</h1>
+
+{{ macros.render_preshow_nav('register') }}
+
+<h2>DJ Registration</h2>
 
 {% for _, msg in errors.items() %}
 <div class="alert alert-danger">{{ msg }}</div>
@@ -59,11 +65,7 @@
             <span class="glyphicon glyphicon-ok"></span>
             Register DJ
         </button>
-
-        <a href="{{ url_for('trackman_private.login') }}" class="btn btn-default">
-            <span class="glyphicon glyphicon-remove"></span>
-            Cancel
-        </a>
     </div>
 </form>
+</div>
 {% endblock %}

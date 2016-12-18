@@ -44,6 +44,47 @@ def login():
                            automation=automation, djs=djs)
 
 
+@private_bp.route('/login/all', methods=['GET', 'POST'])
+@local_only
+def login_all():
+    if 'dj' in request.form and len(request.form['dj']) > 0:
+        if int(request.form['dj']) == 1:
+            # start automation if we selected DJ with ID 1
+            return redirect(url_for('.start_automation'), 307)
+
+        disable_automation()
+
+        dj = DJ.query.get(request.form['dj'])
+        dj.visible = True
+        db.session.commit()
+
+        current_app.logger.warning(
+            "Trackman: {airname} logged in from {ip} using {ua}".format(
+                airname=dj.airname,
+                ip=request.remote_addr,
+                ua=request.user_agent))
+
+        # close open DJSets, and see if we have one we can use
+        djset = logout_all_except(dj.id)
+        if djset is None:
+            djset = DJSet(dj.id)
+            db.session.add(djset)
+            db.session.commit()
+
+        session['djset_id'] = djset.id
+
+        return redirect(url_for('.log', setid=djset.id))
+
+    automation = redis_conn.get('automation_enabled') == "true"
+
+    djs = DJ.query.order_by(DJ.airname).all()
+    return render_template('trackman/login_all.html',
+                           trackman_name=current_app.config['TRACKMAN_NAME'],
+                           automation=automation, djs=djs)
+
+
+
+
 @private_bp.route('/automation/start', methods=['POST'])
 @local_only
 def start_automation():

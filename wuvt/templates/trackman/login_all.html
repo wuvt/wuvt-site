@@ -1,0 +1,34 @@
+{% import "trackman/macros.html" as macros %}
+{% extends "trackman/base.html" %}
+{% set page_title="Show All DJs" %}
+{% block content %}
+
+<div class="container">
+<h1>{{ trackman_name }}</h1>
+
+{{ macros.render_preshow_nav('login_all') }}
+
+<h2>DJ Login: All DJs</h2>
+
+<form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="list-group">
+        {% for dj in djs %}
+        <button type="submit" name="dj" value="{{ dj.id }}" class="list-group-item">
+            <span class="badge">
+                {%- if dj.visible -%}
+                Active
+                {%- else -%}
+                Inactive
+                {%- endif -%}
+            </span>
+
+            <h4 class="list-group-item-heading">{{ dj.airname|wordwrap }}</h4>
+            <p>Created {{ dj.time_added|datetime }}</p>
+        </button>
+        {% endfor %}
+    </div>
+</form>
+</div>
+{% endblock %}

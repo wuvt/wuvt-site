@@ -1,9 +1,15 @@
+{% import "trackman/macros.html" as macros %}
 {% extends "trackman/base.html" %}
 {% block bodyattrib %} class="page-signin"{% endblock %}
 {% block content %}
 
+<div class="trackman-buttons">
+    <h2>{{ trackman_name }}</h2>
+    {{ macros.render_preshow_nav('login') }}
+</div>
+
 <form action="{{ url_for('trackman_private.login') }}" method="post" class="form-signin">
-    <h2 class="form-signin-heading">{{ trackman_name }}</h2>
+    <h2 class="form-signin-heading">DJ Login</h2>
 
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
@@ -28,13 +34,6 @@
     </button>
     {% endif %}
 </form>
-
-<div class="trackman-buttons">
-    <a href="{{ url_for('trackman_private.register') }}" class="btn btn-default">
-        <span class="glyphicon glyphicon-wrench"></span>
-        Register New DJ
-    </a>
-</div>
 
 <form action="{{ url_for('trackman_private.start_automation') }}" method="post" id="automation_start_form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
