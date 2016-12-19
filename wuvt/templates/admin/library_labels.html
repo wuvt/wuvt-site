@@ -20,11 +20,11 @@
 <div class="panel-body">
     {{ macros.render_pagination(labels, 'admin.library_labels') }}
 
-    <ul>
+    <div class="list-group">
         {% for label in labels.items -%}
-        <li><a href="{{ url_for('admin.library_label', label=label) }}">{{ label }}</a></li>
+        <a href="{{ url_for('admin.library_label', label=label) }}" class="list-group-item">{{ label }}</a>
         {% endfor -%}
-    </ul>
+    </div>
 
     {{ macros.render_pagination(labels, 'admin.library_labels') }}
 </div>

@@ -21,11 +21,11 @@
 <div class="panel-body">
     {{ macros.render_pagination(artists, 'admin.library_letter', letter=letter) }}
 
-    <ul>
+    <div class="list-group">
         {% for artist in artists.items -%}
-        <li><a href="{{ url_for('admin.library_artist', artist=artist) }}">{{ artist }}</a></li>
+        <a href="{{ url_for('admin.library_artist', artist=artist) }}" class="list-group-item">{{ artist }}</a>
         {% endfor -%}
-    </ul>
+    </div>
 
     {{ macros.render_pagination(artists, 'admin.library_letter', letter=letter) }}
 </div>

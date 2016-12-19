@@ -17,10 +17,10 @@
 </ul>
 
 <div class="panel-body panel-5-columns">
-    <ul>
+    <div class="list-group">
         {% for letter in letters -%}
-        <li><a href="{{ url_for('admin.library_letter', letter=letter) }}">{{ letter }}</a></li>
+        <a href="{{ url_for('admin.library_letter', letter=letter) }}" class="list-group-item">{{ letter }}</a>
         {% endfor -%}
-    </ul>
+    </div>
 </div>
 {% endblock %}

@@ -25,7 +25,7 @@
             </span>
 
             <h4 class="list-group-item-heading">{{ dj.airname|wordwrap }}</h4>
-            <p>Created {{ dj.time_added|datetime }}</p>
+            <p>Created <time datetime="{{ dj.time_added|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ dj.time_added|datetime("%Y-%m-%d %H:%M") }}</time></p>
         </button>
         {% endfor %}
     </div>
