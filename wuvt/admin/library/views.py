@@ -32,7 +32,8 @@ def library_index():
 @bp.route('/library/<string:letter>/<int:page>')
 @check_access('library')
 def library_letter(letter, page=1):
-    artists_query = Track.query.with_entities(Track.artist)
+    artists_query = Track.query.with_entities(Track.artist,
+                                              db.func.count(Track.artist))
 
     if len(letter) == 1:
         artists_query = artists_query.filter(
@@ -42,7 +43,6 @@ def library_letter(letter, page=1):
 
     artists = artists_query.group_by(Track.artist).order_by(Track.artist).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
-    artists.items = [x[0] for x in artists.items]
     return render_template('admin/library_letter.html', letter=letter,
                            artists=artists)
 
@@ -86,10 +86,11 @@ def library_artist():
 @bp.route('/library/labels/<int:page>')
 @check_access('library')
 def library_labels(page=1):
-    labels = Track.query.with_entities(Track.label).\
+    labels = Track.query.\
+        with_entities(Track.label, db.func.count(Track.label)).\
         group_by(Track.label).order_by(Track.label).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
-    labels.items = [x[0] for x in labels.items]
+
     return render_template('admin/library_labels.html', labels=labels)
 
 

@@ -22,8 +22,11 @@
     {{ macros.render_pagination(artists, 'admin.library_letter', letter=letter) }}
 
     <div class="list-group">
-        {% for artist in artists.items -%}
-        <a href="{{ url_for('admin.library_artist', artist=artist) }}" class="list-group-item">{{ artist }}</a>
+        {% for artist, count in artists.items -%}
+        <a href="{{ url_for('admin.library_artist', artist=artist) }}" class="list-group-item">
+            <span class="badge">{{ count|intcomma }}</span>
+            {{ artist }}
+        </a>
         {% endfor -%}
     </div>
 
