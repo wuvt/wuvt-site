@@ -18,10 +18,10 @@
 </ul>
 
 <div class="panel-body">
-    <ul>
-        <li><a href="{{ url_for('admin.library_fixup_tracks', key='bad_album') }}">Invalid Album</a></li>
-        <li><a href="{{ url_for('admin.library_fixup_tracks', key='bad_label') }}">Invalid Label</a></li>
-        <li><a href="{{ url_for('admin.library_fixup_tracks', key='one_play') }}">Only One Play</a></li>
-    </ul>
+    <div class="list-group">
+        <a href="{{ url_for('admin.library_fixup_tracks', key='bad_album') }}" class="list-group-item">Invalid Album</a>
+        <a href="{{ url_for('admin.library_fixup_tracks', key='bad_label') }}" class="list-group-item">Invalid Label</a>
+        <a href="{{ url_for('admin.library_fixup_tracks', key='one_play') }}" class="list-group-item">Only One Play</a>
+    </div>
 </div>
 {% endblock %}

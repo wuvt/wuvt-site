@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_seasurf import SeaSurf
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.contrib.cache import RedisCache
+import humanize
 import os
 import redis
 import defaults
@@ -62,10 +63,19 @@ else:
     app.config.from_json(config_path, silent=True)
 
 app.request_class = JSONRequest
-app.jinja_env.filters['datetime'] = format_datetime
-app.jinja_env.filters['isodatetime'] = format_isodatetime
-app.jinja_env.filters['format_currency'] = format_currency
-app.jinja_env.filters['uuid'] = format_uuid
+app.jinja_env.filters.update({
+    'intcomma': humanize.intcomma,
+    'intword': humanize.intword,
+    'naturalday': humanize.naturalday,
+    'naturaldate': humanize.naturaldate,
+    'naturaltime': humanize.naturaltime,
+    'naturalsize': humanize.naturalsize,
+
+    'datetime': format_datetime,
+    'isodatetime': format_isodatetime,
+    'format_currency': format_currency,
+    'uuid': format_uuid,
+})
 app.static_folder = 'static'
 
 if app.config['PROXY_FIX']:
