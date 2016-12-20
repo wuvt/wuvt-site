@@ -23,7 +23,7 @@ from wuvt.admin.library import views as library_views
 
 
 @bp.route('/')
-@check_access('admin', 'library')
+@check_access('admin', 'library', 'business')
 def index():
     return render_template('admin/index.html')
 
