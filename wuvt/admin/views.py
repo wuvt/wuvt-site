@@ -23,13 +23,13 @@ from wuvt.admin.library import views as library_views
 
 
 @bp.route('/')
-@check_access('admin', 'library', 'business')
+@check_access('admin', 'content', 'library', 'business')
 def index():
     return render_template('admin/index.html')
 
 
 @bp.route('/upload', methods=['GET', 'POST'])
-@check_access('admin')
+@check_access('admin', 'content')
 def upload():
     if request.method == 'GET':
         return render_template('admin/upload.html')
@@ -51,7 +51,7 @@ def upload():
 
 
 @bp.route('/categories')
-@check_access('admin')
+@check_access('admin', 'content')
 def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
@@ -251,7 +251,7 @@ def user_edit(id):
 
 
 @bp.route('/articles')
-@check_access('admin')
+@check_access('admin', 'content')
 def articles():
     articles = Article.query.order_by(Article.datetime.desc()).all()
     return render_template('admin/articles.html',
@@ -259,7 +259,7 @@ def articles():
 
 
 @bp.route('/js/articles.js')
-@check_access('admin')
+@check_access('admin', 'content')
 def articles_js():
     resp = make_response(render_template('admin/articles.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
@@ -267,7 +267,7 @@ def articles_js():
 
 
 @bp.route('/articles/draft/<int:art_id>')
-@check_access('admin')
+@check_access('admin', 'content')
 def article_draft(art_id):
     article = Article.query.filter(Article.id == art_id).first()
     if not article:
@@ -283,7 +283,7 @@ def article_draft(art_id):
 
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST', 'DELETE'])
-@check_access('admin')
+@check_access('admin', 'content')
 def page_edit(page_id):
     page = Page.query.get_or_404(page_id)
     error_fields = []
@@ -402,7 +402,7 @@ def page_add():
 
 
 @bp.route('/article/add', methods=['GET', 'POST'])
-@check_access('admin')
+@check_access('admin', 'content')
 def article_add():
     error_fields = []
     # article = Article()
@@ -473,7 +473,7 @@ def article_add():
 
 
 @bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
-@check_access('admin')
+@check_access('admin', 'content')
 def article_edit(art_id):
     article = Article.query.get_or_404(art_id)
     error_fields = []
@@ -561,14 +561,14 @@ def article_edit(art_id):
 
 
 @bp.route('/pages')
-@check_access('admin')
+@check_access('admin', 'content')
 def pages():
     pages = Page.query.all()
     return render_template('admin/pages.html', pages=pages)
 
 
 @bp.route('/js/pages.js')
-@check_access('admin')
+@check_access('admin', 'content')
 def pages_js():
     resp = make_response(render_template('admin/pages.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
