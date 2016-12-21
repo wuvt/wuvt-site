@@ -72,10 +72,11 @@ LDAP_URI = 'ldap://127.0.0.1:389'
 LDAP_VERIFY = True
 LDAP_BASE_DN = "dc=wuvt,dc=vt,dc=edu"
 LDAP_AUTH_DN = "uid={},ou=Users,dc=wuvt,dc=vt,dc=edu"
-LDAP_GROUPS_ADMIN = ['sudoers', 'webmasters']
+LDAP_GROUPS_ADMIN = ['sudoers']
 LDAP_GROUPS_BUSINESS = ['sudoers']
 LDAP_GROUPS_LIBRARY = ['sudoers', 'librarians']
-LDAP_GROUPS_RADIOTHON = ['sudoers', 'missioncontrol']
+LDAP_GROUPS_CONTENT = ['webmasters']
+LDAP_GROUPS_MISSIONCONTROL = ['sudoers', 'missioncontrol']
 
 UPLOAD_DIR = "/data/media"
 

@@ -22,9 +22,10 @@ def login():
                     group_base_dn=app.config['LDAP_BASE_DN'],
                     role_mapping={
                         'admin': app.config['LDAP_GROUPS_ADMIN'],
+                        'content': app.config['LDAP_GROUPS_CONTENT'],
                         'business': app.config['LDAP_GROUPS_BUSINESS'],
                         'library': app.config['LDAP_GROUPS_LIBRARY'],
-                        'missioncontrol': app.config['LDAP_GROUPS_RADIOTHON'],
+                        'missioncontrol': app.config['LDAP_GROUPS_MISSIONCONTROL'],
                     },
                     verify=app.config['LDAP_VERIFY'])
 
@@ -73,7 +74,7 @@ def login():
             if user and user.check_password(request.form['password']):
                 login_user(user)
                 session['username'] = user.username
-                session['access'] = ['admin', 'library', 'missioncontrol',
+                session['access'] = ['admin', 'content', 'library', 'missioncontrol',
                                      'business']
 
                 log_auth_success("DB", user.username, request)
