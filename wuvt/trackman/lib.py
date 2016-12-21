@@ -346,3 +346,31 @@ def prune_empty_djsets():
 
     current_app.logger.debug("Trackman: Removed {} empty DJSets.".format(
         empty.count()))
+
+
+def cleanup_dj_list():
+    # look for DJs that last played a track more than
+    # TRACKMAN_DJ_HIDE_AFTER_DAYS days ago
+    cutoff = datetime.utcnow() - timedelta(
+        days=current_app.config['TRACKMAN_DJ_HIDE_AFTER_DAYS'])
+
+    # find visible DJs with DJSets past cutoff
+    # this will be an exclude list
+    exclude_clause = DJSet.query.\
+        with_entities(DJSet.dj_id).join(DJ).\
+        filter(db.and_(
+            DJ.visible == True,
+            db.or_(DJSet.dtstart > cutoff, DJSet.dtend > cutoff)
+        )).\
+        group_by(DJSet.dj_id)
+
+    djs = DJ.query.\
+        filter(db.and_(
+            DJ.visible == True,
+            ~DJ.id.in_(exclude_clause)
+        )).all()
+    for dj in djs:
+        dj.phone = None
+        dj.email = None
+        dj.visible = False
+        db.session.commit()

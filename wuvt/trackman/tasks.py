@@ -29,6 +29,13 @@ def playlist_cleanup():
         lib.prune_empty_djsets()
 
 
+@periodic_task(run_every=crontab(day_of_week=1, hour=0, minute=0))
+def cleanup_dj_list_task():
+    with app.app_context():
+        app.logger.debug("Trackman: Starting DJ list cleanup...")
+        lib.cleanup_dj_list()
+
+
 @periodic_task(run_every=timedelta(minutes=1))
 def autologout_check():
     with app.app_context():
