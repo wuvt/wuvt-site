@@ -29,7 +29,7 @@
             {% if 'admin' in session.access %}
             <a href="{{ url_for('admin.category_edit', cat_id=cat.id) }}" class="btn btn-default btn-sm">Edit</a>
             <button class="btn btn-danger btn-sm delete-button">Delete</button>
-	    {% endif %}
+            {% endif %}
         </td>
     </tr>
     {% endfor %}
