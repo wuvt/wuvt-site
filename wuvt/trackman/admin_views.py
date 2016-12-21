@@ -83,8 +83,6 @@ def login_all():
                            automation=automation, djs=djs)
 
 
-
-
 @private_bp.route('/automation/start', methods=['POST'])
 @local_only
 def start_automation():
@@ -116,6 +114,9 @@ or you pressed the Logout button somewhere else.
             session.pop('djset_id', None)
 
         return redirect(url_for('.login'))
+
+    if djset.dj.phone is None or djset.dj.email is None:
+        return redirect(url_for('.reactivate_dj', setid=setid))
 
     rotations = {}
     for i in Rotation.query.order_by(Rotation.id).all():
@@ -231,6 +232,46 @@ def register():
             'trackman/register.html',
             trackman_name=current_app.config['TRACKMAN_NAME'],
             errors=errors)
+
+
+@private_bp.route('/log/<int:setid>/reactivate_dj', methods=['GET', 'POST'])
+@local_only
+@dj_interact
+def reactivate_dj(setid):
+    djset = DJSet.query.get_or_404(setid)
+    errors = {}
+
+    # if neither phone nor email is missing, someone is doing silly things
+    if djset.dj.email is not None and djset.dj.phone is not None:
+        return redirect(url_for('.log', setid=setid))
+
+    if request.method == 'POST':
+        email = request.form['email'].strip()
+        if len(email) <= 0:
+            errors['email'] = "You must enter your email address."
+
+        phone = request.form['phone'].strip()
+        if len(phone) <= 0:
+            errors['phone'] = "You must enter your phone number."
+
+        if len(errors.items()) <= 0:
+            djset.dj.email = email
+            djset.dj.phone = phone
+            db.session.commit()
+
+            return redirect(url_for('.log', setid=setid))
+
+    if request.wants_json():
+        if len(errors) <= 0:
+            return jsonify(success=True)
+        else:
+            return jsonify(success=False, errors=errors)
+    else:
+        return render_template(
+            'trackman/reactivate.html',
+            trackman_name=current_app.config['TRACKMAN_NAME'],
+            errors=errors,
+            dj=djset.dj)
 
 
 @private_bp.route('/api/live')

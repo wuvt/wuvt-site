@@ -37,6 +37,12 @@ def prune_empty_djsets():
 
 
 @trackman.command()
+def cleanup_dj_list():
+    """Find DJs with no recent sets and hide them from main list."""
+    lib.cleanup_dj_list()
+
+
+@trackman.command()
 @click.option('--message', prompt=True)
 def send_message(message):
     """Send a message to the current DJ."""

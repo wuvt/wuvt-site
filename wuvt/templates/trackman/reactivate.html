@@ -1,0 +1,76 @@
+{% import "trackman/macros.html" as macros %}
+{% extends "trackman/base.html" %}
+{% set page_title="DJ Reactivation" %}
+{% block content %}
+
+<div class="container">
+<h1>{{ trackman_name }}</h1>
+
+<h2>DJ Reactivation</h2>
+
+<div class="alert alert-info">
+    <strong>We haven't seen you in a while.</strong> To protect your privacy,
+    we removed your contact information from our database. We'll have to ask
+    you for it again before you can start logging tracks.
+</div>
+
+{% for _, msg in errors.items() %}
+<div class="alert alert-danger">{{ msg }}</div>
+{% endfor %}
+
+<form method="post" class="form-horizontal" role="form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group">
+        <label for="id_airname" class="col-sm-3 control-label">On-Air Name</label>
+        <div class="col-sm-9">
+            <p class="form-control-static">{{ dj.airname }}</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_name" class="col-sm-3 control-label">Real Name</label>
+        <div class="col-sm-9">
+            <p class="form-control-static">{{ dj.name }}</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_email" class="col-sm-3 control-label">Email Address</label>
+        <div class="col-sm-9">
+            <input type="text" name="email" id="id_email"
+                value="" required="required" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
+        <div class="col-sm-9">
+            <input type="text" name="phone" id="id_phone" value=""
+                class="form-control" required="required"
+                pattern="\d{3}\-\d{3}\-\d{4}"
+                placeholder="540-555-5555" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_genres" class="col-sm-3 control-label">Genres you can DJ</label>
+        <div class="col-sm-9">
+            <p class="form-control-static">{{ dj.genres }}</p>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span>
+            Reactivate DJ
+        </button>
+
+        <a href="{{ url_for('trackman_private.login') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel
+        </a>
+    </div>
+</form>
+</div>
+{% endblock %}
