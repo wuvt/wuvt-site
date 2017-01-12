@@ -19,7 +19,7 @@ It has several main components:
 ### Deployment
 First, clone the repo, create an empty config, and build the appropriate Docker
 image for your environment. We provide Dockerfile.dev which is configured to
-use SQLite and runs Redis directly in the image, and Dockerfile.prod, which is
+use SQLite and runs Redis directly in the image, and Dockerfile, which is
 recommended for production deployments as it does not run any of the required
 services inside the container itself.
 
