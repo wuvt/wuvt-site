@@ -5,10 +5,10 @@ from flask import abort, flash, jsonify, make_response, render_template, \
 from flask_login import current_user
 
 from wuvt import app
+from wuvt import auth_manager
 from wuvt import cache
 from wuvt import db
 from wuvt.admin import bp
-from wuvt.auth import check_access
 from wuvt.blog import list_categories
 from wuvt.blog.models import Category, Article
 from wuvt.donate.models import Order
@@ -23,13 +23,13 @@ from wuvt.admin.library import views as library_views
 
 
 @bp.route('/')
-@check_access('admin', 'content', 'library', 'business')
+@auth_manager.check_access('admin', 'content', 'library', 'business')
 def index():
     return render_template('admin/index.html')
 
 
 @bp.route('/upload', methods=['GET', 'POST'])
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def upload():
     if request.method == 'GET':
         return render_template('admin/upload.html')
@@ -51,7 +51,7 @@ def upload():
 
 
 @bp.route('/categories')
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def categories():
     categories = Category.query.order_by('name').all()
     return render_template('admin/categories.html',
@@ -59,7 +59,7 @@ def categories():
 
 
 @bp.route('/js/categories.js')
-@check_access('admin')
+@auth_manager.check_access('admin')
 def categories_js():
     resp = make_response(render_template('admin/categories.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
@@ -67,7 +67,7 @@ def categories_js():
 
 
 @bp.route('/categories/add', methods=['GET', 'POST'])
-@check_access('admin')
+@auth_manager.check_access('admin')
 def category_add():
     error_fields = []
 
@@ -100,7 +100,7 @@ def category_add():
 
 
 @bp.route('/categories/<int:cat_id>', methods=['GET', 'POST', 'DELETE'])
-@check_access('admin')
+@auth_manager.check_access('admin')
 def category_edit(cat_id):
     category = Category.query.get_or_404(cat_id)
     error_fields = []
@@ -150,9 +150,9 @@ def category_edit(cat_id):
 
 
 @bp.route('/users/new', methods=['GET', 'POST'])
-@check_access('admin')
+@auth_manager.check_access('admin')
 def user_add():
-    if app.config['LDAP_AUTH']:
+    if app.config['AUTH_METHOD'] != "local":
         abort(404)
 
     error_fields = []
@@ -204,9 +204,9 @@ def user_add():
 
 
 @bp.route('/users/<int:id>', methods=['GET', 'POST'])
-@check_access('admin')
+@auth_manager.check_access('admin')
 def user_edit(id):
-    if app.config['LDAP_AUTH']:
+    if app.config['AUTH_METHOD'] != "local":
         abort(404)
 
     user = User.query.get_or_404(id)
@@ -251,7 +251,7 @@ def user_edit(id):
 
 
 @bp.route('/articles')
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def articles():
     articles = Article.query.order_by(Article.datetime.desc()).all()
     return render_template('admin/articles.html',
@@ -259,7 +259,7 @@ def articles():
 
 
 @bp.route('/js/articles.js')
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def articles_js():
     resp = make_response(render_template('admin/articles.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
@@ -267,7 +267,7 @@ def articles_js():
 
 
 @bp.route('/articles/draft/<int:art_id>')
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def article_draft(art_id):
     article = Article.query.filter(Article.id == art_id).first()
     if not article:
@@ -283,7 +283,7 @@ def article_draft(art_id):
 
 
 @bp.route('/page/<int:page_id>', methods=['GET', 'POST', 'DELETE'])
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def page_edit(page_id):
     page = Page.query.get_or_404(page_id)
     error_fields = []
@@ -351,7 +351,7 @@ def page_edit(page_id):
 
 
 @bp.route('/page/add', methods=['GET', 'POST'])
-@check_access('admin')
+@auth_manager.check_access('admin')
 def page_add():
     error_fields = []
 
@@ -402,7 +402,7 @@ def page_add():
 
 
 @bp.route('/article/add', methods=['GET', 'POST'])
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def article_add():
     error_fields = []
     # article = Article()
@@ -473,7 +473,7 @@ def article_add():
 
 
 @bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def article_edit(art_id):
     article = Article.query.get_or_404(art_id)
     error_fields = []
@@ -561,14 +561,14 @@ def article_edit(art_id):
 
 
 @bp.route('/pages')
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def pages():
     pages = Page.query.all()
     return render_template('admin/pages.html', pages=pages)
 
 
 @bp.route('/js/pages.js')
-@check_access('admin', 'content')
+@auth_manager.check_access('admin', 'content')
 def pages_js():
     resp = make_response(render_template('admin/pages.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
@@ -576,9 +576,9 @@ def pages_js():
 
 
 @bp.route('/users')
-@check_access('admin')
+@auth_manager.check_access('admin')
 def users():
-    if app.config['LDAP_AUTH']:
+    if app.config['AUTH_METHOD'] != "local":
         abort(404)
 
     if current_user.username == 'admin':
@@ -592,7 +592,7 @@ def users():
 
 
 @bp.route('/donations', methods=['GET'])
-@check_access('business')
+@auth_manager.check_access('business')
 def donation_index():
     if not app.config['DONATE_ENABLE']:
         abort(404)
