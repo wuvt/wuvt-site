@@ -36,7 +36,8 @@ COPY LICENSE README.md uwsgi_docker.ini /usr/src/app/
 VOLUME ["/data/config", "/data/media", "/data/ssl"]
 
 EXPOSE 8443
-ENV FLASK_APP /usr/src/app/wuvt/__init__.py
+ENV PYTHONPATH /usr/src/app
+ENV FLASK_APP wuvt
 ENV APP_CONFIG_PATH /data/config/config.py
 
 RUN flask render_images
