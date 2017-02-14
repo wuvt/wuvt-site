@@ -5,7 +5,6 @@ import orthrus
 
 from wuvt import app
 from wuvt import auth_manager
-from wuvt import csrf
 from wuvt import db
 from wuvt.auth.blueprint import bp
 from wuvt.models import User
@@ -29,7 +28,6 @@ def _find_or_create_user(username, name, email):
     return user
 
 
-@csrf.exempt
 def oidc_callback():
     response = auth_manager.oidc._oidc_callback()
 
