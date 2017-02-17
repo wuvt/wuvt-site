@@ -192,12 +192,12 @@ class Track(db.Model):
                 len(self.album) <= 0 or len(self.label) <= 0:
             return False
 
-        if 'TRACKMAN_ARTIST_BLACKLIST' in current_app.config and \
-                self.artist in current_app.config['TRACKMAN_ARTIST_BLACKLIST']:
+        if 'TRACKMAN_ARTIST_PROHIBITED' in current_app.config and \
+                self.artist in current_app.config['TRACKMAN_ARTIST_PROHIBITED']:
             return False
 
-        if 'TRACKMAN_LABEL_BLACKLIST' in current_app.config and \
-                self.label in current_app.config['TRACKMAN_LABEL_BLACKLIST']:
+        if 'TRACKMAN_LABEL_PROHIBITED' in current_app.config and \
+                self.label in current_app.config['TRACKMAN_LABEL_PROHIBITED']:
             return False
 
         return True
