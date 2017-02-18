@@ -1,6 +1,5 @@
 from dateutil import tz
 from flask import Flask, Request
-from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_seasurf import SeaSurf
 from flask_sqlalchemy import SQLAlchemy
@@ -91,9 +90,9 @@ csrf = SeaSurf(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-login_manager = LoginManager()
-login_manager.login_view = "auth.login"
-login_manager.init_app(app)
+from wuvt.auth import AuthManager
+auth_manager = AuthManager()
+auth_manager.init_app(app)
 
 
 @app.context_processor
@@ -151,8 +150,7 @@ def init_app():
     from wuvt import admin
     app.register_blueprint(admin.bp, url_prefix='/admin')
 
-    from wuvt import auth
-    app.register_blueprint(auth.bp, url_prefix='/auth')
+    app.register_blueprint(auth_manager.bp, url_prefix='/auth')
 
     from wuvt import blog
     app.register_blueprint(blog.bp)

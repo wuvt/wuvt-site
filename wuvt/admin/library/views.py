@@ -3,9 +3,9 @@ from flask import abort, current_app, flash, render_template, redirect, \
 import string
 import uuid
 
+from wuvt import auth_manager
 from wuvt import db
 from wuvt.admin import bp
-from wuvt.auth import check_access
 from wuvt.trackman.models import DJ, Track, TrackLog, TrackReport
 from wuvt.trackman.lib import deduplicate_track_by_id
 from wuvt.trackman.musicbrainz import musicbrainzngs
@@ -21,7 +21,7 @@ def validate_uuid(uuid_str):
 
 
 @bp.route('/library')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_index():
     letters = list(string.digits + string.ascii_uppercase)
     return render_template('admin/library_index.html',
@@ -30,7 +30,7 @@ def library_index():
 
 @bp.route('/library/<string:letter>')
 @bp.route('/library/<string:letter>/<int:page>')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_letter(letter, page=1):
     artists_query = Track.query.with_entities(Track.artist,
                                               db.func.count(Track.artist))
@@ -49,7 +49,7 @@ def library_letter(letter, page=1):
 
 @bp.route('/library/djs')
 @bp.route('/library/djs/<int:page>')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_djs(page=1):
     djs = DJ.query.order_by(DJ.airname).paginate(
         page, current_app.config['ARTISTS_PER_PAGE'])
@@ -58,7 +58,7 @@ def library_djs(page=1):
 
 @bp.route('/library/dj/<int:id>')
 @bp.route('/library/dj/<int:id>/<int:page>')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_dj(id, page=1):
     dj = DJ.query.get_or_404(id)
     subquery = TrackLog.query.\
@@ -72,7 +72,7 @@ def library_dj(id, page=1):
 
 
 @bp.route('/library/artist')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_artist():
     artist = request.args['artist']
     tracks = Track.query.filter(Track.artist == artist).\
@@ -84,7 +84,7 @@ def library_artist():
 
 @bp.route('/library/labels')
 @bp.route('/library/labels/<int:page>')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_labels(page=1):
     labels = Track.query.\
         with_entities(Track.label, db.func.count(Track.label)).\
@@ -95,7 +95,7 @@ def library_labels(page=1):
 
 
 @bp.route('/library/label')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_label():
     label = request.args['label']
     page = int(request.args.get('page', 1))
@@ -108,14 +108,14 @@ def library_label():
 
 
 @bp.route('/library/fixup')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_fixup():
     return render_template('admin/library_fixup.html')
 
 
 @bp.route('/library/fixup/<string:key>')
 @bp.route('/library/fixup/<string:key>/<int:page>')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_fixup_tracks(key, page=1):
     if key == 'bad_album':
         title = "Invalid Album"
@@ -157,7 +157,7 @@ def library_fixup_tracks(key, page=1):
 
 
 @bp.route('/library/track/<int:id>', methods=['GET', 'POST'])
-@check_access('library')
+@auth_manager.check_access('library')
 def library_track(id):
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
@@ -232,7 +232,7 @@ def library_track(id):
 
 
 @bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
-@check_access('library')
+@auth_manager.check_access('library')
 def library_track_musicbrainz(id):
     musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
     musicbrainzngs.set_rate_limit(current_app.config['MUSICBRAINZ_RATE_LIMIT'])
@@ -331,7 +331,7 @@ def library_track_musicbrainz(id):
 
 @bp.route('/library/track/<int:id>/similar', methods=['GET', 'POST'])
 @bp.route('/library/track/<int:id>/similar/<int:page>', methods=['GET', 'POST'])
-@check_access('library')
+@auth_manager.check_access('library')
 def library_track_similar(id, page=1):
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
@@ -381,7 +381,7 @@ def library_track_similar(id, page=1):
 
 
 @bp.route('/library/track/<int:id>/spins')
-@check_access('library')
+@auth_manager.check_access('library')
 def library_track_spins(id):
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)

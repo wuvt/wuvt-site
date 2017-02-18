@@ -4,20 +4,20 @@ import dateutil.parser
 import io
 
 from wuvt import app
+from wuvt import auth_manager
 from wuvt import format_datetime
 from wuvt.admin import bp
-from wuvt.auth import check_access
 from wuvt.trackman.models import TrackLog
 
 
 @bp.route('/charts')
-@check_access('library')
+@auth_manager.check_access('library')
 def charts_index():
     return render_template('admin/charts_index.html')
 
 
 @bp.route('/charts/bmi', methods=['GET', 'POST'])
-@check_access('library')
+@auth_manager.check_access('library')
 def charts_bmi():
     if request.method == 'POST':
         start = dateutil.parser.parse(request.form['dtstart'])
