@@ -30,17 +30,6 @@ class AuthManager(object):
             'missioncontrol': ['missioncontrol'],
         })
 
-        # deprecated
-        if app.config.get('LDAP_AUTH', False):
-            app.config['AUTH_METHOD'] = 'ldap'
-
-            # support old-style LDAP role map
-            for role in self.all_roles:
-                value = app.config.get('LDAP_GROUPS_{}'.format(role.upper()),
-                                       None)
-                if value is not None:
-                    app.config['AUTH_ROLE_GROUPS'][role] = value
-
         self.login_manager = LoginManager()
         self.login_manager.login_view = "auth.login"
         self.login_manager.init_app(app)
@@ -63,8 +52,6 @@ class AuthManager(object):
                 bp.route('/oidc_callback')(oidc_callback)
 
             self.oidc = OpenIDConnect(app)
-        elif app.config['AUTH_METHOD'] == 'ldap':
-            app.config.setdefault('LDAP_VERIFY', True)
 
     def _before_request(self):
         if self.app.config['OVERWRITE_REDIRECT_URI'] == False:

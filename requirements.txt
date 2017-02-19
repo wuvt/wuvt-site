@@ -21,7 +21,6 @@ humanize==0.5.1
 itsdangerous==0.24
 Jinja2==2.9.5
 kombu==4.0.2
-ldap3==2.2.1
 Mako==1.0.6
 Markdown==2.6.8
 MarkupSafe==0.23
@@ -49,5 +48,4 @@ urllib3==1.20
 vine==1.1.3
 webencodings==0.5
 Werkzeug==0.11.15
-git+https://github.com/wuvt/orthrus
 git+https://github.com/wuvt/python-musicbrainzngs

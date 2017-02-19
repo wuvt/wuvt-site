@@ -1,7 +1,6 @@
 from flask import abort, flash, g, get_flashed_messages, redirect, \
         render_template, request, url_for, session
 from flask_login import login_required, login_user, logout_user
-import orthrus
 
 from wuvt import app
 from wuvt import auth_manager
@@ -90,58 +89,19 @@ def login():
         return auth_manager.oidc.redirect_to_auth_server(target)
 
     if 'username' in request.form:
-        if app.config['AUTH_METHOD'] == 'ldap':
-            if len(request.form['password']) > 0:
-                o = orthrus.Orthrus(
-                    ldap_uri=app.config['LDAP_URI'],
-                    user_template_dn=app.config['LDAP_AUTH_DN'],
-                    group_base_dn=app.config['LDAP_BASE_DN'],
-                    role_mapping=app.config['AUTH_ROLE_GROUPS'],
-                    verify=app.config['LDAP_VERIFY'])
+        user = User.query.filter(
+            User.username == request.form['username']).first()
+        if user and user.check_password(request.form['password']):
+            login_user(user)
+            session['access'] = get_user_roles(user)
 
-                try:
-                    r = o.authenticate(request.form['username'],
-                                       request.form['password'],
-                                       ['uid', 'cn', 'mail'])
-
-                    if r[0] is True:
-                        user = _find_or_create_user(
-                            r[1]['uid'][0], r[1]['cn'][0], r[1]['mail'][0])
-
-                        login_user(user)
-                        session['access'] = list(set(
-                            r[2] + get_user_roles(user)))
-
-                        auth_manager.log_auth_success("orthrus", user.username,
-                                                      request)
-                        return redirect_back('admin.index')
-                    else:
-                        auth_manager.log_auth_failure("orthrus",
-                                                      request.form['username'],
-                                                      request)
-                        errors.append("Invalid username or password.")
-                except Exception as e:
-                    app.logger.error("wuvt-site: orthrus: {}".format(e))
-                    errors.append("Authentication backend error.")
-            else:
-                auth_manager.log_auth_failure("orthrus",
-                                              request.form['username'],
-                                              request)
-                errors.append("Invalid username or password.")
+            auth_manager.log_auth_success("local", user.username, request)
+            return redirect_back('admin.index')
         else:
-            user = User.query.filter(
-                User.username == request.form['username']).first()
-            if user and user.check_password(request.form['password']):
-                login_user(user)
-                session['access'] = get_user_roles(user)
-
-                auth_manager.log_auth_success("local", user.username, request)
-                return redirect_back('admin.index')
-            else:
-                auth_manager.log_auth_failure("local",
-                                              request.form['username'],
-                                              request)
-                errors.append("Invalid username or password.")
+            auth_manager.log_auth_failure("local",
+                                          request.form['username'],
+                                          request)
+            errors.append("Invalid username or password.")
 
     return render_template('auth/login.html',
                            next=request.values.get('next') or "",
