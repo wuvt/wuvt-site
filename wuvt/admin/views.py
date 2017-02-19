@@ -9,10 +9,11 @@ from wuvt import auth_manager
 from wuvt import cache
 from wuvt import db
 from wuvt.admin import bp
+from wuvt.auth.models import User
 from wuvt.blog import list_categories
 from wuvt.blog.models import Category, Article
 from wuvt.donate.models import Order
-from wuvt.models import User, Page
+from wuvt.models import Page
 from wuvt.views import get_menus
 from wuvt.view_utils import slugify
 

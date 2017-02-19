@@ -3,20 +3,14 @@ from flask_login import current_user, LoginManager
 from flask_oidc import OpenIDConnect
 from functools import wraps
 
-from wuvt.models import User
+from .models import User
 from .blueprint import bp
 
 
 class AuthManager(object):
     def __init__(self, app=None):
         self.bp = bp
-        self.all_roles = [
-            'admin',
-            'content',
-            'business',
-            'library',
-            'missioncontrol',
-        ]
+        self.all_roles = set()
 
         if app is not None:
             self.init_app(app)
@@ -27,6 +21,7 @@ class AuthManager(object):
         self.app = app
 
         app.config.setdefault('AUTH_METHOD', 'local')
+        app.config.setdefault('AUTH_SUPERADMINS', ['admin'])
         app.config.setdefault('AUTH_ROLE_GROUPS', {
             'admin': ['webmasters'],
             'content': ['webmasters'],
@@ -56,10 +51,11 @@ class AuthManager(object):
             flask_oidc.logger = app.logger
 
             with app.app_context():
+                app.config.setdefault('OIDC_SCOPES',
+                                      ['openid', 'profile', 'email'])
                 app.config.update({
-                   'OIDC_SCOPES': ['openid', 'profile', 'email', 'groups'],
-                   'OIDC_RESOURCE_SERVER_ONLY': True,
-                   'OIDC_RESOURCE_CHECK_AUD': True,
+                    'OIDC_RESOURCE_SERVER_ONLY': True,
+                    'OIDC_RESOURCE_CHECK_AUD': True,
                 })
 
                 from .views import oidc_callback
@@ -75,8 +71,9 @@ class AuthManager(object):
             self.app.config['OVERWRITE_REDIRECT_URI'] = url_for(
                 'auth.oidc_callback', _external=True)
 
-    def check_access(self, *sections):
-        sections = set(sections)
+    def check_access(self, *roles):
+        roles = set(roles)
+        self.all_roles.update(roles)
 
         def access_decorator(f):
             @wraps(f)
@@ -84,8 +81,8 @@ class AuthManager(object):
                 if not current_user.is_authenticated:
                     return self.login_manager.unauthorized()
 
-                access_sections = set(session.get('access', []))
-                if sections.isdisjoint(access_sections):
+                access_roles = set(session.get('access', []))
+                if roles.isdisjoint(access_roles):
                     abort(403)
 
                 resp = make_response(f(*args, **kwargs))

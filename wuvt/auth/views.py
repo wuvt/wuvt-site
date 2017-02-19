@@ -7,7 +7,7 @@ from wuvt import app
 from wuvt import auth_manager
 from wuvt import db
 from wuvt.auth.blueprint import bp
-from wuvt.models import User
+from wuvt.auth.models import User, UserRole, GroupRole
 from wuvt.view_utils import redirect_back, is_safe_url
 
 
@@ -28,6 +28,30 @@ def _find_or_create_user(username, name, email):
     return user
 
 
+def get_user_roles(user, user_groups=None):
+    if user.username in app.config['AUTH_SUPERADMINS']:
+        return list(auth_manager.all_roles)
+
+    user_roles = set([])
+
+    if user_groups is not None:
+        for role, groups in app.config['AUTH_ROLE_GROUPS'].items():
+            for group in groups:
+                if group in user_groups:
+                    user_roles.add(role)
+
+        for group in user_groups:
+            group_roles_db = GroupRole.query.filter(GroupRole.group == group)
+            for entry in group_roles_db:
+                user_roles.add(entry.role)
+
+    user_roles_db = UserRole.query.filter(UserRole.user_id == user.id)
+    for entry in user_roles_db:
+        user_roles.add(entry.role)
+
+    return list(user_roles)
+
+
 def oidc_callback():
     response = auth_manager.oidc._oidc_callback()
 
@@ -39,15 +63,12 @@ def oidc_callback():
     user = _find_or_create_user(
         id_token['sub'], id_token['name'], id_token['email'])
 
-    user_roles = []
-    for role, groups in app.config['AUTH_ROLE_GROUPS'].items():
-        for group in groups:
-            if group in id_token['groups']:
-                user_roles.append(role)
+    user_groups = None
+    if 'groups' in id_token:
+        user_groups = id_token['groups']
 
     login_user(user)
-    session['username'] = id_token['sub']
-    session['access'] = user_roles
+    session['access'] = get_user_roles(user, user_groups)
 
     auth_manager.log_auth_success("oidc", user.username, request)
     return response
@@ -88,8 +109,8 @@ def login():
                             r[1]['uid'][0], r[1]['cn'][0], r[1]['mail'][0])
 
                         login_user(user)
-                        session['username'] = user.username
-                        session['access'] = r[2]
+                        session['access'] = list(set(
+                            r[2] + get_user_roles(user)))
 
                         auth_manager.log_auth_success("orthrus", user.username,
                                                       request)
@@ -112,8 +133,7 @@ def login():
                 User.username == request.form['username']).first()
             if user and user.check_password(request.form['password']):
                 login_user(user)
-                session['username'] = user.username
-                session['access'] = auth_manager.all_roles
+                session['access'] = get_user_roles(user)
 
                 auth_manager.log_auth_success("local", user.username, request)
                 return redirect_back('admin.index')
@@ -132,7 +152,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.pop('username', None)
     session.pop('access', None)
 
     if app.config['AUTH_METHOD'] == 'oidc':

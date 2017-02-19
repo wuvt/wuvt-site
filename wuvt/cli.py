@@ -2,9 +2,9 @@ import click
 import os.path
 import subprocess
 from wuvt import app, db, sample_data
+from wuvt.auth.models import User
 from wuvt.blog.models import Category
 from wuvt.trackman.models import DJ, Rotation
-from wuvt.models import User
 
 
 @app.cli.command()
