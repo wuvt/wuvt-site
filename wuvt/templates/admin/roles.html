@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+{% set page_title="Roles" %}
+{% block nav_admin_roles %}<li class="active"><a href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}
+
+{% block content %}
+<h1>Roles</h1>
+
+<table class="table table-striped table-hover">
+    <tr>
+        <td colspan="3">
+            <a href="{{ url_for('admin.role_add_user') }}" class="btn btn-default">Add User Role</a>
+            <a href="{{ url_for('admin.role_add_group') }}" class="btn btn-default">Add Group Role</a>
+        </td>
+    </tr>
+    <tr>
+        <th>Role</th>
+        <th>User</th>
+        <th>Actions</th>
+    </tr>
+    {% for entry in user_roles %}
+    <tr>
+        <td>{{ entry.role }}</td>
+        <td>{{ entry.user.username }}</td>
+        <td class="row-options">
+            <form action="{{ url_for('admin.role_remove_user', id=entry.id) }}" method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+                <button type="submit" class="btn btn-danger btn-sm delete-button">Remove</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <th>Role</th>
+        <th>Group</th>
+        <th>Actions</th>
+    </tr>
+    {% for entry in group_roles %}
+    <tr>
+        <td>{{ entry.role }}</td>
+        <td>{{ entry.group }}</td>
+        <td class="row-options">
+            <form action="{{ url_for('admin.role_remove_group', id=entry.id) }}" method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+                <button type="submit" class="btn btn-danger btn-sm delete-button">Remove</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="3">
+            <a href="{{ url_for('admin.role_add_user') }}" class="btn btn-default">Add User Role</a>
+            <a href="{{ url_for('admin.role_add_group') }}" class="btn btn-default">Add Group Role</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('admin.roles_js') }}"></script>
+{% endblock %}

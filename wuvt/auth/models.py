@@ -32,6 +32,7 @@ class UserRole(db.Model):
     __tablename__ = "user_role"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User')
     role = db.Column(db.Unicode(255), nullable=False)
 
     def __init__(self, user_id, role):
