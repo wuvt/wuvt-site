@@ -39,7 +39,7 @@ def role_add_user():
     users = User.query.order_by('name').all()
 
     return render_template('admin/role_add_user.html', users=users,
-                           roles=list(auth_manager.all_roles),
+                           roles=sorted(auth_manager.all_roles),
                            error_fields=error_fields)
 
 
@@ -86,7 +86,7 @@ def role_add_group():
             return redirect(url_for('.roles'), 303)
 
     return render_template('admin/role_add_group.html',
-                           roles=list(auth_manager.all_roles),
+                           roles=sorted(auth_manager.all_roles),
                            error_fields=error_fields)
 
 
