@@ -3,33 +3,30 @@
 
 {% block content %}
 <h1>File Upload</h1>
-<img src="{{ url_for('static', filename='img/robot-2x.png') }}" alt="" />
 
-<div id="fileupload">
+<form method="POST" enctype="multipart/form-data" class="form-horizontal">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div id="html5">
-        <div class="clear"></div>
-
-        <form action="upload" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-
-            <div id="file-uploader">
-                    <br />
-                    <input type="file" name="file" id="file_upload" name="file_upload"><br/ ><br/ >
-                    <input id ="upload_btn" type="submit" value="Upload">
-                    <br /><br />
-            </div>
-            <div id="choices">
-                <div id="destination">
-                    <label>Destination: 
-                    <select name="destination" id="destination">
-                    </label>
-                        <option value="default">default</option>
-                    </select>
-                </div>
-
-            </div>
-        </form>
+    <div class="form-group">
+        <label for="id_destination" class="col-sm-3 control-label">Destination</label>
+        <div class="col-sm-9">
+            <select name="destination" id="id+destination" class="form-control">
+                <option value="default">default</option>
+            </select>
+        </div>
     </div>
-</div>
+
+    <div id="file-uploader" class="form-group">
+        <label for="file_upload" class="col-sm-3 control-label">File Selector</label>
+        <div class="col-sm-9">
+            <input type="file" name="file" id="file_upload" name="file_upload" />
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button id="upload_btn" type="submit" class="btn btn-primary">
+            Upload
+        </button>
+    </div>
+</form>
 {% endblock %}
