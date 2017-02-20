@@ -2,6 +2,7 @@ import datetime
 from sqlalchemy import func
 from flask import abort, flash, jsonify, make_response, render_template, \
         redirect, request, url_for
+from flask_login import login_required
 
 from wuvt import app
 from wuvt import auth_manager
@@ -24,7 +25,7 @@ from wuvt.admin.library import views as library_views
 
 
 @bp.route('/')
-@auth_manager.check_access('admin', 'content', 'library', 'business')
+@login_required
 def index():
     return render_template('admin/index.html')
 
