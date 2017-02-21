@@ -1,6 +1,7 @@
 from datetime import timedelta
 import email.utils
-from flask import current_app, request
+from flask import current_app, request, session
+from flask_restful import abort
 from functools import wraps
 from urlparse import urljoin
 from .. import db, format_datetime
@@ -90,3 +91,13 @@ TITLE "{date}"
             offset += len(tracks)
 
     return cuesheet
+
+
+def require_dj_session(f):
+    @wraps(f)
+    def require_dj_session_wrapper(*args, **kwargs):
+        if session.get('dj_id', None) is None:
+            abort(403, message="You must login as a DJ to use that feature.")
+        else:
+            return f(*args, **kwargs)
+    return require_dj_session_wrapper
