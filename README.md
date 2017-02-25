@@ -29,7 +29,7 @@ For Dockerfile.dev:
 ```
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
-echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom\"" > wuvt/config.py
+echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > wuvt/config.py
 docker build -t wuvt-site -f Dockerfile.dev .
 ```
 
