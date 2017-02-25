@@ -3,20 +3,14 @@ from flask_login import current_user, LoginManager
 from flask_oidc import OpenIDConnect
 from functools import wraps
 
-from wuvt.models import User
+from .models import User
 from .blueprint import bp
 
 
 class AuthManager(object):
     def __init__(self, app=None):
         self.bp = bp
-        self.all_roles = [
-            'admin',
-            'content',
-            'business',
-            'library',
-            'missioncontrol',
-        ]
+        self.all_roles = set()
 
         if app is not None:
             self.init_app(app)
@@ -27,6 +21,7 @@ class AuthManager(object):
         self.app = app
 
         app.config.setdefault('AUTH_METHOD', 'local')
+        app.config.setdefault('AUTH_SUPERADMINS', ['admin'])
         app.config.setdefault('AUTH_ROLE_GROUPS', {
             'admin': ['webmasters'],
             'content': ['webmasters'],
@@ -34,17 +29,6 @@ class AuthManager(object):
             'library': ['librarians'],
             'missioncontrol': ['missioncontrol'],
         })
-
-        # deprecated
-        if app.config.get('LDAP_AUTH', False):
-            app.config['AUTH_METHOD'] = 'ldap'
-
-            # support old-style LDAP role map
-            for role in self.all_roles:
-                value = app.config.get('LDAP_GROUPS_{}'.format(role.upper()),
-                                       None)
-                if value is not None:
-                    app.config['AUTH_ROLE_GROUPS'][role] = value
 
         self.login_manager = LoginManager()
         self.login_manager.login_view = "auth.login"
@@ -56,10 +40,11 @@ class AuthManager(object):
             flask_oidc.logger = app.logger
 
             with app.app_context():
+                app.config.setdefault('OIDC_SCOPES',
+                                      ['openid', 'profile', 'email'])
                 app.config.update({
-                   'OIDC_SCOPES': ['openid', 'profile', 'email', 'groups'],
-                   'OIDC_RESOURCE_SERVER_ONLY': True,
-                   'OIDC_RESOURCE_CHECK_AUD': True,
+                    'OIDC_RESOURCE_SERVER_ONLY': True,
+                    'OIDC_RESOURCE_CHECK_AUD': True,
                 })
 
                 from .views import oidc_callback
@@ -67,16 +52,15 @@ class AuthManager(object):
                 bp.route('/oidc_callback')(oidc_callback)
 
             self.oidc = OpenIDConnect(app)
-        elif app.config['AUTH_METHOD'] == 'ldap':
-            app.config.setdefault('LDAP_VERIFY', True)
 
     def _before_request(self):
         if self.app.config['OVERWRITE_REDIRECT_URI'] == False:
             self.app.config['OVERWRITE_REDIRECT_URI'] = url_for(
                 'auth.oidc_callback', _external=True)
 
-    def check_access(self, *sections):
-        sections = set(sections)
+    def check_access(self, *roles):
+        roles = set(roles)
+        self.all_roles.update(roles)
 
         def access_decorator(f):
             @wraps(f)
@@ -84,8 +68,8 @@ class AuthManager(object):
                 if not current_user.is_authenticated:
                     return self.login_manager.unauthorized()
 
-                access_sections = set(session.get('access', []))
-                if sections.isdisjoint(access_sections):
+                access_roles = set(session.get('access', []))
+                if roles.isdisjoint(access_roles):
                     abort(403)
 
                 resp = make_response(f(*args, **kwargs))
