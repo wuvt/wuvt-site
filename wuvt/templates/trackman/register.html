@@ -10,53 +10,68 @@
 
 <h2>DJ Registration</h2>
 
-{% for _, msg in errors.items() %}
-<div class="alert alert-danger">{{ msg }}</div>
-{% endfor %}
-
-<form action="{{ url_for('trackman_private.register') }}" method="post"
-    class="form-horizontal" role="form">
+<form method="post" class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="form-group">
+    <div class="form-group{% if form.airname.errors|length > 0 %} has-error{% endif %}">
         <label for="id_airname" class="col-sm-3 control-label">On-Air Name</label>
         <div class="col-sm-9">
             <input type="text" name="airname" id="id_airname"
-                value="" required="required" class="form-control" />
+                value="{{ form.airname.data or "" }}" required="required"
+                class="form-control" />
+{% for error in form.airname.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{% if form.name.errors|length > 0 %} has-error{% endif %}">
         <label for="id_name" class="col-sm-3 control-label">Real Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
-                value="" required="required" class="form-control" />
+                value="{{ form.name.data or "" }}" required="required"
+                class="form-control" />
+{% for error in form.name.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{% if form.email.errors|length > 0 %} has-error{% endif %}">
         <label for="id_email" class="col-sm-3 control-label">Email Address</label>
         <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
-                value="" required="required" class="form-control" />
+                value="{{ form.email.data or "" }}" required="required"
+                class="form-control" />
+{% for error in form.email.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{% if form.phone.errors|length > 0 %} has-error{% endif %}">
         <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
         <div class="col-sm-9">
-            <input type="text" name="phone" id="id_phone" value=""
+            <input type="text" name="phone" id="id_phone"
                 class="form-control" required="required"
                 pattern="\d{3}\-\d{3}\-\d{4}"
-                placeholder="540-555-5555" />
+                placeholder="540-555-5555"
+                value="{{ form.phone.data or "" }}" />
+{% for error in form.phone.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{% if form.genres.errors|length > 0 %} has-error{% endif %}">
         <label for="id_genres" class="col-sm-3 control-label">Genres you can DJ</label>
         <div class="col-sm-9">
             <input type="text" name="genres" id="id_genres"
-                value="" required="required" class="form-control" />
+                 value="{{ form.genres.data or "" }}" required="required"
+                 class="form-control" />
+{% for error in form.genres.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 

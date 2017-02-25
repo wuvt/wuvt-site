@@ -374,3 +374,10 @@ def cleanup_dj_list():
         dj.email = None
         dj.visible = False
         db.session.commit()
+
+
+def strip_field(val):
+    if isinstance(val, basestring):
+        return val.strip()
+    else:
+        return val
