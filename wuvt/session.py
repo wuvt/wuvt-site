@@ -1,14 +1,13 @@
-import json
-import sys
+import uuid
 from datetime import timedelta
-from uuid import uuid4
 from redis import Redis
 from werkzeug.datastructures import CallbackDict
-from flask.sessions import SessionInterface, SessionMixin
+from flask.sessions import SecureCookieSessionInterface, SessionMixin
+from flask.helpers import total_seconds
+from itsdangerous import BadSignature
 
 
 class RedisSession(CallbackDict, SessionMixin):
-
     def __init__(self, initial=None, sid=None, new=False):
         def on_update(self):
             self.modified = True
@@ -18,8 +17,7 @@ class RedisSession(CallbackDict, SessionMixin):
         self.modified = False
 
 
-class RedisSessionInterface(SessionInterface):
-    serializer = json
+class RedisSessionInterface(SecureCookieSessionInterface):
     session_class = RedisSession
 
     def __init__(self, redis=None, prefix='session:'):
@@ -29,7 +27,7 @@ class RedisSessionInterface(SessionInterface):
         self.prefix = prefix
 
     def generate_sid(self):
-        return str(uuid4())
+        return uuid.uuid4()
 
     def get_redis_expiration_time(self, app, session):
         if session.permanent:
@@ -37,14 +35,26 @@ class RedisSessionInterface(SessionInterface):
         return timedelta(days=1)
 
     def open_session(self, app, request):
-        sid = request.cookies.get(app.session_cookie_name)
-        if not sid:
+        s = self.get_signing_serializer(app)
+        if s is None:
+            return None
+
+        cookie_val = request.cookies.get(app.session_cookie_name)
+        if cookie_val:
+            max_age = total_seconds(app.permanent_session_lifetime)
+            try:
+                sid = s.loads(cookie_val, max_age=max_age)
+                val = self.redis.get(self.prefix + str(sid))
+                if val is not None:
+                    data = self.serializer.loads(val)
+                    return self.session_class(data, sid=sid)
+                else:
+                    sid = self.generate_sid()
+            except BadSignature:
+                sid = self.generate_sid()
+        else:
             sid = self.generate_sid()
-            return self.session_class(sid=sid, new=True)
-        val = self.redis.get(self.prefix + sid)
-        if val is not None:
-            data = self.serializer.loads(val)
-            return self.session_class(data, sid=sid)
+
         return self.session_class(sid=sid, new=True)
 
     def save_session(self, app, session, response):
@@ -52,10 +62,10 @@ class RedisSessionInterface(SessionInterface):
         path = self.get_cookie_path(app)
 
         if not session:
-            self.redis.delete(self.prefix + session.sid)
+            self.redis.delete(self.prefix + str(session.sid))
             if session.modified:
                 response.delete_cookie(app.session_cookie_name,
-                                       domain=domain)
+                                       domain=domain, path=path)
             return
 
         if not self.should_set_cookie(app, session):
@@ -66,17 +76,10 @@ class RedisSessionInterface(SessionInterface):
         secure = self.get_cookie_secure(app)
         expires = self.get_expiration_time(app, session)
         val = self.serializer.dumps(dict(session))
+        cookie_val = self.get_signing_serializer(app).dumps(session.sid)
 
-        if sys.version_info < (2, 7, 0):
-            def total_seconds(td):
-                return td.days * 60 * 60 * 24 + td.seconds
-
-            self.redis.setex(self.prefix + session.sid, val,
-                             int(total_seconds(redis_exp)))
-        else:
-            self.redis.setex(self.prefix + session.sid, val,
-                             int(redis_exp.total_seconds()))
-
-        response.set_cookie(app.session_cookie_name, session.sid,
+        self.redis.setex(self.prefix + str(session.sid), val,
+                         int(total_seconds(redis_exp)))
+        response.set_cookie(app.session_cookie_name, cookie_val,
                             expires=expires, httponly=httponly,
                             domain=domain, path=path, secure=secure)
