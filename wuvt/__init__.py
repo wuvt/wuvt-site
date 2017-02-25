@@ -1,8 +1,8 @@
 from dateutil import tz
 from flask import Flask, Request
 from flask_migrate import Migrate
-from flask_seasurf import SeaSurf
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.contrib.cache import RedisCache
 import humanize
 import os
@@ -86,7 +86,7 @@ redis_conn = redis.from_url(app.config['REDIS_URL'])
 app.session_interface = session.RedisSessionInterface(redis_conn)
 
 cache = RedisCache(host=redis_conn)
-csrf = SeaSurf(app)
+csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

@@ -59,8 +59,7 @@ TrackmanTimer.prototype.clear = function() {
     this.button.html(clockspan);
 };
 
-function Trackman(csrfToken, djsetId, djId, rotations) {
-    this.csrfToken = csrfToken;
+function Trackman(djsetId, djId, rotations) {
     this.djsetId = djsetId;
     this.djId = djId;
     this.rotations = rotations;
