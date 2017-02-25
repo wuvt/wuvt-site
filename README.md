@@ -17,6 +17,8 @@ It has several main components:
   card/Bitcoin transactions.
 
 ### Deployment
+These instructions are for Linux; instructions for other platforms may vary.
+
 First, clone the repo, create an empty config, and build the appropriate Docker
 image for your environment. We provide Dockerfile.dev which is configured to
 use SQLite and runs Redis directly in the image, and Dockerfile, which is
@@ -27,7 +29,7 @@ For Dockerfile.dev:
 ```
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
-touch wuvt/config.py
+echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > wuvt/config.py
 docker build -t wuvt-site -f Dockerfile.dev .
 ```
 
@@ -85,8 +87,9 @@ cd wuvt-site
 ```
 
 Create a blank file, wuvt/config.py; you can override any of the default
-configuration options here if you so desire. Next, you will need to render
-images, create the database, and add some sample content to the site:
+configuration options here if you so desire. You'll definitely need to set a
+value for `SECRET_KEY`. Next, you will need to render images, create the
+database, and add some sample content to the site:
 
 ```
 export FLASK_APP=$PWD/wuvt/__init__.py

@@ -33,6 +33,7 @@ def login():
             db.session.add(djset)
             db.session.commit()
 
+        session['dj_id'] = dj.id
         session['djset_id'] = djset.id
 
         return redirect(url_for('.log', setid=djset.id))
@@ -72,6 +73,7 @@ def login_all():
             db.session.add(djset)
             db.session.commit()
 
+        session['dj_id'] = dj.id
         session['djset_id'] = djset.id
 
         return redirect(url_for('.log', setid=djset.id))
@@ -112,6 +114,7 @@ def log(setid):
 Your session has ended; you were either automatically logged out for inactivity
 or you pressed the Logout button somewhere else.
 """)
+            session.pop('dj_id', None)
             session.pop('djset_id', None)
 
         return redirect(url_for('.login'))
@@ -147,6 +150,7 @@ def log_js(setid):
 @private_bp.route('/log/<int:setid>/end', methods=['POST'])
 @local_only
 def logout(setid):
+    session.pop('dj_id', None)
     session.pop('djset_id', None)
 
     djset = DJSet.query.get_or_404(setid)

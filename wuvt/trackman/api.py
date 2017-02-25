@@ -6,15 +6,20 @@ from ..view_utils import ajax_only, local_only
 from . import api_bp, models
 from .lib import disable_automation, fixup_current_track, log_track, \
     logout_all_except
-from .view_utils import dj_interact
+from .view_utils import dj_interact, require_dj_session
 
 
 class TrackmanResource(Resource):
     decorators = [csrf.exempt]
+    method_decorators = [local_only, ajax_only, dj_interact,
+                         require_dj_session]
+
+
+class TrackmanPublicResource(TrackmanResource):
     method_decorators = [local_only, ajax_only, dj_interact]
 
 
-class AutomationLog(TrackmanResource):
+class AutomationLog(TrackmanPublicResource):
     method_decorators = [local_only]
 
     def post(self):
@@ -183,7 +188,7 @@ class DJ(TrackmanResource):
         }
 
 
-class DJSet(TrackmanResource):
+class DJSet(TrackmanPublicResource):
     def get(self, djset_id):
         """
         Get information about a DJSet
@@ -229,7 +234,7 @@ class DJSet(TrackmanResource):
             }
 
 
-class DJSetList(TrackmanResource):
+class DJSetList(TrackmanPublicResource):
     def post(self):
         """
         Create a new DJSet
@@ -273,15 +278,17 @@ class DJSetList(TrackmanResource):
             db.session.add(djset)
             db.session.commit()
 
+        session['dj_id'] = dj.id
         session['djset_id'] = djset.id
 
         return {
             'success': True,
+            'dj_id': dj.id,
             'djset_id': djset.id,
         }, 201
 
 
-class Track(TrackmanResource):
+class Track(TrackmanPublicResource):
     def get(self, track_id):
         """
         Get information about a Track
@@ -349,8 +356,7 @@ class TrackReport(TrackmanResource):
         if len(reason) <= 0:
             abort(400, message="A reason must be provided")
 
-        # XXX: The dj_id provided by the client should not be blindly trusted
-        dj_id = int(request.form['dj_id'])
+        dj_id = session['dj_id']
 
         report = models.TrackReport(dj_id, track_id, reason)
         db.session.add(report)
@@ -909,6 +915,8 @@ class TrackLogList(TrackmanResource):
 
         track_id = int(request.form['track_id'])
         djset_id = int(request.form['djset_id'])
+        if djset_id != session['djset_id']:
+            abort(403)
 
         is_request = request.form.get('request', 'false') != 'false'
         vinyl = request.form.get('vinyl', 'false') != 'false'
@@ -1151,6 +1159,9 @@ class AirLogList(TrackmanResource):
         """
 
         djset_id = int(request.form['djset_id'])
+        if djset_id != session['djset_id']:
+            abort(403)
+
         logtype = int(request.form['logtype'])
         logid = int(request.form.get('logid', 0))
 
