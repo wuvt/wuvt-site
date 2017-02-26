@@ -6,13 +6,13 @@
 <h1>Users</h1>
 
 <table class="table table-striped table-hover">
-    {% if is_admin %}
+{% if is_admin and config.AUTH_METHOD == "local" %}
     <tr>
         <td colspan="5">
             <a href="{{ url_for('admin.user_add') }}" class="btn btn-primary">Add New User</a>
         </td>
     </tr>
-    {% endif %}
+{% endif %}
     <tr>
         <th>Name</th>
         <th>Username</th>
@@ -20,27 +20,25 @@
         <th>Enabled</th>
         <th>Actions</th>
     </tr>
-    {% for user in users %}
+{% for user in users %}
     <tr>
         <td>{{ user.name }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
         <td>{{ user.enabled }}</td>
         <td class="row-options">
+{% if config.AUTH_METHOD == "local" %}
             <a href="{{ url_for('admin.user_edit', id=user.id) }}" class="btn btn-default btn-sm">Edit</a>
-
+{% endif %}
         </td>
     </tr>
-    {% endfor %}
-    {% if is_admin %}
+{% endfor %}
+{% if is_admin and config.AUTH_METHOD == "local" %}
     <tr>
         <td colspan="5">
             <a href="{{ url_for('admin.user_add') }}" class="btn btn-primary">Add New User</a>
         </td>
     </tr>
-    {% endif %}
+{% endif %}
 </table>
-{% endblock %}
-{% block js %}
-{{ super() }}
 {% endblock %}

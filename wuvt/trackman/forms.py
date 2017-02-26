@@ -1,7 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, ValidationError, validators
-from .lib import strip_field
 from .models import DJ
+
+
+def strip_field(val):
+    if isinstance(val, basestring):
+        return val.strip()
+    else:
+        return val
 
 
 class DJRegisterForm(FlaskForm):

@@ -5,33 +5,42 @@
 {% block content %}
 <h1>Edit User: {{ user.username }}</h1>
 
-<form action="{{ url_for('admin.user_edit', id=user.id) }}" method="post"
-    class="form-horizontal" role="form">
+<form method="post" class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="form-group{% if 'name' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.name.errors|length > 0 %} has-error{% endif %}">
         <label for="id_name" class="col-sm-3 control-label">Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
-                value="{{ user.name }}" required="required"
+                value="{{ form.name.data or "" }}" required="required"
                 class="form-control" />
+{% for error in form.name.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group{% if 'email' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.email.errors|length > 0 %} has-error{% endif %}">
         <label for="id_email" class="col-sm-3 control-label">Email</label>
         <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
-                value="{{ user.email }}" class="form-control" required="required"/>
+                value="{{ form.email.data or "" }}" class="form-control"
+                required="required"/>
+{% for error in form.email.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
     
-    <div class="form-group">
+    <div class="form-group{% if form.newpass.errors|length > 0 %} has-error{% endif %}">
         <label for="id_newpass" class="col-sm-3 control-label">New password</label>
         <div class="col-sm-9">
             <input type="password" name="newpass" id="id_newpass"
                 value="" class="form-control"/>
-            <p>Leave blank to leave password unchanged.</p>
+            <div class="help-block">Leave blank to leave password unchanged.</div>
+{% for error in form.newpass.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
