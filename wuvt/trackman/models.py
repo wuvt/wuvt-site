@@ -171,10 +171,10 @@ class Track(db.Model):
     __tablename__ = "track"
     # may need to make this a BigInteger
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Unicode(255))
-    artist = db.Column(db.Unicode(255), index=True)
-    album = db.Column(db.Unicode(255))
-    label = db.Column(db.Unicode(255))
+    title = db.Column(db.Unicode(500).with_variant(db.Unicode, 'postgresql'))
+    artist = db.Column(db.Unicode(255).with_variant(db.Unicode, 'postgresql'), index=True)
+    album = db.Column(db.Unicode(255).with_variant(db.Unicode, 'postgresql'))
+    label = db.Column(db.Unicode(255).with_variant(db.Unicode, 'postgresql'))
     added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     artist_mbid = db.Column(UUIDType())
     recording_mbid = db.Column(UUIDType())
