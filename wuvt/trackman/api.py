@@ -4,6 +4,8 @@ from flask_restful import abort, Api, Resource
 from .. import csrf, db, redis_conn
 from ..view_utils import ajax_only, local_only
 from . import api_bp, models
+from .forms import TrackAddForm, AutomationTrackLogForm, TrackLogForm, \
+    TrackLogEditForm, AirLogForm, AirLogEditForm
 from .lib import disable_automation, fixup_current_track, log_track, \
     logout_all_except
 from .view_utils import dj_interact, require_dj_session
@@ -71,10 +73,10 @@ class AutomationLog(TrackmanPublicResource):
             description: Invalid automation password
         """
 
-        if 'password' not in request.form or \
-                request.form['password'] != \
-                current_app.config['AUTOMATION_PASSWORD']:
-            abort(401, message="Invalid automation password")
+        form = AutomationTrackLogForm(meta={'csrf': False})
+
+        if form.password.data != current_app.config['AUTOMATION_PASSWORD']:
+            abort(401, success=False, message="Invalid automation password")
 
         automation = redis_conn.get('automation_enabled') == "true"
         if not automation:
@@ -83,19 +85,16 @@ class AutomationLog(TrackmanPublicResource):
                 'error': "Automation not enabled",
             }
 
-        if 'title' in request.form and len(request.form['title']) > 0:
-            title = request.form['title'].strip()
-        else:
-            abort(400, message="Title must be provided")
+        title = form.title.data
+        if len(title) <= 0:
+            abort(400, success=False, message="Title must be provided")
 
-        if 'artist' in request.form and len(request.form['artist']) > 0:
-            artist = request.form['artist'].strip()
-        else:
-            abort(400, message="Artist must be provided")
+        artist = form.artist.data
+        if len(artist) <= 0:
+            abort(400, success=False, message="Artist must be provided")
 
-        if 'album' in request.form and len(request.form['album']) > 0:
-            album = request.form['album'].strip()
-        else:
+        album = form.album.data
+        if len(album) <= 0:
             album = u"Not Available"
 
         if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr", "ua"):
@@ -105,8 +104,8 @@ class AutomationLog(TrackmanPublicResource):
                 'message': "AirLog logging not yet implemented",
             }
 
-        if 'label' in request.form and len(request.form['label']) > 0:
-            label = request.form['label'].strip()
+        label = form.label.data
+        if len(label) > 0:
             tracks = models.Track.query.filter(
                 models.Track.title == title,
                 models.Track.artist == artist,
@@ -118,7 +117,6 @@ class AutomationLog(TrackmanPublicResource):
                 db.session.commit()
             else:
                 track = tracks.first()
-
         else:
             # Handle automation not providing a label
             label = u"Not Available"
@@ -169,7 +167,7 @@ class DJ(TrackmanResource):
         """
 
         if dj_id == 1:
-            abort(403, message="This DJ cannot be modified")
+            abort(403, success=False, message="This DJ cannot be modified")
 
         dj = models.DJ.query.get_or_404(dj_id)
 
@@ -178,7 +176,8 @@ class DJ(TrackmanResource):
             if visible is True:
                 dj.visible = True
             else:
-                abort(403, message="DJs cannot be hidden through this API.")
+                abort(403, success=False,
+                      message="DJs cannot be hidden through this API.")
 
         db.session.commit()
 
@@ -212,10 +211,10 @@ class DJSet(TrackmanPublicResource):
 
         djset = models.DJSet.query.get(djset_id)
         if not djset:
-            abort(404, message="DJSet not found")
+            abort(404, success=False, message="DJSet not found")
 
         if djset.dtend is not None:
-            abort(401, message="Session expired, please login again")
+            abort(401, success=False, message="Session expired, please login again")
 
         if request.args.get('merged', False):
             logs = [i.full_serialize() for i in djset.tracks]
@@ -309,7 +308,7 @@ class Track(TrackmanPublicResource):
         """
         track = models.Track.query.get(track_id)
         if not track:
-            abort(404, message="Track not found")
+            abort(404, success=False, message="Track not found")
 
         return {
             'success': True,
@@ -350,11 +349,11 @@ class TrackReport(TrackmanResource):
         """
         track = models.Track.query.get(track_id)
         if not track:
-            abort(404, message="Track not found")
+            abort(404, success=False, message="Track not found")
 
         reason = request.form['reason'].strip()
         if len(reason) <= 0:
-            abort(400, message="A reason must be provided")
+            abort(400, success=False, message="A reason must be provided")
 
         dj_id = session['dj_id']
 
@@ -466,7 +465,7 @@ class TrackSearch(TrackmanResource):
 
         # This means there was a bad search, stop searching
         if somesearch is False:
-            abort(400, message="No search entires")
+            abort(400, success=False, message="No search entires")
 
         # Check if results
 
@@ -575,7 +574,7 @@ class TrackAutoComplete(TrackmanResource):
                 with_entities(models.Track.label).\
                 group_by(models.Track.label)
         else:
-            abort(400)
+            abort(400, success=False)
 
         # To verify some data was searched for
         somesearch = False
@@ -610,7 +609,7 @@ class TrackAutoComplete(TrackmanResource):
 
         # This means there was a bad search, stop searching
         if somesearch is False:
-            abort(400, message="No search entires")
+            abort(400, success=False, message="No search entires")
 
         # Check if results
 
@@ -701,31 +700,32 @@ class TrackList(TrackmanResource):
             description: Bad request
         """
 
-        title = request.form['title'].strip()
-        album = request.form['album'].strip()
-        artist = request.form['artist'].strip()
-        label = request.form['label'].strip()
+        form = TrackAddForm(meta={'csrf': False})
+        if form.validate():
+            track = models.Track(
+                form.title.data,
+                form.artist.data,
+                form.album.data,
+                form.label.data)
+            db.session.add(track)
+            db.session.commit()
 
-        track = models.Track(title, artist, album, label)
-        if not track.validate():
-            abort(400, message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
-
-        db.session.add(track)
-        db.session.commit()
-
-        return {
-            'success': True,
-            'track_id': track.id,
-        }, 201
+            return {
+                'success': True,
+                'track_id': track.id,
+            }, 201
+        else:
+            abort(400, success=False, errors=form.errors,
+                  message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
 
 
 class TrackLog(TrackmanResource):
     def _load(self, tracklog_id):
         tracklog = models.TrackLog.query.get(tracklog_id)
         if not tracklog:
-            abort(404, message="TrackLog not found")
+            abort(404, success=False, message="TrackLog not found")
         if tracklog.djset.dtend is not None:
-            abort(401, message="Session expired, please login again")
+            abort(401, success=False, message="Session expired, please login again")
 
         return tracklog
 
@@ -825,46 +825,40 @@ class TrackLog(TrackmanResource):
         tracklog = self._load(tracklog_id)
         current_tracklog_id = self._get_current_id()
 
-        # Do data sanitation!
-        artist = request.form.get("artist", "").strip()
-        title = request.form.get("title", "").strip()
-        album = request.form.get("album", "").strip()
-        label = request.form.get("label", "").strip()
-        is_request = request.form.get('request', 'false') != 'false'
-        vinyl = request.form.get('vinyl', 'false') != 'false'
-        new = request.form.get('new', 'false') != 'false'
-        rotation = request.form.get("rotation", 1)
-
-        # Validate
-        if len(artist) <= 0 or len(title) <= 0 or len(album) <= 0 or \
-                len(label) <= 0:
-            abort(400, message="Must fill out artist, title, album, and label field")
+        form = TrackLogEditForm(meta={'csrf': False})
+        artist = form.artist.data
+        title = form.title.data
+        album = form.album.data
+        label = form.label.data
 
         # First check if the artist et. al. are the same
         if artist != tracklog.track.artist or title != tracklog.track.title or \
                 album != tracklog.track.album or label != tracklog.track.label:
-            # This means we try to create a new track
-            track = models.Track(title, artist, album, label)
-            if not track.validate():
-                abort(400, message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
-
-            db.session.add(track)
-            db.session.commit()
-            tracklog.track_id = track.id
+            # If not, this means we try to create a new track
+            if form.validate():
+                track = models.Track(title, artist, album, label)
+                db.session.add(track)
+                db.session.commit()
+                tracklog.track_id = track.id
+            else:
+                abort(400, success=False, errors=form.errors,
+                      message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
 
         # Update played time
-        played = request.form.get('played', None)
-        if played is not None:
+        played = form.played.data
+        if len(played) > 0:
             tracklog.played = dateutil.parser.parse(played)
+
         # Update boolean information
-        tracklog.request = is_request
-        tracklog.new = new
-        tracklog.vinyl = vinyl
+        tracklog.request = form.request.data
+        tracklog.new = form.new.data
+        tracklog.vinyl = form.vinyl.data
 
         # Update rotation
-        rotation = models.Rotation.query.get(rotation)
+        rotation = models.Rotation.query.get(form.rotation.data)
         if not rotation:
-            abort(400, "Rotation specified by rotation_id does not exist")
+            abort(400, success=False,
+                  message="Rotation specified by rotation_id does not exist")
         tracklog.rotation_id = rotation.id
 
         db.session.commit()
@@ -913,16 +907,14 @@ class TrackLogList(TrackmanResource):
             description: Session expired
         """
 
-        track_id = int(request.form['track_id'])
-        djset_id = int(request.form['djset_id'])
+        form = TrackLogForm(meta={'csrf': False})
+        track_id = form.track_id.data
+        djset_id = form.djset_id.data
+
         if djset_id != session['djset_id']:
-            abort(403)
+            abort(403, success=False)
 
-        is_request = request.form.get('request', 'false') != 'false'
-        vinyl = request.form.get('vinyl', 'false') != 'false'
-        new = request.form.get('new', 'false') != 'false'
-
-        rotation = request.form.get('rotation', None)
+        rotation = form.rotation.data
         if rotation is not None:
             rotation = models.Rotation.query.get(int(rotation))
 
@@ -930,13 +922,18 @@ class TrackLogList(TrackmanResource):
         track = models.Track.query.get(track_id)
         djset = models.DJSet.query.get(djset_id)
         if not track or not djset:
-            abort(400, message="Track and/or DJSet does not exist")
+            abort(400, success=False,
+                  message="Track and/or DJSet does not exist")
 
         if djset.dtend is not None:
-            abort(401, message="Session expired, please login again")
+            abort(401, success=False,
+                  message="Session expired, please login again")
 
-        tracklog = log_track(track_id, djset_id, request=is_request,
-                             vinyl=vinyl, new=new, rotation=rotation)
+        tracklog = log_track(track_id, djset_id,
+                             request=form.request.data,
+                             vinyl=form.vinyl.data,
+                             new=form.new.data,
+                             rotation=rotation)
 
         return {
             'success': True,
@@ -1001,7 +998,8 @@ class AutologoutControl(TrackmanResource):
         """
 
         if 'autologout' not in request.form:
-            abort(400, message="No autologout field given in POST")
+            abort(400, success=False,
+                  message="No autologout field given in POST")
 
         if request.form['autologout'] == 'enable':
             redis_conn.delete('dj_timeout')
@@ -1049,7 +1047,7 @@ class AirLog(TrackmanResource):
 
         airlog = models.AirLog.query.get(airlog_id)
         if not airlog:
-            abort(404, message="AirLog entry not found")
+            abort(404, success=False, message="AirLog entry not found")
 
         db.session.delete(airlog)
         db.session.commit()
@@ -1098,21 +1096,22 @@ class AirLog(TrackmanResource):
 
         airlog = models.AirLog.query.get(airlog_id)
         if not airlog:
-            abort(404, message="AirLog entry not found")
+            abort(404, success=False, message="AirLog entry not found")
+
+        form = AirLogEditForm(meta={'csrf': False})
 
         # Update aired time
-        airtime = request.form.get('airtime', None)
-        if airtime is not None:
+        airtime = form.airtime.data
+        if len(airtime) > 0:
             airlog.airtime = dateutil.parser.parse(airtime)
 
-        # Update integers
-        logtype = request.form.get('logtype', None)
-        if logtype is not None:
-            airlog.request = bool(logtype)
+        logtype = form.logtype.data
+        if logtype > 0:
+            airlog.logtype = logtype
 
-        logid = request.form.get('logid', None)
-        if logid is not None:
-            airlog.request = bool(logid)
+        logid = form.logid.data
+        if logid > 0:
+            airlog.logid = logid
 
         db.session.commit()
 
@@ -1158,14 +1157,13 @@ class AirLogList(TrackmanResource):
             description: Bad request
         """
 
-        djset_id = int(request.form['djset_id'])
+        form = AirLogForm(meta={'csrf': False})
+
+        djset_id = form.djset_id.data
         if djset_id != session['djset_id']:
-            abort(403)
+            abort(403, success=False)
 
-        logtype = int(request.form['logtype'])
-        logid = int(request.form.get('logid', 0))
-
-        airlog = models.AirLog(djset_id, logtype, logid=logid)
+        airlog = models.AirLog(djset_id, form.logtype.data, form.logid.data)
         db.session.add(airlog)
         db.session.commit()
 

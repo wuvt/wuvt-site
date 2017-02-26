@@ -156,7 +156,7 @@ Trackman.prototype.updateAutologout = function(data) {
     $('#id_extend_autologout').prop('disabled', false);
 
     if(data['success'] == false) {
-        alert(data['error']);
+        alert(data['message']);
     } else if(data['autologout'] == true) {
         this.extendAutologout = false;
     } else {
@@ -220,7 +220,7 @@ Trackman.prototype.logQueued = function(element) {
     var track = this.queue[id];
     function postLog(data) {
         if(data['success'] == false) {
-            alert(data['error']);
+            alert(data['message']);
             return;
         };
         this.queue.splice(id, 1);
@@ -340,27 +340,30 @@ Trackman.prototype.logTrack = function(track, callback) {
         context: this,
         type: "POST",
         success: callback,
+        error: this.handleError,
     });
 };
 
 Trackman.prototype.createTrack = function(track, callback) {
     $.ajax({
         url: "/trackman/api/track",
-        data: { "artist": track['artist'],
-                "album": track['album'],
-                "title": track['title'],
-                "label": track['label'],
+        data: {
+            "artist": track['artist'],
+            "album": track['album'],
+            "title": track['title'],
+            "label": track['label'],
         },
         type: "POST",
         context: this,
         success: function(data) {
             if(data['success'] == false) {
-                alert(data['error']);
+                alert(data['message']);
                 return;
             }
             track['id'] = data['track_id'];
             this.logTrack(track, callback);
         },
+        error: this.handleError,
     });
 };
 
@@ -374,7 +377,7 @@ Trackman.prototype.logNewTrack = function(ev) {
     track['origin'] = 0;
     function post_log(data) {
         if(data['success'] == false) {
-            alert(data['error']);
+            alert(data['message']);
             return;
         }
 
@@ -397,7 +400,7 @@ Trackman.prototype.deleteTrack = function(element) {
             context: this,
             success: function(data) {
                 if(data['success'] == false) {
-                    alert(data['error']);
+                    alert(data['message']);
                 }
                 $(element).remove();
             },
@@ -426,7 +429,7 @@ Trackman.prototype.fetchPlaylist = function(callback) {
         context: this,
         success: function(data) {
             if(data['success'] == false) {
-                alert(data['error']);
+                alert(data['message']);
                 return;
             }
 
@@ -537,7 +540,7 @@ Trackman.prototype.logSearch = function(element) {
     var track = this.searchResults[id];
     function post_log(data) {
         if(data['success'] == false) {
-            alert(data['error']);
+            alert(data['message']);
             return;
         }
         this.updatePlaylist();
@@ -571,7 +574,6 @@ Trackman.prototype.searchHistory = function() {
         dataType: "json",
         success: function(data) {
             if(data['success'] == false) { 
-                //alert(data['error']);
                 return;
             }
             results = data['results'];
@@ -1001,7 +1003,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
                 type: "POST",
                 success: function(data) {
                     if(data['success'] == false) {
-                        alert(data['error']);
+                        alert(data['message']);
                         return;
                     }
 
@@ -1093,7 +1095,7 @@ Trackman.prototype.reportTrack = function(id) {
         context: this,
         success: function(data) {
             if(data['success'] == false) {
-                alert(data['error']);
+                alert(data['message']);
                 return;
             }
 
@@ -1123,7 +1125,7 @@ Trackman.prototype.reportTrack = function(id) {
             context: this,
             success: function(data) {
                 if(data['success'] == false) {
-                    alert(data['error']);
+                    alert(data['message']);
                     return;
                 }
 
@@ -1133,6 +1135,19 @@ Trackman.prototype.reportTrack = function(id) {
             },
         });
     });
+};
+
+Trackman.prototype.handleError = function(jqXHR, statusText, errorThrown) {
+    if(statusText == "error") {
+        try {
+            var data = JSON.parse(jqXHR.responseText);
+            alert(data['message']);
+        } catch(e) {
+            alert(statusText);
+        }
+    } else {
+        alert(statusText);
+    }
 };
 
 Trackman.prototype.showAlert = function(msg) {
