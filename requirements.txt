@@ -19,7 +19,7 @@ html5lib==0.9999999
 httplib2==0.10.3
 humanize==0.5.1
 itsdangerous==0.24
-Jinja2==2.9.5
+Jinja2==2.8.1
 kombu==4.0.2
 Mako==1.0.6
 Markdown==2.6.8
