@@ -51,7 +51,7 @@
         <div class="col-sm-9">
             <select name="author_id" class="form-control">
                 {% for author in authors %}
-                <option{% if author.id == article.author_id %} selected="selected"{% endif %} value="{{ author.id }}">{{ author.name }}</option>
+                <option{% if author.id == article.author_id %} selected="selected"{% endif %} value="{{ author.id }}">{{ author.name }} ({{ author.username }})</option>
                 {% endfor %}
             </select>
         </div>

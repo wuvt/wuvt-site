@@ -13,7 +13,7 @@
         <div class="col-sm-9">
             <select id="id_user" name="user" class="form-control">
                 {% for user in users %}
-                <option value="{{ user.id }}">{{ user.name }}</option>
+                <option value="{{ user.id }}">{{ user.name }} ({{ user.username }})</option>
                 {% endfor %}
             </select>
         </div>
