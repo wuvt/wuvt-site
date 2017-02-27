@@ -20,7 +20,7 @@
     {% for entry in user_roles %}
     <tr>
         <td>{{ entry.role }}</td>
-        <td>{{ entry.user.username }}</td>
+        <td>{{ entry.user.name }} ({{ entry.user.username }})</td>
         <td class="row-options">
             <form action="{{ url_for('admin.role_remove_user', id=entry.id) }}" method="post">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
