@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Email Address Required - {{ super() }}{% endblock %}
+{% block content %}
+
+<section>
+    <header>
+        <h2>Email Address Required</h2>
+    </header>
+
+    <p>For some reason, the authentication method you used didn't return an
+    email address. We currently require an email address to complete your
+    profile.</p>
+
+    <p>Some providers may not send an email address if you have your email
+    marked as private on your profile. You can try setting it to public.</p>
+</section>
+{% endblock %}

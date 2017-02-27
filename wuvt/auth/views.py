@@ -59,6 +59,9 @@ def oidc_callback():
         auth_manager.log_auth_failure("oidc", None, request)
         abort(401)
 
+    if 'email' not in id_token:
+        return render_template('auth/need_email.html'), 400
+
     user = _find_or_create_user(
         id_token['sub'], id_token['name'], id_token['email'])
 
