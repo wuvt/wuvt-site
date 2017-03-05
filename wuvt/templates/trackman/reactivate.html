@@ -14,10 +14,6 @@
     you for it again before you can start logging tracks.
 </div>
 
-{% for _, msg in errors.items() %}
-<div class="alert alert-danger">{{ msg }}</div>
-{% endfor %}
-
 <form method="post" class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
@@ -35,21 +31,29 @@
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{% if form.email.errors|length > 0 %} has-error{% endif %}">
         <label for="id_email" class="col-sm-3 control-label">Email Address</label>
         <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
-                value="" required="required" class="form-control" />
+                value="{{ form.email.data or "" }}" required="required"
+                class="form-control" />
+{% for error in form.email.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{% if form.phone.errors|length > 0 %} has-error{% endif %}">
         <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
         <div class="col-sm-9">
-            <input type="text" name="phone" id="id_phone" value=""
+            <input type="text" name="phone" id="id_phone"
                 class="form-control" required="required"
                 pattern="\d{3}\-\d{3}\-\d{4}"
-                placeholder="540-555-5555" />
+                placeholder="540-555-5555"
+                value="{{ form.phone.data or "" }}" />
+{% for error in form.phone.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 

@@ -33,7 +33,7 @@
                     {% if 'admin' in session.access or 'content' in session.access %}{% block nav_admin_articles %}<li><a href="{{ url_for('admin.articles') }}">Articles</a></li>{% endblock %}{% endif %}
                     {% if 'admin' in session.access or 'content' in session.access %}{% block nav_admin_pages %}<li><a href="{{ url_for('admin.pages') }}">Pages</a></li>{% endblock %}{% endif %}
                     {% if 'admin' in session.access or 'content' in session.access %}{% block nav_admin_upload %}<li><a href="{{ url_for('admin.upload') }}">Upload</a></li>{% endblock %}{% endif %}
-                    {% if 'admin' in session.access %}{% if config.AUTH_METHOD == "local" %}{% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}{% endif %}{% endif %}
+                    {% if 'admin' in session.access or config.AUTH_METHOD == "local" %}{% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}{% endif %}
                     {% if 'admin' in session.access %}{% block nav_admin_roles %}<li><a href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
                     {% if 'library' in session.access %}{% block nav_admin_charts %}<li><a href="{{ url_for('admin.charts_index') }}">Charts</a></li>{% endblock %}{% endif%}
                     {% if 'library' in session.access %}{% block nav_admin_library %}<li><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}{% endif %}

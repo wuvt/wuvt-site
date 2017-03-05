@@ -6,6 +6,7 @@ import datetime
 from .. import db, redis_conn
 from ..view_utils import local_only, sse_response
 from . import private_bp, mail
+from .forms import DJRegisterForm, DJReactivateForm
 from .lib import disable_automation, enable_automation, logout_all_except
 from .models import DJ, DJSet, TrackLog, Rotation
 from .view_utils import dj_interact
@@ -187,55 +188,28 @@ def logout(setid):
 @private_bp.route('/register', methods=['GET', 'POST'])
 @local_only
 def register():
-    errors = {}
-
-    if request.method == 'POST':
-        airname = request.form['airname'].strip()
-        if len(airname) <= 0:
-            errors['airname'] = "You must enter an on-air name."
-
-        matching = DJ.query.filter(DJ.airname == airname).count()
-        print(matching)
-        if matching > 0:
-            errors['airname'] = "Your on-air name must be unique."
-
-        name = request.form['name'].strip()
-        if len(name) <= 0:
-            errors['name'] = "You must enter your name."
-
-        email = request.form['email'].strip()
-        if len(email) <= 0:
-            errors['email'] = "You must enter your email address."
-
-        phone = request.form['phone'].strip()
-        if len(phone) <= 0:
-            errors['phone'] = "You must enter your phone number."
-
-        genres = request.form['genres'].strip()
-        if len(genres) <= 0:
-            errors['genres'] = "You must enter the genres you can DJ."
-
-        if len(errors.items()) <= 0:
-            newdj = DJ(airname, name)
-            newdj.email = email
-            newdj.phone = phone
-            newdj.genres = genres
+    form = DJRegisterForm()
+    if form.is_submitted():
+        if form.validate():
+            newdj = DJ(form.airname.data, form.name.data)
+            newdj.email = form.email.data
+            newdj.phone = form.phone.data
+            newdj.genres = form.genres.data
             db.session.add(newdj)
             db.session.commit()
 
-            flash("DJ added")
-            return redirect(url_for('.login'))
+            if request.wants_json():
+                return jsonify(success=True)
+            else:
+                flash("DJ added")
+                return redirect(url_for('.login'))
+        elif request.wants_json():
+            return jsonify(success=False, errors=form.errors)
 
-    if request.wants_json():
-        if len(errors) <= 0:
-            return jsonify(success=True)
-        else:
-            return jsonify(success=False, errors=errors)
-    else:
-        return render_template(
-            'trackman/register.html',
-            trackman_name=current_app.config['TRACKMAN_NAME'],
-            errors=errors)
+    return render_template(
+        'trackman/register.html',
+        trackman_name=current_app.config['TRACKMAN_NAME'],
+        form=form)
 
 
 @private_bp.route('/log/<int:setid>/reactivate_dj', methods=['GET', 'POST'])
@@ -243,39 +217,30 @@ def register():
 @dj_interact
 def reactivate_dj(setid):
     djset = DJSet.query.get_or_404(setid)
-    errors = {}
+    form = DJReactivateForm()
 
     # if neither phone nor email is missing, someone is doing silly things
     if djset.dj.email is not None and djset.dj.phone is not None:
         return redirect(url_for('.log', setid=setid))
 
-    if request.method == 'POST':
-        email = request.form['email'].strip()
-        if len(email) <= 0:
-            errors['email'] = "You must enter your email address."
-
-        phone = request.form['phone'].strip()
-        if len(phone) <= 0:
-            errors['phone'] = "You must enter your phone number."
-
-        if len(errors.items()) <= 0:
-            djset.dj.email = email
-            djset.dj.phone = phone
+    if form.is_submitted():
+        if form.validate():
+            djset.dj.email = form.email.data
+            djset.dj.phone = form.phone.data
             db.session.commit()
 
-            return redirect(url_for('.log', setid=setid))
+            if request.wants_json():
+                return jsonify(success=True)
+            else:
+                return redirect(url_for('.log', setid=setid))
+        elif request.wants_json():
+            return jsonify(success=False, errors=form.errors)
 
-    if request.wants_json():
-        if len(errors) <= 0:
-            return jsonify(success=True)
-        else:
-            return jsonify(success=False, errors=errors)
-    else:
-        return render_template(
-            'trackman/reactivate.html',
-            trackman_name=current_app.config['TRACKMAN_NAME'],
-            errors=errors,
-            dj=djset.dj)
+    return render_template(
+        'trackman/reactivate.html',
+        trackman_name=current_app.config['TRACKMAN_NAME'],
+        form=form,
+        dj=djset.dj)
 
 
 @private_bp.route('/api/live')

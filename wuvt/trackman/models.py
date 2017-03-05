@@ -1,5 +1,4 @@
 import datetime
-from flask import current_app
 from sqlalchemy_utils import UUIDType
 
 from .. import db
@@ -186,21 +185,6 @@ class Track(db.Model):
         self.artist = artist
         self.album = album
         self.label = label
-
-    def validate(self):
-        if len(self.title) <= 0 or len(self.artist) <= 0 or \
-                len(self.album) <= 0 or len(self.label) <= 0:
-            return False
-
-        if 'TRACKMAN_ARTIST_PROHIBITED' in current_app.config and \
-                self.artist in current_app.config['TRACKMAN_ARTIST_PROHIBITED']:
-            return False
-
-        if 'TRACKMAN_LABEL_PROHIBITED' in current_app.config and \
-                self.label in current_app.config['TRACKMAN_LABEL_PROHIBITED']:
-            return False
-
-        return True
 
     def serialize(self):
         return {
