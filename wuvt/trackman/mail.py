@@ -43,7 +43,7 @@ def send_playlist(djset, tracks):
     msg.attach(MIMEText(
         render_template('email/playlist.txt',
                         djset=djset, tracks=tracks).encode('utf-8'),
-        'text'))
+        'plain'))
     msg.attach(MIMEText(
         render_template('email/playlist.html',
                         djset=djset, tracks=tracks).encode('utf-8'),
@@ -74,7 +74,7 @@ def send_chart(chart):
     msg.attach(MIMEText(
         render_template('email/new_chart.txt',
                         chart=chart, timestamp=timestamp).encode('utf-8'),
-        'text'))
+        'plain'))
     try:
         s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
