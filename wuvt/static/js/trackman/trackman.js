@@ -611,17 +611,20 @@ Trackman.prototype.updateHistory = function() {
 Trackman.prototype.autoCompleteField = function(name) {
     var inst = this;
     var searchData = this.getFormData();
+    var acData = {};
 
     if(name == 'rlabel') {
-        searchData['field'] = "label";
+        acData['field'] = "label";
+        acData['label'] = searchData['label'];
     }
     else {
-        searchData['field'] = name;
+        acData['field'] = name;
+        acData[name] = searchData[name];
     }
 
     $.ajax({
         url: "/trackman/api/autocomplete",
-        data: searchData,
+        data: acData,
         dataType: "json",
         success: function(data) {
             if(data['success'] == false) {
