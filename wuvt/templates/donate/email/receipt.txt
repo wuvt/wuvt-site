@@ -1,7 +1,9 @@
 Hello {{ order.name }},
 
 We have received your payment of {{ (order.amount / 100)|format_currency }}.
-Thank you for your generous donation!
+Thank you for your generous donation! If you'd like to support WUVT continuously
+consider setting up a recurring donation here: {{url_for('donate.donate_recurring',
+_external=True)}}
 
 {% if config.DONATE_PREMIUMS -%}
 If you ordered premiums, please check our website for more information, but
