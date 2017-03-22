@@ -17,12 +17,16 @@ def _find_or_create_user(username, name, email):
         # create new user in the database, since one doesn't already exist
         user = User(username, name, email)
         db.session.add(user)
-        db.session.commit()
     else:
         # update existing user data in database
         user.name = name
         user.email = email
+
+    try:
         db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     return user
 

@@ -31,7 +31,11 @@ def login():
         if djset is None:
             djset = DJSet(dj.id)
             db.session.add(djset)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
         session['dj_id'] = dj.id
         session['djset_id'] = djset.id
@@ -58,7 +62,11 @@ def login_all():
 
         dj = DJ.query.get(request.form['dj'])
         dj.visible = True
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         current_app.logger.warning(
             "Trackman: {airname} logged in from {ip} using {ua}".format(
@@ -71,7 +79,11 @@ def login_all():
         if djset is None:
             djset = DJSet(dj.id)
             db.session.add(djset)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
         session['dj_id'] = dj.id
         session['djset_id'] = djset.id
@@ -159,7 +171,12 @@ def logout(setid):
     else:
         # This has already been logged out
         return redirect(url_for('.login'))
-    db.session.commit()
+
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     redis_conn.publish('trackman_dj_live', json.dumps({
         'event': "session_end",
@@ -196,7 +213,11 @@ def register():
             newdj.phone = form.phone.data
             newdj.genres = form.genres.data
             db.session.add(newdj)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             if request.wants_json():
                 return jsonify(success=True)
@@ -227,7 +248,11 @@ def reactivate_dj(setid):
         if form.validate():
             djset.dj.email = form.email.data
             djset.dj.phone = form.phone.data
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             if request.wants_json():
                 return jsonify(success=True)

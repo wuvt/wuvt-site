@@ -114,7 +114,11 @@ class AutomationLog(TrackmanPublicResource):
             if len(tracks.all()) == 0:
                 track = models.Track(title, artist, album, label)
                 db.session.add(track)
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
             else:
                 track = tracks.first()
         else:
@@ -127,7 +131,11 @@ class AutomationLog(TrackmanPublicResource):
             if len(tracks.all()) == 0:
                 track = models.Track(title, artist, album, label)
                 db.session.add(track)
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
             else:
                 notauto = tracks.filter(models.Track.label != u"Not Available")
                 if len(notauto.all()) == 0:
@@ -179,7 +187,11 @@ class DJ(TrackmanResource):
                 abort(403, success=False,
                       message="DJs cannot be hidden through this API.")
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {
             'success': True,
@@ -275,7 +287,11 @@ class DJSetList(TrackmanPublicResource):
         if djset is None:
             djset = DJSet(dj.id)
             db.session.add(djset)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
         session['dj_id'] = dj.id
         session['djset_id'] = djset.id
@@ -359,7 +375,11 @@ class TrackReport(TrackmanResource):
 
         report = models.TrackReport(dj_id, track_id, reason)
         db.session.add(report)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {
             'success': True,
@@ -708,7 +728,11 @@ class TrackList(TrackmanResource):
                 form.album.data,
                 form.label.data)
             db.session.add(track)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             return {
                 'success': True,
@@ -770,7 +794,11 @@ class TrackLog(TrackmanResource):
         tracklog = self._load(tracklog_id)
         current_tracklog_id = self._get_current_id()
         db.session.delete(tracklog)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         if tracklog_id == current_tracklog_id:
             fixup_current_track("track_delete")
@@ -838,7 +866,11 @@ class TrackLog(TrackmanResource):
             if form.validate():
                 track = models.Track(title, artist, album, label)
                 db.session.add(track)
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
                 tracklog.track_id = track.id
             else:
                 abort(400, success=False, errors=form.errors,
@@ -861,7 +893,11 @@ class TrackLog(TrackmanResource):
                   message="Rotation specified by rotation_id does not exist")
         tracklog.rotation_id = rotation.id
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         if tracklog_id == current_tracklog_id:
             fixup_current_track()
@@ -1050,7 +1086,11 @@ class AirLog(TrackmanResource):
             abort(404, success=False, message="AirLog entry not found")
 
         db.session.delete(airlog)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {'success': True}
 
@@ -1113,7 +1153,11 @@ class AirLog(TrackmanResource):
         if logid > 0:
             airlog.logid = logid
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {'success': True}
 
@@ -1165,7 +1209,11 @@ class AirLogList(TrackmanResource):
 
         airlog = models.AirLog(djset_id, form.logtype.data, form.logid.data)
         db.session.add(airlog)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {
             'success': True,

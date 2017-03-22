@@ -45,7 +45,11 @@ def logout_all(send_email=False):
             dj = DJ.query.get(djset.dj_id)
             mail.send_logout_reminder(dj)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     redis_conn.publish('trackman_dj_live', json.dumps({
         'event': "session_end",
@@ -63,7 +67,11 @@ def logout_all_except(dj_id):
         else:
             djset.dtend = datetime.utcnow()
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     return current_djset
 
@@ -87,7 +95,11 @@ def disable_automation():
                 automation_set = DJSet.query.get(int(automation_set_id))
                 if automation_set is not None:
                     automation_set.dtend = datetime.utcnow()
-                    db.session.commit()
+                    try:
+                        db.session.commit()
+                    except:
+                        db.session.rollback()
+                        raise
                 else:
                     current_app.logger.warning(
                         "Trackman: The provided automation set ({0}) was not "
@@ -105,7 +117,11 @@ def enable_automation():
         if automation_set is None:
             automation_set = DJSet(1)
             db.session.add(automation_set)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
         current_app.logger.info("Trackman: Automation enabled with DJSet.id "
                                 "= {}".format(automation_set.id))
@@ -148,7 +164,12 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         listeners=stream_listeners(current_app.config['ICECAST_URL'],
                                    current_app.config['ICECAST_MOUNTS']))
     db.session.add(tracklog)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     cache.set('trackman_now_playing', serialize_trackinfo(tracklog))
     redis_conn.publish('trackman_live', json.dumps({
@@ -232,7 +253,11 @@ def merge_duplicate_tracks(*args, **kwargs):
             # delete existing Track entries
             map(delete_track, tracks[1:])
 
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
     return count, track_id
 
@@ -311,7 +336,11 @@ def autofill_na_labels():
                     db.session.delete(na_track)
                     na_lock.release()
 
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
 
             current_app.logger.info(
                 "Trackman: Found a track with a label for track ID {0:d}, "
@@ -342,7 +371,11 @@ def prune_empty_djsets():
         ))
     for djset in empty.all():
         db.session.delete(djset)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     current_app.logger.debug("Trackman: Removed {} empty DJSets.".format(
         empty.count()))
@@ -373,4 +406,8 @@ def cleanup_dj_list():
         dj.phone = None
         dj.email = None
         dj.visible = False
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
