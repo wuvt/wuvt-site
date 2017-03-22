@@ -1,13 +1,12 @@
 import datetime
-from sqlalchemy import func
+import dateutil.parser
+import os
 from flask import abort, flash, jsonify, make_response, render_template, \
         redirect, request, url_for
 from flask_login import login_required
+from werkzeug import secure_filename
 
-from wuvt import app
-from wuvt import auth_manager
-from wuvt import cache
-from wuvt import db
+from wuvt import app, auth_manager, cache, db, redis_conn
 from wuvt.admin import bp
 from wuvt.auth.models import User
 from wuvt.blog import list_categories
@@ -17,8 +16,6 @@ from wuvt.models import Page
 from wuvt.views import get_menus
 from wuvt.view_utils import slugify
 
-from werkzeug import secure_filename
-import os
 from wuvt.admin.auth import views as auth_views
 from wuvt.admin.charts import views as charts_views
 from wuvt.admin.library import views as library_views
@@ -476,15 +473,28 @@ def pages_js():
     return resp
 
 
-@bp.route('/donations', methods=['GET'])
+@bp.route('/donations', methods=['GET', 'POST'])
 @auth_manager.check_access('business')
 def donation_index():
     if not app.config['DONATE_ENABLE']:
         abort(404)
 
-    donations = Order.query.all()
-    stats = db.session.query(func.sum(Order.amount).label("total_paid"),
-                             func.max(Order.amount).label("max_paid")).all()
+    if request.method == 'POST':
+        if 'reset_stats' in request.form:
+            redis_conn.set('donation_stats_start',
+                           datetime.datetime.utcnow().isoformat())
+        return redirect(url_for('.donation_index'))
+
+    stats = Order.query.with_entities(
+        db.func.sum(Order.amount).label('total_paid'),
+        db.func.max(Order.amount).label('max_paid'))
+
+    donation_stats_start = redis_conn.get('donation_stats_start')
+    if donation_stats_start is not None:
+        start = dateutil.parser.parse(donation_stats_start)
+        stats = stats.filter(Order.placed_date > start)
+
+    stats = stats.all()
 
     total = stats[0][0]
     if total is None:
@@ -493,6 +503,8 @@ def donation_index():
     max_donation = stats[0][1]
     if max_donation is None:
         max_donation = 0
+
+    donations = Order.query.all()
 
     return render_template('admin/donation_index.html', donations=donations,
                            total=total, max=max_donation)
