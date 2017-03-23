@@ -374,3 +374,17 @@ def cleanup_dj_list():
         dj.email = None
         dj.visible = False
         db.session.commit()
+
+
+def find_or_add_track(track):
+    match = Track.query.filter(
+        db.func.lower(Track.artist) == db.func.lower(track.artist),
+        db.func.lower(Track.title) == db.func.lower(track.title),
+        db.func.lower(Track.album) == db.func.lower(track.album),
+        db.func.lower(Track.label) == db.func.lower(track.label)).first()
+    if match is None:
+        db.session.add(track)
+        db.session.commit()
+        return track
+    else:
+        return match
