@@ -411,3 +411,21 @@ def cleanup_dj_list():
         except:
             db.session.rollback()
             raise
+
+
+def find_or_add_track(track):
+    match = Track.query.filter(
+        db.func.lower(Track.artist) == db.func.lower(track.artist),
+        db.func.lower(Track.title) == db.func.lower(track.title),
+        db.func.lower(Track.album) == db.func.lower(track.album),
+        db.func.lower(Track.label) == db.func.lower(track.label)).first()
+    if match is None:
+        db.session.add(track)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+        return track
+    else:
+        return match
