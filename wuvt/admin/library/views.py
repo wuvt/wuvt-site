@@ -212,7 +212,12 @@ def library_track(id):
             track.title = title
             track.album = album
             track.label = label
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             # merge with any tracks that exactly match
             deduplicate_track_by_id(id)
@@ -246,7 +251,12 @@ def library_track_musicbrainz(id):
             track.recording_mbid = None
             track.release_mbid = None
             track.releasegroup_mbid = None
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             flash("The MusicBrainz IDs for the track have been cleared.")
             return redirect(url_for('admin.library_track', id=track.id,
@@ -314,7 +324,11 @@ def library_track_musicbrainz(id):
         else:
             track.releasegroup_mbid = None
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return redirect(url_for('admin.library_track', id=track.id,
                                 **{'from': edit_from}))
@@ -356,7 +370,11 @@ def library_track_similar(id, page=1):
             Track.query.filter(Track.id.in_(merge)).delete(
                 synchronize_session=False)
 
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             current_app.logger.warning(
                 "Trackman: Merged tracks {0} into track {1}".format(
