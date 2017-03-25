@@ -119,6 +119,11 @@ def inject_categories():
     return {'categories': list_categories_cached()}
 
 
+@app.context_processor
+def inject_radiothon():
+    return {'radiothon': redis_conn.get('radiothon') == "true"}
+
+
 if app.debug:
     from werkzeug.debug import DebuggedApplication
     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
