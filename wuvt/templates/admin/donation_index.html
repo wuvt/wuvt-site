@@ -5,8 +5,25 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}" />
 <h1>Donations</h1>
-Total so far: {{ (total / 100)|format_currency }}<br>
-Max donation: {{ (max / 100)|format_currency }}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        Total so far: {{ (total / 100)|format_currency }}<br>
+        Max donation: {{ (max / 100)|format_currency }}
+
+        <form method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button name="reset_stats" type="submit" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-dashboard"></span>
+                Reset Stats
+            </button>
+{% if last_stats_reset %}
+            <small>Last reset: {{ last_stats_reset|datetime }}</small>
+{% endif %}
+        </form>
+    </div>
+</div>
+
 <!--
 <ul class="nav nav-tabs">
     <li role="presentation" class="active"><a href="{{ url_for('admin.library_index') }}">By Artist</a></li>
@@ -15,49 +32,50 @@ Max donation: {{ (max / 100)|format_currency }}
 -->
 <table id="donations" class="display dataTable">
     <thead>
-    <tr>
-        <th>Name</th>
-        <th>E-Mail</th>
-        <th>Phone</th>
-        <th>Order Date</th>
-        <th>Paid Date</th>
-        <th>Payment Method</th>
-        <th>Shipping Address</th>
-        <th>Shipped Date</th>
-        <th>Amount</th>
-        <th>Recurring</th>
-        <th>T-Shirt Size</th>
-        <th>Color</th>
-        <th>Sweatshirt Size</th>
-        <th>Comments</th>
-    </tr>
+        <tr>
+            <th>Name</th>
+            <th>E-Mail</th>
+            <th>Phone</th>
+            <th>Order Date</th>
+            <th>Paid Date</th>
+            <th>Payment Method</th>
+            <th>Shipping Address</th>
+            <th>Shipped Date</th>
+            <th>Amount</th>
+            <th>Recurring</th>
+            <th>T-Shirt Size</th>
+            <th>Color</th>
+            <th>Sweatshirt Size</th>
+            <th>Comments</th>
+        </tr>
     </thead>
     <tbody>
-    {% for donation in donations %}
-    <tr>
-        <td>{{ donation.name }}</td>
-        <td>{{ donation.email }}</td>
-        <td>{{ donation.phone }}</td>
-        <td>{{ donation.placed_date|datetime }}</td>
-        <td>{% if donation.paid_date %}{{ donation.paid_date|datetime }} {% endif %}</td>
-        <td>{{ donation.method }}</td>
-        <td>{% if donation.address1 %}
-            {{ donation.address1 }}<br>
-                {% if donation.address2 %}
+{% for donation in donations %}
+        <tr>
+            <td>{{ donation.name }}</td>
+            <td>{{ donation.email }}</td>
+            <td>{{ donation.phone }}</td>
+            <td>{{ donation.placed_date|datetime }}</td>
+            <td>{% if donation.paid_date %}{{ donation.paid_date|datetime }}{% endif %}</td>
+            <td>{{ donation.method }}</td>
+            <td>
+{% if donation.address1 %}
+                {{ donation.address1 }}<br>
+{% if donation.address2 %}
                 {{ donation.address2 }}<br>
-                {% endif %}
+{% endif %}
                 {{ donation.city }}, {{ donation.state }} {{ donation.zipcode }}
-            {% endif %}
-        </td>
-        <td>{% if donation.shipped_date %}{{ donation.shipped_date|datetime }} {% endif %}</td>
-        <td>{{ (donation.amount / 100)|format_currency }}</td>
-        <td>{{ donation.recurring }}</td>
-        <td>{% if donation.tshirtsize %}{{ donation.tshirtsize }}{% endif %}</td>
-        <td>{% if donation.tshirtcolor %}{{ donation.tshirtcolor }}{% endif %}</td>
-        <td>{% if donation.sweatshirtsize %}{{ donation.sweatshirtsize }}{% endif %}</td>
-        <td>{% if donation.comments %}{{ donation.comments }}{% endif %}</td>
-    </tr>
-    {% endfor %}
+{% endif %}
+            </td>
+            <td>{% if donation.shipped_date %}{{ donation.shipped_date|datetime }} {% endif %}</td>
+            <td>{{ (donation.amount / 100)|format_currency }}</td>
+            <td>{{ donation.recurring }}</td>
+            <td>{% if donation.tshirtsize %}{{ donation.tshirtsize }}{% endif %}</td>
+            <td>{% if donation.tshirtcolor %}{{ donation.tshirtcolor }}{% endif %}</td>
+            <td>{% if donation.sweatshirtsize %}{{ donation.sweatshirtsize }}{% endif %}</td>
+            <td>{% if donation.comments %}{{ donation.comments }}{% endif %}</td>
+        </tr>
+{% endfor %}
     </tbody>
 </table>
 {% endblock %}
