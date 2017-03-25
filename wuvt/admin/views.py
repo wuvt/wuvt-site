@@ -491,8 +491,10 @@ def donation_index():
 
     donation_stats_start = redis_conn.get('donation_stats_start')
     if donation_stats_start is not None:
-        start = dateutil.parser.parse(donation_stats_start)
-        stats = stats.filter(Order.placed_date > start)
+        last_stats_reset = dateutil.parser.parse(donation_stats_start)
+        stats = stats.filter(Order.placed_date > last_stats_reset)
+    else:
+        last_stats_reset = None
 
     stats = stats.all()
 
@@ -506,5 +508,8 @@ def donation_index():
 
     donations = Order.query.all()
 
-    return render_template('admin/donation_index.html', donations=donations,
-                           total=total, max=max_donation)
+    return render_template('admin/donation_index.html',
+                           donations=donations,
+                           total=total,
+                           max=max_donation,
+                           last_stats_reset=last_stats_reset)

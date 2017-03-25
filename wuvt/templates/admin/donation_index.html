@@ -17,6 +17,9 @@
                 <span class="glyphicon glyphicon-dashboard"></span>
                 Reset Stats
             </button>
+{% if last_stats_reset %}
+            <small>Last reset: {{ last_stats_reset|datetime }}</small>
+{% endif %}
         </form>
     </div>
 </div>
