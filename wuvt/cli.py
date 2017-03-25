@@ -18,7 +18,11 @@ def initdb(username, password):
 
     dj = DJ(u"Automation", u"Automation", False)
     db.session.add(dj)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     cats = [Category(u"Events", u"events", True),
             Category(u"Music Adds", u"music-adds", True),
@@ -39,7 +43,11 @@ def initdb(username, password):
     db.session.add(Rotation(u"None"))
     map(db.session.add, map(Rotation, [u"Metal", u"New Music", u"Jazz", u"Rock", u"Americana"]))
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     click.echo("Database initialized.")
 

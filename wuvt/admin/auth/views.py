@@ -31,7 +31,12 @@ def role_add_user():
                 flash("That role was already assigned to that user.")
             else:
                 db.session.add(UserRole(user_id, role))
-                db.session.commit()
+
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
 
                 flash("The role has been assigned to the user.")
 
@@ -49,7 +54,12 @@ def role_add_user():
 def role_remove_user(id):
     user_role = UserRole.query.get_or_404(id)
     db.session.delete(user_role)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     if request.method == 'DELETE' or request.wants_json():
         return jsonify({
@@ -80,7 +90,11 @@ def role_add_group():
                 flash("That role was already assigned to that group.")
             else:
                 db.session.add(GroupRole(group, role))
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
 
                 flash("The role has been assigned to the group.")
 
@@ -96,7 +110,11 @@ def role_add_group():
 def role_remove_group(id):
     group_role = GroupRole.query.get_or_404(id)
     db.session.delete(group_role)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     if request.method == 'DELETE' or request.wants_json():
         return jsonify({
@@ -135,10 +153,21 @@ def user_add():
     if form.validate_on_submit():
         db.session.add(User(form.username.data, form.name.data,
                             form.email.data))
-        db.session.commit()
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+
         user = User.query.filter_by(username=form.username.data).first()
         user.set_password(form.data.password)
-        db.session.commit()
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         flash("User added.")
         return redirect(url_for('admin.users'), 303)
@@ -172,7 +201,11 @@ def user_edit(id):
             user.set_password(form.newpass.data)
         # TODO reset password to pw
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         flash('User updated.')
         return redirect(url_for('admin.users'), 303)

@@ -7,7 +7,7 @@ from . import api_bp, models
 from .forms import TrackAddForm, AutomationTrackLogForm, TrackLogForm, \
     TrackLogEditForm, AirLogForm, AirLogEditForm
 from .lib import disable_automation, fixup_current_track, log_track, \
-    logout_all_except
+    logout_all_except, find_or_add_track
 from .view_utils import dj_interact, require_dj_session
 
 
@@ -106,31 +106,29 @@ class AutomationLog(TrackmanPublicResource):
 
         label = form.label.data
         if len(label) > 0:
-            tracks = models.Track.query.filter(
-                models.Track.title == title,
-                models.Track.artist == artist,
-                models.Track.album == album,
-                models.Track.label == label)
-            if len(tracks.all()) == 0:
-                track = models.Track(title, artist, album, label)
-                db.session.add(track)
-                db.session.commit()
-            else:
-                track = tracks.first()
+            track = find_or_add_track(models.Track(
+                title,
+                artist,
+                album,
+                label))
         else:
             # Handle automation not providing a label
             label = u"Not Available"
             tracks = models.Track.query.filter(
-                models.Track.title == title,
-                models.Track.artist == artist,
-                models.Track.album == album)
-            if len(tracks.all()) == 0:
+                db.func.lower(models.Track.title) == db.func.lower(title),
+                db.func.lower(models.Track.artist) == db.func.lower(artist),
+                db.func.lower(models.Track.album) == db.func.lower(album))
+            if tracks.count() == 0:
                 track = models.Track(title, artist, album, label)
                 db.session.add(track)
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
             else:
                 notauto = tracks.filter(models.Track.label != u"Not Available")
-                if len(notauto.all()) == 0:
+                if notauto.count() == 0:
                     # The only option is "not available label"
                     track = tracks.first()
                 else:
@@ -179,7 +177,11 @@ class DJ(TrackmanResource):
                 abort(403, success=False,
                       message="DJs cannot be hidden through this API.")
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {
             'success': True,
@@ -275,7 +277,11 @@ class DJSetList(TrackmanPublicResource):
         if djset is None:
             djset = DJSet(dj.id)
             db.session.add(djset)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
         session['dj_id'] = dj.id
         session['djset_id'] = djset.id
@@ -359,7 +365,11 @@ class TrackReport(TrackmanResource):
 
         report = models.TrackReport(dj_id, track_id, reason)
         db.session.add(report)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {
             'success': True,
@@ -581,31 +591,29 @@ class TrackAutoComplete(TrackmanResource):
 
         tracks = base_query
 
-        # Do case-insensitive exact matching first
-
         artist = request.args.get('artist', '').strip()
         if len(artist) > 0:
             somesearch = True
             tracks = tracks.filter(
-                db.func.lower(models.Track.artist) == db.func.lower(artist))
+                models.Track.artist.ilike('{0}%'.format(artist)))
 
         title = request.args.get('title', '').strip()
         if len(title) > 0:
             somesearch = True
             tracks = tracks.filter(
-                db.func.lower(models.Track.title) == db.func.lower(title))
+                models.Track.title.ilike('{0}%'.format(title)))
 
         album = request.args.get('album', '').strip()
         if len(album) > 0:
             somesearch = True
             tracks = tracks.filter(
-                db.func.lower(models.Track.album) == db.func.lower(album))
+                models.Track.album.ilike('{0}%'.format(album)))
 
         label = request.args.get('label', '').strip()
         if len(label) > 0:
             somesearch = True
             tracks = tracks.filter(
-                db.func.lower(models.Track.label) == db.func.lower(label))
+                models.Track.label.ilike('{0}%'.format(label)))
 
         # This means there was a bad search, stop searching
         if somesearch is False:
@@ -613,37 +621,7 @@ class TrackAutoComplete(TrackmanResource):
 
         # Check if results
 
-        tracks = tracks.limit(8).all()
-        if len(tracks) == 0:
-            tracks = base_query
-
-            # if there are too few results, append some similar results
-            artist = request.args.get('artist', '').strip()
-            if len(artist) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.artist.ilike(''.join(['%', artist, '%'])))
-
-            title = request.args.get('title', '').strip()
-            if len(title) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.title.ilike(''.join(['%', title, '%'])))
-
-            album = request.args.get('album', '').strip()
-            if len(album) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.album.ilike(''.join(['%', album, '%'])))
-
-            label = request.args.get('label', '').strip()
-            if len(label) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.label.ilike(''.join(['%', label, '%'])))
-
-            tracks = tracks.limit(8).all()
-
+        tracks = tracks.limit(25).all()
         if len(tracks) > 0:
             results = [t[0] for t in tracks]
         else:
@@ -702,13 +680,11 @@ class TrackList(TrackmanResource):
 
         form = TrackAddForm(meta={'csrf': False})
         if form.validate():
-            track = models.Track(
+            track = find_or_add_track(models.Track(
                 form.title.data,
                 form.artist.data,
                 form.album.data,
-                form.label.data)
-            db.session.add(track)
-            db.session.commit()
+                form.label.data))
 
             return {
                 'success': True,
@@ -770,7 +746,11 @@ class TrackLog(TrackmanResource):
         tracklog = self._load(tracklog_id)
         current_tracklog_id = self._get_current_id()
         db.session.delete(tracklog)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         if tracklog_id == current_tracklog_id:
             fixup_current_track("track_delete")
@@ -836,9 +816,11 @@ class TrackLog(TrackmanResource):
                 album != tracklog.track.album or label != tracklog.track.label:
             # If not, this means we try to create a new track
             if form.validate():
-                track = models.Track(title, artist, album, label)
-                db.session.add(track)
-                db.session.commit()
+                track = find_or_add_track(models.Track(
+                    title,
+                    artist,
+                    album,
+                    label))
                 tracklog.track_id = track.id
             else:
                 abort(400, success=False, errors=form.errors,
@@ -861,7 +843,11 @@ class TrackLog(TrackmanResource):
                   message="Rotation specified by rotation_id does not exist")
         tracklog.rotation_id = rotation.id
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         if tracklog_id == current_tracklog_id:
             fixup_current_track()
@@ -1050,7 +1036,11 @@ class AirLog(TrackmanResource):
             abort(404, success=False, message="AirLog entry not found")
 
         db.session.delete(airlog)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {'success': True}
 
@@ -1113,7 +1103,11 @@ class AirLog(TrackmanResource):
         if logid > 0:
             airlog.logid = logid
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {'success': True}
 
@@ -1165,7 +1159,11 @@ class AirLogList(TrackmanResource):
 
         airlog = models.AirLog(djset_id, form.logtype.data, form.logid.data)
         db.session.add(airlog)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return {
             'success': True,

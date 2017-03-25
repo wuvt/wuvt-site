@@ -97,7 +97,11 @@ def process_order(method):
             order.set_paid(method)
 
     db.session.add(order)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
     return True, "Thanks for your order!"
 
 

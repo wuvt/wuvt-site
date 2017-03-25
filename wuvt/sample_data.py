@@ -40,7 +40,11 @@ fact that you bought the dream.
     article.front_page = True
     db.session.add(article)
     article.render_html()
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     article = Article(u"Hudson Hits Another Buzzer Beater in Hokies Win",
                       u'hudson-hits-another-buzzer-beater-in-hokies-win', 1, 1,
@@ -75,7 +79,11 @@ crew but my mind didn't change you won't ever have to hide qui.
     article.front_page = True
     db.session.add(article)
     article.render_html()
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
 
 def add_sample_pages():
@@ -101,15 +109,27 @@ Nam feugiat porta commodo. Vestibulum tellus arcu, sollicitudin luctus vulputate
 
 Mauris egestas lectus dolor. Donec non augue id tellus volutpat ultricies. Sed consectetur magna semper tincidunt bibendum. Cras eget tempus orci. Cras pharetra ex in mauris placerat, vitae facilisis nisl egestas. Sed molestie ex mollis dolor congue posuere. Nulla sagittis lacinia tempus. Nulla et vestibulum diam. Cras id molestie metus. Aenean condimentum tellus sapien, at aliquam dui consequat vel. Cras posuere ultrices lectus. Quisque placerat velit lorem, volutpat rhoncus turpis sodales ac. Sed viverra mi elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 """, True, u"contact"))
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
 
 def add_sample_djs():
     db.session.add(DJ(u'Testy McTesterson', u'Testy McTesterson'))
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
 
 def add_sample_tracks():
     db.session.add(Track(u'The Divine Conspiracy', u'Epica', u'The Divine Conspiracy', u'Avalon'))
     db.session.add(Track(u'Second Stone', u'Epica', u'The Quantum Enigma', u'Nuclear Blast'))
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise

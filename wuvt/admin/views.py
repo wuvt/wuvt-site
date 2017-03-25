@@ -87,7 +87,12 @@ def category_add():
                 slug += '-'
 
             db.session.add(Category(name, slug, published))
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             cache.set('blog_categories', list_categories())
 
@@ -127,7 +132,12 @@ def category_edit(cat_id):
             category.name = name
             category.slug = slug
             category.published = published
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             cache.set('blog_categories', list_categories())
 
@@ -135,7 +145,12 @@ def category_edit(cat_id):
             return redirect(url_for('admin.categories'))
     elif request.method == 'DELETE':
         db.session.delete(category)
-        db.session.commit()
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         cache.set('blog_categories', list_categories())
 
@@ -223,7 +238,12 @@ def page_edit(page_id):
             page.content = content
 
             page.update_content(content)    # render HTML
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             cache.set('menus', get_menus())
 
@@ -285,7 +305,12 @@ def page_add():
             page = Page(title, slug, content, published, section)
 
             db.session.add(page)
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             cache.set('menus', get_menus())
 
@@ -357,7 +382,11 @@ def article_add():
 
             db.session.add(article)
             article.render_html()   # markdown to html
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             flash("Article Saved")
             return redirect(url_for('admin.articles'))
@@ -435,15 +464,27 @@ def article_edit(art_id):
             article.summary = summary
             article.content = content
             article.front_page = front_page
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
             article.render_html()
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             flash("Article Saved")
             return redirect(url_for('admin.articles'))
     elif request.method == 'DELETE':
         db.session.delete(article)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         return jsonify({
             '_csrf_token': app.jinja_env.globals['csrf_token'](),
