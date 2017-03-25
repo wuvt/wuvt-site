@@ -595,25 +595,25 @@ class TrackAutoComplete(TrackmanResource):
         if len(artist) > 0:
             somesearch = True
             tracks = tracks.filter(
-                models.Track.artist.ilike('{0}%'.format(artist)))
+                models.Track.artist.ilike(u'{0}%'.format(artist)))
 
         title = request.args.get('title', '').strip()
         if len(title) > 0:
             somesearch = True
             tracks = tracks.filter(
-                models.Track.title.ilike('{0}%'.format(title)))
+                models.Track.title.ilike(u'{0}%'.format(title)))
 
         album = request.args.get('album', '').strip()
         if len(album) > 0:
             somesearch = True
             tracks = tracks.filter(
-                models.Track.album.ilike('{0}%'.format(album)))
+                models.Track.album.ilike(u'{0}%'.format(album)))
 
         label = request.args.get('label', '').strip()
         if len(label) > 0:
             somesearch = True
             tracks = tracks.filter(
-                models.Track.label.ilike('{0}%'.format(label)))
+                models.Track.label.ilike(u'{0}%'.format(label)))
 
         # This means there was a bad search, stop searching
         if somesearch is False:
