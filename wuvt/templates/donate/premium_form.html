@@ -86,6 +86,15 @@
                 {% endfor %}
             </select>
         </label>
+
+        <label>
+            Sweatshirt Size
+            <select id="id_sweatshirtsize" name="sweatshirtsize">
+                {% for size in config.DONATE_SWEATSHIRTSIZES %}
+                <option value="{{ size }}">{{ size }}</option>
+                {% endfor %}
+            </select>
+        </label>
         </div>
 
         <div id="shipping_fields">
