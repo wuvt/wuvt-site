@@ -105,7 +105,7 @@ def latest_track_slack():
     track = trackinfo()
 
     if track['dj_id'] > 0:
-        dj_link = '<{url}|{dj}>'.format(
+        dj_link = u'<{url}|{dj}>'.format(
             dj=track['dj'],
             url=make_external(url_for('.playlists_dj_sets',
                                       dj_id=track['dj_id'])))
@@ -113,8 +113,8 @@ def latest_track_slack():
         dj_link = track['dj']
 
     return jsonify({
-        "response_type": "in_channel",
-        "text": "*{artist} - {title}*\nDJ: {dj_link}".format(
+        "response_type": u"in_channel",
+        "text": u"*{artist} - {title}*\nDJ: {dj_link}".format(
             dj_link=dj_link, **track),
     })
 
