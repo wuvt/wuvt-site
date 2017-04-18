@@ -298,11 +298,15 @@ Trackman.prototype.queueFromList = function(tracks) {
 
 // Playlist {{{
 Trackman.prototype.initPlaylist = function() {
+    this.pauseComplete = false;
+    this.pauseSearch = false;
     this.playlist = [];
     var inst = this;
 
     var thread = null;
     function entryChanged(target) {
+        inst.pauseComplete = false;
+        inst.pauseSearch = false;
         inst.delayAutoCompleteField(target.prop('name'));
 
         clearTimeout(thread);
@@ -311,6 +315,9 @@ Trackman.prototype.initPlaylist = function() {
         }, 350);
     }
 
+    $(".trackman-entry").on('mouseover', function () {
+        inst.pauseComplete = true;
+    });
     $(".trackman-entry input").on('blur', function () {
         entryChanged($(this));
     });
@@ -321,17 +328,15 @@ Trackman.prototype.initPlaylist = function() {
         if(ev.key != "ArrowUp" && ev.key != "ArrowDown" && ev.key != "ArrowLeft" && ev.key != "ArrowRight" && ev.key != "Tab" && ev.key != "Escape") {
             entryChanged($(this));
         } else {
-            // cancel current autocomplete update call
-            clearTimeout(inst.completeTimer);
-            inst.completeTimer = null;
+            inst.pauseComplete = true;
+            inst.pauseSearch = true;
         }
-    });
-    $(".trackman-search-results").on('click', function () {
-        clearTimeout(thread);
-        thread = null;
     });
     $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
     $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
+    $(".trackman-search-results").on('click', function () {
+        inst.pauseSearch = true;
+    });
 
     this.updatePlaylist();
 };
@@ -578,12 +583,16 @@ Trackman.prototype.searchEdit = function(element) {
 Trackman.prototype.searchHistory = function() {
     var inst = this;
 
+    if(this.pauseSearch) {
+        return;
+    }
+
     $.ajax({
         url: "/trackman/api/search",
         data: this.getFormData(),
         dataType: "json",
         success: function(data) {
-            if(data['success'] == false) { 
+            if(this.pauseSearch || data['success'] == false) {
                 return;
             }
             results = data['results'];
@@ -623,6 +632,10 @@ Trackman.prototype.autoCompleteField = function(name) {
     var searchData = this.getFormData();
     var acData = {};
 
+    if(this.pauseComplete) {
+        return;
+    }
+
     if(name == 'rlabel') {
         acData['field'] = "label";
         acData['label'] = searchData['label'];
@@ -637,7 +650,7 @@ Trackman.prototype.autoCompleteField = function(name) {
         data: acData,
         dataType: "json",
         success: function(data) {
-            if(data['success'] == false) {
+            if(this.pauseComplete || data['success'] == false) {
                 return;
             }
             results = data['results'];
