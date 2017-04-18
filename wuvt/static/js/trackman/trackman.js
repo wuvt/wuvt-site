@@ -317,8 +317,18 @@ Trackman.prototype.initPlaylist = function() {
     $(".trackman-entry input").on('focus', function () {
         entryChanged($(this));
     });
-    $(".trackman-entry input").on('keydown', function () {
-        entryChanged($(this));
+    $(".trackman-entry input").on('keydown', function (ev) {
+        if(ev.key != "ArrowUp" && ev.key != "ArrowDown" && ev.key != "ArrowLeft" && ev.key != "ArrowRight" && ev.key != "Tab" && ev.key != "Escape") {
+            entryChanged($(this));
+        } else {
+            // cancel current autocomplete update call
+            clearTimeout(inst.completeTimer);
+            inst.completeTimer = null;
+        }
+    });
+    $(".trackman-search-results").on('click', function () {
+        clearTimeout(thread);
+        thread = null;
     });
     $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
     $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
