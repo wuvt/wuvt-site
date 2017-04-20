@@ -773,9 +773,8 @@ Trackman.prototype.renderSearchRow = function(i, track) {
     row.append(td);
 
     var td = $('<td>');
-    td.addClass('rotation');
     var newSelect = $('<select>');
-    this.renderRotation(newSelect);
+    newSelect.addClass('rotation');
     td.html(newSelect);
     row.append(td);
 
