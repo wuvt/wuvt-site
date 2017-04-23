@@ -6,6 +6,8 @@
     <h2>Playlist Archive</h2>
     <h3><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=djset.dj.id) }}">{{ djset.dj.airname }}</a> / <time datetime="{{ djset.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</time></h3>
 </header>
+
+{% if config.ARCHIVE_URL_FORMAT|length > 0 %}
 <div class="links">
     <h4>Listen Online</h4>
     <ol>
@@ -14,6 +16,7 @@
         {% endfor %}
     </ol>
 </div>
+{% endif %}
 
 <table id="tracktable" class="tracklist">
     <thead>
