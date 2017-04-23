@@ -72,7 +72,7 @@ def render_images():
     imgpath = os.path.join(app.static_folder, 'img')
     sources = [
         ('moon.svg', 1200, 42),
-        ('logo.svg', 200, 72),
+        ('logo.svg', 200, 85),
         ('bubble.svg', 558, 99),
         ('nowplaying_banner_left.svg', 32, 15),
         ('nowplaying_banner_right.svg', 52, 34),
