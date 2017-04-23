@@ -11,8 +11,8 @@
 <div class="links">
     <h4>Listen Online</h4>
     <ol>
-        {% for link, text in archives %}
-        <li><a href="{{ link }}" rel="external noreferrer">{{ text }}</a></li>
+        {% for link, start, end in archives %}
+        <li><a href="{{ link }}" rel="external noreferrer">{{ start|datetime("%Y-%m-%d %H:00") }} - {{ end|datetime("%Y-%m-%d %H:00") }}</a></li>
         {% endfor %}
     </ol>
 </div>

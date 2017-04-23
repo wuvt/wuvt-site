@@ -3,7 +3,6 @@ from flask import current_app, request, session
 from flask_restful import abort
 from functools import wraps
 from urlparse import urljoin
-from .. import format_datetime
 from .lib import perdelta, renew_dj_lease
 
 
@@ -34,9 +33,8 @@ def list_archives(djset):
 
     for loghour in perdelta(start, end, timedelta(hours=1)):
         yield (loghour.strftime(current_app.config['ARCHIVE_URL_FORMAT']),
-               "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
-                         format_datetime(loghour + timedelta(hours=1),
-                                         "%Y-%m-%d %H:00")]),)
+               loghour,
+               loghour + timedelta(hours=1))
 
 
 def require_dj_session(f):
