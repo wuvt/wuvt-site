@@ -3,7 +3,6 @@
 from flask import abort, current_app, jsonify, render_template, redirect, \
         request, url_for, Response
 import datetime
-import dateutil
 import re
 from werkzeug.contrib.atom import AtomFeed
 
@@ -12,8 +11,7 @@ from ..view_utils import sse_response
 from . import bp, charts
 from .lib import get_current_tracklog, serialize_trackinfo
 from .models import DJ, DJSet, Track, TrackLog
-from .view_utils import make_external, list_archives, generate_cuesheet, \
-        generate_playlist_cuesheet
+from .view_utils import make_external, list_archives
 
 
 def trackinfo():
@@ -485,43 +483,6 @@ def playlist(set_id):
 
     return render_template('playlist.html', archives=archives, djset=djset,
                            tracklogs=tracks)
-
-
-@bp.route('/playlists/cue/<string:filename>.cue')
-def playlist_cuesheet_ts(filename):
-    match_re = re.compile(r'^(\d{10}0001)(.*)$')
-    m = match_re.match(filename)
-    if not m:
-        abort(400)
-
-    try:
-        start = datetime.datetime.strptime(m.group(1), "%Y%m%d%H0001")
-    except:
-        abort(400)
-
-    # assume time in URL is local time, so convert to UTC for DB lookup
-    start = start.replace(tzinfo=dateutil.tz.tzlocal()).astimezone(
-        dateutil.tz.tzutc())
-    end = start + datetime.timedelta(hours=1)
-
-    prev = db.session.query(TrackLog.id).filter(TrackLog.played <= start).\
-        order_by(db.desc(TrackLog.played)).limit(1)
-    tracks = TrackLog.query.filter(db.and_(
-        TrackLog.id >= prev.as_scalar(),
-        TrackLog.played <= end)).order_by(TrackLog.played).all()
-
-    return Response(generate_cuesheet(filename, start, tracks),
-                    mimetype="audio/x-cue")
-
-
-@bp.route('/playlists/cue/set/<int:set_id><string:ext>.cue')
-def playlist_cuesheet(set_id, ext):
-    djset = DJSet.query.get_or_404(set_id)
-    if djset.dtend is None:
-        abort(404)
-
-    return Response(generate_playlist_cuesheet(djset, ext),
-                    mimetype="audio/x-cue")
 
 
 @bp.route('/playlists/track/<int:track_id>')
