@@ -315,7 +315,7 @@ Trackman.prototype.initPlaylist = function() {
         }, 350);
     }
 
-    $(".trackman-entry").on('mouseover', function () {
+    $(".trackman-entry input").on('mouseover', function () {
         inst.pauseComplete = true;
     });
     $(".trackman-entry input").on('blur', function () {
