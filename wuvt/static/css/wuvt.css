@@ -512,6 +512,13 @@ nav > ul > li > ul > li > a {
     border-bottom-width: thin;
 }
 
+#content > article li,
+#content > section li {
+    position: relative;
+    padding-right: 1em;
+    left: 1em;
+}
+
 #content > article h2,
 #content > section h2 {
     margin: 0px;
