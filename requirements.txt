@@ -7,7 +7,7 @@ bleach==1.5.0
 celery==4.0.2
 chardet==2.3.0
 click==6.7
-Flask==0.12
+Flask==0.12.1
 Flask-Login==0.4.0
 Flask-Migrate==2.0.3
 flask-oidc==1.1.0
