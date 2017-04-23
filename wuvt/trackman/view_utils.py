@@ -1,12 +1,10 @@
 from datetime import timedelta
-import email.utils
 from flask import current_app, request, session
 from flask_restful import abort
 from functools import wraps
 from urlparse import urljoin
-from .. import db, format_datetime
+from .. import format_datetime
 from .lib import perdelta, renew_dj_lease
-from .models import TrackLog
 
 
 def dj_interact(f):
@@ -39,59 +37,6 @@ def list_archives(djset):
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
                          format_datetime(loghour + timedelta(hours=1),
                                          "%Y-%m-%d %H:00")]),)
-
-
-def generate_cuesheet(filename, start, tracks, offset=0):
-    cuesheet = "FILE \"{}\"\n".format(email.utils.quote(filename))
-    i = offset + 1
-    for track in tracks:
-        if track.played < start:
-            offset = timedelta(seconds=0)
-        else:
-            offset = track.played - start
-
-        minutes, secs = divmod(offset.seconds, 60)
-
-        cuesheet += """\
-    TRACK {index:02d} AUDIO
-        TITLE "{title}"
-        PERFORMER "{artist}"
-        INDEX 01 {m:02d}:{s:02d}:00
-""".format(index=i, title=email.utils.quote(track.track.title.encode('utf-8')),
-           artist=email.utils.quote(track.track.artist.encode('utf-8')),
-           m=minutes, s=secs)
-        i += 1
-
-    return cuesheet
-
-
-def generate_playlist_cuesheet(djset, ext):
-    cuesheet = """\
-PERFORMER "{dj}"
-TITLE "{date}"
-""".format(
-        dj=email.utils.quote(djset.dj.airname.encode('utf-8')),
-        date=format_datetime(djset.dtstart, "%Y-%m-%d %H:%M"))
-
-    delta = timedelta(hours=1)
-    start = djset.dtstart.replace(minute=0, second=0, microsecond=0)
-    end = djset.dtend.replace(minute=59, second=59, microsecond=0) + \
-        timedelta(seconds=1)
-    offset = 0
-
-    for loghour in perdelta(start, end, delta):
-        tracks = TrackLog.query.filter(db.and_(
-            TrackLog.djset_id == djset.id,
-            TrackLog.played >= loghour,
-            TrackLog.played <= loghour + delta)).\
-            order_by(TrackLog.played).all()
-
-        if len(tracks) > 0:
-            filename = format_datetime(loghour, "%Y%m%d%H0001{}".format(ext))
-            cuesheet += generate_cuesheet(filename, loghour, tracks, offset)
-            offset += len(tracks)
-
-    return cuesheet
 
 
 def require_dj_session(f):
