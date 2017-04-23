@@ -35,9 +35,10 @@ def list_archives(djset):
         end = djset.dtend.replace(minute=0, second=0, microsecond=0)
 
     for loghour in perdelta(start, end, timedelta(hours=1)):
-        yield ( format_datetime(loghour, current_app.config['ARCHIVE_URL_FORMAT']),
+        yield (loghour.strftime(current_app.config['ARCHIVE_URL_FORMAT']),
                "-".join([format_datetime(loghour, "%Y-%m-%d %H:00"),
-                        format_datetime(loghour + timedelta(hours=1), "%Y-%m-%d %H:00")]),)
+                         format_datetime(loghour + timedelta(hours=1),
+                                         "%Y-%m-%d %H:00")]),)
 
 
 def generate_cuesheet(filename, start, tracks, offset=0):
