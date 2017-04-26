@@ -109,6 +109,10 @@ TODO
 
 Look at submit_tracks.py for an example of sending metadata to Trackman.
 
+### Testing
+
+The testing framework requires a local installation of Python 3.4+ and
+Selenium 3.4+ as well as Firefox 49+ on the machine you wish to run tests on.
 
 ### License
 
