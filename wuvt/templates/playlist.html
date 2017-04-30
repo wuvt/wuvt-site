@@ -12,7 +12,7 @@
     <h4>Listen Online</h4>
     <ol>
         {% for link, start, end in archives %}
-        <li><a href="{{ link }}" rel="external noreferrer">{{ start|datetime("%Y-%m-%d %H:00") }} - {{ end|datetime("%Y-%m-%d %H:00") }}</a></li>
+        <li><a href="{{ link }}" rel="external noreferrer"><time datetime="{{ start|isodatetime }}" data-format="YYYY-MM-DD HH:00">{{ start|datetime("%Y-%m-%d %H:00") }}</time> - <time datetime="{{ end|isodatetime }}" data-format="YYYY-MM-DD HH:00">{{ end|datetime("%Y-%m-%d %H:00") }}</time></a></li>
         {% endfor %}
     </ol>
 </div>
