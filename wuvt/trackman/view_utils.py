@@ -3,7 +3,7 @@ from flask import current_app, request, session
 from flask_restful import abort
 from functools import wraps
 from urlparse import urljoin
-from .lib import perdelta, renew_dj_lease
+from .lib import perdelta, renew_dj_lease, check_onair
 
 
 def dj_interact(f):
@@ -11,7 +11,10 @@ def dj_interact(f):
     def dj_wrapper(*args, **kwargs):
         # Call in the function first in case it changes the timeout
         ret = f(*args, **kwargs)
-        renew_dj_lease()
+
+        if check_onair(session.get('djset_id', None)):
+            renew_dj_lease()
+
         return ret
     return dj_wrapper
 
@@ -45,3 +48,13 @@ def require_dj_session(f):
         else:
             return f(*args, **kwargs)
     return require_dj_session_wrapper
+
+
+def require_onair(f):
+    @wraps(f)
+    def require_onair_wrapper(*args, **kwargs):
+        if not check_onair(session.get('djset_id', None)):
+            abort(403, message="You must be on-air to use that feature.")
+        else:
+            return f(*args, **kwargs)
+    return require_onair_wrapper

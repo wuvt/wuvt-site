@@ -12,9 +12,9 @@
     </div>
 
     <div class="collapse navbar-collapse" id="trackman-top-collapse">
-        <p class="navbar-text trackman-dj-name">{{ djset.dj.airname }}</p>
+        <p class="navbar-text trackman-dj-name">{{ dj.airname }}</p>
 
-        <form action="{{ url_for('trackman_private.logout', setid=djset.id) }}"
+        <form action="{{ url_for('trackman_private.logout') }}"
                 method="post" class="navbar-form navbar-right"
                 id="trackman_logout_form">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
@@ -315,6 +315,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=10) }}"></script>
-<script src="{{ url_for('trackman_private.log_js', setid=djset.id) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=11) }}"></script>
+<script src="{{ url_for('trackman_private.log_js') }}"></script>
 {% endblock %}

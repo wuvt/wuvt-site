@@ -1,5 +1,5 @@
 from flask import current_app, flash, json, jsonify, render_template, \
-        redirect, request, session, url_for, make_response
+        redirect, request, session, url_for, make_response, abort
 
 import datetime
 
@@ -7,17 +7,14 @@ from .. import db, redis_conn
 from ..view_utils import local_only, sse_response
 from . import private_bp, mail
 from .forms import DJRegisterForm, DJReactivateForm
-from .lib import disable_automation, enable_automation, logout_all_except
+from .lib import enable_automation, check_onair
 from .models import DJ, DJSet, TrackLog, Rotation
-from .view_utils import dj_interact
 
 
 @private_bp.route('/', methods=['GET', 'POST'])
 @local_only
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
-        disable_automation()
-
         dj = DJ.query.get(request.form['dj'])
 
         current_app.logger.warning(
@@ -26,21 +23,8 @@ def login():
                 ip=request.remote_addr,
                 ua=request.user_agent))
 
-        # close open DJSets, and see if we have one we can use
-        djset = logout_all_except(dj.id)
-        if djset is None:
-            djset = DJSet(dj.id)
-            db.session.add(djset)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
         session['dj_id'] = dj.id
-        session['djset_id'] = djset.id
-
-        return redirect(url_for('.log', setid=djset.id))
+        return redirect(url_for('.log'))
 
     automation = redis_conn.get('automation_enabled') == "true"
 
@@ -58,8 +42,6 @@ def login_all():
             # start automation if we selected DJ with ID 1
             return redirect(url_for('.start_automation'), 307)
 
-        disable_automation()
-
         dj = DJ.query.get(request.form['dj'])
         dj.visible = True
         try:
@@ -74,21 +56,8 @@ def login_all():
                 ip=request.remote_addr,
                 ua=request.user_agent))
 
-        # close open DJSets, and see if we have one we can use
-        djset = logout_all_except(dj.id)
-        if djset is None:
-            djset = DJSet(dj.id)
-            db.session.add(djset)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
         session['dj_id'] = dj.id
-        session['djset_id'] = djset.id
-
-        return redirect(url_for('.log', setid=djset.id))
+        return redirect(url_for('.log'))
 
     automation = redis_conn.get('automation_enabled') == "true"
 
@@ -113,15 +82,23 @@ def start_automation():
     return redirect(url_for('.login'))
 
 
-@private_bp.route('/log/<int:setid>')
+@private_bp.route('/log')
 @local_only
-@dj_interact
-def log(setid):
-    djset = DJSet.query.get_or_404(setid)
-    if djset.dtend is not None:
-        # This is a logged out DJSet
+def log():
+    dj_id = session.get('dj_id', None)
+    if dj_id is None:
+        return redirect(url_for('.login'))
 
-        if setid == session.get('djset_id', None):
+    dj = DJ.query.get_or_404(dj_id)
+    if dj.phone is None or dj.email is None:
+        return redirect(url_for('.reactivate_dj'))
+
+    djset_id = session.get('djset_id', None)
+    if djset_id is not None:
+        djset = DJSet.query.get_or_404(djset_id)
+        if djset.dtend is not None:
+            # This is a logged out DJSet
+
             flash("""\
 Your session has ended; you were either automatically logged out for inactivity
 or you pressed the Logout button somewhere else.
@@ -129,72 +106,80 @@ or you pressed the Logout button somewhere else.
             session.pop('dj_id', None)
             session.pop('djset_id', None)
 
-        return redirect(url_for('.login'))
-
-    if djset.dj.phone is None or djset.dj.email is None:
-        return redirect(url_for('.reactivate_dj', setid=setid))
+            return redirect(url_for('.login'))
 
     rotations = {}
     for i in Rotation.query.order_by(Rotation.id).all():
         rotations[i.id] = i.rotation
     return render_template('trackman/log.html',
                            trackman_name=current_app.config['TRACKMAN_NAME'],
-                           djset=djset,
+                           dj=dj,
                            rotations=rotations)
 
 
-@private_bp.route('/js/log/<int:setid>.js')
+@private_bp.route('/js/log.js')
 @local_only
-def log_js(setid):
-    djset = DJSet.query.get_or_404(setid)
+def log_js():
+    dj_id = session.get('dj_id', None)
+    if dj_id is None:
+        abort(404)
+
+    djset_id = session.get('djset_id', None)
+
     rotations = {}
     for i in Rotation.query.order_by(Rotation.id).all():
         rotations[i.id] = i.rotation
 
     resp = make_response(render_template('trackman/log.js',
                          trackman_name=current_app.config['TRACKMAN_NAME'],
-                         djset=djset,
+                         dj_id=dj_id, djset_id=djset_id,
                          rotations=rotations))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
 
 
-@private_bp.route('/log/<int:setid>/end', methods=['POST'])
+@private_bp.route('/logout', methods=['POST'])
 @local_only
-def logout(setid):
-    session.pop('dj_id', None)
-    session.pop('djset_id', None)
+def logout():
+    dj_id = session.pop('dj_id', None)
+    if dj_id is None:
+        abort(404)
 
-    djset = DJSet.query.get_or_404(setid)
-    if djset.dtend is None:
-        djset.dtend = datetime.datetime.utcnow()
-    else:
-        # This has already been logged out
-        return redirect(url_for('.login'))
+    djset_id = session.pop('djset_id', None)
+    if djset_id is not None:
+        djset = DJSet.query.get_or_404(djset_id)
+        if djset.dtend is None:
+            djset.dtend = datetime.datetime.utcnow()
 
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
-    redis_conn.publish('trackman_dj_live', json.dumps({
-        'event': "session_end",
-    }))
+            redis_conn.publish('trackman_dj_live', json.dumps({
+                'event': "session_end",
+            }))
 
-    # Reset the dj activity timeout period
-    redis_conn.delete('dj_timeout')
+        if check_onair(djset_id):
+            redis_conn.delete('onair_djset_id')
 
-    # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation start time
-    redis_conn.set('dj_active', 'false')
-    redis_conn.expire('dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
+        # Reset the dj activity timeout period
+        redis_conn.delete('dj_timeout')
 
-    # email playlist
-    if 'email_playlist' in request.form and \
-            request.form.get('email_playlist') == 'true':
-        tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
-            TrackLog.played).all()
-        mail.send_playlist(djset, tracks)
+        # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation start
+        # time
+        redis_conn.set('dj_active', 'false')
+        redis_conn.expire(
+            'dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
+
+        # email playlist
+        if 'email_playlist' in request.form and \
+                request.form.get('email_playlist') == 'true':
+            tracks = TrackLog.query.\
+                filter(TrackLog.djset_id == djset.id).\
+                order_by(TrackLog.played).all()
+            mail.send_playlist(djset, tracks)
 
     if request.wants_json():
         return jsonify(success=True)
@@ -233,21 +218,24 @@ def register():
         form=form)
 
 
-@private_bp.route('/log/<int:setid>/reactivate_dj', methods=['GET', 'POST'])
+@private_bp.route('/reactivate_dj', methods=['GET', 'POST'])
 @local_only
-@dj_interact
-def reactivate_dj(setid):
-    djset = DJSet.query.get_or_404(setid)
+def reactivate_dj():
+    dj_id = session.get('dj_id', None)
+    if dj_id is None:
+        return redirect(url_for('.login'))
+
+    dj = DJ.query.get_or_404(dj_id)
     form = DJReactivateForm()
 
     # if neither phone nor email is missing, someone is doing silly things
-    if djset.dj.email is not None and djset.dj.phone is not None:
-        return redirect(url_for('.log', setid=setid))
+    if dj.email is not None and dj.phone is not None:
+        return redirect(url_for('.log'))
 
     if form.is_submitted():
         if form.validate():
-            djset.dj.email = form.email.data
-            djset.dj.phone = form.phone.data
+            dj.email = form.email.data
+            dj.phone = form.phone.data
             try:
                 db.session.commit()
             except:
@@ -257,7 +245,7 @@ def reactivate_dj(setid):
             if request.wants_json():
                 return jsonify(success=True)
             else:
-                return redirect(url_for('.log', setid=setid))
+                return redirect(url_for('.log'))
         elif request.wants_json():
             return jsonify(success=False, errors=form.errors)
 
@@ -265,7 +253,7 @@ def reactivate_dj(setid):
         'trackman/reactivate.html',
         trackman_name=current_app.config['TRACKMAN_NAME'],
         form=form,
-        dj=djset.dj)
+        dj=dj)
 
 
 @private_bp.route('/api/live')
