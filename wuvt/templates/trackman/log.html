@@ -69,23 +69,26 @@
 {% block content %}
 <div class="floating-alerts" id="trackman_alerts"></div> 
 
-<div class="panel panel-default">
+<div class="panel panel-default trackman-panel" id="trackman_playlist_panel">
+    <table class='table table-condensed'>
+        <thead title="This is a list of the tracks you've played. If you need to make any changes or corrections, you can do that here.">
+            <tr>
+                <th>Time</th>
+                <th>Artist</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Label</th>
+                <th>Request</th>
+                <th>Vinyl</th>
+                <th>New</th>
+                <th>Rotation</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
     <div class="row-table">
         <table class='table table-condensed table-striped table-hover' id="playlist">
-            <thead title="This is a list of the tracks you've played. If you need to make any changes or corrections, you can do that here.">
-                <tr>
-                    <th>Time</th>
-                    <th>Artist</th>
-                    <th>Title</th>
-                    <th>Album</th>
-                    <th>Label</th>
-                    <th>Request</th>
-                    <th>Vinyl</th>
-                    <th>New</th>
-                    <th>Rotation</th>
-                    <th></th>
-                </tr>
-            </thead>
             <tbody>
             </tbody>
         </table>
@@ -211,47 +214,54 @@
 </div>
 -->
 
-<div class="panel panel-default">
+<div class="panel panel-default trackman-panel" id="trackman_queue_panel">
+    <table class='table table-condensed'>
+        <thead title="This is your queue. You can enter tracks ahead of time and access them from here. When you're ready to play them, just press their play button.">
+            <tr>
+                <th>Artist</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Label</th>
+                <th>Request</th>
+                <th>Vinyl</th>
+                <th>New</th>
+                <th>Rotation</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
     <div class="row-table trackman-queue">
         <table class='table table-condensed table-striped table-hover' id='queue'>
-            <thead title="This is your queue. You can enter tracks ahead of time and access them from here. When you're ready to play them, just press their play button.">
-                <tr>
-                    <th>Artist</th>
-                    <th>Title</th>
-                    <th>Album</th>
-                    <th>Label</th>
-                    <th>Request</th>
-                    <th>Vinyl</th>
-                    <th>New</th>
-                    <th>Rotation</th>
-                    <th></th>
-                </tr>
-            </thead>
             <tbody>
             </tbody>
         </table>
     </div>
 </div>
 
-<div class="panel panel-default">
+<div class="panel panel-default trackman-panel" id="trackman_search_panel">
     <div class="panel-heading">
         <h3 class="panel-title">Search Results</h3>
     </div>
+
+    <table class='table table-condensed'>
+        <thead title="These are your track search results. When you start to enter track information, this section will update with similar tracks that are already in our database.">
+            <tr>
+                <th>Artist</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Label</th>
+                <th>Request</th>
+                <th>Vinyl</th>
+                <th>New</th>
+                <th>Rotation</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
     <div class="row-table trackman-search-results">
         <table class='table table-condensed table-striped table-hover' id="search">
-            <thead title="These are your track search results. When you start to enter track information, this section will update with similar tracks that are already in our database.">
-                <tr>
-                    <th>Artist</th>
-                    <th>Title</th>
-                    <th>Album</th>
-                    <th>Label</th>
-                    <th>Request</th>
-                    <th>Vinyl</th>
-                    <th>New</th>
-                    <th>Rotation</th>
-                    <th></th>
-                </tr>
-            </thead>
             <tbody>
             </tbody>
         </table>
@@ -305,6 +315,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=9) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=10) }}"></script>
 <script src="{{ url_for('trackman_private.log_js', setid=djset.id) }}"></script>
 {% endblock %}

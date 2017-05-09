@@ -1213,6 +1213,37 @@ Trackman.prototype.initEventHandler = function() {
     };
 };
 
+Trackman.prototype.adjustPanelHeights = function() {
+    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height();
+
+    // enforce a minimum height of 50 pixels
+    if(rowTableHeight < 50) {
+        rowTableHeight = 50;
+    }
+
+    $('.row-table').height(rowTableHeight);
+};
+
+Trackman.prototype.initResizeHandler = function() {
+    var inst = this;
+    var resizeTimeout;
+
+    // do an immediate resize
+    this.adjustPanelHeights();
+
+    // The MDN documentation indicates that this event handler shouldn't
+    // execute computationally expensive operations directly since it can fire
+    // at a high rate, so we throttle resize events to 15 fps
+    $(window).on('resize', null, {}, function() {
+        if(!resizeTimeout) {
+            resizeTimer = setTimeout(function() {
+                resizeTimeout = null;
+                inst.adjustPanelHeights();
+            }, 66);
+        }
+    });
+};
+
 Trackman.prototype.init = function() {
     var inst = this;
     $('#trackman_logout_form').bind('submit', {}, function() {
@@ -1220,6 +1251,7 @@ Trackman.prototype.init = function() {
         inst.saveQueue();
     });
 
+    this.initResizeHandler();
     this.initEventHandler();
     this.initAutologout();
     this.initQueue();

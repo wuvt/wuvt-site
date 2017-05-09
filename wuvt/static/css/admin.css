@@ -113,8 +113,91 @@ td.row-options {
     margin-right: 5px;
 }
 
+.trackman-panel .table {
+    table-layout: fixed;
+}
+
+.trackman-panel .table th,
+.trackman-panel .table td {
+    overflow: hidden;
+}
+
+#trackman_playlist_panel .table th:nth-child(1),
+#trackman_playlist_panel .table td:nth-child(1) {
+    width: 5%;
+}
+
+#trackman_playlist_panel .table th:nth-child(2),
+#trackman_playlist_panel .table td:nth-child(2),
+#trackman_playlist_panel .table th:nth-child(3),
+#trackman_playlist_panel .table td:nth-child(3),
+#trackman_playlist_panel .table th:nth-child(4),
+#trackman_playlist_panel .table td:nth-child(4),
+#trackman_playlist_panel .table th:nth-child(5),
+#trackman_playlist_panel .table td:nth-child(5) {
+    width: 14%;
+}
+
+#trackman_playlist_panel .table th:nth-child(6),
+#trackman_playlist_panel .table td:nth-child(6),
+#trackman_playlist_panel .table th:nth-child(7),
+#trackman_playlist_panel .table td:nth-child(7),
+#trackman_playlist_panel .table th:nth-child(8),
+#trackman_playlist_panel .table td:nth-child(8) {
+    width: 5%;
+}
+
+#trackman_playlist_panel .table th:nth-child(9),
+#trackman_playlist_panel .table td:nth-child(9) {
+    width: 10%;
+}
+
+#trackman_queue_panel .table th:nth-child(1),
+#trackman_queue_panel .table td:nth-child(1),
+#trackman_search_panel .table th:nth-child(1),
+#trackman_search_panel .table td:nth-child(1) {
+    width: 16%;
+}
+
+#trackman_queue_panel .table th:nth-child(2),
+#trackman_queue_panel .table td:nth-child(2),
+#trackman_queue_panel .table th:nth-child(3),
+#trackman_queue_panel .table td:nth-child(3),
+#trackman_queue_panel .table th:nth-child(4),
+#trackman_queue_panel .table td:nth-child(4),
+#trackman_search_panel .table th:nth-child(2),
+#trackman_search_panel .table td:nth-child(2),
+#trackman_search_panel .table th:nth-child(3),
+#trackman_search_panel .table td:nth-child(3),
+#trackman_search_panel .table th:nth-child(4),
+#trackman_search_panel .table td:nth-child(4) {
+    width: 15%;
+}
+
+#trackman_queue_panel .table th:nth-child(5),
+#trackman_queue_panel .table td:nth-child(5),
+#trackman_queue_panel .table th:nth-child(6),
+#trackman_queue_panel .table td:nth-child(6),
+#trackman_queue_panel .table th:nth-child(7),
+#trackman_queue_panel .table td:nth-child(7),
+#trackman_search_panel .table th:nth-child(5),
+#trackman_search_panel .table td:nth-child(5),
+#trackman_search_panel .table th:nth-child(6),
+#trackman_search_panel .table td:nth-child(6),
+#trackman_search_panel .table th:nth-child(7),
+#trackman_search_panel .table td:nth-child(7) {
+    width: 5%;
+}
+
+#trackman_queue_panel .table th:nth-child(8),
+#trackman_queue_panel .table td:nth-child(8),
+#trackman_search_panel .table th:nth-child(8),
+#trackman_search_panel .table td:nth-child(8) {
+    width: 10%;
+}
+
 .row-table {
-    height: 240px;
+    height: 160px;
     overflow-y: auto;
 }
 
