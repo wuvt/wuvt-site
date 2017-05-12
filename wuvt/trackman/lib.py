@@ -123,9 +123,11 @@ def enable_automation():
                 db.session.rollback()
                 raise
 
+
         current_app.logger.info("Trackman: Automation enabled with DJSet.id "
                                 "= {}".format(automation_set.id))
-        redis_conn.set('automation_set', str(automation_set.id))
+        redis_conn.set('automation_set', automation_set.id)
+        redis_conn.set('onair_djset_id', automation_set.id)
 
 
 def stream_listeners(url, mounts=None, timeout=5):
@@ -429,3 +431,14 @@ def find_or_add_track(track):
         return track
     else:
         return match
+
+
+def check_onair(djset_id):
+    if djset_id is None:
+        return False
+
+    onair_djset_id = redis_conn.get('onair_djset_id')
+    if onair_djset_id is not None:
+        return djset_id == int(onair_djset_id)
+    else:
+        return False

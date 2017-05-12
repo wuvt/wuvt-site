@@ -149,6 +149,7 @@ Trackman.prototype.toggleAutologout = function(ev) {
         type: "POST",
         context: inst,
         success: inst.updateAutologout,
+        error: inst.updateAutologoutError,
     });
 };
 
@@ -163,6 +164,12 @@ Trackman.prototype.updateAutologout = function(data) {
         this.extendAutologout = true;
     }
 
+    $('#id_extend_autologout').prop('checked', this.extendAutologout);
+};
+
+Trackman.prototype.updateAutologoutError = function(jqXHR, textStatus, errorThrown) {
+    $('#id_extend_autologout').prop('disabled', false);
+    this.handleError(jqXHR, textStatus, errorThrown);
     $('#id_extend_autologout').prop('checked', this.extendAutologout);
 };
 // }}}
@@ -342,21 +349,38 @@ Trackman.prototype.initPlaylist = function() {
 };
 
 Trackman.prototype.logTrack = function(track, callback) {
-    $.ajax({
-        url: "/trackman/api/tracklog",
-        data: {
-            "track_id": track['id'],
-            "djset_id": djset_id,
-            "vinyl":    track['vinyl'],
-            "request":  track['request'],
-            "new":      track['new'],
-            "rotation": track['rotation'],
-        },
-        context: this,
-        type: "POST",
-        success: callback,
-        error: this.handleError,
-    });
+    if(this.djsetId != null) {
+        $.ajax({
+            url: "/trackman/api/tracklog",
+            data: {
+                "track_id": track['id'],
+                "djset_id": this.djsetId,
+                "vinyl":    track['vinyl'],
+                "request":  track['request'],
+                "new":      track['new'],
+                "rotation": track['rotation'],
+            },
+            context: this,
+            type: "POST",
+            success: callback,
+            error: this.handleError,
+        });
+    } else {
+        // create a new DJSet, start using it, and try again
+        $.ajax({
+            url: "/trackman/api/djset",
+            data: {
+                "dj": this.djId,
+            },
+            context: this,
+            type: "POST",
+            success: function(data) {
+                this.djsetId = data['djset_id'];
+                this.logTrack(track, callback);
+            },
+            error: this.handleError,
+        });
+    }
 };
 
 Trackman.prototype.createTrack = function(track, callback) {
@@ -435,31 +459,36 @@ Trackman.prototype.updatePlaylist = function() {
 };
 
 Trackman.prototype.fetchPlaylist = function(callback) {
-    $.ajax({
-        url: "/trackman/api/djset/" + djset_id,
-        data: {
-            "merged": true,
-        },
-        dataType: "json",
-        context: this,
-        success: function(data) {
-            if(data['success'] == false) {
-                alert(data['message']);
-                return;
-            }
+    if(this.djsetId != null) {
+        $.ajax({
+            url: "/trackman/api/djset/" + this.djsetId,
+            data: {
+                "merged": true,
+            },
+            dataType: "json",
+            context: this,
+            success: function(data) {
+                if(data['success'] == false) {
+                    alert(data['message']);
+                    return;
+                }
 
-            playlist = data['logs'];
-            this.playlist = playlist;
+                playlist = data['logs'];
+                this.playlist = playlist;
 
-            this.playlistKeyed = [];
-            for(i in playlist) {
-                var p = playlist[i];
-                this.playlistKeyed[p['tracklog_id']] = p;
-            }
+                this.playlistKeyed = [];
+                for(i in playlist) {
+                    var p = playlist[i];
+                    this.playlistKeyed[p['tracklog_id']] = p;
+                }
 
-            callback();
-        },
-    });
+                callback();
+            },
+        });
+    } else {
+        this.playlistKeyed = [];
+        callback();
+    }
 };
 
 Trackman.prototype.renderRotation = function(selement, id) {
