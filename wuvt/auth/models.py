@@ -1,7 +1,7 @@
 from wuvt import app
 from wuvt import db
-from flask_login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
+from .mixins import UserMixin
 
 
 class User(db.Model, UserMixin):

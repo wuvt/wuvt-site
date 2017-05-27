@@ -1,9 +1,9 @@
 from flask import abort, flash, jsonify, make_response, redirect, \
-    render_template, request, session, url_for
-from flask_login import current_user, login_required
+    render_template, request, url_for
 
 from wuvt import app, auth_manager, db
 from wuvt.admin import bp
+from wuvt.auth import current_user, current_user_roles, login_required
 from wuvt.auth.models import User, UserRole, GroupRole
 from wuvt.admin.auth.forms import UserAddForm, UserEditForm
 
@@ -185,7 +185,7 @@ def user_edit(id):
     form = UserEditForm(name=user.name, email=user.email)
 
     # Only admins can edit users other than themselves
-    if 'admin' not in session['access'] and current_user.id != id:
+    if 'admin' not in current_user_roles and current_user.id != id:
         abort(403)
 
     if form.validate_on_submit():
@@ -216,7 +216,7 @@ def user_edit(id):
 @bp.route('/users')
 @login_required
 def users():
-    if 'admin' in session['access']:
+    if 'admin' in current_user_roles:
         users = User.query.order_by('name').all()
         is_admin = True
     elif app.config['AUTH_METHOD'] == "local":

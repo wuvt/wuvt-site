@@ -1,12 +1,13 @@
 from flask import abort, flash, g, get_flashed_messages, redirect, \
         render_template, request, url_for, session
-from flask_login import login_required, login_user, logout_user
 
 from wuvt import app
 from wuvt import auth_manager
 from wuvt import db
+from wuvt.auth import login_required, login_user, logout_user
 from wuvt.auth.blueprint import bp
 from wuvt.auth.models import User, UserRole, GroupRole
+from wuvt.auth.view_utils import log_auth_success, log_auth_failure
 from wuvt.view_utils import redirect_back, is_safe_url
 
 
@@ -55,12 +56,16 @@ def get_user_roles(user, user_groups=None):
     return list(user_roles)
 
 
+@bp.route('/oidc_callback')
 def oidc_callback():
+    if app.config['AUTH_METHOD'] != 'oidc':
+        abort(404)
+
     response = auth_manager.oidc._oidc_callback()
 
     id_token = getattr(g, 'oidc_id_token', None)
     if id_token is None:
-        auth_manager.log_auth_failure("oidc", None, request)
+        log_auth_failure("oidc", None)
         abort(401)
 
     if 'email' not in id_token:
@@ -73,10 +78,9 @@ def oidc_callback():
     if 'groups' in id_token:
         user_groups = id_token['groups']
 
-    login_user(user)
-    session['access'] = get_user_roles(user, user_groups)
+    login_user(user, get_user_roles(user, user_groups))
 
-    auth_manager.log_auth_success("oidc", user.username, request)
+    log_auth_success("oidc", user.username)
     return response
 
 
@@ -99,15 +103,12 @@ def login():
         user = User.query.filter(
             User.username == request.form['username']).first()
         if user and user.check_password(request.form['password']):
-            login_user(user)
-            session['access'] = get_user_roles(user)
+            login_user(user, get_user_roles(user))
 
-            auth_manager.log_auth_success("local", user.username, request)
+            log_auth_success("local", user.username)
             return redirect_back('admin.index')
         else:
-            auth_manager.log_auth_failure("local",
-                                          request.form['username'],
-                                          request)
+            log_auth_failure("local", request.form['username'])
             errors.append("Invalid username or password.")
 
     return render_template('auth/login.html',
