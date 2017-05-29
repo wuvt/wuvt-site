@@ -20,23 +20,29 @@
         </a>
     </div>
 
-    <div class="form-group{% if 'title' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.title.errors|length > 0 %} has-error{% endif %}">
         <label for="id_title" class="col-sm-3 control-label">Title</label>
         <div class="col-sm-9">
             <input type="text" name="title" id="id_title"
                    value="{{ article.title or "" }}" required="required" class="form-control" />
+{% for error in form.title.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group{% if 'slug' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.slug.errors|length > 0 %} has-error{% endif %}">
         <label for="id_slug" class="col-sm-3 control-label">Slug</label>
         <div class="col-sm-9">
             <input type="text" name="slug" id="id_slug" name="title"
                    value="{{ article.slug or "" }}" class="form-control" />
+{% for error in form.slug.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
 
-    <div class="form-group{% if 'category_id' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.category_id.errors|length > 0 %} has-error{% endif %}">
         <label for="id_category_id" class="col-sm-3 control-label">Category</label>
         <div class="col-sm-9">
             <select name="category_id" class="form-control">
@@ -44,9 +50,12 @@
                 <option{% if cat.id == article.category_id %} selected="selected"{% endif %} value="{{ cat.id }}">{{ cat.name }}</option>
                 {% endfor %}
             </select>
+{% for error in form.category_id.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
-    <div class="form-group{% if 'author_id' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.author_id.errors|length > 0 %} has-error{% endif %}">
         <label for="id_author_id" class="col-sm-3 control-label">Author</label>
         <div class="col-sm-9">
             <select name="author_id" class="form-control">
@@ -54,9 +63,12 @@
                 <option{% if author.id == article.author_id %} selected="selected"{% endif %} value="{{ author.id }}">{{ author.name }} ({{ author.username }})</option>
                 {% endfor %}
             </select>
+{% for error in form.author_id.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
-    <div class="form-group{% if 'published' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.published.errors|length > 0 %} has-error{% endif %}">
         <div class="col-sm-3">
         </div>
         <div class="col-sm-9 checkbox">
@@ -64,9 +76,12 @@
                 <input type="checkbox" name="published" id="id_published" value="{{ article.published }}" {% if article.published %}checked{% endif %} />
                 <strong>Publish article</strong>
             </label>
+{% for error in form.published.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
-    <div class="form-group{% if 'front_page' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.front_page.errors|length > 0 %} has-error{% endif %}">
         <div class="col-sm-3">
         </div>
         <div class="col-sm-9 checkbox">
@@ -74,25 +89,36 @@
                 <input type="checkbox" name="front_page" id="id_front_page" value="{{ article.front_page }}" {% if article.front_page %}checked{% endif %} />
                 <strong>Put article on front page</strong>
             </label>
+{% for error in form.front_page.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
         </div>
     </div>
-    <div class="form-group{% if 'summary' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.summary.errors|length > 0 %} has-error{% endif %}">
         <label for="id_summary" class="col-sm-3 control-label">Summary</label>
         <div class="col-sm-9">
             <textarea type="text" name="summary" id="id_summary"
                       required="required" rows=12 class="form-control">{{ article.summary or "" }}</textarea>
-            {% if config.SANITIZE_SUMMARY -%}
+{% for error in form.summary.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
+{% if config.SANITIZE_SUMMARY %}
             <p class="help-block">Some tags, like iframe, object, and table,
             will be stripped from the summary to improve site performance.
             Please use the content field for those.</p>
-            {% endif -%}
+{% endif %}
         </div>
     </div>
-    <div class="form-group{% if 'content' in error_fields %} has-error{% endif %}">
+    <div class="form-group{% if form.content.errors|length > 0 %} has-error{% endif %}">
         <label for="id_content" class="col-sm-3 control-label">Content</label>
         <div class="col-sm-9">
             <textarea type="text" name="content" id="id_content"
-                      required="required" rows=25 class="form-control">{{ article.content or "" }}</textarea>
+                  required="required" rows="25"
+                  class="form-control">{{ article.content or "" }}</textarea>
+{% for error in form.content.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
+        </div>
     </div>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">

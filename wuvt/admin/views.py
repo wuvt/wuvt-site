@@ -6,13 +6,15 @@ from flask import abort, flash, jsonify, make_response, render_template, \
 from werkzeug import secure_filename
 
 from wuvt import app, auth_manager, cache, db, redis_conn
-from wuvt.auth import login_required
+from wuvt.auth import current_user, login_required
 from wuvt.admin import bp
 from wuvt.auth.models import User
 from wuvt.blog import list_categories
-from wuvt.blog.models import Category, Article
+from wuvt.blog.forms import ArticleForm
+from wuvt.blog.models import Category, Article, ArticleRevision
 from wuvt.donate.models import Order
-from wuvt.models import Page
+from wuvt.forms import PageForm
+from wuvt.models import Page, PageRevision
 from wuvt.views import get_menus
 from wuvt.view_utils import slugify
 
@@ -199,56 +201,46 @@ def article_draft(art_id):
 @auth_manager.check_access('admin', 'content')
 def page_edit(page_id):
     page = Page.query.get_or_404(page_id)
-    error_fields = []
+    form = PageForm()
+    if request.method == 'POST' and form.validate():
+        slug = form.slug.data
+        if len(slug) <= 0:
+            slug = slugify(form.title.data)
 
-    if request.method == 'POST':
-        # Title
-        title = request.form.get('title', "").strip()
-        if len(title) <= 0:
-            error_fields.append('title')
+        # ensure slug is unique, add - until it is iff we are changing it
+        if slug != page.slug:
+            while Page.query.filter_by(slug=slug).count() > 0:
+                slug += '-'
 
-        # Slug
-        slug = request.form.get('slug', "")
-        if slug != "":
-            slug = slugify(slug)
-            if len(slug) <= 0 or slug is None:
-                error_fields.append('slug')
-        elif len(slug) <= 0 and len(title) > 0:
-            slug = slugify(title)
+        page.slug = slug
+        page.name = form.title.data
+        page.menu = form.section.data
+        page.published = form.published.data
+        page.update_content(form.content.data)
 
-        # Menu
-        section = request.form['section'].strip()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-        published = request.form.get('published', False)
-        if published is not False:
-            published = True
+        cache.set('menus', get_menus())
 
-        content = request.form.get('content', "").strip()
+        revision = PageRevision(
+            page_id=page.id,
+            author_id=current_user.id,
+            name=form.title.data,
+            content=form.content.data)
+        db.session.add(revision)
 
-        if len(error_fields) <= 0:
-            # ensure slug is unique, add - until it is iff we are changing it
-            if slug != page.slug:
-                while Page.query.filter_by(slug=slug).count() > 0:
-                    slug += '-'
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-            page.slug = slug
-            page.name = title
-            page.menu = section
-            page.published = published
-            page.content = content
-
-            page.update_content(content)    # render HTML
-
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
-            cache.set('menus', get_menus())
-
-            flash("Page Saved")
-            return redirect(url_for('admin.pages'))
+        flash("Page Saved")
+        return redirect(url_for('admin.pages'))
 
     elif request.method == 'DELETE':
         db.session.delete(page)
@@ -260,224 +252,170 @@ def page_edit(page_id):
             '_csrf_token': app.jinja_env.globals['csrf_token'](),
         })
 
-    sections = app.config['NAV_TOP_SECTIONS']
-
     return render_template('admin/page_edit.html',
-                           sections=sections,
+                           sections=app.config['NAV_TOP_SECTIONS'],
                            page=page,
-                           error_fields=error_fields)
+                           form=form)
 
 
 @bp.route('/page/add', methods=['GET', 'POST'])
 @auth_manager.check_access('admin')
 def page_add():
-    error_fields = []
+    form = PageForm()
+    if form.is_submitted() and form.validate():
+        slug = form.slug.data
+        if len(slug) <= 0:
+            slug = slugify(form.title.data)
 
-    if request.method == 'POST':
-        # Title
-        title = request.form.get('title', "").strip()
-        if len(title) <= 0:
-            error_fields.append('title')
+        # ensure slug is unique, add - until it is
+        while Page.query.filter_by(slug=slug).count() > 0:
+            slug += '-'
 
-        # Slug
-        slug = request.form.get('slug', "")
-        if slug != "":
-            slug = slugify(slug)
-            if len(slug) <= 0 or slug is None:
-                error_fields.append('slug')
-        elif len(slug) <= 0 and len(title) > 0:
-            slug = slugify(title)
+        page = Page(
+            name=form.title.data,
+            slug=slug,
+            content=form.content.data,
+            published=form.published.data,
+            menu=form.section.data)
+        db.session.add(page)
 
-        # Menu
-        section = request.form['section'].strip()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-        published = request.form.get('published', False)
-        if published is not False:
-            published = True
+        cache.set('menus', get_menus())
 
-        content = request.form.get('content', "").strip()
+        revision = PageRevision(
+            page_id=page.id,
+            author_id=current_user.id,
+            name=form.title.data,
+            content=form.content.data)
+        db.session.add(revision)
 
-        if len(error_fields) <= 0:
-            # ensure slug is unique, add - until it is
-            while Page.query.filter_by(slug=slug).count() > 0:
-                slug += '-'
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-            page = Page(title, slug, content, published, section)
-
-            db.session.add(page)
-
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
-            cache.set('menus', get_menus())
-
-            flash("Page Saved")
-            return redirect(url_for('admin.pages'))
-
-    sections = app.config['NAV_TOP_SECTIONS']
+        flash("Page Saved")
+        return redirect(url_for('admin.pages'))
 
     return render_template('admin/page_add.html',
-                           sections=sections,
-                           error_fields=error_fields)
+                           sections=app.config['NAV_TOP_SECTIONS'],
+                           form=form)
 
 
 @bp.route('/article/add', methods=['GET', 'POST'])
 @auth_manager.check_access('admin', 'content')
 def article_add():
-    error_fields = []
-    # article = Article()
+    form = ArticleForm()
+    if form.is_submitted() and form.validate():
+        slug = form.slug.data
+        if len(slug) <= 0:
+            slug = slugify(form.title.data)
 
-    if request.method == 'POST':
-        # Title
-        title = request.form.get('title', "").strip()
-        if len(title) <= 0:
-            error_fields.append('title')
+        # ensure slug is unique, add - until it is
+        while Article.query.filter_by(slug=slug).count() > 0:
+            slug += '-'
 
-        # Slug
-        slug = request.form.get('slug', "")
-        if slug != "":
-            slug = slugify(slug)
-            if len(slug) <= 0 or slug is None:
-                error_fields.append('slug')
-        elif len(slug) <= 0 and len(title) > 0:
-            slug = slugify(title)
+        article = Article(
+            title=form.title.data,
+            slug=slug,
+            category_id=form.category_id.data,
+            author_id=form.author_id.data,
+            summary=form.summary.data,
+            content=form.content.data,
+            published=form.published.data)
+        article.front_page = form.front_page.data
+        if article.published is True:
+            article.datetime = datetime.datetime.utcnow()
 
-        # author_id
-        author_id = request.form['author_id'].strip()
-        if User.query.filter_by(id=author_id).count() != 1:
-            error_fields.append('author_id')
+        article.render_html()
+        db.session.add(article)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-        # Category_id
-        category_id = request.form['category_id'].strip()
-        if Category.query.filter_by(id=category_id).count() != 1:
-            error_fields.append('category_id')
+        revision = ArticleRevision(
+            article_id=article.id,
+            author_id=current_user.id,
+            title=form.title.data,
+            summary=form.summary.data,
+            content=form.content.data)
+        revision.render_html()
+        db.session.add(revision)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-        # datetime (should update to published time)
-        published = request.form.get('published', False)
-        if published is not False:
-            published = True
-        # front page
-        front_page = request.form.get('front_page', False)
-        if front_page is not False:
-            front_page = True
-
-        # summary
-        summary = request.form.get('summary', "").strip()
-        content = request.form.get('content', "").strip()
-
-        if len(error_fields) <= 0:
-            # ensure slug is unique, add - until it is
-            while Article.query.filter_by(slug=slug).count() > 0:
-                slug += '-'
-
-            article = Article(title, slug, category_id, author_id, summary, content, published)
-            # Why can't we just have a parameterless constructor so we don't
-            # have to add constructors for each new field
-            article.front_page = front_page
-            if article.published is True:
-                article.datetime = datetime.datetime.utcnow()
-
-            db.session.add(article)
-            article.render_html()   # markdown to html
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
-            flash("Article Saved")
-            return redirect(url_for('admin.articles'))
+        flash("Article Saved")
+        return redirect(url_for('admin.articles'))
 
     categories = Category.query.all()
     authors = User.query.all()
     return render_template('admin/article_add.html',
                            categories=categories,
                            authors=authors,
-                           error_fields=error_fields)
+                           form=form)
 
 
 @bp.route('/article/<int:art_id>', methods=['GET', 'POST', 'DELETE'])
 @auth_manager.check_access('admin', 'content')
 def article_edit(art_id):
     article = Article.query.get_or_404(art_id)
-    error_fields = []
+    form = ArticleForm()
+    if request.method == 'POST' and form.validate():
+        slug = form.slug.data
+        if len(slug) <= 0:
+            slug = slugify(form.title.data)
 
-    if request.method == 'POST':
-        # Title
-        title = request.form.get('title', "").strip()
-        if len(title) <= 0:
-            error_fields.append('title')
+        # ensure slug is unique, add - until it is (if we're changing the slug)
+        if article.slug != slug:
+            while Article.query.filter(db.and_(
+                    Article.slug == slug,
+                    Article.id != article.id)).count() > 0:
+                slug += '-'
 
-        # Slug
-        slug = request.form.get('slug', "").strip()
-        if slug != "" or slug != article.slug:
-            slug = slugify(slug)
-            if len(slug) <= 0 or slug is None:
-                error_fields.append('slug')
-        elif len(slug) <= 0 and len(title) > 0:
-            slug = slugify(title)
+        article.title = form.title.data
+        article.slug = slug
+        article.category_id = form.category_id.data
+        article.author_id = form.author_id.data
+        article.published = form.published.data
+        article.summary = form.summary.data
+        article.content = form.content.data
+        article.front_page = form.front_page.data
+        article.render_html()
 
-        # author_id
-        author_id = request.form.get('author_id', "").strip()
-        if User.query.filter_by(id=author_id).count() != 1:
-            error_fields.append('author_id')
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-        # Category_id
-        category_id = request.form.get('category_id', "").strip()
-        if Category.query.filter_by(id=category_id).count() != 1:
-            error_fields.append('category_id')
+        revision = ArticleRevision(
+            article_id=article.id,
+            author_id=current_user.id,
+            title=form.title.data,
+            summary=form.summary.data,
+            content=form.content.data)
+        revision.render_html()
+        db.session.add(revision)
 
-        # datetime (should update to published time)
-        published = request.form.get('published', False)
-        if published is not False:
-            published = True
-        #if article.published is False and published is not None:
-        #    article.datetime = datetime.datetime.utcnow()
-        # front page
-        front_page = request.form.get('front_page', False)
-        if front_page is not False:
-            front_page = True
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
-        # summary
-        summary = request.form.get('summary', "").strip()
-        content = request.form.get('content', "").strip()
-
-        # markdown
-
-        if len(error_fields) <= 0:
-
-            # ensure slug is unique, add - until it is (if we're changing the slug)
-            if article.slug != slug:
-                while Article.query.filter(db.and_(
-                        Article.slug == slug,
-                        Article.id != article.id)).count() > 0:
-                    slug += '-'
-
-            article.title = title
-            article.slug = slug
-            article.category_id = category_id
-            article.author_id = author_id
-            article.published = published
-            article.summary = summary
-            article.content = content
-            article.front_page = front_page
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-            article.render_html()
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
-            flash("Article Saved")
-            return redirect(url_for('admin.articles'))
+        flash("Article Saved")
+        return redirect(url_for('admin.articles'))
     elif request.method == 'DELETE':
         db.session.delete(article)
         try:
@@ -496,7 +434,7 @@ def article_edit(art_id):
                            article=article,
                            categories=categories,
                            authors=authors,
-                           error_fields=error_fields)
+                           form=form)
 
 
 @bp.route('/pages')
