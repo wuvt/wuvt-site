@@ -71,3 +71,44 @@ class Article(db.Model):
 
         if self.content is not None:
             self.html_content = markdown(self.content)
+
+
+class ArticleRevision(db.Model):
+    __tablename__ = "article_revision"
+    id = db.Column(db.Integer, primary_key=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
+    article = db.relationship('Article', backref=db.backref(
+        'article_revision_article',
+        lazy='dynamic'))
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    author = db.relationship('User', backref=db.backref(
+        'article_revision_author',
+        lazy='dynamic'))
+    datetime = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    title = db.Column(db.Unicode(255), nullable=False)
+    summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    html_summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    html_content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+
+    def __init__(self, article_id, author_id, title, summary, content=None):
+        self.article_id = article_id
+        self.author_id = author_id
+        self.title = title
+        self.summary = summary
+        self.content = content
+
+    def render_html(self):
+        if self.summary is not None:
+            self.html_summary = markdown(self.summary)
+
+            if current_app.config['SANITIZE_SUMMARY'] is True:
+                self.html_summary = bleach.clean(
+                    self.html_summary,
+                    tags=SUMMARY_ALLOWED_TAGS,
+                    attributes=SUMMARY_ALLOWED_ATTRIBUTES,
+                    styles=SUMMARY_ALLOWED_STYLES,
+                    strip=True)
+
+        if self.content is not None:
+            self.html_content = markdown(self.content)
