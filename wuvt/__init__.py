@@ -92,7 +92,7 @@ migrate = Migrate(app, db)
 
 from wuvt.auth import AuthManager
 auth_manager = AuthManager()
-auth_manager.redis_conn = redis_conn
+auth_manager.db = db
 auth_manager.init_app(app)
 
 

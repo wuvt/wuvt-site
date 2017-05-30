@@ -1,12 +1,12 @@
 import base64
 import datetime
 import os
-from flask import abort, flash, json, make_response, redirect, request, \
-    session, url_for, _request_ctx_stack
+from flask import abort, flash, make_response, redirect, request, session, \
+    url_for, _request_ctx_stack
 from flask_oidc import OpenIDConnect
 from functools import wraps
 
-from .models import User
+from .models import User, UserSession
 from .mixins import AnonymousUserMixin
 from .blueprint import bp
 from .utils import current_user, current_user_roles, \
@@ -14,7 +14,7 @@ from .utils import current_user, current_user_roles, \
 
 
 class AuthManager(object):
-    def __init__(self, app=None, redis_conn=None):
+    def __init__(self, app=None, db=None):
         self.bp = bp
         self.all_roles = set()
 
@@ -22,8 +22,8 @@ class AuthManager(object):
         self.login_message = u"Please login to access this page."
         self.login_message_category = 'message'
 
-        if redis_conn is not None:
-            self.redis_conn = redis_conn
+        if db is not None:
+            self.db = db
         if app is not None:
             self.init_app(app)
 
@@ -78,16 +78,14 @@ class AuthManager(object):
             ctx.user = AnonymousUserMixin()
             ctx.user_roles = set([])
         else:
-            raw_data = self.redis_conn.get('user_session:{}'.format(
-                session_id))
-            try:
-                data = json.loads(raw_data)
-            except (TypeError, ValueError):
+            now = datetime.datetime.utcnow()
+            user_session = UserSession.query.get(session_id)
+            if now > user_session.login_at and now < user_session.expires:
+                ctx.user = user_session.user
+                ctx.user_roles = user_session.roles
+            else:
                 ctx.user = AnonymousUserMixin()
                 ctx.user_roles = set([])
-            else:
-                ctx.user = self.load_user(data['user_id'])
-                ctx.user_roles = set(data['roles'])
 
     def load_user(self, user_id):
         return User.query.get(user_id)
@@ -121,21 +119,23 @@ class AuthManager(object):
 
     def login_user(self, user, roles):
         session_id = self.generate_session_id()
+
+        user_session = UserSession(
+            session_id=session_id,
+            user_id=user.id,
+            expires=datetime.datetime.utcnow() + self.app.permanent_session_lifetime,
+            user_agent=unicode(request.user_agent),
+            remote_addr=request.remote_addr,
+            roles=roles)
+        self.db.session.add(user_session)
+
+        try:
+            self.db.session.commit()
+        except:
+            self.db.session.rollback()
+            raise
+
         session['user_session_id'] = session_id
-
-        session_data = {
-            'user_id': user.id,
-            'roles': list(roles),
-            'login_at': datetime.datetime.utcnow(),
-            'user_agent': str(request.user_agent),
-            'remote_addr': request.remote_addr,
-        }
-
-        session_key = 'user_session:{}'.format(session_id)
-        self.redis_conn.set(session_key, json.dumps(session_data))
-        self.redis_conn.expire(session_key,
-                               self.app.permanent_session_lifetime)
-
         _request_ctx_stack.top.user = user
         _request_ctx_stack.top.user_roles = roles
         return True
@@ -143,7 +143,14 @@ class AuthManager(object):
     def logout_user(self):
         session_id = session.pop('user_session_id', None)
         if session_id is not None:
-            self.redis_conn.delete('user_session:{}'.format(session_id))
+            user_session = UserSession.query.get(session_id)
+            if user_session is not None:
+                self.db.session.delete(user_session)
+                try:
+                    self.db.session.commit()
+                except:
+                    self.db.session.rollback()
+                    raise
 
         _request_ctx_stack.top.user = None
         _request_ctx_stack.top.user_roles = set([])
