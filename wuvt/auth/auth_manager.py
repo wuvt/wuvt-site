@@ -80,7 +80,8 @@ class AuthManager(object):
         else:
             now = datetime.datetime.utcnow()
             user_session = UserSession.query.get(session_id)
-            if now > user_session.login_at and now < user_session.expires:
+            if user_session is not None and \
+                    now > user_session.login_at and now < user_session.expires:
                 ctx.user = user_session.user
                 ctx.user_roles = user_session.roles
             else:
