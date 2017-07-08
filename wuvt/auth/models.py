@@ -1,7 +1,8 @@
+import datetime
 from wuvt import app
 from wuvt import db
-from flask_login import UserMixin
 from passlib.hash import django_pbkdf2_sha256
+from .mixins import UserMixin
 
 
 class User(db.Model, UserMixin):
@@ -38,6 +39,31 @@ class UserRole(db.Model):
     def __init__(self, user_id, role):
         self.user_id = user_id
         self.role = role
+
+
+class UserSession(db.Model):
+    __tablename__ = "user_session"
+    id = db.Column(db.String(255), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User')
+    login_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    expires = db.Column(db.DateTime)
+    user_agent = db.Column(db.Unicode(512))
+    remote_addr = db.Column(db.Unicode(100))
+    roles_list = db.Column(db.Unicode(1024))
+
+    def __init__(self, session_id, user_id, expires, user_agent, remote_addr,
+                 roles):
+        self.id = session_id
+        self.user_id = user_id
+        self.expires = expires
+        self.user_agent = user_agent
+        self.remote_addr = remote_addr
+        self.roles_list = ','.join(roles)
+
+    @property
+    def roles(self):
+        return set(self.roles_list.split(','))
 
 
 class GroupRole(db.Model):

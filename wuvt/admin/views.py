@@ -3,10 +3,10 @@ import dateutil.parser
 import os
 from flask import abort, flash, jsonify, make_response, render_template, \
         redirect, request, url_for
-from flask_login import current_user, login_required
 from werkzeug import secure_filename
 
 from wuvt import app, auth_manager, cache, db, redis_conn
+from wuvt.auth import current_user, login_required
 from wuvt.admin import bp
 from wuvt.auth.models import User
 from wuvt.blog import list_categories

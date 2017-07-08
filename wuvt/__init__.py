@@ -8,7 +8,6 @@ import humanize
 import os
 import redis
 import defaults
-import session
 import uuid
 
 json_mimetypes = ['application/json']
@@ -83,7 +82,6 @@ if app.config['PROXY_FIX']:
                             num_proxies=app.config['PROXY_FIX_NUM_PROXIES'])
 
 redis_conn = redis.from_url(app.config['REDIS_URL'])
-app.session_interface = session.RedisSessionInterface(redis_conn)
 
 cache = RedisCache(host=redis_conn)
 csrf = CSRFProtect(app)
@@ -92,6 +90,7 @@ migrate = Migrate(app, db)
 
 from wuvt.auth import AuthManager
 auth_manager = AuthManager()
+auth_manager.db = db
 auth_manager.init_app(app)
 
 

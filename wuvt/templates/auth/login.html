@@ -11,9 +11,7 @@
 <form action="{{ url_for('auth.login') }}" method="post" class="form-signin">
     <h1>
         <a href="{{ url_for('blog.index') }}" title="{{ config.STATION_NAME }}">
-            WUVT
-            <span class="sub1">radio for everyone</span>
-            <span class="sub2">90.7 fm</span>
+            {{ config.STATION_NAME }}
         </a>
     </h1>
 
