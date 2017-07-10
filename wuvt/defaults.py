@@ -1,7 +1,6 @@
 DEBUG = False
 # SESSION_COOKIE_SECURE = True
 
-SQLALCHEMY_DATABASE_URI = 'sqlite:////usr/src/app/wuvt.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 REDIS_URL = 'redis://localhost:6379'
 

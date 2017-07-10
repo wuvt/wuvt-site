@@ -4,7 +4,8 @@ FROM python:2
 # temporary database that is stored as part of the image, which you definitely
 # don't want for production.
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+        && apt-get install -y \
             git \
             libcap-dev \
             libjansson-dev \
@@ -14,13 +15,14 @@ RUN apt-get update && apt-get install -y \
             libyaml-dev \
             optipng \
             redis-server \
-            uuid-dev
+            uuid-dev \
+        && pip install --no-cache-dir pip-tools
 
 WORKDIR /usr/src/uwsgi
 
 # prepare uwsgi
-RUN wget -O uwsgi-2.0.14.tar.gz https://github.com/unbit/uwsgi/archive/2.0.14.tar.gz && \
-        tar --strip-components=1 -axvf uwsgi-2.0.14.tar.gz
+RUN wget -O uwsgi-2.0.15.tar.gz https://github.com/unbit/uwsgi/archive/2.0.15.tar.gz && \
+        tar --strip-components=1 -axvf uwsgi-2.0.15.tar.gz
 COPY uwsgi_profile.ini buildconf/wuvt.ini
 
 # build and install uwsgi
@@ -37,19 +39,16 @@ COPY . /usr/src/app
 
 ENV PYTHONPATH /usr/src/app
 ENV FLASK_APP wuvt
+ENV USE_EMBEDDED_DB 1
 
 RUN flask render_images
 
-# create schema and add sample data
-RUN flask initdb --password "Password1!" && flask sampledata
-
 # set permissions and create media directory
 RUN chown www-data:www-data wuvt . && \
-        (chown -f www-data:www-data wuvt/config.py wuvt.db || true ) && \
-        (chmod -f 0600 wuvt/config.py wuvt.db || true) && \
         install -d -o www-data -g www-data /data/media && \
         install -d -o redis -g redis -m 0700 /var/lib/redis && \
         install -d -o redis -g redis -m 0700 /var/run/redis
 
 EXPOSE 8080
-CMD ["uwsgi", "--ini", "uwsgi_docker.ini:dev"]
+ENTRYPOINT ["/usr/src/app/entrypoint-dev.sh"]
+CMD ["uwsgi" , "--ini", "uwsgi_docker.ini:dev"]

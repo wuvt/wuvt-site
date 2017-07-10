@@ -54,6 +54,11 @@ class JSONRequest(Request):
 app = Flask(__name__)
 app.config.from_object(defaults)
 
+# use the value of the SQLALCHEMY_DATABASE_URI environment variable as the
+# default; any value specified in the config will override this
+app.config.setdefault('SQLALCHEMY_DATABASE_URI',
+                      os.getenv('SQLALCHEMY_DATABASE_URI'))
+
 config_path = os.environ.get('APP_CONFIG_PATH', 'config.py')
 if config_path.endswith('.py'):
     app.config.from_pyfile(config_path, silent=True)
