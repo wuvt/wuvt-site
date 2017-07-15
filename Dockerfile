@@ -40,6 +40,6 @@ ENV PYTHONPATH /usr/src/app
 ENV FLASK_APP wuvt
 ENV APP_CONFIG_PATH /data/config/config.py
 
-RUN flask render_images
+RUN python setup.py render_svgs
 
 CMD ["uwsgi", "--ini", "uwsgi_docker.ini"]

@@ -41,7 +41,7 @@ ENV PYTHONPATH /usr/src/app
 ENV FLASK_APP wuvt
 ENV USE_EMBEDDED_DB 1
 
-RUN flask render_images
+RUN python setup.py render_svgs
 
 # set permissions and create media directory
 RUN chown www-data:www-data wuvt . && \
