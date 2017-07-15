@@ -38,7 +38,7 @@ VOLUME ["/data/config", "/data/media", "/data/ssl"]
 EXPOSE 8443
 ENV PYTHONPATH /usr/src/app
 ENV FLASK_APP wuvt
-ENV APP_CONFIG_PATH /data/config/config.py
+ENV APP_CONFIG_PATH /data/config/config.json
 
 RUN python setup.py render_svgs
 

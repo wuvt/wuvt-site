@@ -1,7 +1,7 @@
 FROM python:2
 
 # WARNING: Do not use this Dockerfile for production installs. It creates a
-# temporary database that is stored as part of the image, which you definitely
+# temporary database that is stored in the container, which you definitely
 # don't want for production.
 
 RUN apt-get update \
