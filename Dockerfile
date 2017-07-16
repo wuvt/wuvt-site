@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy application
 ADD migrations /usr/src/app/migrations
 ADD wuvt /usr/src/app/wuvt
-COPY LICENSE README.md uwsgi_docker.ini /usr/src/app/
+COPY LICENSE README.md uwsgi_docker.ini setup.py /usr/src/app/
 
 VOLUME ["/data/config", "/data/media", "/data/ssl"]
 
