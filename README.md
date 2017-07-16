@@ -38,7 +38,9 @@ Now run it:
 docker run --rm -p 9090:8080 wuvt-site:latest
 ```
 
-You can now access the site at http://localhost:9090/
+You can now access the site at <http://localhost:9090/>. An admin user account
+will be created for you; the password is automatically generated and displayed
+when you launch the container.
 
 ### Non-Docker Deployment
 First, install redis. For example, on Debian or Ubuntu:
