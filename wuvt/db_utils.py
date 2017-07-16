@@ -1,7 +1,51 @@
 from wuvt import db
-from wuvt.blog.models import Article
-from wuvt.trackman.models import DJ, Track
 from wuvt.models import Page
+from wuvt.auth.models import User
+from wuvt.blog.models import Article, Category
+from wuvt.trackman.models import DJ, Rotation, Track
+
+
+def initdb(username, password):
+    db.create_all()
+
+    dj = DJ(u"Automation", u"Automation", False)
+    db.session.add(dj)
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
+
+    cats = [Category(u"Events", u"events", True),
+            Category(u"Music Adds", u"music-adds", True),
+            Category(u"Programming", u"programming", True),
+            Category(u"Updates", u"station-updates", True),
+            Category(u"Woove", u"woove", True)]
+    for cat in cats:
+        db.session.add(cat)
+
+    # Create the first account
+    user = User(unicode(username), unicode(username),
+                u"{0}@localhost".format(username))
+    user.set_password(unicode(password))
+    db.session.add(user)
+
+    # The first Rotation is always the default
+    db.session.add(Rotation(u"None"))
+    map(db.session.add, map(Rotation, [u"Metal", u"New Music", u"Jazz", u"Rock", u"Americana"]))
+
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
+
+
+def add_sample_data():
+    add_sample_articles()
+    add_sample_pages()
+    add_sample_djs()
+    add_sample_tracks()
 
 
 def add_sample_articles():

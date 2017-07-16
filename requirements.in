@@ -1,0 +1,27 @@
+bleach
+celery
+click
+Flask
+Flask-Migrate
+flask-oidc
+Flask-RESTful
+Flask-SQLAlchemy
+Flask-WTF
+humanize
+Markdown
+netaddr
+passlib
+psycopg2
+pyasn1
+pyasn1-modules
+PyMySQL
+python-dateutil
+python-editor
+python-redis-lock
+pytz
+redis
+requests
+SQLAlchemy-Utils
+stripe
+Unidecode
+-e git+https://github.com/wuvt/python-musicbrainzngs#egg=musicbrainzngs
