@@ -2,7 +2,7 @@ import dateutil.parser
 from flask import session
 from flask_restful import abort
 from wuvt import db
-from wuvt.trackman import models
+from wuvt.trackman import models, playlists_cache
 from wuvt.trackman.forms import AirLogForm, AirLogEditForm
 from .base import TrackmanOnAirResource
 
@@ -45,6 +45,7 @@ class AirLog(TrackmanOnAirResource):
             db.session.rollback()
             raise
 
+        playlists_cache.clear()
         return {'success': True}
 
     def post(self, airlog_id):
@@ -112,6 +113,7 @@ class AirLog(TrackmanOnAirResource):
             db.session.rollback()
             raise
 
+        playlists_cache.clear()
         return {'success': True}
 
 
@@ -168,6 +170,7 @@ class AirLogList(TrackmanOnAirResource):
             db.session.rollback()
             raise
 
+        playlists_cache.clear()
         return {
             'success': True,
             'airlog_id': airlog.id,

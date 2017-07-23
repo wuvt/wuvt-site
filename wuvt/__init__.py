@@ -172,6 +172,14 @@ def init_app():
     app.register_blueprint(trackman.bp)
     app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
     app.register_blueprint(trackman.api_bp, url_prefix='/trackman/api')
+    trackman.playlists_cache.init_app(app, config={
+        'CACHE_TYPE': "redis",
+        'CACHE_REDIS_URL': app.config['REDIS_URL'],
+    })
+    trackman.charts_cache.init_app(app, config={
+        'CACHE_TYPE': "redis",
+        'CACHE_REDIS_URL': app.config['REDIS_URL'],
+    })
 
     from wuvt import cli
     from wuvt import models

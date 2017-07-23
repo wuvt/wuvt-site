@@ -10,6 +10,11 @@ from .v1.djset import DJSet, DJSetList
 from .v1.track import Track, TrackReport, TrackSearch, TrackAutoComplete, \
     TrackList
 from .v1.tracklog import TrackLog, TrackLogList
+from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
+    DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, DJVinylSpinCharts
+from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
+    PlaylistsByDay, PlaylistDJs, PlaylistAllDJs, PlaylistsByDJ, Playlist, \
+    PlaylistTrack
 
 
 api = Api(api_bp)
@@ -27,6 +32,37 @@ api.add_resource(TrackLogList, '/tracklog')
 api.add_resource(AutologoutControl, '/autologout')
 api.add_resource(AirLog, '/airlog/edit/<int:airlog_id>')
 api.add_resource(AirLogList, '/airlog')
+api.add_resource(Charts, '/charts')
+api.add_resource(AlbumCharts,
+                 '/charts/albums',
+                 '/charts/albums/<string:period>',
+                 '/charts/albums/<string:period>/<int:year>',
+                 '/charts/albums/<string:period>/<int:year>/<int:month>')
+api.add_resource(DJAlbumCharts, '/charts/dj/<int:dj_id>/albums')
+api.add_resource(ArtistCharts,
+                 '/charts/artists',
+                 '/charts/artists/<string:period>',
+                 '/charts/artists/<string:period>/<int:year>',
+                 '/charts/artists/<string:period>/<int:year>/<int:month>')
+api.add_resource(DJArtistCharts, '/charts/dj/<int:dj_id>/artists')
+api.add_resource(TrackCharts,
+                 '/charts/tracks',
+                 '/charts/tracks/<string:period>',
+                 '/charts/tracks/<string:period>/<int:year>',
+                 '/charts/tracks/<string:period>/<int:year>/<int:month>')
+api.add_resource(DJTrackCharts, '/charts/dj/<int:dj_id>/tracks')
+api.add_resource(DJSpinCharts, '/charts/dj/spins')
+api.add_resource(DJVinylSpinCharts, '/charts/dj/vinyl_spins')
+api.add_resource(NowPlaying, '/now_playing')
+api.add_resource(Last15Tracks, '/playlists/last15')
+api.add_resource(LatestTrack, '/playlists/latest_track')
+api.add_resource(PlaylistsByDay,
+                 '/playlists/date/<int:year>/<int:month>/<int:day>')
+api.add_resource(PlaylistDJs, '/playlists/dj')
+api.add_resource(PlaylistAllDJs, '/playlists/dj/all')
+api.add_resource(PlaylistsByDJ, '/playlists/dj/<int:dj_id>')
+api.add_resource(Playlist, '/playlists/set/<int:set_id>')
+api.add_resource(PlaylistTrack, '/playlists/track/<int:track_id>')
 
 
 @api.representation('application/json')

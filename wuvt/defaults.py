@@ -2,7 +2,7 @@ DEBUG = False
 # SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-REDIS_URL = 'redis://localhost:6379'
+REDIS_URL = 'redis://localhost:6379/0'
 
 POSTS_PER_PAGE = 5
 ARTISTS_PER_PAGE = 500
