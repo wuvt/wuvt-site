@@ -91,6 +91,6 @@ class PlaylistTrack(PlaylistResource):
         tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
             order_by(TrackLog.played).all()
 
-        data = track.serialize()
+        data = track.api_serialize()
         data['plays'] = [tl.api_serialize() for tl in tracklogs]
         return data

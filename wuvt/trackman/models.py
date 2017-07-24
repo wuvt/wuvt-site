@@ -152,7 +152,7 @@ class TrackLog(db.Model):
         return {
             'tracklog_id': self.id,
             'track_id': self.track_id,
-            'track': Track.query.get(self.track_id).serialize(),
+            'track': self.track.serialize(),
             'played': self.played,
             'djset': self.djset_id,
             'dj_id': self.dj_id,
@@ -174,7 +174,7 @@ class TrackLog(db.Model):
         return {
             'id': self.id,
             'track_id': self.track_id,
-            'track': self.track.serialize(),
+            'track': self.track.api_serialize(),
             'played': self.played,
             'djset_id': self.djset_id,
             'djset': self.djset.serialize(),
@@ -217,6 +217,20 @@ class Track(db.Model):
             'album': self.album,
             'label': self.label,
             'added': str(self.added),
+            'artist_mbid': self.artist_mbid,
+            'recording_mbid': self.recording_mbid,
+            'release_mbid': self.release_mbid,
+            'releasegroup_mbid': self.releasegroup_mbid,
+        }
+
+    def api_serialize(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'artist': self.artist,
+            'album': self.album,
+            'label': self.label,
+            'added': self.added,
             'artist_mbid': self.artist_mbid,
             'recording_mbid': self.recording_mbid,
             'release_mbid': self.release_mbid,
