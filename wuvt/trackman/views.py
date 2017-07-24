@@ -2,25 +2,44 @@
 
 from flask import abort, current_app, jsonify, render_template, redirect, \
         request, url_for, Response
+from flask_restful import Resource
+from collections import Mapping
 import datetime
 import re
 from werkzeug.contrib.atom import AtomFeed
 
-from .. import cache, db
+from .. import db
 from ..view_utils import sse_response
-from . import bp, charts
-from .lib import get_current_tracklog, serialize_trackinfo
-from .models import DJ, DJSet, Track, TrackLog
+from . import bp
+from .models import DJSet, Track, TrackLog
 from .view_utils import make_external, list_archives
+from .api.v1 import charts, playlists
+
+
+def call_api(resource, method, *args, **kwargs):
+    if not isinstance(resource, Resource):
+        resource = resource()
+
+    # Taken from flask
+    #noinspection PyUnresolvedReferences
+    meth = getattr(resource, method.lower(), None)
+    if meth is None and method == 'HEAD':
+        meth = getattr(resource, 'get', None)
+    assert meth is not None, 'Unimplemented method %r' % method
+
+    if isinstance(resource.method_decorators, Mapping):
+        decorators = resource.method_decorators.get(method.lower(), [])
+    else:
+        decorators = resource.method_decorators
+
+    for decorator in decorators:
+        meth = decorator(meth)
+
+    return meth(*args, **kwargs)
 
 
 def trackinfo():
-    data = cache.get('trackman_now_playing')
-    if data is None:
-        data = serialize_trackinfo(get_current_tracklog())
-        cache.set('trackman_now_playing', data)
-
-    return data
+    return call_api(playlists.LatestTrack, 'GET')
 
 
 #############################################################################
@@ -30,20 +49,21 @@ def trackinfo():
 
 @bp.route('/last15')
 def last15():
-    tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
-
     if request.wants_json():
+        tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
         return jsonify({
             'tracks': [t.full_serialize() for t in tracks],
         })
 
-    return render_template('last15.html', tracklogs=tracks,
+    result = call_api(playlists.Last15Tracks, 'GET')
+    return render_template('last15.html', tracklogs=result['tracks'],
                            feedlink=url_for('.last15_feed'))
 
 
 @bp.route('/last15.atom')
 def last15_feed():
-    tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
+    result = call_api(playlists.Last15Tracks, 'GET')
+    tracks = result['tracks']
     feed = AtomFeed(
         u"{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
         feed_url=request.url,
@@ -52,19 +72,19 @@ def last15_feed():
     for tracklog in tracks:
         feed.add(
             u"{artist}: '{title}'".format(
-                artist=tracklog.track.artist,
-                title=tracklog.track.title),
+                artist=tracklog['track']['artist'],
+                title=tracklog['track']['title']),
             u"'{title}' by {artist} on {album} spun by {dj}".format(
-                album=tracklog.track.album,
-                artist=tracklog.track.artist,
-                title=tracklog.track.title,
-                dj=tracklog.dj.airname),
+                album=tracklog['track']['album'],
+                artist=tracklog['track']['artist'],
+                title=tracklog['track']['title'],
+                dj=tracklog['dj']['airname']),
             url=make_external(url_for('.playlist',
-                                      set_id=tracklog.djset_id,
-                                      _anchor="t{}".format(tracklog.id))),
-            author=tracklog.dj.airname,
-            updated=tracklog.played,
-            published=tracklog.played)
+                                      set_id=tracklog['djset_id'],
+                                      _anchor="t{}".format(tracklog['id']))),
+            author=tracklog['dj']['airname'],
+            updated=tracklog['played'],
+            published=tracklog['played'])
 
     return feed.get_response()
 
@@ -163,44 +183,38 @@ def playlists_date_data():
 
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
-    dtstart = datetime.datetime(year, month, day, 0, 0, 0)
-    dtend = datetime.datetime(year, month, day, 23, 59, 59)
-    sets = DJSet.query.\
-        filter(DJSet.dtstart >= dtstart, DJSet.dtstart <= dtend).\
-        all()
-
-    status_code = 200
-    if len(sets) <= 0:
-        # return 404 if no playlists found
-        status_code = 404
+    results, status_code = call_api(
+        playlists.PlaylistByDay, 'GET', year, month, day)
 
     now = datetime.datetime.utcnow()
-    if dtstart > now:
-        abort(404)
 
-    next_date = dtstart + datetime.timedelta(hours=24)
+    next_date = results['start'] + datetime.timedelta(hours=24)
     next_url = url_for('.playlists_date_sets', year=next_date.year,
                        month=next_date.month, day=next_date.day)
     if next_date > now:
         next_url = None
 
-    if dtstart < now:
-        prev_date = dtstart - datetime.timedelta(hours=24)
+    if results['start'] < now:
+        prev_date = results['start'] - datetime.timedelta(hours=24)
         prev_url = url_for('.playlists_date_sets', year=prev_date.year,
                            month=prev_date.month, day=prev_date.day)
     else:
         prev_url = None
 
-    if request.wants_json():
-        return jsonify({
-            'dtstart': dtstart,
-            'sets': [s.serialize() for s in sets],
-            'prev_url': prev_url,
-            'next_url': next_url,
-        }), status_code
+    results.update({
+        'prev_url': prev_url,
+        'next_url': next_url,
+    })
 
-    return render_template('playlists_date_sets.html', date=dtstart, sets=sets,
-                           prev_url=prev_url, next_url=next_url), status_code
+    if request.wants_json():
+        return jsonify(results), status_code
+
+    return render_template(
+        'playlists_date_sets.html',
+        date=results['start'],
+        sets=results['sets'],
+        prev_url=results['prev_url'],
+        next_url=results['next_url']), status_code
 
 
 @bp.route('/playlists/date/jump', methods=['POST'])
@@ -214,39 +228,33 @@ def playlists_date_jump():
 # Playlist Archive (by DJ) {{{
 @bp.route('/playlists/dj')
 def playlists_dj():
-    djs = DJ.query.order_by(DJ.airname).filter(DJ.visible == True)
+    results = call_api(playlists.PlaylistDJs, 'GET')
 
     if request.wants_json():
-        return jsonify({'djs': [dj.serialize() for dj in djs]})
+        return jsonify(results)
 
-    return render_template('playlists_dj_list.html', djs=djs)
+    return render_template('playlists_dj_list.html', djs=results['djs'])
 
 
 @bp.route('/playlists/dj/all')
 def playlists_dj_all():
-    djs = DJ.query.order_by(DJ.airname).all()
+    results = call_api(playlists.PlaylistAllDJs, 'GET')
 
     if request.wants_json():
-        return jsonify({'djs': [dj.serialize() for dj in djs]})
+        return jsonify(results)
 
-    return render_template('playlists_dj_list_all.html', djs=djs)
+    return render_template('playlists_dj_list_all.html', djs=results['djs'])
 
 
 @bp.route('/playlists/dj/<int:dj_id>')
 def playlists_dj_sets(dj_id):
-    dj = DJ.query.get(dj_id)
-    if not dj:
-        abort(404)
-    sets = DJSet.query.filter(DJSet.dj_id == dj_id).order_by(
-        DJSet.dtstart).all()
+    results = call_api(playlists.PlaylistsByDJ, 'GET', dj_id)
 
     if request.wants_json():
-        return jsonify({
-            'dj': dj.serialize(),
-            'sets': [s.serialize() for s in sets],
-        })
+        return jsonify(results)
 
-    return render_template('playlists_dj_sets.html', dj=dj, sets=sets)
+    return render_template('playlists_dj_sets.html',
+                           dj=results['dj'], sets=results['sets'])
 # }}}
 
 
@@ -269,49 +277,27 @@ def charts_albums(period=None, year=None, month=None):
     if period == 'dj' and year is not None:
         return redirect(url_for('.charts_albums_dj', dj_id=year))
 
-    try:
-        start, end = charts.get_range(period, year, month)
-    except ValueError:
-        abort(404)
-
-    results = charts.get(
-        'albums_{0}_{1}'.format(start, end),
-        Track.query.with_entities(
-            Track.artist, Track.album, db.func.count(TrackLog.id)).
-        join(TrackLog).filter(db.and_(
-            TrackLog.dj_id > 1,
-            TrackLog.played >= start,
-            TrackLog.played <= end)).
-        group_by(Track.artist, Track.album).
-        order_by(db.func.count(TrackLog.id).desc()))
+    results = call_api(charts.AlbumCharts, 'GET', period, year, month)
 
     if request.wants_json():
-        return jsonify({
-            'results': [(x[0], x[1], x[2]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_albums.html', start=start, end=end,
-                           results=results)
+    return render_template('chart_albums.html',
+                           start=results['start'],
+                           end=results['end'],
+                           results=results['results'])
 
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/albums')
 def charts_albums_dj(dj_id):
-    dj = DJ.query.get_or_404(dj_id)
-    results = charts.get(
-        'albums_dj_{}'.format(dj_id),
-        Track.query.with_entities(
-            Track.artist, Track.album, db.func.count(TrackLog.id)).
-        join(TrackLog).filter(TrackLog.dj_id == dj.id).
-        group_by(Track.artist, Track.album).
-        order_by(db.func.count(TrackLog.id).desc()))
+    results = call_api(charts.DJAlbumCharts, 'GET', dj_id)
 
     if request.wants_json():
-        return jsonify({
-            'dj': dj.serialize(),
-            'results': [(x[0], x[1], x[2]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_albums_dj.html', dj=dj, results=results)
+    return render_template('chart_albums_dj.html',
+                           dj=results['dj'],
+                           results=results['results'])
 
 
 @bp.route('/playlists/charts/artists')
@@ -322,47 +308,27 @@ def charts_artists(period=None, year=None, month=None):
     if period == 'dj' and year is not None:
         return redirect(url_for('.charts_artists_dj', dj_id=year))
 
-    try:
-        start, end = charts.get_range(period, year, month)
-    except ValueError:
-        abort(404)
-
-    results = charts.get(
-        'artists_{0}_{1}'.format(start, end),
-        Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
-        join(TrackLog).filter(db.and_(
-            TrackLog.dj_id > 1,
-            TrackLog.played >= start,
-            TrackLog.played <= end)).
-        group_by(Track.artist).
-        order_by(db.func.count(TrackLog.id).desc()))
+    results = call_api(charts.ArtistCharts, 'GET', period, year, month)
 
     if request.wants_json():
-        return jsonify({
-            'results': [(x[0], x[1]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_artists.html', start=start, end=end,
-                           results=results)
+    return render_template('chart_artists.html',
+                           start=results['start'],
+                           end=results['end'],
+                           results=results['results'])
 
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/artists')
 def charts_artists_dj(dj_id):
-    dj = DJ.query.get_or_404(dj_id)
-    results = charts.get(
-        'artists_dj_{}'.format(dj_id),
-        Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
-        join(TrackLog).filter(TrackLog.dj_id == dj.id).
-        group_by(Track.artist).
-        order_by(db.func.count(TrackLog.id).desc()))
+    results = call_api(charts.DJArtistCharts, 'GET', dj_id)
 
     if request.wants_json():
-        return jsonify({
-            'dj': dj.serialize(),
-            'results': [(x[0], x[1]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_artists_dj.html', dj=dj, results=results)
+    return render_template('chart_artists_dj.html',
+                           dj=results['dj'],
+                           results=results['results'])
 
 
 @bp.route('/playlists/charts/tracks')
@@ -373,107 +339,59 @@ def charts_tracks(period=None, year=None, month=None):
     if period == 'dj' and year is not None:
         return redirect(url_for('.charts_tracks_dj', dj_id=year))
 
-    try:
-        start, end = charts.get_range(period, year, month)
-    except ValueError:
-        abort(404)
-
-    subquery = TrackLog.query.\
-        with_entities(TrackLog.track_id,
-                      db.func.count(TrackLog.id).label('count')).\
-        filter(TrackLog.dj_id > 1,
-               TrackLog.played >= start,
-               TrackLog.played <= end).\
-        group_by(TrackLog.track_id).subquery()
-    results = charts.get(
-        'tracks_{start}_{end}'.format(start=start, end=end),
-        Track.query.with_entities(Track, subquery.c.count).
-        join(subquery).order_by(db.desc(subquery.c.count)))
+    results = call_api(charts.TrackCharts, 'GET', period, year, month)
 
     if request.wants_json():
-        return jsonify({
-            'results': [(x[0].serialize(), x[1]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_tracks.html', start=start, end=end,
-                           results=results)
+    return render_template('chart_tracks.html',
+                           start=results['start'],
+                           end=results['end'],
+                           results=results['results'])
 
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/tracks')
 def charts_tracks_dj(dj_id):
-    dj = DJ.query.get_or_404(dj_id)
-
-    subquery = TrackLog.query.\
-        with_entities(TrackLog.track_id,
-                      db.func.count(TrackLog.id).label('count')).\
-        filter(TrackLog.dj_id == dj.id).\
-        group_by(TrackLog.track_id).subquery()
-    results = charts.get(
-        'tracks_dj_{}'.format(dj_id),
-        Track.query.with_entities(Track, subquery.c.count).
-        join(subquery).order_by(db.desc(subquery.c.count)))
+    results = call_api(charts.DJTrackCharts, 'GET', dj_id)
 
     if request.wants_json():
-        return jsonify({
-            'dj': dj.serialize(),
-            'results': [(x[0].serialize(), x[1]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_tracks_dj.html', dj=dj, results=results)
+    return render_template('chart_tracks_dj.html',
+                           dj=results['dj'],
+                           results=results['results'])
 
 
 @bp.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
-    subquery = TrackLog.query.\
-        with_entities(TrackLog.dj_id,
-                      db.func.count(TrackLog.id).label('count')).\
-        group_by(TrackLog.dj_id).subquery()
-
-    results = charts.get(
-        'dj_spins',
-        DJ.query.with_entities(DJ, subquery.c.count).
-        join(subquery).filter(DJ.visible == True).
-        order_by(db.desc(subquery.c.count)))
+    results = call_api(charts.DJSpinCharts, 'GET')
 
     if request.wants_json():
-        return jsonify({
-            'results': [(x[0].serialize(), x[1]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_dj_spins.html', results=results)
+    return render_template('chart_dj_spins.html', results=results['results'])
 
 
 @bp.route('/playlists/charts/dj/vinyl_spins')
 def charts_dj_vinyl_spins():
-    subquery = TrackLog.query.\
-        with_entities(TrackLog.dj_id,
-                      db.func.count(TrackLog.id).label('count')).\
-        filter(TrackLog.vinyl == True).\
-        group_by(TrackLog.dj_id).subquery()
-
-    results = charts.get(
-        'dj_vinyl_spins',
-        DJ.query.with_entities(DJ, subquery.c.count).
-        join(subquery).filter(DJ.visible == True).
-        order_by(db.desc(subquery.c.count)))
+    results = call_api(charts.DJVinylSpinCharts, 'GET')
 
     if request.wants_json():
-        return jsonify({
-            'results': [(x[0].serialize(), x[1]) for x in results],
-        })
+        return jsonify(results)
 
-    return render_template('chart_dj_vinyl_spins.html', results=results)
+    return render_template('chart_dj_vinyl_spins.html',
+                           results=results['results'])
 # }}}
 
 
 @bp.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
-    djset = DJSet.query.get_or_404(set_id)
-    tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
-        TrackLog.played).all()
-    archives = list_archives(djset)
-
     if request.wants_json():
+        djset = DJSet.query.get_or_404(set_id)
+        tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
+            TrackLog.played).all()
+        archives = list_archives(djset)
+
         data = djset.serialize()
         data.update({
             'archives': [a[0] for a in archives],
@@ -481,20 +399,24 @@ def playlist(set_id):
         })
         return jsonify(data)
 
-    return render_template('playlist.html', archives=archives, djset=djset,
-                           tracklogs=tracks)
+    results = call_api(playlists.Playlist, 'GET', set_id)
+    return render_template('playlist.html',
+                           archives=results['archives'],
+                           djset=results,
+                           tracklogs=results['tracks'])
 
 
 @bp.route('/playlists/track/<int:track_id>')
 def playlists_track(track_id):
-    track = Track.query.get_or_404(track_id)
-    tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
-        order_by(TrackLog.played).all()
-
     if request.wants_json():
+        track = Track.query.get_or_404(track_id)
+        tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
+            order_by(TrackLog.played).all()
         data = track.serialize()
         data['plays'] = [tl.serialize() for tl in tracklogs]
         return jsonify(data)
 
-    return render_template('playlists_track.html', track=track,
-                           tracklogs=tracklogs)
+    results = call_api(playlists.PlaylistTrack, 'GET', track_id)
+    return render_template('playlists_track.html',
+                           track=results,
+                           tracklogs=results['plays'])
