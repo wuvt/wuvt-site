@@ -75,9 +75,12 @@ class DJSetList(TrackmanResource):
         """
         dj_id = session.get('dj_id', None)
         if dj_id is None:
-            abort(404)
+            abort(403)
 
-        dj = models.DJ.query.get_or_404(dj_id)
+        dj = models.DJ.query.get(dj_id)
+        if dj is None or dj.phone is None or dj.email is None:
+            abort(403,
+                  message="You must complete your DJ profile to continue.")
 
         disable_automation()
 
