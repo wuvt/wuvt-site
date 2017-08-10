@@ -2,8 +2,6 @@
 
 from flask import abort, current_app, jsonify, render_template, redirect, \
         request, url_for, Response
-from flask_restful import Resource
-from collections import Mapping
 import datetime
 import re
 from werkzeug.contrib.atom import AtomFeed
@@ -12,30 +10,8 @@ from .. import db
 from ..view_utils import sse_response
 from . import bp
 from .models import DJSet, Track, TrackLog
-from .view_utils import make_external, list_archives
+from .view_utils import call_api, make_external, list_archives
 from .api.v1 import charts, playlists
-
-
-def call_api(resource, method, *args, **kwargs):
-    if not isinstance(resource, Resource):
-        resource = resource()
-
-    # Taken from flask
-    #noinspection PyUnresolvedReferences
-    meth = getattr(resource, method.lower(), None)
-    if meth is None and method == 'HEAD':
-        meth = getattr(resource, 'get', None)
-    assert meth is not None, 'Unimplemented method %r' % method
-
-    if isinstance(resource.method_decorators, Mapping):
-        decorators = resource.method_decorators.get(method.lower(), [])
-    else:
-        decorators = resource.method_decorators
-
-    for decorator in decorators:
-        meth = decorator(meth)
-
-    return meth(*args, **kwargs)
 
 
 def trackinfo():

@@ -1,6 +1,7 @@
+from collections import Mapping
 from datetime import timedelta
 from flask import current_app, request, session
-from flask_restful import abort
+from flask_restful import abort, Resource
 from functools import wraps
 from urlparse import urljoin
 from .lib import perdelta, renew_dj_lease, check_onair
@@ -58,3 +59,25 @@ def require_onair(f):
         else:
             return f(*args, **kwargs)
     return require_onair_wrapper
+
+
+def call_api(resource, method, *args, **kwargs):
+    if not isinstance(resource, Resource):
+        resource = resource()
+
+    # Taken from flask
+    #noinspection PyUnresolvedReferences
+    meth = getattr(resource, method.lower(), None)
+    if meth is None and method == 'HEAD':
+        meth = getattr(resource, 'get', None)
+    assert meth is not None, 'Unimplemented method %r' % method
+
+    if isinstance(resource.method_decorators, Mapping):
+        decorators = resource.method_decorators.get(method.lower(), [])
+    else:
+        decorators = resource.method_decorators
+
+    for decorator in decorators:
+        meth = decorator(meth)
+
+    return meth(*args, **kwargs)
