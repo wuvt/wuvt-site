@@ -1,7 +1,6 @@
-from flask import json, make_response
+from flask import Blueprint, json, make_response
 from flask_restful import Api
 
-from wuvt.trackman import api_bp
 from .v1.airlog import AirLog, AirLogList
 from .v1.autologout import AutologoutControl
 from .v1.automation import AutomationLog
@@ -17,6 +16,7 @@ from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
     PlaylistTrack
 
 
+api_bp = Blueprint('trackman_api', __name__)
 api = Api(api_bp)
 api.add_resource(AutomationLog, '/automation/log')
 api.add_resource(DJ, '/dj/<int:djset_id>')
