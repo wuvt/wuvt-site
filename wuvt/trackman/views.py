@@ -7,10 +7,9 @@ import re
 from werkzeug.contrib.atom import AtomFeed
 
 from .. import db
-from ..view_utils import sse_response
 from . import bp
 from .models import DJSet, Track, TrackLog
-from .view_utils import call_api, make_external, list_archives
+from .view_utils import call_api, make_external, list_archives, sse_response
 from .api.v1 import charts, playlists
 
 
