@@ -69,7 +69,8 @@ class ResourceCache(Cache):
                 # We specifically skip these self/cls cases since flask-restful
                 # does not provide these to us anyway:
                 # https://github.com/flask-restful/flask-restful/issues/585
-                arg_num += 1
+                # If that ever changes, this should be updated.
+                #arg_num += 1
                 continue
             elif arg_names[i] in kwargs:
                 arg = kwargs[arg_names[i]]

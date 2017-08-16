@@ -81,4 +81,7 @@ def call_api(resource, method, *args, **kwargs):
     for decorator in decorators:
         meth = decorator(meth)
 
+    # The instance is not included in this call to match flask_restful's
+    # behavior. If that ever changes, this should be updated.
+    # See https://github.com/flask-restful/flask-restful/issues/585
     return meth(*args, **kwargs)
