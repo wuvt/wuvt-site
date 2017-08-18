@@ -1,9 +1,12 @@
 from flask import abort, current_app, flash, render_template, redirect, \
-    request, url_for
+    request, send_file, url_for
+import csv
+import dateutil.parser
+import io
 import string
 import uuid
 
-from wuvt import auth_manager, db
+from wuvt import auth_manager, db, format_datetime
 from wuvt.trackman.models import DJ, Track, TrackLog, TrackReport
 from wuvt.trackman.lib import deduplicate_track_by_id
 from wuvt.trackman.musicbrainz import musicbrainzngs
@@ -407,3 +410,38 @@ def track_spins(id):
 
     return render_template('trackman/library/track_spins.html', track=track,
                            edit_from=edit_from, tracklogs=tracklogs)
+
+
+@library_bp.route('/reports')
+@auth_manager.check_access('library')
+def reports():
+    return render_template('trackman/library/reports.html')
+
+
+@library_bp.route('/reports/bmi', methods=['GET', 'POST'])
+@auth_manager.check_access('library')
+def reports_bmi():
+    if request.method == 'POST':
+        start = dateutil.parser.parse(request.form['dtstart'])
+        end = dateutil.parser.parse(request.form['dtend'])
+        end = end.replace(hour=23, minute=59, second=59)
+
+        f = io.BytesIO()
+        writer = csv.writer(f)
+
+        tracks = TrackLog.query.filter(TrackLog.played >= start,
+                                       TrackLog.played <= end).all()
+        for track in tracks:
+            writer.writerow([
+                current_app.config['TRACKMAN_NAME'],
+                format_datetime(track.played),
+                track.track.title.encode("utf8"),
+                track.track.artist.encode("utf8")])
+
+        f.seek(0)
+
+        filename = end.strftime("bmirep-%Y-%m-%d.csv")
+        return send_file(f, mimetype="text/csv", as_attachment=True,
+                         attachment_filename=filename)
+    else:
+        return render_template('trackman/library/reports_bmi.html')

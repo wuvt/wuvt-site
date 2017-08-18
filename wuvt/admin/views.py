@@ -19,7 +19,6 @@ from wuvt.views import get_menus
 from wuvt.view_utils import slugify
 
 from wuvt.admin.auth import views as auth_views
-from wuvt.admin.charts import views as charts_views
 
 
 @bp.route('/')
