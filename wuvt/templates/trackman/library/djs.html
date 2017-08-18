@@ -1,7 +1,7 @@
-{% import "admin/macros.html" as macros %}
+{% import "trackman/library/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Library" %}
-{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
 <ol class="breadcrumb">
@@ -11,18 +11,18 @@
 <h1>Library</h1>
 
 <ul class="nav nav-tabs">
-    <li role="presentation"><a href="{{ url_for('admin.library_index') }}">By Artist</a></li>
-    <li role="presentation"><a href="{{ url_for('admin.library_labels') }}">By Label</a></li>
-    <li role="presentation" class="active"><a href="{{ url_for('admin.library_djs') }}">By DJ</a></li>
-    <li role="presentation"><a href="{{ url_for('admin.library_fixup') }}">Fixup</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.index') }}">By Artist</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.labels') }}">By Label</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('trackman_library.djs') }}">By DJ</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.fixup') }}">Fixup</a></li>
 </ul>
 
 <div class="panel-body">
-    {{ macros.render_pagination(djs, 'admin.library_djs') }}
+    {{ macros.render_pagination(djs, 'trackman_library.djs') }}
 
     <div class="list-group">
         {% for dj in djs.items -%}
-        <a href="{{ url_for('admin.library_dj', id=dj.id) }}" class="list-group-item">
+        <a href="{{ url_for('trackman_library.dj', id=dj.id) }}" class="list-group-item">
             <span class="badge">
                 {%- if dj.visible -%}
                 Active
@@ -37,6 +37,6 @@
         {% endfor -%}
     </div>
 
-    {{ macros.render_pagination(djs, 'admin.library_djs') }}
+    {{ macros.render_pagination(djs, 'trackman_library.djs') }}
 </div>
 {% endblock %}

@@ -1,0 +1,71 @@
+{% import "trackman/library/macros.html" as macros %}
+{% extends "admin/base.html" %}
+{% set page_title="Similar Tracks: " + track.artist + " - " + track.title %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('trackman_library.index') }}">Library</a></li>
+    {% if edit_from == 'label' %}
+    <li><a href="{{ url_for('trackman_library.label', label=track.label) }}">Label: {{ track.label }}</a></li>
+    {% else %}
+    <li><a href="{{ url_for('trackman_library.artist', artist=track.artist) }}">Artist: {{ track.artist }}</a></li>
+    <li><a href="{{ url_for('trackman_library.artist', artist=track.artist) }}">Album: {{ track.album }}</a></li>
+    {% endif %}
+    <li class="active">{{ track.title }}</li>
+</ol>
+
+<h1>Similar Tracks: {{ track.artist }} - {{ track.title }}</h1>
+
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="{{ url_for('trackman_library.track', id=track.id, from=edit_from) }}">Track Info</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.track_musicbrainz', id=track.id, from=edit_from) }}">MusicBrainz Search</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('trackman_library.track_similar', id=track.id, from=edit_from) }}">Similar Tracks</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.track_spins', id=track.id, from=edit_from) }}">Spins</a></li>
+</ul>
+
+<div class="panel-body">
+{{ macros.render_pagination(similar_tracks, 'trackman_library.track_similar', id=track.id, from=edit_from) }}
+<form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+    <table class="table table-striped table-hover">
+        <tr>
+            <th></th>
+            <th>Artist</th>
+            <th>Title</th>
+            <th>Album</th>
+            <th>Label</th>
+        </tr>
+
+        <tr class="active">
+            <td></td>
+            <td>{{ track.artist }}</td>
+            <td>{{ track.title }}</td>
+            <td>{{ track.album }}</td>
+            <td>{{ track.label }}</td>
+        </tr>
+
+        {% for similar in similar_tracks.items if similar.id != track.id -%}
+        <tr>
+            <td><input type="checkbox" name="merge[]" value="{{ similar.id }}" /></td>
+            <td><a href="{{ url_for('trackman_library.artist', artist=similar.artist) }}">{{ similar.artist }}</a></td>
+            <td><a href="{{ url_for('trackman_library.track', id=similar.id) }}">{{ similar.title }}</a></td>
+            <td>{{ similar.album }}</td>
+            <td>{{ similar.label }}</td>
+        </tr>
+        {% endfor -%}
+
+        <tr>
+            <td colspan="5">
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-ok"></span>
+                    Merge
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+{{ macros.render_pagination(similar_tracks, 'trackman_library.track_similar', id=track.id, from=edit_from) }}
+</div>
+
+{% endblock %}
