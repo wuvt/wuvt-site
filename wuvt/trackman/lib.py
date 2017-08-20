@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from flask import current_app, json
 from redis_lock import Lock
 
-from .. import cache, db, redis_conn
-from . import mail
+from .. import db, redis_conn
+from . import mail, playlists_cache
 from .models import AirLog, Track, TrackLog, DJ, DJSet
 
 
@@ -51,6 +51,7 @@ def logout_all(send_email=False):
         db.session.rollback()
         raise
 
+    playlists_cache.clear()
     redis_conn.publish('trackman_dj_live', json.dumps({
         'event': "session_end",
     }))
@@ -73,6 +74,7 @@ def logout_all_except(dj_id):
         db.session.rollback()
         raise
 
+    playlists_cache.clear()
     return current_djset
 
 
@@ -100,6 +102,7 @@ def disable_automation():
                     except:
                         db.session.rollback()
                         raise
+                    playlists_cache.clear()
                 else:
                     current_app.logger.warning(
                         "Trackman: The provided automation set ({0}) was not "
@@ -122,7 +125,7 @@ def enable_automation():
             except:
                 db.session.rollback()
                 raise
-
+            playlists_cache.clear()
 
         current_app.logger.info("Trackman: Automation enabled with DJSet.id "
                                 "= {}".format(automation_set.id))
@@ -173,7 +176,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         db.session.rollback()
         raise
 
-    cache.set('trackman_now_playing', serialize_trackinfo(tracklog))
+    playlists_cache.clear()
     redis_conn.publish('trackman_live', json.dumps({
         'event': "track_change",
         'tracklog': tracklog.full_serialize(),
@@ -220,7 +223,7 @@ def get_current_tracklog():
 def fixup_current_track(event="track_edit"):
     tracklog = get_current_tracklog()
 
-    cache.set('trackman_now_playing', serialize_trackinfo(tracklog))
+    playlists_cache.clear()
     redis_conn.publish('trackman_live', json.dumps({
         'event': event,
         'tracklog': tracklog.full_serialize(),
@@ -260,6 +263,8 @@ def merge_duplicate_tracks(*args, **kwargs):
             except:
                 db.session.rollback()
                 raise
+
+        playlists_cache.clear()
 
     return count, track_id
 
@@ -344,6 +349,7 @@ def autofill_na_labels():
                     db.session.rollback()
                     raise
 
+            playlists_cache.clear()
             current_app.logger.info(
                 "Trackman: Found a track with a label for track ID {0:d}, "
                 "merged into {1:d}".format(na_track.id, other_track.id))
@@ -379,6 +385,7 @@ def prune_empty_djsets():
         db.session.rollback()
         raise
 
+    playlists_cache.clear()
     current_app.logger.debug("Trackman: Removed {} empty DJSets.".format(
         empty.count()))
 
@@ -428,6 +435,7 @@ def find_or_add_track(track):
         except:
             db.session.rollback()
             raise
+        playlists_cache.clear()
         return track
     else:
         return match

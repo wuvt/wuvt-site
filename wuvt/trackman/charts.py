@@ -1,11 +1,9 @@
 import datetime
 import dateutil
 import pytz
-from .. import cache
 from .models import TrackLog
 
 CHART_PER_PAGE = 250
-CHART_TTL = 14400
 
 
 def get_range(period=None, year=None, month=None, week=None):
@@ -70,8 +68,20 @@ def get_range(period=None, year=None, month=None, week=None):
 
 
 def get(cache_key, query, limit=CHART_PER_PAGE):
-    results = cache.get('charts:' + cache_key)
-    if results is None:
-        results = list(query.limit(limit))
-        cache.set('charts:' + cache_key, results, timeout=CHART_TTL)
+    results = []
+    ranking = 0
+    last_value = None
+    increment = 1
+
+    for result in query.limit(limit):
+        # calculate an appropriate ranking for each result
+        # rankings will be tied for results that have the same value
+        if result[-1] == last_value:
+            increment += 1
+        else:
+            last_value = result[-1]
+            ranking += increment
+            increment = 1
+        results.append(result + (ranking,))
+
     return results

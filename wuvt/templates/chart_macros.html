@@ -1,7 +1,4 @@
 {% macro render_chart_albums(results) %}
-{% set ranking = 0 %}
-{% set last_spins = -1 %}
-{% set increment = 1 %}
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -10,14 +7,7 @@
         <th class="text-right">Spins</th>
     </thead>
     <tbody>
-    {% for artist, album, spins in results %}
-        {% if spins == last_spins %}
-            {% set increment = increment + 1 %}
-        {% else %}
-            {% set last_spins = spins %}
-            {% set ranking = ranking + increment %}
-            {% set increment = 1 %}
-        {% endif %}
+    {% for artist, album, spins, ranking in results %}
         <tr>
             <td>{{ ranking }}</td>
             <td>{{ artist }}</td>
@@ -30,9 +20,6 @@
 {% endmacro %}
 
 {% macro render_chart_artists(results) %}
-{% set ranking = 0 %}
-{% set last_spins = -1 %}
-{% set increment = 1 %}
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -40,14 +27,7 @@
         <th class="text-right">Spins</th>
     </thead>
     <tbody>
-    {% for artist, spins in results %}
-        {% if spins == last_spins %}
-            {% set increment = increment + 1 %}
-        {% else %}
-            {% set last_spins = spins %}
-            {% set ranking = ranking + increment %}
-            {% set increment = 1 %}
-        {% endif %}
+    {% for artist, spins, ranking in results %}
         <tr>
             <td>{{ ranking }}</td>
             <td>{{ artist }}</td>
@@ -59,9 +39,6 @@
 {% endmacro %}
 
 {% macro render_chart_tracks(results) %}
-{% set ranking = 0 %}
-{% set last_spins = -1 %}
-{% set increment = 1 %}
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -71,14 +48,7 @@
         <th class="text-right">Spins</th>
     </thead>
     <tbody>
-    {% for track, spins in results %}
-        {% if spins == last_spins %}
-            {% set increment = increment + 1 %}
-        {% else %}
-            {% set last_spins = spins %}
-            {% set ranking = ranking + increment %}
-            {% set increment = 1 %}
-        {% endif %}
+    {% for track, spins, ranking in results %}
         <tr>
             <td>{{ ranking }}</td>
             <td>{{ track.artist }}</td>
@@ -92,9 +62,6 @@
 {% endmacro %}
 
 {% macro render_chart_dj(results) %}
-{% set ranking = 0 %}
-{% set last_spins = -1 %}
-{% set increment = 1 %}
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -102,14 +69,7 @@
         <th class="text-right">Spins</th>
     </thead>
     <tbody>
-    {% for dj, spins in results %}
-        {% if spins == last_spins %}
-            {% set increment = increment + 1 %}
-        {% else %}
-            {% set last_spins = spins %}
-            {% set ranking = ranking + increment %}
-            {% set increment = 1 %}
-        {% endif %}
+    {% for dj, spins, ranking in results %}
         <tr>
             <td>{{ ranking }}</td>
             <td><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></td>

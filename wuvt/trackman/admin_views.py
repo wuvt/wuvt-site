@@ -4,11 +4,11 @@ from flask import current_app, flash, json, jsonify, render_template, \
 import datetime
 
 from .. import db, redis_conn
-from ..view_utils import local_only, sse_response
 from . import private_bp, mail
 from .forms import DJRegisterForm, DJReactivateForm
 from .lib import enable_automation, check_onair
 from .models import DJ, DJSet, TrackLog, Rotation
+from .view_utils import local_only, sse_response
 
 
 @private_bp.route('/', methods=['GET', 'POST'])
