@@ -1,5 +1,6 @@
 from flask import request, session
 from flask_restful import abort
+from redis_lock import Lock
 from wuvt import db, redis_conn
 from wuvt.trackman import models
 from wuvt.trackman.lib import disable_automation, logout_all_except
@@ -81,16 +82,17 @@ class DJSetList(TrackmanResource):
 
         disable_automation()
 
-        # close open DJSets, and see if we have one we can use
-        djset = logout_all_except(dj.id)
-        if djset is None:
-            djset = models.DJSet(dj.id)
-            db.session.add(djset)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
+        with Lock(redis_conn, 'create_djset', expire=60, auto_renewal=True):
+            # close open DJSets, and see if we have one we can use
+            djset = logout_all_except(dj.id)
+            if djset is None:
+                djset = models.DJSet(dj.id)
+                db.session.add(djset)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
 
         redis_conn.set('onair_djset_id', djset.id)
         session['djset_id'] = djset.id
