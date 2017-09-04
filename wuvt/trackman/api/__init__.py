@@ -6,6 +6,7 @@ from .v1.autologout import AutologoutControl
 from .v1.automation import AutomationLog
 from .v1.dj import DJ
 from .v1.djset import DJSet, DJSetEnd, DJSetList
+from .v1.rotation import RotationList
 from .v1.track import Track, TrackReport, TrackSearch, TrackAutoComplete, \
     TrackList
 from .v1.tracklog import TrackLog, TrackLogList
@@ -33,6 +34,7 @@ api.add_resource(TrackLogList, '/tracklog')
 api.add_resource(AutologoutControl, '/autologout')
 api.add_resource(AirLog, '/airlog/edit/<int:airlog_id>')
 api.add_resource(AirLogList, '/airlog')
+api.add_resource(RotationList, '/rotations')
 api.add_resource(Charts, '/charts')
 api.add_resource(AlbumCharts,
                  '/charts/albums',

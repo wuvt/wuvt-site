@@ -5,7 +5,7 @@ from .. import db, redis_conn
 from . import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
 from .lib import enable_automation
-from .models import DJ, DJSet, Rotation
+from .models import DJ, DJSet
 from .view_utils import local_only, sse_response
 
 
@@ -106,13 +106,9 @@ or you pressed the Logout button somewhere else.
 
             return redirect(url_for('.login'))
 
-    rotations = {}
-    for i in Rotation.query.order_by(Rotation.id).all():
-        rotations[i.id] = i.rotation
     return render_template('trackman/log.html',
                            trackman_name=current_app.config['TRACKMAN_NAME'],
-                           dj=dj,
-                           rotations=rotations)
+                           dj=dj)
 
 
 @private_bp.route('/js/log.js')
@@ -124,14 +120,9 @@ def log_js():
 
     djset_id = session.get('djset_id', None)
 
-    rotations = {}
-    for i in Rotation.query.order_by(Rotation.id).all():
-        rotations[i.id] = i.rotation
-
     resp = make_response(render_template('trackman/log.js',
                          trackman_name=current_app.config['TRACKMAN_NAME'],
-                         dj_id=dj_id, djset_id=djset_id,
-                         rotations=rotations))
+                         dj_id=dj_id, djset_id=djset_id))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
 

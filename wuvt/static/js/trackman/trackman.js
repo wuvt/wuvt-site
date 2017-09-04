@@ -59,10 +59,10 @@ TrackmanTimer.prototype.clear = function() {
     this.button.html(clockspan);
 };
 
-function Trackman(djsetId, djId, rotations) {
+function Trackman(djsetId, djId) {
     this.djsetId = djsetId;
     this.djId = djId;
-    this.rotations = rotations;
+    this.rotations = {};
     this.timers = {'queue': null, 'search': null};
     this.completeTimer = null;
     this.eventSource = null;
@@ -1299,11 +1299,23 @@ Trackman.prototype.initLogout = function() {
     });
 };
 
+Trackman.prototype.initRotations = function() {
+    var inst = this;
+    $.ajax({
+        'url': "/trackman/api/rotations",
+        success: function(data) {
+            inst.rotations = data['rotations'];
+            inst.renderRotation($('#rotation'), 1);
+        },
+    });
+};
+
 Trackman.prototype.init = function() {
     this.initLogout();
     this.initResizeHandler();
     this.initEventHandler();
     this.initAutologout();
+    this.initRotations();
     this.initQueue();
     this.initPlaylist();
     this.initSearch();

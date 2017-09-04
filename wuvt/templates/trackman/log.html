@@ -148,10 +148,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">Rotation</span>
-                        <select class="rotation form-control">
-                            {% for id, rotation in rotations.iteritems() -%}
-                            <option value="{{ id }}">{{ rotation }}</option>
-                            {% endfor %}
+                        <select class="rotation form-control" id="rotation">
                         </select>
                     </div>
                 </div>
