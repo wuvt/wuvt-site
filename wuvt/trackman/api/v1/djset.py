@@ -89,6 +89,9 @@ class DJSetEnd(TrackmanResource):
                 db.session.rollback()
                 raise
 
+            session.pop('dj_id', None)
+            session.pop('djset_id', None)
+
             redis_conn.publish('trackman_dj_live', json.dumps({
                 'event': "session_end",
             }))
