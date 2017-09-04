@@ -1284,6 +1284,10 @@ Trackman.prototype.initLogout = function() {
         if(inst.djsetId != null) {
             $.ajax({
                 url: "/trackman/api/djset/" + inst.djsetId + "/end",
+                data: {
+                    'email_playlist': $('#id_email_playlist').prop('checked'),
+                },
+                dataType: "json",
                 type: "POST",
                 success: function(data) {
                     if(data['success'] == false) {
