@@ -6,6 +6,24 @@ from .base import TrackmanResource
 
 
 class DJ(TrackmanResource):
+    def get(self, dj_id):
+        """
+        Get information about a DJ
+        ---
+        operationId: getDj
+        tags:
+        - trackman
+        - dj
+        parameters:
+        - in: path
+          name: dj_id
+          type: integer
+          required: true
+          description: The ID of an existing DJ
+        """
+        dj = DJ.query.get_or_404(dj_id)
+        return dj.serialize()
+
     def post(self, dj_id):
         """
         Make changes to a DJ
@@ -38,6 +56,8 @@ class DJ(TrackmanResource):
             else:
                 abort(403, success=False,
                       message="DJs cannot be hidden through this API.")
+
+        # TODO: support adding email/phone if empty
 
         try:
             db.session.commit()

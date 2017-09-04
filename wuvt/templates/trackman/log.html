@@ -14,11 +14,7 @@
     <div class="collapse navbar-collapse" id="trackman-top-collapse">
         <p class="navbar-text trackman-dj-name">{{ dj.airname }}</p>
 
-        <form action="{{ url_for('trackman_private.logout') }}"
-                method="post" class="navbar-form navbar-right"
-                id="trackman_logout_form">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-
+        <form class="navbar-form navbar-right">
             <label class="checkbox-inline">
                 <input type="checkbox" name="email_playlist" value="true"
                     id="id_email_playlist"
@@ -32,7 +28,7 @@
                 Let me play longer songs
             </label>
 
-            <button type="submit" class="btn btn-warning">
+            <button type="button" class="btn btn-warning" id="trackman_logout_btn">
                 <span class="glyphicon glyphicon-log-out"></span>
                 Logout
             </button>
@@ -315,6 +311,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=11) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=12) }}"></script>
 <script src="{{ url_for('trackman_private.log_js') }}"></script>
 {% endblock %}

@@ -65,6 +65,7 @@ function Trackman(djsetId, djId, rotations) {
     this.rotations = rotations;
     this.timers = {'queue': null, 'search': null};
     this.completeTimer = null;
+    this.eventSource = null;
 }
 
 Trackman.prototype.clearForm = function(ev) {
@@ -1226,9 +1227,9 @@ Trackman.prototype.initEventHandler = function() {
         return;
     }
 
-    var source = new EventSource('/trackman/api/live');
-    source.trackman = this;
-    source.onmessage = function(ev) {
+    this.eventSource = new EventSource('/trackman/api/live');
+    this.eventSource.trackman = this;
+    this.eventSource.onmessage = function(ev) {
         msg = JSON.parse(ev.data);
 
         switch(msg['event']) {
@@ -1265,7 +1266,7 @@ Trackman.prototype.initResizeHandler = function() {
     // at a high rate, so we throttle resize events to 15 fps
     $(window).on('resize', null, {}, function() {
         if(!resizeTimeout) {
-            resizeTimer = setTimeout(function() {
+            resizeTimeout = setTimeout(function() {
                 resizeTimeout = null;
                 inst.adjustPanelHeights();
             }, 66);
@@ -1273,13 +1274,33 @@ Trackman.prototype.initResizeHandler = function() {
     });
 };
 
-Trackman.prototype.init = function() {
+Trackman.prototype.initLogout = function() {
     var inst = this;
-    $('#trackman_logout_form').bind('submit', {}, function() {
+    $('#trackman_logout_btn').on('click', {}, function() {
+        inst.eventSource.close();
         inst.clearQueue();
         inst.saveQueue();
-    });
 
+        if(inst.djsetId != null) {
+            $.ajax({
+                url: "/trackman/api/djset/" + inst.djsetId + "/end",
+                type: "POST",
+                success: function(data) {
+                    if(data['success'] == false) {
+                        alert(data['message']);
+                    }
+
+                    location.href = '/trackman/';
+                },
+            });
+        } else {
+            location.href = '/trackman/';
+        }
+    });
+};
+
+Trackman.prototype.init = function() {
+    this.initLogout();
     this.initResizeHandler();
     this.initEventHandler();
     this.initAutologout();

@@ -1,13 +1,11 @@
-from flask import current_app, flash, json, jsonify, render_template, \
+from flask import current_app, flash, jsonify, render_template, \
         redirect, request, session, url_for, make_response, abort
 
-import datetime
-
 from .. import db, redis_conn
-from . import private_bp, mail
+from . import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
-from .lib import enable_automation, check_onair
-from .models import DJ, DJSet, TrackLog, Rotation
+from .lib import enable_automation
+from .models import DJ, DJSet, Rotation
 from .view_utils import local_only, sse_response
 
 
@@ -136,55 +134,6 @@ def log_js():
                          rotations=rotations))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
-
-
-@private_bp.route('/logout', methods=['POST'])
-@local_only
-def logout():
-    dj_id = session.pop('dj_id', None)
-    if dj_id is None:
-        abort(404)
-
-    djset_id = session.pop('djset_id', None)
-    if djset_id is not None:
-        djset = DJSet.query.get_or_404(djset_id)
-        if djset.dtend is None:
-            djset.dtend = datetime.datetime.utcnow()
-
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-
-            redis_conn.publish('trackman_dj_live', json.dumps({
-                'event': "session_end",
-            }))
-
-        if check_onair(djset_id):
-            redis_conn.delete('onair_djset_id')
-
-        # Reset the dj activity timeout period
-        redis_conn.delete('dj_timeout')
-
-        # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation start
-        # time
-        redis_conn.set('dj_active', 'false')
-        redis_conn.expire(
-            'dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
-
-        # email playlist
-        if 'email_playlist' in request.form and \
-                request.form.get('email_playlist') == 'true':
-            tracks = TrackLog.query.\
-                filter(TrackLog.djset_id == djset.id).\
-                order_by(TrackLog.played).all()
-            mail.send_playlist(djset, tracks)
-
-    if request.wants_json():
-        return jsonify(success=True)
-    else:
-        return redirect(url_for('.login'))
 
 
 @private_bp.route('/register', methods=['GET', 'POST'])
