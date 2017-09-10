@@ -19,8 +19,6 @@ from wuvt.views import get_menus
 from wuvt.view_utils import slugify
 
 from wuvt.admin.auth import views as auth_views
-from wuvt.admin.charts import views as charts_views
-from wuvt.admin.library import views as library_views
 
 
 @bp.route('/')
@@ -492,3 +490,12 @@ def donation_index():
                            total=total,
                            max=max_donation,
                            last_stats_reset=last_stats_reset)
+
+
+@bp.route('/library')
+@bp.route('/library/<path:path>')
+def library_redirect(path=None):
+    if path is not None and len(path) > 0:
+        return redirect('/trackman/library/{0}'.format(path))
+    else:
+        return redirect('/trackman/library/index')

@@ -14,4 +14,6 @@ charts_cache = ResourceCache(config={
 
 from . import admin_views, cli, views
 from .api import api, api_bp
+from .library import library_bp
+from .library import views as library_views
 from .views import trackinfo

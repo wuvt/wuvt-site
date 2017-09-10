@@ -39,10 +39,10 @@
 
     {% for track in tracks -%}
     <tr>
-        <td><a href="{{ url_for('admin.library_artist', artist=track.artist) }}">{{ track.artist }}</a></td>
-        <td><a href="{{ url_for('admin.library_track', id=track.id, from=track_from) }}">{{ track.title }}</a></td>
+        <td><a href="{{ url_for('trackman_library.artist', artist=track.artist) }}">{{ track.artist }}</a></td>
+        <td><a href="{{ url_for('trackman_library.track', id=track.id, from=track_from) }}">{{ track.title }}</a></td>
         <td>{{ track.album }}</td>
-        <td><a href="{{ url_for('admin.library_label', label=track.label) }}">{{ track.label }}</a></td>
+        <td><a href="{{ url_for('trackman_library.label', label=track.label) }}">{{ track.label }}</a></td>
     </tr>
     {% endfor -%}
 </table>

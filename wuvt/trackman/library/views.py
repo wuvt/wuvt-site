@@ -1,14 +1,16 @@
 from flask import abort, current_app, flash, render_template, redirect, \
-    request, url_for
+    request, send_file, url_for
+import csv
+import dateutil.parser
+import io
 import string
 import uuid
 
-from wuvt import auth_manager
-from wuvt import db
-from wuvt.admin import bp
+from wuvt import auth_manager, db, format_datetime
 from wuvt.trackman.models import DJ, Track, TrackLog, TrackReport
 from wuvt.trackman.lib import deduplicate_track_by_id
 from wuvt.trackman.musicbrainz import musicbrainzngs
+from . import library_bp
 
 
 def validate_uuid(uuid_str):
@@ -20,18 +22,18 @@ def validate_uuid(uuid_str):
     return value.hex == uuid_str.replace('-', '')
 
 
-@bp.route('/library')
+@library_bp.route('/index')
 @auth_manager.check_access('library')
-def library_index():
+def index():
     letters = list(string.digits + string.ascii_uppercase)
-    return render_template('admin/library_index.html',
+    return render_template('trackman/library/index.html',
                            letters=letters + ['all'])
 
 
-@bp.route('/library/<string:letter>')
-@bp.route('/library/<string:letter>/<int:page>')
+@library_bp.route('/<string:letter>')
+@library_bp.route('/<string:letter>/<int:page>')
 @auth_manager.check_access('library')
-def library_letter(letter, page=1):
+def letter(letter, page=1):
     artists_query = Track.query.with_entities(Track.artist,
                                               db.func.count(Track.artist))
 
@@ -43,23 +45,23 @@ def library_letter(letter, page=1):
 
     artists = artists_query.group_by(Track.artist).order_by(Track.artist).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
-    return render_template('admin/library_letter.html', letter=letter,
+    return render_template('trackman/library/letter.html', letter=letter,
                            artists=artists)
 
 
-@bp.route('/library/djs')
-@bp.route('/library/djs/<int:page>')
+@library_bp.route('/djs')
+@library_bp.route('/djs/<int:page>')
 @auth_manager.check_access('library')
-def library_djs(page=1):
+def djs(page=1):
     djs = DJ.query.order_by(DJ.airname).paginate(
         page, current_app.config['ARTISTS_PER_PAGE'])
-    return render_template('admin/library_djs.html', djs=djs)
+    return render_template('trackman/library/djs.html', djs=djs)
 
 
-@bp.route('/library/dj/<int:id>')
-@bp.route('/library/dj/<int:id>/<int:page>')
+@library_bp.route('/dj/<int:id>')
+@library_bp.route('/dj/<int:id>/<int:page>')
 @auth_manager.check_access('library')
-def library_dj(id, page=1):
+def dj(id, page=1):
     dj = DJ.query.get_or_404(id)
     subquery = TrackLog.query.\
         with_entities(TrackLog.track_id).\
@@ -68,55 +70,55 @@ def library_dj(id, page=1):
     tracks = Track.query.join(subquery).order_by(Track.artist, Track.title).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
-    return render_template('admin/library_dj.html', dj=dj, tracks=tracks)
+    return render_template('trackman/library/dj.html', dj=dj, tracks=tracks)
 
 
-@bp.route('/library/artist')
+@library_bp.route('/artist')
 @auth_manager.check_access('library')
-def library_artist():
+def artist():
     artist = request.args['artist']
     tracks = Track.query.filter(Track.artist == artist).\
         order_by(Track.album, Track.title).all()
 
-    return render_template('admin/library_artist.html', artist=artist,
+    return render_template('trackman/library/artist.html', artist=artist,
                            tracks=tracks)
 
 
-@bp.route('/library/labels')
-@bp.route('/library/labels/<int:page>')
+@library_bp.route('/labels')
+@library_bp.route('/labels/<int:page>')
 @auth_manager.check_access('library')
-def library_labels(page=1):
+def labels(page=1):
     labels = Track.query.\
         with_entities(Track.label, db.func.count(Track.label)).\
         group_by(Track.label).order_by(Track.label).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
-    return render_template('admin/library_labels.html', labels=labels)
+    return render_template('trackman/library/labels.html', labels=labels)
 
 
-@bp.route('/library/label')
+@library_bp.route('/label')
 @auth_manager.check_access('library')
-def library_label():
+def label():
     label = request.args['label']
     page = int(request.args.get('page', 1))
     tracks = Track.query.filter(Track.label == label).\
         order_by(Track.album, Track.title).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
-    return render_template('admin/library_label.html', label=label,
+    return render_template('trackman/library/label.html', label=label,
                            tracks=tracks)
 
 
-@bp.route('/library/fixup')
+@library_bp.route('/fixup')
 @auth_manager.check_access('library')
-def library_fixup():
-    return render_template('admin/library_fixup.html')
+def fixup():
+    return render_template('trackman/library/fixup.html')
 
 
-@bp.route('/library/fixup/<string:key>')
-@bp.route('/library/fixup/<string:key>/<int:page>')
+@library_bp.route('/fixup/<string:key>')
+@library_bp.route('/fixup/<string:key>/<int:page>')
 @auth_manager.check_access('library')
-def library_fixup_tracks(key, page=1):
+def fixup_tracks(key, page=1):
     if key == 'bad_album':
         title = "Invalid Album"
         query = Track.query.filter(db.or_(
@@ -152,13 +154,13 @@ def library_fixup_tracks(key, page=1):
     tracks = query.order_by(Track.artist, Track.title).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
-    return render_template('admin/library_fixup_tracks.html', key=key,
+    return render_template('trackman/library/fixup_tracks.html', key=key,
                            title=title, tracks=tracks)
 
 
-@bp.route('/library/track/<int:id>', methods=['GET', 'POST'])
+@library_bp.route('/track/<int:id>', methods=['GET', 'POST'])
 @auth_manager.check_access('library')
-def library_track(id):
+def track(id):
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
     error_fields = []
@@ -229,16 +231,16 @@ def library_track(id):
                 return redirect(url_for('admin.library_artist',
                                         artist=track.artist))
 
-    return render_template('admin/library_track.html',
+    return render_template('trackman/library/track.html',
                            track=track,
                            edit_from=edit_from,
                            error_fields=error_fields,
                            data=data)
 
 
-@bp.route('/library/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
+@library_bp.route('/track/<int:id>/musicbrainz', methods=['GET', 'POST'])
 @auth_manager.check_access('library')
-def library_track_musicbrainz(id):
+def track_musicbrainz(id):
     musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
     musicbrainzngs.set_rate_limit(current_app.config['MUSICBRAINZ_RATE_LIMIT'])
 
@@ -337,16 +339,16 @@ def library_track_musicbrainz(id):
                                                recording=track.title,
                                                release=track.album)
 
-    return render_template('admin/library_track_musicbrainz.html',
+    return render_template('trackman/library/track_musicbrainz.html',
                            track=track,
                            edit_from=edit_from,
                            results=results['recording-list'])
 
 
-@bp.route('/library/track/<int:id>/similar', methods=['GET', 'POST'])
-@bp.route('/library/track/<int:id>/similar/<int:page>', methods=['GET', 'POST'])
+@library_bp.route('/track/<int:id>/similar', methods=['GET', 'POST'])
+@library_bp.route('/track/<int:id>/similar/<int:page>', methods=['GET', 'POST'])
 @auth_manager.check_access('library')
-def library_track_similar(id, page=1):
+def track_similar(id, page=1):
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
 
@@ -394,17 +396,52 @@ def library_track_similar(id, page=1):
         group_by(Track.id).order_by(Track.artist).\
         paginate(page, current_app.config['ARTISTS_PER_PAGE'])
 
-    return render_template('admin/library_track_similar.html', track=track,
+    return render_template('trackman/library/track_similar.html', track=track,
                            edit_from=edit_from, similar_tracks=similar_tracks)
 
 
-@bp.route('/library/track/<int:id>/spins')
+@library_bp.route('/track/<int:id>/spins')
 @auth_manager.check_access('library')
-def library_track_spins(id):
+def track_spins(id):
     track = Track.query.get_or_404(id)
     edit_from = request.args.get('from', None)
     tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
         order_by(TrackLog.played).all()
 
-    return render_template('admin/library_track_spins.html', track=track,
+    return render_template('trackman/library/track_spins.html', track=track,
                            edit_from=edit_from, tracklogs=tracklogs)
+
+
+@library_bp.route('/reports')
+@auth_manager.check_access('library')
+def reports():
+    return render_template('trackman/library/reports.html')
+
+
+@library_bp.route('/reports/bmi', methods=['GET', 'POST'])
+@auth_manager.check_access('library')
+def reports_bmi():
+    if request.method == 'POST':
+        start = dateutil.parser.parse(request.form['dtstart'])
+        end = dateutil.parser.parse(request.form['dtend'])
+        end = end.replace(hour=23, minute=59, second=59)
+
+        f = io.BytesIO()
+        writer = csv.writer(f)
+
+        tracks = TrackLog.query.filter(TrackLog.played >= start,
+                                       TrackLog.played <= end).all()
+        for track in tracks:
+            writer.writerow([
+                current_app.config['TRACKMAN_NAME'],
+                format_datetime(track.played),
+                track.track.title.encode("utf8"),
+                track.track.artist.encode("utf8")])
+
+        f.seek(0)
+
+        filename = end.strftime("bmirep-%Y-%m-%d.csv")
+        return send_file(f, mimetype="text/csv", as_attachment=True,
+                         attachment_filename=filename)
+    else:
+        return render_template('trackman/library/reports_bmi.html')

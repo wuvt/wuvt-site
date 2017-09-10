@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% set page_title="Library" %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li class="active">Library</li>
+</ol>
+
+<h1>Library</h1>
+
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="{{ url_for('trackman_library.index') }}">By Artist</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.labels') }}">By Label</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.djs') }}">By DJ</a></li>
+    <li role="presentation"><a href="{{ url_for('trackman_library.fixup') }}">Fixup</a></li>
+    <li role="presentation" class="active"><a href="{{ url_for('trackman_library.reports') }}">Reports</a></li>
+</ul>
+
+<div class="panel-body">
+    <div class="list-group">
+        <a href="{{ url_for('trackman_library.reports_bmi') }}" class="list-group-item">BMI Report</a>
+    </div>
+</div>
+{% endblock %}

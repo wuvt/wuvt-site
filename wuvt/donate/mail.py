@@ -21,5 +21,5 @@ def send_receipt(order):
         s.quit()
     except Exception as exc:
         current_app.logger.warning(
-            "Trackman: Failed to email receipt for order {0}: {1}".format(
+            "Donate: Failed to email receipt for order {0}: {1}".format(
                 order.id, exc))

@@ -1,11 +1,11 @@
-{% import "admin/macros.html" as macros %}
+{% import "trackman/library/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Library" %}
-{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
 <ol class="breadcrumb">
-    <li><a href="{{ url_for('admin.library_djs') }}">Library</a></li>
+    <li><a href="{{ url_for('trackman_library.djs') }}">Library</a></li>
     <li class="active">DJ: {{ dj.airname }}</li>
 </ol>
 
@@ -31,7 +31,7 @@
     {% endif %}
 </dl>
 
-{{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
+{{ macros.render_pagination(tracks, 'trackman_library.dj', id=dj.id) }}
 {{ macros.library_tracklist(tracks.items) }}
-{{ macros.render_pagination(tracks, 'admin.library_dj', id=dj.id) }}
+{{ macros.render_pagination(tracks, 'trackman_library.dj', id=dj.id) }}
 {% endblock %}

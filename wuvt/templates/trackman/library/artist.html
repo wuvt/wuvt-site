@@ -1,11 +1,11 @@
-{% import "admin/macros.html" as macros %}
+{% import "trackman/library/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Artist: " + artist %}
-{% block nav_admin_library %}<li class="active"><a href="{{ url_for('admin.library_index') }}">Library</a></li>{% endblock %}
+{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
 <ol class="breadcrumb">
-    <li><a href="{{ url_for('admin.library_index') }}">Library</a></li>
+    <li><a href="{{ url_for('trackman_library.index') }}">Library</a></li>
     <li class="active">Artist: {{ artist }}</li>
 </ol>
 

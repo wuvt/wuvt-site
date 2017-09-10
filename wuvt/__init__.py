@@ -172,6 +172,7 @@ def init_app():
     app.register_blueprint(trackman.bp)
     app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
     app.register_blueprint(trackman.api_bp, url_prefix='/trackman/api')
+    app.register_blueprint(trackman.library_bp, url_prefix='/trackman/library')
     trackman.playlists_cache.init_app(app, config={
         'CACHE_TYPE': "redis",
         'CACHE_REDIS_URL': app.config['REDIS_URL'],
