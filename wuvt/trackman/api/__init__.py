@@ -20,7 +20,7 @@ from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
 api_bp = Blueprint('trackman_api', __name__)
 api = Api(api_bp)
 api.add_resource(AutomationLog, '/automation/log')
-api.add_resource(DJ, '/dj/<int:djset_id>')
+api.add_resource(DJ, '/dj/<int:dj_id>')
 api.add_resource(DJSet, '/djset/<int:djset_id>')
 api.add_resource(DJSetEnd, '/djset/<int:djset_id>/end')
 api.add_resource(DJSetList, '/djset')

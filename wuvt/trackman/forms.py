@@ -56,6 +56,17 @@ class DJReactivateForm(FlaskForm):
                                     validators.DataRequired()])
 
 
+class DJEditForm(FlaskForm):
+    visible = BooleanField('Visible', validators=[validators.Optional()])
+    email = StringField('Email Address', filters=[strip_field],
+                        validators=[validators.Length(min=1, max=255),
+                                    validators.Email(),
+                                    validators.Optional()])
+    phone = StringField('Phone Number', filters=[strip_field],
+                        validators=[validators.Length(min=10, max=12),
+                                    validators.Optional()])
+
+
 class TrackAddForm(FlaskForm):
     title = StringField('Title', filters=[strip_field],
                         validators=[validators.DataRequired()])
