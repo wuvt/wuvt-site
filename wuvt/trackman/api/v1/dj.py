@@ -22,7 +22,7 @@ class DJ(TrackmanResource):
           required: true
           description: The ID of an existing DJ
         """
-        dj = DJ.query.get_or_404(dj_id)
+        dj = models.DJ.query.get_or_404(dj_id)
         return dj.serialize(include_private=True)
 
     def post(self, dj_id):
