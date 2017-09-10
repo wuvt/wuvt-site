@@ -176,27 +176,32 @@ class TrackLog(db.Model):
         }
 
     def api_serialize(self):
-        if self.rotation is not None:
-            rotation = self.rotation.serialize()
-        else:
-            rotation = None
-
-        return {
+        data = {
             'id': self.id,
             'track_id': self.track_id,
             'track': self.track.api_serialize(),
             'played': self.played,
             'djset_id': self.djset_id,
-            'djset': self.djset.serialize(),
             'dj_id': self.dj_id,
             'dj': self.dj.serialize(),
             'request': self.request,
             'vinyl': self.vinyl,
             'new': self.new,
             'rotation_id': self.rotation_id,
-            'rotation': rotation,
             'listeners': self.listeners,
         }
+
+        if self.rotation is not None:
+            data['rotation'] = self.rotation.serialize()
+        else:
+            data['rotation'] = None
+
+        if self.djset is not None:
+            data['djset'] = self.djset.serialize()
+        else:
+            data['djset'] = None
+
+        return data
 
 
 class Track(db.Model):
