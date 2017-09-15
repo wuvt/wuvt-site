@@ -159,18 +159,18 @@ def playlists_date_data():
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
     results, status_code = call_api(
-        playlists.PlaylistByDay, 'GET', year, month, day)
+        playlists.PlaylistsByDay, 'GET', year, month, day)
 
     now = datetime.datetime.utcnow()
 
-    next_date = results['start'] + datetime.timedelta(hours=24)
+    next_date = results['dtstart'] + datetime.timedelta(hours=24)
     next_url = url_for('.playlists_date_sets', year=next_date.year,
                        month=next_date.month, day=next_date.day)
     if next_date > now:
         next_url = None
 
-    if results['start'] < now:
-        prev_date = results['start'] - datetime.timedelta(hours=24)
+    if results['dtstart'] < now:
+        prev_date = results['dtstart'] - datetime.timedelta(hours=24)
         prev_url = url_for('.playlists_date_sets', year=prev_date.year,
                            month=prev_date.month, day=prev_date.day)
     else:
@@ -186,7 +186,7 @@ def playlists_date_sets(year, month, day):
 
     return render_template(
         'playlists_date_sets.html',
-        date=results['start'],
+        date=results['dtstart'],
         sets=results['sets'],
         prev_url=results['prev_url'],
         next_url=results['next_url']), status_code

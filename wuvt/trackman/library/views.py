@@ -225,10 +225,10 @@ def track(id):
             deduplicate_track_by_id(id)
 
             if edit_from == 'label':
-                return redirect(url_for('admin.library_label',
+                return redirect(url_for('trackman_library.label',
                                         label=track.label))
             else:
-                return redirect(url_for('admin.library_artist',
+                return redirect(url_for('trackman_library.artist',
                                         artist=track.artist))
 
     return render_template('trackman/library/track.html',
@@ -261,7 +261,7 @@ def track_musicbrainz(id):
                 raise
 
             flash("The MusicBrainz IDs for the track have been cleared.")
-            return redirect(url_for('admin.library_track', id=track.id,
+            return redirect(url_for('trackman_library.track', id=track.id,
                                     **{'from': edit_from}))
 
         mbids = request.form['mbids'].split(',')
@@ -332,7 +332,7 @@ def track_musicbrainz(id):
             db.session.rollback()
             raise
 
-        return redirect(url_for('admin.library_track', id=track.id,
+        return redirect(url_for('trackman_library.track', id=track.id,
                                 **{'from': edit_from}))
 
     results = musicbrainzngs.search_recordings(artist=track.artist,
@@ -384,7 +384,7 @@ def track_similar(id, page=1):
                     track.id))
             flash("Tracks merged.")
 
-            return redirect(url_for('admin.library_track', id=track.id,
+            return redirect(url_for('trackman_library.track', id=track.id,
                                     **{'from': edit_from}))
 
     similar_tracks = Track.query.\
