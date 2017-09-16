@@ -29,5 +29,5 @@
 
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/playlists_by_date_init.js') }}"></script>
+<script src="{{ url_for('static', filename='js/playlists_by_date_init.js', v=1) }}"></script>
 {% endblock %}

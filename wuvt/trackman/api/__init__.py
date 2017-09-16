@@ -13,8 +13,8 @@ from .v1.tracklog import TrackLog, TrackLogList
 from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
     DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, DJVinylSpinCharts
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
-    PlaylistsByDay, PlaylistDJs, PlaylistAllDJs, PlaylistsByDJ, Playlist, \
-    PlaylistTrack
+    PlaylistsByDay, PlaylistsByDateRange, PlaylistDJs, PlaylistAllDJs, \
+    PlaylistsByDJ, Playlist, PlaylistTrack
 
 
 api_bp = Blueprint('trackman_api', __name__)
@@ -61,6 +61,7 @@ api.add_resource(Last15Tracks, '/playlists/last15')
 api.add_resource(LatestTrack, '/playlists/latest_track')
 api.add_resource(PlaylistsByDay,
                  '/playlists/date/<int:year>/<int:month>/<int:day>')
+api.add_resource(PlaylistsByDateRange, '/playlists/date/range')
 api.add_resource(PlaylistDJs, '/playlists/dj')
 api.add_resource(PlaylistAllDJs, '/playlists/dj/all')
 api.add_resource(PlaylistsByDJ, '/playlists/dj/<int:dj_id>')

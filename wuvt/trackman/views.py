@@ -1,14 +1,12 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
-from flask import abort, current_app, jsonify, render_template, redirect, \
-        request, url_for, Response
+from flask import current_app, jsonify, render_template, redirect, request, \
+        url_for, Response
 import datetime
 import re
 from werkzeug.contrib.atom import AtomFeed
 
-from .. import db
 from . import bp
-from .models import DJSet
 from .view_utils import call_api, make_external, sse_response, \
     tracklog_serialize, tracklog_full_serialize
 from .api.v1 import charts, playlists
@@ -137,24 +135,6 @@ def playlists_date():
     today = datetime.datetime.utcnow().replace(
         hour=0, minute=0, second=0, microsecond=0)
     return render_template('playlists_date_list.html', today=today)
-
-
-@bp.route('/playlists/date/data')
-def playlists_date_data():
-    try:
-        start = datetime.datetime.strptime(request.args['start'], "%Y-%m-%dT%H:%M:%S.%fZ")
-        end = datetime.datetime.strptime(request.args['end'], "%Y-%m-%dT%H:%M:%S.%fZ")
-    except ValueError:
-        abort(400)
-
-    sets = DJSet.query.filter(db.and_(DJSet.dtstart >= start,
-                                      DJSet.dtstart <= end)).\
-        order_by(db.desc(DJSet.dtstart)).limit(300).all()
-
-    if request.wants_json():
-        return jsonify({'sets': [s.serialize() for s in sets]})
-
-    return Response("{start} {end}".format(start=start, end=end))
 
 
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')

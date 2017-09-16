@@ -1,4 +1,6 @@
 import datetime
+from flask import request
+from flask_restful import abort, Resource
 from wuvt import db
 from wuvt.trackman.lib import get_current_tracklog, serialize_trackinfo
 from wuvt.trackman.models import DJ, DJSet, Track, TrackLog
@@ -99,6 +101,26 @@ class PlaylistsByDay(PlaylistResource):
             'dtstart': dtstart,
             'sets': [s.serialize() for s in sets],
         }, status_code
+
+
+class PlaylistsByDateRange(Resource):
+    def get(self):
+        try:
+            start = datetime.datetime.strptime(request.args['start'],
+                                               "%Y-%m-%dT%H:%M:%S.%fZ")
+            end = datetime.datetime.strptime(request.args['end'],
+                                             "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+            abort(400)
+
+        sets = DJSet.query.\
+            filter(DJSet.dtstart >= start, DJSet.dtstart <= end).\
+            order_by(db.desc(DJSet.dtstart)).\
+            limit(300).all()
+
+        return {
+            'sets': [s.serialize() for s in sets],
+        }
 
 
 class PlaylistDJs(PlaylistResource):

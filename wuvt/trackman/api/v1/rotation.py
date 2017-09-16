@@ -1,4 +1,3 @@
-from wuvt import db
 from wuvt.trackman import models
 from .base import TrackmanResource
 
