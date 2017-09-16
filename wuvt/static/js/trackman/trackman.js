@@ -59,7 +59,8 @@ TrackmanTimer.prototype.clear = function() {
     this.button.html(clockspan);
 };
 
-function Trackman(djsetId, djId) {
+function Trackman(baseUrl, djsetId, djId) {
+    this.baseUrl = baseUrl;
     this.djsetId = djsetId;
     this.djId = djId;
     this.rotations = {};
@@ -122,7 +123,7 @@ Trackman.prototype.initAutologout = function() {
     this.extendAutologout = false;
 
     $.ajax({
-        url: "/trackman/api/autologout",
+        url: this.baseUrl + "/api/autologout",
         dataType: "json",
         success: this.updateAutologout,
     });
@@ -144,7 +145,7 @@ Trackman.prototype.toggleAutologout = function(ev) {
     }
 
     $.ajax({
-        url: "/trackman/api/autologout",
+        url: this.baseUrl + "/api/autologout",
         data: formdata,
         dataType: "json",
         type: "POST",
@@ -352,7 +353,7 @@ Trackman.prototype.initPlaylist = function() {
 Trackman.prototype.logTrack = function(track, callback) {
     if(this.djsetId != null) {
         $.ajax({
-            url: "/trackman/api/tracklog",
+            url: this.baseUrl + "/api/tracklog",
             data: {
                 "track_id": track['id'],
                 "djset_id": this.djsetId,
@@ -369,7 +370,7 @@ Trackman.prototype.logTrack = function(track, callback) {
     } else {
         // create a new DJSet, start using it, and try again
         $.ajax({
-            url: "/trackman/api/djset",
+            url: this.baseUrl + "/api/djset",
             data: {
                 "dj": this.djId,
             },
@@ -386,7 +387,7 @@ Trackman.prototype.logTrack = function(track, callback) {
 
 Trackman.prototype.createTrack = function(track, callback) {
     $.ajax({
-        url: "/trackman/api/track",
+        url: this.baseUrl + "/api/track",
         data: {
             "artist": track['artist'],
             "album": track['album'],
@@ -434,7 +435,7 @@ Trackman.prototype.deleteTrack = function(element) {
     if(id.substring(0,1) == "p") {
         id = id.substring(1);
         $.ajax({
-            url: "/trackman/api/tracklog/edit/" + id,
+            url: this.baseUrl + "/api/tracklog/edit/" + id,
             type: "DELETE",
             dataType: "json",
             context: this,
@@ -462,7 +463,7 @@ Trackman.prototype.updatePlaylist = function() {
 Trackman.prototype.fetchPlaylist = function(callback) {
     if(this.djsetId != null) {
         $.ajax({
-            url: "/trackman/api/djset/" + this.djsetId,
+            url: this.baseUrl + "/api/djset/" + this.djsetId,
             data: {
                 "merged": true,
             },
@@ -618,7 +619,7 @@ Trackman.prototype.searchHistory = function() {
     }
 
     $.ajax({
-        url: "/trackman/api/search",
+        url: this.baseUrl + "/api/search",
         data: this.getFormData(),
         dataType: "json",
         success: function(data) {
@@ -676,7 +677,7 @@ Trackman.prototype.autoCompleteField = function(name) {
     }
 
     $.ajax({
-        url: "/trackman/api/autocomplete",
+        url: this.baseUrl + "/api/autocomplete",
         data: acData,
         dataType: "json",
         success: function(data) {
@@ -1043,7 +1044,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             }
 
             $.ajax({
-                url: "/trackman/api/tracklog/edit/" + id,
+                url: this.baseUrl + "/api/tracklog/edit/" + id,
                 data: {
                     "artist":   track['artist'],
                     "album":    track['album'],
@@ -1145,7 +1146,7 @@ Trackman.prototype.reportTrack = function(id) {
     $('#report_modal_tbody').empty();
 
     $.ajax({
-        url: "/trackman/api/track/" + id,
+        url: this.baseUrl + "/api/track/" + id,
         dataType: "json",
         context: this,
         success: function(data) {
@@ -1170,7 +1171,7 @@ Trackman.prototype.reportTrack = function(id) {
     $('#report_submit_btn').off('click');
     $('#report_submit_btn').on('click', function() {
         $.ajax({
-            url: "/trackman/api/track/" + id + "/report",
+            url: this.baseUrl + "/api/track/" + id + "/report",
             data: {
                 'dj_id': inst.djId,
                 'reason': $('#id_report_reason').val(),
@@ -1227,7 +1228,7 @@ Trackman.prototype.initEventHandler = function() {
         return;
     }
 
-    this.eventSource = new EventSource('/trackman/api/live');
+    this.eventSource = new EventSource(this.baseUrl + '/api/live');
     this.eventSource.trackman = this;
     this.eventSource.onmessage = function(ev) {
         msg = JSON.parse(ev.data);
@@ -1283,7 +1284,7 @@ Trackman.prototype.initLogout = function() {
 
         if(inst.djsetId != null) {
             $.ajax({
-                url: "/trackman/api/djset/" + inst.djsetId + "/end",
+                url: inst.baseUrl + "/api/djset/" + inst.djsetId + "/end",
                 data: {
                     'email_playlist': $('#id_email_playlist').prop('checked'),
                 },
@@ -1294,11 +1295,11 @@ Trackman.prototype.initLogout = function() {
                         alert(data['message']);
                     }
 
-                    location.href = '/trackman/';
+                    location.href = inst.baseUrl;
                 },
             });
         } else {
-            location.href = '/trackman/';
+            location.href = inst.baseUrl;
         }
     });
 };
@@ -1306,7 +1307,7 @@ Trackman.prototype.initLogout = function() {
 Trackman.prototype.initRotations = function() {
     var inst = this;
     $.ajax({
-        'url': "/trackman/api/rotations",
+        'url': this.baseUrl + "/api/rotations",
         success: function(data) {
             inst.rotations = data['rotations'];
             inst.renderRotation($('#rotation'), 1);
