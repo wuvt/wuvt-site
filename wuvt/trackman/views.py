@@ -8,8 +8,9 @@ from werkzeug.contrib.atom import AtomFeed
 
 from .. import db
 from . import bp
-from .models import DJSet, Track, TrackLog
-from .view_utils import call_api, make_external, list_archives, sse_response
+from .models import DJSet
+from .view_utils import call_api, make_external, sse_response, \
+    tracklog_serialize, tracklog_full_serialize
 from .api.v1 import charts, playlists
 
 
@@ -24,13 +25,13 @@ def trackinfo():
 
 @bp.route('/last15')
 def last15():
+    result = call_api(playlists.Last15Tracks, 'GET')
+
     if request.wants_json():
-        tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
         return jsonify({
-            'tracks': [t.full_serialize() for t in tracks],
+            'tracks': [tracklog_full_serialize(t) for t in result['tracks']],
         })
 
-    result = call_api(playlists.Last15Tracks, 'GET')
     return render_template('last15.html', tracklogs=result['tracks'],
                            feedlink=url_for('.last15_feed'))
 
@@ -361,20 +362,16 @@ def charts_dj_vinyl_spins():
 
 @bp.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
-    if request.wants_json():
-        djset = DJSet.query.get_or_404(set_id)
-        tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
-            TrackLog.played).all()
-        archives = list_archives(djset)
-
-        data = djset.serialize()
-        data.update({
-            'archives': [a[0] for a in archives],
-            'tracks': [t.full_serialize() for t in tracks],
-        })
-        return jsonify(data)
-
     results = call_api(playlists.Playlist, 'GET', set_id)
+
+    if request.wants_json():
+        results.update({
+            'archives': [a[0] for a in results['archives']],
+            'tracks': [
+                tracklog_full_serialize(t) for t in results['tracks']],
+        })
+        return jsonify(results)
+
     return render_template('playlist.html',
                            archives=results['archives'],
                            djset=results,
@@ -383,15 +380,13 @@ def playlist(set_id):
 
 @bp.route('/playlists/track/<int:track_id>')
 def playlists_track(track_id):
-    if request.wants_json():
-        track = Track.query.get_or_404(track_id)
-        tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
-            order_by(TrackLog.played).all()
-        data = track.serialize()
-        data['plays'] = [tl.serialize() for tl in tracklogs]
-        return jsonify(data)
-
     results = call_api(playlists.PlaylistTrack, 'GET', track_id)
+
+    if request.wants_json():
+        results['added'] = str(results['added'])
+        results['plays'] = [tracklog_serialize(tl) for tl in results['plays']]
+        return jsonify(results)
+
     return render_template('playlists_track.html',
                            track=results,
                            tracklogs=results['plays'])
