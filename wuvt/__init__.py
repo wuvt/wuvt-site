@@ -125,7 +125,7 @@ def inject_categories():
 
 @app.context_processor
 def inject_radiothon():
-    return {'radiothon': redis_conn.get('radiothon') == "true"}
+    return {'radiothon': redis_conn.get('radiothon') == b"true"}
 
 
 if app.debug:

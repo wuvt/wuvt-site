@@ -65,7 +65,7 @@ class AutomationLog(TrackmanStudioResource):
         if form.password.data != current_app.config['AUTOMATION_PASSWORD']:
             abort(401, success=False, message="Invalid automation password")
 
-        automation = redis_conn.get('automation_enabled') == "true"
+        automation = redis_conn.get('automation_enabled') == b"true"
         if not automation:
             return {
                 'success': False,

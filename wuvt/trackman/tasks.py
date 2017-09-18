@@ -47,7 +47,7 @@ def autologout_check():
                 # This happens when the key is missing;
                 # We just bail out because we don't know the current state
                 pass
-            elif automation == "true":
+            elif automation == b"true":
                 # Automation is already enabled, carry on
                 pass
             else:

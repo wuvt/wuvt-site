@@ -88,8 +88,8 @@ def perdelta(start, end, td):
 def disable_automation():
     with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
         # Make sure automation is actually enabled before changing the end time
-        if redis_conn.get("automation_enabled") == "true":
-            redis_conn.set("automation_enabled", "false")
+        if redis_conn.get("automation_enabled") == b"true":
+            redis_conn.set("automation_enabled", b"false")
             automation_set_id = redis_conn.get("automation_set")
             current_app.logger.info("Trackman: Automation disabled with "
                                     "DJSet.id = {}".format(automation_set_id))
@@ -113,7 +113,7 @@ def disable_automation():
 
 def enable_automation():
     with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
-        redis_conn.set('automation_enabled', "true")
+        redis_conn.set('automation_enabled', b"true")
 
         # try to reuse existing DJSet if possible
         automation_set = logout_all_except(1)
