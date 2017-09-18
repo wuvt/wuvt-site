@@ -12,7 +12,7 @@ def send_receipt(order):
     msg['To'] = order.email
     msg['Message-Id'] = email.utils.make_msgid()
     msg['X-Mailer'] = "wuvt-site"
-    msg['Subject'] = u"Thanks from {0}".format(
+    msg['Subject'] = "Thanks from {0}".format(
         current_app.config['STATION_NAME'])
 
     try:

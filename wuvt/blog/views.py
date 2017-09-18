@@ -1,6 +1,6 @@
 from flask import abort, current_app, redirect, render_template, request, \
         url_for
-from urlparse import urljoin
+from urllib.parse import urljoin
 from werkzeug.contrib.atom import AtomFeed
 
 from .. import cache, db
@@ -60,7 +60,7 @@ def category_feed(slug):
     articles = Article.query.filter(Article.category_id == category.id).\
         filter_by(published=True).order_by(db.desc(Article.datetime)).all()
     for article in articles:
-        feed.add(article.title, unicode(article.html_content),
+        feed.add(article.title, str(article.html_content),
                  content_type='html',
                  author=article.author.name,
                  url=make_external(url_for('.article', slug=article.slug)),
@@ -110,7 +110,7 @@ def all_feed():
     articles = Article.query.filter_by(published=True).\
         order_by(db.desc(Article.datetime)).limit(15).all()
     for article in articles:
-        feed.add(article.title, unicode(article.html_content or article.html_summary),
+        feed.add(article.title, str(article.html_content or article.html_summary),
                  content_type='html',
                  author=article.author.name,
                  url=make_external(url_for('.article', slug=article.slug)),

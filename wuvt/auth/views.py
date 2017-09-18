@@ -39,7 +39,7 @@ def get_user_roles(user, user_groups=None):
     user_roles = set([])
 
     if user_groups is not None:
-        for role, groups in app.config['AUTH_ROLE_GROUPS'].items():
+        for role, groups in list(app.config['AUTH_ROLE_GROUPS'].items()):
             for group in groups:
                 if group in user_groups:
                     user_roles.add(role)

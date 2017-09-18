@@ -8,7 +8,7 @@ from wuvt.trackman.models import DJ, Rotation, Track
 def initdb(username, password):
     db.create_all()
 
-    dj = DJ(u"Automation", u"Automation", False)
+    dj = DJ("Automation", "Automation", False)
     db.session.add(dj)
     try:
         db.session.commit()
@@ -16,23 +16,24 @@ def initdb(username, password):
         db.session.rollback()
         raise
 
-    cats = [Category(u"Events", u"events", True),
-            Category(u"Music Adds", u"music-adds", True),
-            Category(u"Programming", u"programming", True),
-            Category(u"Updates", u"station-updates", True),
-            Category(u"Woove", u"woove", True)]
+    cats = [Category("Events", "events", True),
+            Category("Music Adds", "music-adds", True),
+            Category("Programming", "programming", True),
+            Category("Updates", "station-updates", True),
+            Category("Woove", "woove", True)]
     for cat in cats:
         db.session.add(cat)
 
     # Create the first account
-    user = User(unicode(username), unicode(username),
-                u"{0}@localhost".format(username))
-    user.set_password(unicode(password))
+    user = User(str(username), str(username),
+                "{0}@localhost".format(username))
+    user.set_password(str(password))
     db.session.add(user)
 
     # The first Rotation is always the default
-    db.session.add(Rotation(u"None"))
-    map(db.session.add, map(Rotation, [u"Metal", u"New Music", u"Jazz", u"Rock", u"Americana"]))
+    db.session.add(Rotation("None"))
+    for r in ["Metal", "New Music", "Jazz", "Rock", "Americana"]:
+        db.session.add(Rotation(r))
 
     try:
         db.session.commit()
@@ -49,8 +50,8 @@ def add_sample_data():
 
 
 def add_sample_articles():
-    article = Article(u"Cloud Nothings Prize Pack Giveaway",
-                      u'cloud-nothings-prize-pack-giveaway', 1, 1, u"""\
+    article = Article("Cloud Nothings Prize Pack Giveaway",
+                      'cloud-nothings-prize-pack-giveaway', 1, 1, """\
 ![I dont even know what this is](/static/img/article_pic.png)
 
 Yolo ipsum ratione commodi repellendus minus and so I did, but that was last
@@ -90,9 +91,9 @@ fact that you bought the dream.
         db.session.rollback()
         raise
 
-    article = Article(u"Hudson Hits Another Buzzer Beater in Hokies Win",
-                      u'hudson-hits-another-buzzer-beater-in-hokies-win', 1, 1,
-                      u"""\
+    article = Article("Hudson Hits Another Buzzer Beater in Hokies Win",
+                      'hudson-hits-another-buzzer-beater-in-hokies-win', 1, 1,
+                      """\
 Yolo ipsum rerum est delectus cumque aliquam quia aliquid. I'm fucked up,
 torn down officiis accusamus repudiandae harum sint quas. Suscipit eligendi
 quasi vel veritatis enim est. Tenetur autem consequuntur sint aut soluta nostrum.
@@ -131,7 +132,7 @@ crew but my mind didn't change you won't ever have to hide qui.
 
 
 def add_sample_pages():
-    db.session.add(Page(u"Stream", u"listen-live", u"""\
+    db.session.add(Page("Stream", "listen-live", """\
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nunc sem, auctor blandit augue ac, suscipit mollis ligula. Phasellus pulvinar placerat nibh, non ultrices diam consectetur sed. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis non tellus purus. Suspendisse potenti. Donec rhoncus blandit nunc, id sollicitudin dui posuere non. Sed placerat pretium justo, sit amet congue augue viverra vitae. Sed porta sem vel egestas vestibulum. Praesent id finibus sem, eu cursus libero. In hac habitasse platea dictumst. Suspendisse tristique est sed libero fermentum vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 Phasellus mi nisl, efficitur sed lobortis sed, porta at tellus. Fusce varius vestibulum erat in rhoncus. Praesent ac neque eget eros elementum feugiat. Cras vitae nisl tempor lectus dictum dignissim eu at purus. Vestibulum sodales tincidunt egestas. Integer luctus lorem orci, ut placerat leo fermentum in. Pellentesque lacinia, diam at facilisis semper, lorem nibh pharetra dolor, eleifend pharetra elit dolor vel urna. Nulla scelerisque lectus in justo scelerisque eleifend. Etiam et nisi ut lorem aliquam fringilla.
@@ -141,8 +142,8 @@ Curabitur sit amet dui dignissim, ornare ligula sit amet, fringilla tellus. Sed 
 Nunc sed purus vitae urna bibendum eleifend eu ac quam. Cras aliquam aliquam tortor, a ornare ligula tristique a. Cras convallis scelerisque quam ut accumsan. Fusce ut iaculis mi. Ut vulputate enim quis diam dignissim iaculis. Vivamus fringilla purus vel neque tincidunt, accumsan aliquet justo porttitor. Cras vel nulla tellus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
 
 Proin vel lorem pretium, tempus velit et, sagittis tortor. Integer hendrerit massa a neque feugiat, eget semper nisi rhoncus. Mauris non nisl vitae dui varius vehicula a sed dolor. Morbi dignissim viverra vestibulum. Curabitur a egestas tellus. Curabitur vitae commodo ligula, eu sodales elit. Praesent malesuada turpis nec elit malesuada, vitae tempor est vestibulum. Vestibulum nisl erat, finibus semper egestas a, ultrices eu lorem.
-""", True, u"about"))
-    db.session.add(Page(u"Donate", u"donate", u"""\
+""", True, "about"))
+    db.session.add(Page("Donate", "donate", """\
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus rutrum sit amet libero in tempus. Duis lacinia, massa sit amet fermentum euismod, ante elit tincidunt augue, ac ultrices enim risus a urna. Curabitur finibus risus ante, eu pharetra lorem consequat nec. Etiam id eros ac diam ultrices imperdiet. Praesent suscipit, purus finibus maximus aliquet, lectus dolor fermentum nulla, non tempus velit eros sed metus. Nunc ut mollis enim, a rutrum turpis. Aliquam quis tincidunt velit, vitae accumsan neque. Phasellus ut eleifend lectus. Curabitur non quam massa. In lacinia suscipit velit, sed ultricies justo bibendum accumsan. Integer cursus ex quam, vitae maximus orci pharetra sit amet.
 
 Integer interdum risus vestibulum lacus rutrum, vitae efficitur quam lobortis. Donec pretium tellus eu ligula rutrum tristique. Vestibulum ultrices metus leo, in rhoncus nisl consectetur id. Curabitur sit amet pellentesque ante, eget fermentum nulla. Sed egestas aliquam neque, eget porttitor velit varius ut. Nam magna massa, tincidunt in est sed, imperdiet congue massa. Curabitur sem purus, pulvinar a pellentesque vel, vehicula vitae metus. Curabitur egestas sit amet mauris vel vulputate. Quisque maximus, odio vitae fringilla euismod, nibh neque sollicitudin enim, eu porttitor quam sapien id urna. Quisque interdum tortor feugiat lobortis tempus. Aliquam erat volutpat.
@@ -152,7 +153,7 @@ Fusce tempor pretium mattis. Curabitur congue erat et lorem consectetur tristiqu
 Nam feugiat porta commodo. Vestibulum tellus arcu, sollicitudin luctus vulputate in, pretium et erat. Maecenas tellus erat, scelerisque non ultricies ut, sagittis id lacus. Ut et aliquet justo. Donec sed aliquet ex. Cras hendrerit, libero a mollis hendrerit, risus metus laoreet urna, porta ornare diam nibh condimentum risus. Curabitur eget lacinia velit.
 
 Mauris egestas lectus dolor. Donec non augue id tellus volutpat ultricies. Sed consectetur magna semper tincidunt bibendum. Cras eget tempus orci. Cras pharetra ex in mauris placerat, vitae facilisis nisl egestas. Sed molestie ex mollis dolor congue posuere. Nulla sagittis lacinia tempus. Nulla et vestibulum diam. Cras id molestie metus. Aenean condimentum tellus sapien, at aliquam dui consequat vel. Cras posuere ultrices lectus. Quisque placerat velit lorem, volutpat rhoncus turpis sodales ac. Sed viverra mi elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-""", True, u"contact"))
+""", True, "contact"))
     try:
         db.session.commit()
     except:
@@ -161,7 +162,7 @@ Mauris egestas lectus dolor. Donec non augue id tellus volutpat ultricies. Sed c
 
 
 def add_sample_djs():
-    db.session.add(DJ(u'Testy McTesterson', u'Testy McTesterson'))
+    db.session.add(DJ('Testy McTesterson', 'Testy McTesterson'))
     try:
         db.session.commit()
     except:
@@ -170,8 +171,8 @@ def add_sample_djs():
 
 
 def add_sample_tracks():
-    db.session.add(Track(u'The Divine Conspiracy', u'Epica', u'The Divine Conspiracy', u'Avalon'))
-    db.session.add(Track(u'Second Stone', u'Epica', u'The Quantum Enigma', u'Nuclear Blast'))
+    db.session.add(Track('The Divine Conspiracy', 'Epica', 'The Divine Conspiracy', 'Avalon'))
+    db.session.add(Track('Second Stone', 'Epica', 'The Quantum Enigma', 'Nuclear Blast'))
     try:
         db.session.commit()
     except:

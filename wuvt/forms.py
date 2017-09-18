@@ -5,14 +5,14 @@ from .view_utils import slugify
 
 
 def strip_field(val):
-    if isinstance(val, basestring):
+    if isinstance(val, str):
         return val.strip()
     else:
         return val
 
 
 def slugify_field(val):
-    if isinstance(val, basestring):
+    if isinstance(val, str):
         return slugify(val)
     else:
         return val

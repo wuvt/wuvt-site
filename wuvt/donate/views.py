@@ -71,21 +71,21 @@ def process_order(method):
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
-    if method == u'stripe':
+    if method == 'stripe':
         token = request.form['stripe_token']
         if len(token) <= 0:
             return False, "stripe_token was empty"
 
         if recurring:
             if process_stripe_recurring(order, token, plan, shipping_cost):
-                order.set_paid(u'stripe')
+                order.set_paid('stripe')
                 mail.send_receipt(order)
             else:
                 return False, "Your card was declined. Please try again with "\
                         "a different method of payment."
         else:
             if process_stripe_onetime(order, token, amount + shipping_cost):
-                order.set_paid(u'stripe')
+                order.set_paid('stripe')
                 mail.send_receipt(order)
             else:
                 return False, "Your card was declined. Please try again with "\
@@ -93,7 +93,7 @@ def process_order(method):
     else:
         if recurring:
             return False, "Only Stripe is supported for recurring payments."
-        elif method != u'later':
+        elif method != 'later':
             order.set_paid(method)
 
     db.session.add(order)
@@ -129,7 +129,7 @@ def process():
     if len(errors) > 0:
         return render_template('donate/error.html', messages=errors), 400
 
-    success, msg = process_order(u'stripe')
+    success, msg = process_order('stripe')
     if success:
         return Response(msg)
     else:

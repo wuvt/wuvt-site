@@ -15,7 +15,7 @@ def send_logout_reminder(dj):
     msg['To'] = dj.email
     msg['Message-Id'] = email.utils.make_msgid()
     msg['X-Mailer'] = "Trackman"
-    msg['Subject'] = u"[{name}] Logout Reminder".format(
+    msg['Subject'] = "[{name}] Logout Reminder".format(
         name=current_app.config['TRACKMAN_NAME'])
 
     try:
@@ -35,7 +35,7 @@ def send_playlist(djset, tracks):
     msg['To'] = djset.dj.email
     msg['Message-Id'] = email.utils.make_msgid()
     msg['X-Mailer'] = "Trackman"
-    msg['Subject'] = u"[{name}] {djname} - Playlist from {dtend}".format(
+    msg['Subject'] = "[{name}] {djname} - Playlist from {dtend}".format(
         name=current_app.config['TRACKMAN_NAME'],
         djname=djset.dj.airname,
         dtend=format_datetime(djset.dtend, "%Y-%m-%d"))
@@ -67,7 +67,7 @@ def send_chart(chart):
     msg['Message-Id'] = email.utils.make_msgid()
     msg['X-Mailer'] = "Trackman"
     timestamp = datetime.utcnow()
-    msg['Subject'] = u"[{name}] New Music Chart {timestamp}".format(
+    msg['Subject'] = "[{name}] New Music Chart {timestamp}".format(
         name=current_app.config['TRACKMAN_NAME'],
         timestamp=format_datetime(timestamp, "%Y-%m-%d"))
 

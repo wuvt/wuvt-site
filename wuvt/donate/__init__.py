@@ -25,7 +25,7 @@ def process_stripe_onetime(order, stripe_token, amount):
             currency="usd",
             source=stripe_token,
             description="Order #{}".format(order.id))
-    except stripe.CardError, e:
+    except stripe.CardError as e:
         return False
 
     return True
@@ -40,7 +40,7 @@ def process_stripe_recurring(order, stripe_token, plan, shipping_cost=0):
             card=stripe_token,
             email=order.email
         )
-    except stripe.CardError, e:
+    except stripe.CardError as e:
         return False
 
     order.custid = customer.id

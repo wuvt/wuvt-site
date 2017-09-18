@@ -82,7 +82,7 @@ class AutomationLog(TrackmanStudioResource):
 
         album = form.album.data
         if len(album) <= 0:
-            album = u"Not Available"
+            album = "Not Available"
 
         if artist.lower() in ("wuvt", "pro", "soo", "psa", "lnr", "ua"):
             # TODO: implement airlog logging
@@ -100,7 +100,7 @@ class AutomationLog(TrackmanStudioResource):
                 label))
         else:
             # Handle automation not providing a label
-            label = u"Not Available"
+            label = "Not Available"
             tracks = models.Track.query.filter(
                 db.func.lower(models.Track.title) == db.func.lower(title),
                 db.func.lower(models.Track.artist) == db.func.lower(artist),
@@ -114,7 +114,7 @@ class AutomationLog(TrackmanStudioResource):
                     db.session.rollback()
                     raise
             else:
-                notauto = tracks.filter(models.Track.label != u"Not Available")
+                notauto = tracks.filter(models.Track.label != "Not Available")
                 if notauto.count() == 0:
                     # The only option is "not available label"
                     track = tracks.first()
