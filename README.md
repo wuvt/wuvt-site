@@ -118,7 +118,7 @@ Besides the exceptions noted below, the entirety of this software is available
 under the GNU Affero General Public License:
 
 ```
-Copyright 2012-2016 James Schwinabart, Calvin Winkowski, Matt Hazinski.
+Copyright 2012-2017 James Schwinabart, Calvin Winkowski, Matt Hazinski.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
