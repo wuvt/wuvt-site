@@ -20,13 +20,23 @@ class DJ(db.Model):
         self.name = name
         self.visible = visible
 
-    def serialize(self):
-        return {
+    def serialize(self, include_private=False):
+        data = {
             'id': self.id,
             'airname': self.airname,
             'name': self.name,
             'visible': self.visible,
         }
+
+        if include_private:
+            data.update({
+                'phone': self.phone,
+                'email': self.email,
+                'genres': self.genres,
+                'time_added': self.time_added,
+            })
+
+        return data
 
 
 class DJSet(db.Model):

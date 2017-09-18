@@ -5,22 +5,24 @@ from .v1.airlog import AirLog, AirLogList
 from .v1.autologout import AutologoutControl
 from .v1.automation import AutomationLog
 from .v1.dj import DJ
-from .v1.djset import DJSet, DJSetList
+from .v1.djset import DJSet, DJSetEnd, DJSetList
+from .v1.rotation import RotationList
 from .v1.track import Track, TrackReport, TrackSearch, TrackAutoComplete, \
     TrackList
 from .v1.tracklog import TrackLog, TrackLogList
 from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
     DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, DJVinylSpinCharts
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
-    PlaylistsByDay, PlaylistDJs, PlaylistAllDJs, PlaylistsByDJ, Playlist, \
-    PlaylistTrack
+    PlaylistsByDay, PlaylistsByDateRange, PlaylistDJs, PlaylistAllDJs, \
+    PlaylistsByDJ, Playlist, PlaylistTrack
 
 
 api_bp = Blueprint('trackman_api', __name__)
 api = Api(api_bp)
 api.add_resource(AutomationLog, '/automation/log')
-api.add_resource(DJ, '/dj/<int:djset_id>')
+api.add_resource(DJ, '/dj/<int:dj_id>')
 api.add_resource(DJSet, '/djset/<int:djset_id>')
+api.add_resource(DJSetEnd, '/djset/<int:djset_id>/end')
 api.add_resource(DJSetList, '/djset')
 api.add_resource(Track, '/track/<int:track_id>')
 api.add_resource(TrackReport, '/track/<int:track_id>/report')
@@ -32,6 +34,7 @@ api.add_resource(TrackLogList, '/tracklog')
 api.add_resource(AutologoutControl, '/autologout')
 api.add_resource(AirLog, '/airlog/edit/<int:airlog_id>')
 api.add_resource(AirLogList, '/airlog')
+api.add_resource(RotationList, '/rotations')
 api.add_resource(Charts, '/charts')
 api.add_resource(AlbumCharts,
                  '/charts/albums',
@@ -58,6 +61,7 @@ api.add_resource(Last15Tracks, '/playlists/last15')
 api.add_resource(LatestTrack, '/playlists/latest_track')
 api.add_resource(PlaylistsByDay,
                  '/playlists/date/<int:year>/<int:month>/<int:day>')
+api.add_resource(PlaylistsByDateRange, '/playlists/date/range')
 api.add_resource(PlaylistDJs, '/playlists/dj')
 api.add_resource(PlaylistAllDJs, '/playlists/dj/all')
 api.add_resource(PlaylistsByDJ, '/playlists/dj/<int:dj_id>')

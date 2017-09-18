@@ -40,7 +40,7 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
     }
 
     $.ajax({
-        'url': '/playlists/date/data?start=' + start.toISOString() + '&end=' + dateToLoad.toISOString(),
+        'url': '/trackman/api/playlists/date/range?start=' + start.toISOString() + '&end=' + dateToLoad.toISOString(),
         'dataType': 'json',
     }).done(function(data) {
         var sets = data['sets'];

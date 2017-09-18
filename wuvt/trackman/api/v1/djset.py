@@ -1,9 +1,11 @@
-from flask import request, session
+import datetime
+from flask import current_app, json, request, session
 from flask_restful import abort
 from redis_lock import Lock
 from wuvt import db, redis_conn
-from wuvt.trackman import models
-from wuvt.trackman.lib import disable_automation, logout_all_except
+from wuvt.trackman import mail, models
+from wuvt.trackman.lib import check_onair, disable_automation, \
+    logout_all_except
 from .base import TrackmanResource
 
 
@@ -28,10 +30,12 @@ class DJSet(TrackmanResource):
           404:
             description: DJSet not found
         """
-
         djset = models.DJSet.query.get(djset_id)
         if not djset:
             abort(404, success=False, message="DJSet not found")
+
+        if djset.dj_id != session.get('dj_id', None):
+            abort(403, success=False)
 
         if djset.dtend is not None:
             abort(401, success=False, message="Session expired, please login again")
@@ -51,6 +55,69 @@ class DJSet(TrackmanResource):
                 'tracklog': [i.serialize() for i in djset.tracks],
                 'airlog': [i.serialize() for i in djset.airlog],
             }
+
+
+class DJSetEnd(TrackmanResource):
+    def post(self, djset_id):
+        """
+        End an existing DJSet
+        ---
+        operation: endDjset
+        tags:
+        - trackman
+        - djset
+        responses:
+          200:
+            description: DJSet ended
+        """
+        djset = models.DJSet.query.get(djset_id)
+        if not djset:
+            abort(404, success=False, message="DJSet not found")
+
+        if djset.dj_id != session.get('dj_id', None):
+            abort(403, success=False)
+
+        if djset.dtend is not None:
+            abort(400, success=False, message="DJSet has already ended")
+
+        with Lock(redis_conn, 'end_djset', expire=60, auto_renewal=True):
+            djset.dtend = datetime.datetime.utcnow()
+
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
+
+            session.pop('dj_id', None)
+            session.pop('djset_id', None)
+
+            redis_conn.publish('trackman_dj_live', json.dumps({
+                'event': "session_end",
+            }))
+
+            if check_onair(djset_id):
+                redis_conn.delete('onair_djset_id')
+
+            # Reset the dj activity timeout period
+            redis_conn.delete('dj_timeout')
+
+            # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation
+            # start time
+            redis_conn.set('dj_active', 'false')
+            redis_conn.expire(
+                'dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
+
+            # email playlist
+            if request.form.get('email_playlist', 'false') == 'true':
+                tracks = models.TrackLog.query.\
+                    filter(models.TrackLog.djset_id == djset.id).\
+                    order_by(models.TrackLog.played).all()
+                mail.send_playlist(djset, tracks)
+
+        return {
+            'success': True,
+        }
 
 
 class DJSetList(TrackmanResource):
@@ -76,11 +143,11 @@ class DJSetList(TrackmanResource):
         """
         dj_id = session.get('dj_id', None)
         if dj_id is None:
-            abort(403)
+            abort(403, success=False)
 
         dj = models.DJ.query.get(dj_id)
         if dj is None or dj.phone is None or dj.email is None:
-            abort(403,
+            abort(403, success=False,
                   message="You must complete your DJ profile to continue.")
 
         disable_automation()
