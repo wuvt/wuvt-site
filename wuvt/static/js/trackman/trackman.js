@@ -1044,7 +1044,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             }
 
             $.ajax({
-                url: this.baseUrl + "/api/tracklog/edit/" + id,
+                url: inst.baseUrl + "/api/tracklog/edit/" + id,
                 data: {
                     "artist":   track['artist'],
                     "album":    track['album'],
