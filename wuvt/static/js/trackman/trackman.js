@@ -1171,7 +1171,7 @@ Trackman.prototype.reportTrack = function(id) {
     $('#report_submit_btn').off('click');
     $('#report_submit_btn').on('click', function() {
         $.ajax({
-            url: this.baseUrl + "/api/track/" + id + "/report",
+            url: inst.baseUrl + "/api/track/" + id + "/report",
             data: {
                 'dj_id': inst.djId,
                 'reason': $('#id_report_reason').val(),
