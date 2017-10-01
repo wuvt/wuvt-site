@@ -91,8 +91,9 @@ def disable_automation():
         if redis_conn.get("automation_enabled") == b"true":
             redis_conn.set("automation_enabled", b"false")
             automation_set_id = redis_conn.get("automation_set")
-            current_app.logger.info("Trackman: Automation disabled with "
-                                    "DJSet.id = {}".format(automation_set_id))
+            current_app.logger.info(
+                "Trackman: Automation disabled with DJSet.id = {}".format(
+                    int(automation_set_id)))
             if automation_set_id is not None:
                 automation_set = DJSet.query.get(int(automation_set_id))
                 if automation_set is not None:
