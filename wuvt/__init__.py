@@ -9,6 +9,7 @@ import os
 import redis
 import defaults
 import uuid
+import datetime
 
 json_mimetypes = ['application/json']
 
@@ -121,6 +122,11 @@ def inject_nowplaying():
 def inject_categories():
     from wuvt.blog import list_categories_cached
     return {'categories': list_categories_cached()}
+
+
+@app.context_processor
+def inject_year():
+    return {'year': datetime.date.today().strftime("%Y")}
 
 
 @app.context_processor
