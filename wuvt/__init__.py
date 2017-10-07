@@ -7,7 +7,7 @@ from werkzeug.contrib.cache import RedisCache
 import humanize
 import os
 import redis
-import defaults
+from . import defaults
 import uuid
 import datetime
 
@@ -106,13 +106,13 @@ def inject_nowplaying():
     track = trackinfo()
     if not track:
         return {
-            'current_track': u"Not Available",
-            'current_dj': u"Not Available",
+            'current_track': "Not Available",
+            'current_dj': "Not Available",
             'current_dj_id': 0,
         }
 
     return {
-        'current_track': u"{artist} - {title}".format(**track),
+        'current_track': "{artist} - {title}".format(**track),
         'current_dj': track['dj'],
         'current_dj_id': track['dj_id']
     }
@@ -131,7 +131,7 @@ def inject_year():
 
 @app.context_processor
 def inject_radiothon():
-    return {'radiothon': redis_conn.get('radiothon') == "true"}
+    return {'radiothon': redis_conn.get('radiothon') == b"true"}
 
 
 if app.debug:

@@ -24,7 +24,7 @@ def login():
         session['dj_id'] = dj.id
         return redirect(url_for('.log'))
 
-    automation = redis_conn.get('automation_enabled') == "true"
+    automation = redis_conn.get('automation_enabled') == b"true"
 
     djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
     return render_template('trackman/login.html',
@@ -57,7 +57,7 @@ def login_all():
         session['dj_id'] = dj.id
         return redirect(url_for('.log'))
 
-    automation = redis_conn.get('automation_enabled') == "true"
+    automation = redis_conn.get('automation_enabled') == b"true"
 
     djs = DJ.query.order_by(DJ.airname).all()
     return render_template('trackman/login_all.html',
@@ -68,7 +68,7 @@ def login_all():
 @private_bp.route('/automation/start', methods=['POST'])
 @local_only
 def start_automation():
-    automation = redis_conn.get('automation_enabled') == "true"
+    automation = redis_conn.get('automation_enabled') == b"true"
     if not automation:
         current_app.logger.warning(
             "Trackman: Start automation from {ip} using {ua}".format(

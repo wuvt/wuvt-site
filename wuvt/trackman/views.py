@@ -39,16 +39,16 @@ def last15_feed():
     result = call_api(playlists.Last15Tracks, 'GET')
     tracks = result['tracks']
     feed = AtomFeed(
-        u"{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
+        "{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
         feed_url=request.url,
         url=make_external(url_for('.last15')))
 
     for tracklog in tracks:
         feed.add(
-            u"{artist}: '{title}'".format(
+            "{artist}: '{title}'".format(
                 artist=tracklog['track']['artist'],
                 title=tracklog['track']['title']),
-            u"'{title}' by {artist} on {album} spun by {dj}".format(
+            "'{title}' by {artist} on {album} spun by {dj}".format(
                 album=tracklog['track']['album'],
                 artist=tracklog['track']['artist'],
                 title=tracklog['track']['title'],
@@ -69,7 +69,7 @@ def latest_track():
     if request.wants_json():
         return jsonify(trackinfo())
 
-    return Response(u"{artist} - {title}".format(**trackinfo()),
+    return Response("{artist} - {title}".format(**trackinfo()),
                     mimetype="text/plain")
 
 
@@ -81,14 +81,14 @@ def latest_track_clean():
         re.IGNORECASE)
 
     track = trackinfo()
-    for k, v in track.items():
-        if type(v) == str or type(v) == unicode:
-            track[k] = naughty_word_re.sub(u'****', v)
+    for k, v in list(track.items()):
+        if type(v) == str or type(v) == str:
+            track[k] = naughty_word_re.sub('****', v)
 
     if request.wants_json():
         return jsonify(track)
 
-    output = u"{artist} - {title} [DJ: {dj}]".format(**track)
+    output = "{artist} - {title} [DJ: {dj}]".format(**track)
     return Response(output, mimetype="text/plain")
 
 
@@ -97,7 +97,7 @@ def latest_track_slack():
     track = trackinfo()
 
     if track['dj_id'] > 0:
-        dj_link = u'<{url}|{dj}>'.format(
+        dj_link = '<{url}|{dj}>'.format(
             dj=track['dj'],
             url=make_external(url_for('.playlists_dj_sets',
                                       dj_id=track['dj_id'])))
@@ -105,8 +105,8 @@ def latest_track_slack():
         dj_link = track['dj']
 
     return jsonify({
-        "response_type": u"in_channel",
-        "text": u"*{artist} - {title}*\nDJ: {dj_link}".format(
+        "response_type": "in_channel",
+        "text": "*{artist} - {title}*\nDJ: {dj_link}".format(
             dj_link=dj_link, **track),
     })
 
@@ -114,7 +114,7 @@ def latest_track_slack():
 @bp.route('/playlists/latest_track_stream')
 @bp.route('/playlists/latest_track_stream.php')
 def latest_track_stream():
-    return Response(u"""\
+    return Response("""\
 title={title}
 artist={artist}
 album={album}

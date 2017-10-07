@@ -19,7 +19,7 @@ class AuthManager(object):
         self.all_roles = set()
 
         self.exempt_methods = set(['OPTIONS'])
-        self.login_message = u"Please login to access this page."
+        self.login_message = "Please login to access this page."
         self.login_message_category = 'message'
 
         if db is not None:
@@ -68,7 +68,7 @@ class AuthManager(object):
                 'auth.oidc_callback', _external=True)
 
     def generate_session_id(self):
-        return base64.urlsafe_b64encode(os.urandom(64))
+        return base64.urlsafe_b64encode(os.urandom(64)).decode('ascii')
 
     def load_user_session(self):
         ctx = _request_ctx_stack.top
@@ -125,7 +125,7 @@ class AuthManager(object):
             session_id=session_id,
             user_id=user.id,
             expires=datetime.datetime.utcnow() + self.app.permanent_session_lifetime,
-            user_agent=unicode(request.user_agent),
+            user_agent=str(request.user_agent),
             remote_addr=request.remote_addr,
             roles=roles)
         self.db.session.add(user_session)

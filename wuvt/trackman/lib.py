@@ -1,5 +1,5 @@
 import requests
-import urlparse
+import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app, json
 from redis_lock import Lock
@@ -88,11 +88,12 @@ def perdelta(start, end, td):
 def disable_automation():
     with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
         # Make sure automation is actually enabled before changing the end time
-        if redis_conn.get("automation_enabled") == "true":
-            redis_conn.set("automation_enabled", "false")
+        if redis_conn.get("automation_enabled") == b"true":
+            redis_conn.set("automation_enabled", b"false")
             automation_set_id = redis_conn.get("automation_set")
-            current_app.logger.info("Trackman: Automation disabled with "
-                                    "DJSet.id = {}".format(automation_set_id))
+            current_app.logger.info(
+                "Trackman: Automation disabled with DJSet.id = {}".format(
+                    int(automation_set_id)))
             if automation_set_id is not None:
                 automation_set = DJSet.query.get(int(automation_set_id))
                 if automation_set is not None:
@@ -113,7 +114,7 @@ def disable_automation():
 
 def enable_automation():
     with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
-        redis_conn.set('automation_enabled', "true")
+        redis_conn.set('automation_enabled', b"true")
 
         # try to reuse existing DJSet if possible
         automation_set = logout_all_except(1)
@@ -139,13 +140,13 @@ def stream_listeners(url, mounts=None, timeout=5):
 
     try:
         # this requires icecast 2.4
-        r = requests.get(urlparse.urljoin(url, 'status-json.xsl'),
+        r = requests.get(urllib.parse.urljoin(url, 'status-json.xsl'),
                          timeout=timeout)
         data = r.json()
         listeners = 0
         for source in data['icestats']['source']:
             if mounts is not None and len(mounts) > 0:
-                parsed_url = urlparse.urlparse(source['listenurl'])
+                parsed_url = urllib.parse.urlparse(source['listenurl'])
                 if parsed_url.path not in mounts:
                     continue
             listeners += int(source['listeners'])
@@ -237,16 +238,6 @@ def merge_duplicate_tracks(*args, **kwargs):
     tracks = track_query.all()
     track_id = int(tracks[0].id)
 
-    def delete_track(track):
-        lock = Lock(redis_conn, 'track_{}'.format(track.id), expire=60,
-                    auto_renewal=True)
-        if lock.acquire(timeout=1):
-            ret = db.session.delete(track)
-            lock.release()
-            return ret
-        else:
-            return False
-
     if len(tracks) > 1:
         with Lock(redis_conn, 'track_{}'.format(track_id), expire=60,
                   auto_renewal=True):
@@ -256,7 +247,12 @@ def merge_duplicate_tracks(*args, **kwargs):
                 {TrackLog.track_id: track_id}, synchronize_session=False)
 
             # delete existing Track entries
-            map(delete_track, tracks[1:])
+            for track in tracks[1:]:
+                lock = Lock(redis_conn, 'track_{}'.format(track.id), expire=60,
+                            auto_renewal=True)
+                if lock.acquire(timeout=1):
+                    ret = db.session.delete(track)
+                    lock.release()
 
             try:
                 db.session.commit()
@@ -321,13 +317,13 @@ def deduplicate_all_tracks(ignore_case=False):
 
 
 def autofill_na_labels():
-    na_label_tracks = Track.query.filter(Track.label == u"Not Available").all()
+    na_label_tracks = Track.query.filter(Track.label == "Not Available").all()
     for na_track in na_label_tracks:
         other_track = Track.query.filter(db.and_(
             Track.artist == na_track.artist,
             Track.title == na_track.title,
             Track.album == na_track.album,
-            Track.label != u"Not Available")).first()
+            Track.label != "Not Available")).first()
         if other_track is not None:
             with Lock(redis_conn, 'track_{}'.format(other_track.id), expire=60,
                       auto_renewal=True):

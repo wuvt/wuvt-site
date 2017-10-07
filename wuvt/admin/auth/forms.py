@@ -5,7 +5,7 @@ from wuvt.auth.models import User
 
 
 def strip_field(val):
-    if isinstance(val, basestring):
+    if isinstance(val, str):
         return val.strip()
     else:
         return val

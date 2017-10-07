@@ -44,7 +44,7 @@ class ResourceCache(Cache):
             dirty = True
 
         if dirty:
-            self.cache.set_many(dict(zip(fetch_keys, version_data_list)),
+            self.cache.set_many(dict(list(zip(fetch_keys, version_data_list))),
                                 timeout=timeout)
 
         return fname, ''.join(version_data_list)

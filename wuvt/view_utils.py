@@ -5,7 +5,7 @@ import netaddr
 import re
 import socket
 import unidecode
-import urlparse
+import urllib.parse
 
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 _slug_pattern = re.compile(r"[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._~:/?#\[\]@!$&'()*+,;=\-]*")
@@ -16,8 +16,8 @@ class IPAccessDeniedException(Exception):
 
 
 def is_safe_url(target):
-    ref_url = urlparse.urlparse(request.host_url)
-    test_url = urlparse.urlparse(urlparse.urljoin(request.host_url, target))
+    ref_url = urllib.parse.urlparse(request.host_url)
+    test_url = urllib.parse.urlparse(urllib.parse.urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
         ref_url.netloc == test_url.netloc
 
@@ -54,7 +54,7 @@ def redirect_back(endpoint, **values):
     return redirect(target)
 
 
-def slugify(text, delim=u'-'):
+def slugify(text, delim='-'):
     """Generates an ASCII-only slug and validates that it is an acceptable
     character set as per rfc3986"""
     if _slug_pattern.match(text) is None:
@@ -64,12 +64,12 @@ def slugify(text, delim=u'-'):
     result = []
     for word in _punct_re.split(text.lower()):
         result.extend(unidecode.unidecode(word).split())
-    return unicode(delim.join(result))
+    return str(delim.join(result))
 
 
 def sse_response(channel):
     if request.headers.get('accept') == 'text/event-stream':
-        u = urlparse.urlparse(app.config['REDIS_URL'])
+        u = urllib.parse.urlparse(app.config['REDIS_URL'])
 
         server = u.hostname
         if ':' not in server:
