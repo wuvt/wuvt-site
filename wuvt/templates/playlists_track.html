@@ -16,7 +16,7 @@
 <h2>Spins</h2>
 <ul>
     {% for tracklog in tracklogs %}
-    {% if tracklog.djset_id > 0 -%}
+    {% if tracklog.djset_id is not none and tracklog.djset_id > 0 -%}
     <li><a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('trackman.playlists_dj_sets', dj_id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
     {% endif -%}
     {% endfor %}
