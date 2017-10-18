@@ -74,7 +74,7 @@ class AuthManager(object):
         ctx = _request_ctx_stack.top
 
         session_id = session.get('user_session_id')
-        if session_id is None:
+        if session_id is None or type(session_id) != str:
             ctx.user = AnonymousUserMixin()
             ctx.user_roles = set([])
         else:
@@ -143,7 +143,7 @@ class AuthManager(object):
 
     def logout_user(self):
         session_id = session.pop('user_session_id', None)
-        if session_id is not None:
+        if session_id is not None or type(session_id) != str:
             user_session = UserSession.query.get(session_id)
             if user_session is not None:
                 self.db.session.delete(user_session)
