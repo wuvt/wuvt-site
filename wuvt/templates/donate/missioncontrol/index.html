@@ -11,7 +11,7 @@
     <input type="hidden" name="stripe_token" id="id_stripe_token" value="" />
 
     <div class="form-group">
-        <label for="id_name" class="col-sm-3 control-label">Your Name</label>
+        <label for="id_name" class="col-sm-3 control-label">Donor Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name" value=""
                 class="form-control" />
@@ -69,25 +69,25 @@
 
     {% if config.DONATE_PREMIUMS %}
     <div class="form-group">
-        <label class="col-sm-3 control-label">Would you like any premiums?</label>
+        <label class="col-sm-3 control-label">Would they like any premiums?</label>
 
         <div class="col-sm-9">
             <div class="radio">
                 <input type="radio" name="premiums" id="id_premiums_no"
                     value="no" checked="checked" />
-                <label for="id_premiums_no">No, I'd like my entire donation to go towards WUVT</label>
+                <label for="id_premiums_no">No, they want their entire donation to go towards WUVT</label>
             </div>
 
             <div class="radio">
                 <input type="radio" name="premiums" id="id_premiums_pickup"
                     value="pickup" />
-                <label for="id_premiums_pickup">Yes, I'll pick them up in 350 Squires Student Center</label>
+                <label for="id_premiums_pickup">Yes, they'll pick them up in 350 Squires Student Center</label>
             </div>
 
             <div class="radio">
                 <input type="radio" name="premiums" id="id_premiums_ship"
                     value="ship" />
-                <label for="id_premiums_ship">Yes, ship them to me (+${{ config.DONATE_SHIPPING_COST }}, US only)</label>
+                <label for="id_premiums_ship">Yes, ship their premiums to them (+${{ config.DONATE_SHIPPING_COST }}, US only)</label>
             </div>
         </div>
     </div>
@@ -174,7 +174,7 @@
     {% endif %}
 
     <div class="form-group">
-        <label for="id_onair" class="col-sm-3 control-label">May we thank you publicly?</label>
+        <label for="id_onair" class="col-sm-3 control-label">May we thank them publicly?</label>
         <div class="col-sm-9">
             <select name="onair" id="id_onair" class="form-control">
                 <option value="y">Yes</option>
@@ -184,7 +184,7 @@
     </div>
 
     <div class="form-group">
-        <label for="id_firsttime" class="col-sm-3 control-label">Is this your first time contributing?</label>
+        <label for="id_firsttime" class="col-sm-3 control-label">Is this their first time contributing?</label>
         <div class="col-sm-9">
             <select name="firsttime" id="id_firsttime" class="form-control">
                 <option value="y">Yes</option>
