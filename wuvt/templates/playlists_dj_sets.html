@@ -8,11 +8,14 @@
         <h3>{{ dj.airname }}</h3>
     </header>
 
-    <ul>
-        {% for set in sets %}
+{% for year, year_sets in sets|groupby('dtstart.year') %}
+    <h4 id="year_{{ year }}">{{ year }}</h4>
+    <ul id="year_{{ year }}_data">
+        {%- for set in year_sets %}
         <li><a href="{{ url_for('trackman.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtstart|datetime("%Y-%m-%d %H:%M") }}</time>{% if set.dtend %}-<time datetime="{{ set.dtend|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtend|datetime("%Y-%m-%d %H:%M") }}</time>{% endif %}</a></li>
-        {% endfor %}
+        {%- endfor %}
     </ul>
+{%- endfor %}
 </section>
 
 <section>
@@ -24,7 +27,6 @@
         <li><a href="{{ url_for('trackman.charts_albums_dj', dj_id=dj.id) }}">Top albums for this DJ</a></li>
         <li><a href="{{ url_for('trackman.charts_artists_dj', dj_id=dj.id) }}">Top artists for this DJ</a></li>
         <li><a href="{{ url_for('trackman.charts_tracks_dj', dj_id=dj.id) }}">Top tracks for this DJ</a></li>
-
     </ul>
 </section>
 {% endblock %}
