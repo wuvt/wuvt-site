@@ -14,12 +14,16 @@
 {% endif %}
 
 <h2>Spins</h2>
-<ul>
-    {% for tracklog in tracklogs %}
-    {% if tracklog.djset_id is not none and tracklog.djset_id > 0 -%}
+
+{% for year, year_tracklogs in tracklogs|groupby('played.year') %}
+<h4 id="year_{{ year }}">{{ year }}</h4>
+<ul id="year_{{ year }}_data">
+    {%- for tracklog in year_tracklogs %}
+    {%- if tracklog.djset_id is not none and tracklog.djset_id > 0 %}
     <li><a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('trackman.playlists_dj_sets', dj_id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
-    {% endif -%}
-    {% endfor %}
+    {%- endif %}
+    {%- endfor %}
 </ul>
+{% endfor %}
 </section>
 {% endblock %}

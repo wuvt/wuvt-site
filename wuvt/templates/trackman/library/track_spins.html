@@ -24,13 +24,18 @@
 </ul>
 
 <div class="panel-body">
-    <ul>
-        {% for tracklog in tracklogs %}
-        {% if tracklog.djset_id > 0 -%}
-        <li><a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('trackman_library.dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
-        {% endif -%}
-        {% endfor %}
+{% for group in tracklogs|groupby('played.year') %}
+    <h3 id="year_{{ group.grouper }}">{{ group.grouper }}</h3>
+    <ul class="list-group">
+        {%- for tracklog in group.list %}
+        {%- if tracklog.djset_id > 0 %}
+        <li class="list-group-item">
+            <a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('trackman_library.dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a>
+        </li>
+        {%- endif %}
+        {%- endfor %}
     </ul>
+{% endfor %}
 </div>
 
 {% endblock %}
