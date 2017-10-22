@@ -19,13 +19,18 @@ def list_plans():
 def process_stripe_onetime(order, stripe_token, amount):
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
+    extra_data = {}
+    if order.email is not None and len(order.email) > 0:
+        extra_data['receipt_email'] = order.email
+
     try:
         # charge the customer using stripe_token
         charge = stripe.Charge.create(
             amount=amount,
             currency="usd",
             source=stripe_token,
-            description="Order #{}".format(order.id))
+            metadata={'order_id': order.id},
+            **extra_data)
     except stripe.CardError as e:
         return False
 

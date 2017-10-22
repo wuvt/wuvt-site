@@ -198,7 +198,7 @@
 
         <div class="col-sm-9">
             <select name="method" id="id_method" class="form-control">
-                <option value="stripe">Credit Card</option>
+                <option value="stripe_missioncontrol">Credit Card</option>
                 <option value="later">Pay Later</option>
             </select>
         </div>
@@ -236,5 +236,5 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/donate.js') }}"></script>
 <script src="https://checkout.stripe.com/checkout.js"></script>
-<script src="{{ url_for('donate.missioncontrol_donate_js') }}"></script>
+<script src="{{ url_for('donate.missioncontrol_donate_js', v=1) }}"></script>
 {% endblock %}

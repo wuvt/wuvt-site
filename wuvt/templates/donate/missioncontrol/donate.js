@@ -25,12 +25,16 @@ var handler = StripeCheckout.configure({
 });
 
 $('#donate_form').submit(function(ev) {
-    if($('#id_method').val() == "stripe") {
+    if($('#id_method').val() == "stripe_missioncontrol") {
         var opts = {
             name: "{{ config.STRIPE_NAME }}",
             description: "Donate Online",
             currency: "usd",
+{% if config.STRIPE_MISSIONCONTROL_EMAIL|length > 0 %}
+            email: "{{ config.STRIPE_MISSIONCONTROL_EMAIL }}",
+{% else %}
             email: $('#id_email').val(),
+{% endif %}
             bitcoin: false,
             panelLabel: "Charge {{ '{{amount}}' }}",
         };
