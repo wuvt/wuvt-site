@@ -12,7 +12,8 @@ def get_plan(id):
 
 def list_plans():
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
-    return stripe.Plan.all()['data']
+    plans = stripe.Plan.all()['data']
+    return sorted(plans, key=lambda x: x.amount)
 
 
 def process_stripe_onetime(order, stripe_token, amount):
