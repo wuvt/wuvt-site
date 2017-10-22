@@ -6,7 +6,7 @@ import smtplib
 
 def send_receipt(order):
     msg = MIMEText(render_template('donate/email/receipt.txt',
-                                   order=order).encode('utf-8'))
+                                   order=order))
     msg['Date'] = email.utils.formatdate()
     msg['From'] = current_app.config['DONATE_MAIL_FROM']
     msg['To'] = order.email
