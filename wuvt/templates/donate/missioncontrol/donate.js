@@ -25,6 +25,12 @@ var handler = StripeCheckout.configure({
 });
 
 $('#donate_form').submit(function(ev) {
+    if($('#id_premiums_ship').is(':checked') && ($('#id_address_1').val().length <= 0 || $('#id_city').val().length <= 0 || $('#id_state').val().length <= 0 || $('#id_zipcode').val().length <= 0)) {
+        alert("Please fill out the address fields.");
+        ev.preventDefault();
+        return;
+    }
+
     if($('#id_method').val() == "stripe_missioncontrol") {
         var opts = {
             name: "{{ config.STRIPE_NAME }}",
@@ -41,7 +47,7 @@ $('#donate_form').submit(function(ev) {
 
         var selectedPlan = $('option:selected', $('#id_plan'));
 
-        if(selectedPlan.val() > 0) {
+        if(selectedPlan.val().length > 0) {
             var amount = parseInt(selectedPlan.attr('data-amount'));
             if($('#id_premiums_ship').is(':checked') && amount >= shippingMin) {
                 amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
@@ -50,7 +56,7 @@ $('#donate_form').submit(function(ev) {
             // Open Checkout with options
             opts['amount'] = amount;
             handler.open(opts);
-        } else if($('#id_amount').length > 0) {
+        } else if($('#id_amount').val().length > 0) {
             var amount = parseFloat($('#id_amount').val()) * 100;
             if($('#id_premiums_ship').is(':checked') && amount >= shippingMin) {
                 amount += parseInt("{{ config.DONATE_SHIPPING_COST }}") * 100;
