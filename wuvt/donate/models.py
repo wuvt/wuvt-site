@@ -10,13 +10,14 @@ class Order(db.Model):
     email = db.Column(db.Unicode(255))
     phone = db.Column(db.Unicode(12))
     placed_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-
-    # ip_address
+    remote_addr = db.Column(db.Unicode(50))
+    user_agent = db.Column(db.Unicode(255))
     dj = db.Column(db.UnicodeText)
     thank_on_air = db.Column(db.Boolean, default=False)
     first_time = db.Column(db.Boolean, default=True)
+    donor_comment = db.Column(db.UnicodeText)
 
-    premiums = db.Column(db.Unicode(255))               #*mail, pickup, or none
+    premiums = db.Column(db.Unicode(255))               # mail, pickup, or none
     address1 = db.Column(db.Unicode(255))
     address2 = db.Column(db.Unicode(255))
     city = db.Column(db.Unicode(255))

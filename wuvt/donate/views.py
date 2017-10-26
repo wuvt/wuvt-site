@@ -50,6 +50,8 @@ def process_order(method):
                   request.form.get('onair', 'n') == 'y',
                   request.form.get('firsttime', 'n') == 'y',
                   amount, recurring)
+    order.remote_addr = request.remote_addr
+    order.user_agent = str(request.user_agent)
 
     if 'phone' in request.form:
         # if a phone number is provided, set it
@@ -71,21 +73,28 @@ def process_order(method):
                           request.form['city'], request.form['state'],
                           request.form['zipcode'])
 
-    if method == 'stripe':
+    db.session.add(order)
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
+
+    if method == 'stripe' or method == 'stripe_missioncontrol':
         token = request.form['stripe_token']
         if len(token) <= 0:
             return False, "stripe_token was empty"
 
         if recurring:
             if process_stripe_recurring(order, token, plan, shipping_cost):
-                order.set_paid('stripe')
+                order.set_paid(method)
                 mail.send_receipt(order)
             else:
                 return False, "Your card was declined. Please try again with "\
                         "a different method of payment."
         else:
             if process_stripe_onetime(order, token, amount + shipping_cost):
-                order.set_paid('stripe')
+                order.set_paid(method)
                 mail.send_receipt(order)
             else:
                 return False, "Your card was declined. Please try again with "\
@@ -96,12 +105,12 @@ def process_order(method):
         elif method != 'later':
             order.set_paid(method)
 
-    db.session.add(order)
     try:
         db.session.commit()
     except:
         db.session.rollback()
         raise
+
     return True, "Thanks for your order!"
 
 
