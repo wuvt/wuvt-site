@@ -67,7 +67,7 @@ class DJ(TrackmanResource):
                 dj.visible = True
             if dj.email is None and len(form.email.data) > 0:
                 dj.email = form.email.data
-            if dj.phone is None and len(form.email.data) > 0:
+            if dj.phone is None and len(form.phone.data) > 0:
                 dj.phone = form.phone.data
         else:
             return {
