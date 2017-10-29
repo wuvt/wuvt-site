@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    {% if config.DONATE_PREMIUMS %}
+{% if premiums_config.enabled %}
     <div class="form-group">
         <label class="col-sm-3 control-label">Would they like any premiums?</label>
 
@@ -87,47 +87,53 @@
             <div class="radio">
                 <input type="radio" name="premiums" id="id_premiums_ship"
                     value="ship" />
-                <label for="id_premiums_ship">Yes, ship their premiums to them (+${{ config.DONATE_SHIPPING_COST }}, US only)</label>
+                <label for="id_premiums_ship">Yes, ship their premiums to them (+${{ premiums_config.shipping_cost // 100 }}, US only)</label>
             </div>
         </div>
     </div>
 
+{% if premiums_config.premiums.tshirt %}
     <div id="premium_fields">
         <div class="form-group">
-            <label for="id_tshirtsize" class="col-sm-3 control-label">T-Shirt Size</label>
+            <label for="id_tshirtsize" class="col-sm-3 control-label">{{ premiums_config.premiums.tshirt.display }} Size</label>
             <div class="col-sm-9">
                 <select id="id_tshirtsize" name="tshirtsize"
                         class="form-control">
-                    {% for size in config.DONATE_TSHIRTSIZES %}
+                    {% for size in premiums_config.premiums.tshirt.sizes %}
                     <option value="{{ size }}">{{ size }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
 
+{% if premiums_config.premiums.tshirt.colors|length > 0 %}
         <div class="form-group">
-            <label for="id_tshirtcolor" class="col-sm-3 control-label">T-Shirt Color</label>
+            <label for="id_tshirtcolor" class="col-sm-3 control-label">{{ premiums_config.premiums.tshirt.display }} Color</label>
             <div class="col-sm-9">
                 <select id="id_tshirtcolor" name="tshirtcolor"
                         class="form-control">
-                    {% for color in config.DONATE_TSHIRTCOLORS %}
+                    {% for color in premiums_config.premiums.tshirt.colors %}
                     <option value="{{ color }}">{{ color }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
+{% endif %}
+{% endif %}
 
+{% if premiums_config.premiums.sweatshirt %}
         <div class="form-group">
-            <label for="id_sweatshirtsize" class="col-sm-3 control-label">Sweatshirt Size</label>
+            <label for="id_sweatshirtsize" class="col-sm-3 control-label">{{ premiums_config.premiums.sweatshirt.display }} Size</label>
             <div class="col-sm-9">
                 <select id="id_sweatshirtsize" name="sweatshirtsize"
                         class="form-control">
-                    {% for size in config.DONATE_SWEATSHIRTSIZES %}
+                    {% for size in premiums_config.premiums.sweatshirt.sizes %}
                     <option value="{{ size }}">{{ size }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
+{% endif %}
     </div>
 
     <div id="shipping_fields">
@@ -172,7 +178,7 @@
             </div>
         </div>
     </div>
-    {% endif %}
+{% endif %}
 
     <div class="form-group">
         <label for="id_onair" class="col-sm-3 control-label">May we thank them publicly?</label>

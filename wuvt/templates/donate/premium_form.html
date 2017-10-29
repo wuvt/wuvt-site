@@ -45,7 +45,7 @@
             <input type="text" name="show" id="id_show" value="" />
         </label>
 
-        {% if config.DONATE_PREMIUMS %}
+{% if premiums_config.enabled %}
         <label>
             Would you like any premiums?
         </label>
@@ -65,7 +65,7 @@
         <label>
             <input type="radio" name="premiums" id="id_premiums_ship"
                 value="ship" />
-            Yes, ship them to me (+${{ config.DONATE_SHIPPING_COST }}, US only)
+            Yes, ship them to me (+${{ premiums_config.shipping_cost // 100 }}, US only)
         </label>
 
         <div id="premium_fields">
@@ -74,32 +74,39 @@
             are made outside of Radiothon week. If you make a recurring monthly
             donation, you will only be sent premiums for the first month.
         </p>
+
+{% if premiums_config.premiums.tshirt %}
         <label>
-            T-Shirt Size
+            {{ premiums_config.premiums.tshirt.display }} Size
             <select id="id_tshirtsize" name="tshirtsize">
-                {% for size in config.DONATE_TSHIRTSIZES %}
+                {% for size in premiums_config.premiums.tshirt.sizes %}
                 <option value="{{ size }}">{{ size }}</option>
                 {% endfor %}
             </select>
         </label>
 
+{% if premiums_config.premiums.tshirt.colors|length > 0 %}
         <label>
-            T-Shirt Color
+            {{ premiums_config.premiums.tshirt.display }} Color
             <select id="id_tshirtcolor" name="tshirtcolor">
-                {% for color in config.DONATE_TSHIRTCOLORS %}
+                {% for color in premiums_config.premiums.tshirt.colors %}
                 <option value="{{ color }}">{{ color }}</option>
-                {% endfor %}
+                {%- endfor %}
             </select>
         </label>
+{% endif %}
+{% endif %}
 
+{% if premiums_config.premiums.sweatshirt %}
         <label>
-            Sweatshirt Size
+            {{ premiums_config.premiums.sweatshirt.display }} Size
             <select id="id_sweatshirtsize" name="sweatshirtsize">
-                {% for size in config.DONATE_SWEATSHIRTSIZES %}
+                {% for size in premiums_config.premiums.sweatshirt.sizes %}
                 <option value="{{ size }}">{{ size }}</option>
                 {% endfor %}
             </select>
         </label>
+{% endif %}
         </div>
 
         <div id="shipping_fields">
@@ -128,7 +135,7 @@
             <input type="text" name="zipcode" id="id_zipcode" value="" />
         </label>
         </div>
-        {% endif %}
+{% endif %}
 
         <label>
             May we thank you publicly?
