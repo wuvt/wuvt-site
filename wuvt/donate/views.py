@@ -126,10 +126,11 @@ def process_order(method):
 @bp.route('/process', methods=['POST'])
 def process():
     errors = []
-    if request.form['premiums'] != "no" and len(request.form['name']) <= 0:
+    premiums = request.form.get('premiums', 'no')
+    if premiums != "no" and len(request.form['name']) <= 0:
         errors.append("Please enter your name")
 
-    if request.form['premiums'] == "ship":
+    if premiums == "ship":
         # verify we included address information
 
         if len(request.form['address_1']) <= 0:
