@@ -7,22 +7,25 @@ from wuvt.donate import bp
 from wuvt.donate import get_plan, list_plans, mail, process_stripe_onetime, \
         process_stripe_recurring
 from wuvt.donate.models import Order
+from wuvt.donate.view_utils import load_premiums_config
 from wuvt.view_utils import local_only
 
 
 @bp.route('/onetime')
 def donate_onetime():
-    return render_template('donate/premium_form.html', active_flow='donate')
+    return render_template('donate/premium_form.html', active_flow='donate',
+                           premiums_config=load_premiums_config())
 
 
 @bp.route('/monthly')
 def donate_recurring():
     return render_template('donate/recurring_form.html', plans=list_plans(),
-                           active_flow='donate')
+                           active_flow='donate',
+                           premiums_config=load_premiums_config())
 
 
 def process_order(method):
-    premiums = request.form.get('premiums', 'no')
+    premiums_config = load_premiums_config()
     plan_id = request.form.get('plan', '')
     shipping_cost = 0
 
@@ -57,21 +60,27 @@ def process_order(method):
         # if a phone number is provided, set it
         order.phone = request.form['phone'].strip()
 
-    if premiums != "no":
-        order.set_premiums(premiums,
-                           request.form.get('tshirtsize', None),
-                           request.form.get('tshirtcolor', None),
-                           request.form.get('sweatshirtsize', None))
+    if premiums_config['enabled']:
+        premiums = request.form.get('premiums', 'no')
 
-    if premiums == "ship":
-        # add shipping cost, if our order exceeds the minimum amount for
-        # shipping cost (e.g., lowest tier has free shipping)
-        if amount >= app.config['DONATE_SHIPPING_MINIMUM']:
-            shipping_cost = int(app.config['DONATE_SHIPPING_COST']) * 100
+        if premiums != "no":
+            # TODO: check that these are valid
+            order.set_premiums(premiums,
+                               request.form.get('tshirtsize', None),
+                               request.form.get('tshirtcolor', None),
+                               request.form.get('sweatshirtsize', None))
 
-        order.set_address(request.form['address_1'], request.form['address_2'],
-                          request.form['city'], request.form['state'],
-                          request.form['zipcode'])
+        if premiums == "ship":
+            # add shipping cost, if our order exceeds the minimum amount for
+            # shipping cost (e.g., lowest tier has free shipping)
+            if amount >= premiums_config['shipping_minimum']:
+                shipping_cost = premiums_config['shipping_cost']
+
+            order.set_address(request.form['address_1'],
+                              request.form['address_2'],
+                              request.form['city'],
+                              request.form['state'],
+                              request.form['zipcode'])
 
     db.session.add(order)
     try:
@@ -117,10 +126,11 @@ def process_order(method):
 @bp.route('/process', methods=['POST'])
 def process():
     errors = []
-    if request.form['premiums'] != "no" and len(request.form['name']) <= 0:
+    premiums = request.form.get('premiums', 'no')
+    if premiums != "no" and len(request.form['name']) <= 0:
         errors.append("Please enter your name")
 
-    if request.form['premiums'] == "ship":
+    if premiums == "ship":
         # verify we included address information
 
         if len(request.form['address_1']) <= 0:
@@ -158,7 +168,8 @@ def missioncontrol_index():
         filter(Order.placed_date > cutoff).\
         order_by(db.desc(Order.id)).limit(app.config['ARTISTS_PER_PAGE'])
     return render_template('donate/missioncontrol/index.html',
-                           plans=list_plans(), orders=orders)
+                           plans=list_plans(), orders=orders,
+                           premiums_config=load_premiums_config())
 
 
 @bp.route('/missioncontrol/process', methods=['POST'])
@@ -174,7 +185,9 @@ def missioncontrol_process():
 
 @bp.route('/js/init.js')
 def init_js():
-    resp = make_response(render_template('donate/init.js'))
+    resp = make_response(render_template(
+        'donate/init.js',
+        premiums_config=load_premiums_config()))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
 
@@ -183,6 +196,7 @@ def init_js():
 @local_only
 def missioncontrol_donate_js():
     resp = make_response(render_template(
-        'donate/missioncontrol/donate.js'))
+        'donate/missioncontrol/donate.js',
+        premiums_config=load_premiums_config()))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
