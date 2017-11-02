@@ -4,7 +4,7 @@ from flask import current_app, flash, jsonify, render_template, \
 from .. import db, redis_conn
 from . import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
-from .lib import enable_automation
+from .lib import enable_automation, renew_dj_lease
 from .models import DJ, DJSet
 from .view_utils import local_only, sse_response
 
@@ -22,6 +22,8 @@ def login():
                 ua=request.user_agent))
 
         session['dj_id'] = dj.id
+        renew_dj_lease()
+
         return redirect(url_for('.log'))
 
     automation = redis_conn.get('automation_enabled') == b"true"
@@ -55,6 +57,8 @@ def login_all():
                 ua=request.user_agent))
 
         session['dj_id'] = dj.id
+        renew_dj_lease()
+
         return redirect(url_for('.log'))
 
     automation = redis_conn.get('automation_enabled') == b"true"
@@ -105,6 +109,8 @@ or you pressed the Logout button somewhere else.
             session.pop('djset_id', None)
 
             return redirect(url_for('.login'))
+
+    renew_dj_lease()
 
     return render_template('trackman/log.html',
                            trackman_name=current_app.config['TRACKMAN_NAME'],
