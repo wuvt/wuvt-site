@@ -47,6 +47,9 @@ class Order(db.Model):
         self.amount = amount
         self.recurring = recurring
 
+    def set_user_agent(self, user_agent):
+        self.user_agent = str(user_agent)[:255]
+
     def set_premiums(self, premiums, tshirtsize, tshirtcolor, sweatshirtsize):
         self.premiums = premiums
         self.tshirtsize = tshirtsize
