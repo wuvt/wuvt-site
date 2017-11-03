@@ -54,7 +54,7 @@ def process_order(method):
                   request.form.get('firsttime', 'n') == 'y',
                   amount, recurring)
     order.remote_addr = request.remote_addr
-    order.user_agent = str(request.user_agent)
+    order.set_user_agent(request.user_agent)
 
     if 'phone' in request.form:
         # if a phone number is provided, set it
