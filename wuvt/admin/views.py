@@ -2,7 +2,7 @@ import datetime
 import dateutil.parser
 import os
 from flask import abort, flash, jsonify, make_response, render_template, \
-        redirect, request, url_for, send_file
+        redirect, request, url_for
 from werkzeug import secure_filename
 
 from wuvt import app, auth_manager, cache, db, redis_conn
@@ -500,18 +500,16 @@ def library_redirect(path=None):
     else:
         return redirect('/trackman/library/index')
 
-@bp.route('/csv')
+@bp.route('/donate/csv')
 @login_required
-def csv_download():
+def donate_csv_download():
     del request.environ['wsgi.file_wrapper']
-    cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=12)
     csvHeaders = ["id", "name", "date", "address", "useragent", "dj", "thanks",
                   "firsttime", "dcomment", "premiums", "address1", "address2",
                   "city", "state", "zip", "amount", "recurring", "paiddate",
                   "shippeddate", "shirtsize", "shirtcolor", "sweatshirtsize",
                   "method", "custid", "comments"]
     orders = Order.query.\
-        filter(Order.placed_date > cutoff).\
         order_by(db.desc(Order.id)).limit(app.config['ARTISTS_PER_PAGE'])
     f = io.StringIO()
     writer = csv.writer(f)
@@ -523,8 +521,6 @@ def csv_download():
                   o.state, o.zipcode, o.amount, o.recurring, o.paid_date,
                   o.shipped_date, o.tshirtsize, o.tshirtcolor, o.sweatshirtsize,
                   o.method, o.custid, o.comments]
-        #print("[!!!]")
-        #print(fields)
         writer.writerow(fields)
     f.seek(0)
     filename = "donor-premiums.csv"
