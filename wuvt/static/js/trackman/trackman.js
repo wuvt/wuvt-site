@@ -145,7 +145,7 @@ Trackman.prototype.toggleAutologout = function(ev) {
     }
 
     $.ajax({
-        url: this.baseUrl + "/api/autologout",
+        url: inst.baseUrl + "/api/autologout",
         data: formdata,
         dataType: "json",
         type: "POST",
