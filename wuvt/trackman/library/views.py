@@ -1,5 +1,5 @@
 from flask import abort, current_app, flash, render_template, redirect, \
-    request, send_file, url_for
+    request, url_for
 import csv
 import dateutil.parser
 import io
@@ -426,7 +426,7 @@ def reports_bmi():
         end = dateutil.parser.parse(request.form['dtend'])
         end = end.replace(hour=23, minute=59, second=59)
 
-        f = io.BytesIO()
+        f = io.StringIO()
         writer = csv.writer(f)
 
         tracks = TrackLog.query.filter(TrackLog.played >= start,
@@ -435,13 +435,17 @@ def reports_bmi():
             writer.writerow([
                 current_app.config['TRACKMAN_NAME'],
                 format_datetime(track.played),
-                track.track.title.encode("utf8"),
-                track.track.artist.encode("utf8")])
+                track.track.title,
+                track.track.artist,
+            ])
 
         f.seek(0)
 
         filename = end.strftime("bmirep-%Y-%m-%d.csv")
-        return send_file(f, mimetype="text/csv", as_attachment=True,
-                         attachment_filename=filename)
+        return f.read(), {
+            "Content-Type": "text/csv; charset=utf-8",
+            "Content-Disposition":
+                "attachment; filename=\"{0}\"".format(filename),
+        }
     else:
         return render_template('trackman/library/reports_bmi.html')
