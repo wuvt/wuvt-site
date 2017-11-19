@@ -368,8 +368,9 @@ Trackman.prototype.logTrack = function(track, callback) {
             error: function(jqXHR, statusText, errorThrown) {
                 if(jqXHR.responseJSON['onair'] == false) {
                     this.djsetId = null;
-                    this.logTrack(track, callback);
                     this.updateOnAir();
+
+                    this.logTrack(track, callback);
                 } else {
                     inst.handleError(jqXHR, statusText, errorThrown);
                 }
@@ -400,7 +401,10 @@ Trackman.prototype.createDJSet = function(callback) {
                 callback();
             }
         },
-        error: this.handleError,
+        error: function(jqXHR, statusText, errorThrown) {
+            this.updateOnAir();
+            this.handleError(jqXHR, statusText, errorThrown);
+        },
     });
 };
 
