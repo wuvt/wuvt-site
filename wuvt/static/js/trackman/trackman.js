@@ -493,6 +493,15 @@ Trackman.prototype.fetchPlaylist = function(callback) {
 
                 callback();
             },
+            error: function(jqXHR, statusText, errorThrown) {
+                // if fetching the DJSet returns a 403, it belongs to another
+                // DJ and we can't use it
+                if(jqXHR.status == 403) {
+                    this.djsetId = null;
+                    this.playlistKeyed = [];
+                    callback();
+                }
+            },
         });
     } else {
         this.playlistKeyed = [];
