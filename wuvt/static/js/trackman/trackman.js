@@ -377,8 +377,9 @@ Trackman.prototype.logTrack = function(track, callback) {
         });
     } else {
         // create a new DJSet, start using it, and try again
+        var inst = this;
         this.createDJSet(function() {
-            this.logTrack(track, callback);
+            inst.logTrack(track, callback);
         });
     }
 };
