@@ -369,6 +369,7 @@ Trackman.prototype.logTrack = function(track, callback) {
                 if(jqXHR.responseJSON['onair'] == false) {
                     this.djsetId = null;
                     this.logTrack(track, callback);
+                    this.updateOnAir();
                 } else {
                     inst.handleError(jqXHR, statusText, errorThrown);
                 }
@@ -376,20 +377,30 @@ Trackman.prototype.logTrack = function(track, callback) {
         });
     } else {
         // create a new DJSet, start using it, and try again
-        $.ajax({
-            url: this.baseUrl + "/api/djset",
-            data: {
-                "dj": this.djId,
-            },
-            context: this,
-            type: "POST",
-            success: function(data) {
-                this.djsetId = data['djset_id'];
-                this.logTrack(track, callback);
-            },
-            error: this.handleError,
+        this.createDJSet(function() {
+            this.logTrack(track, callback);
         });
     }
+};
+
+Trackman.prototype.createDJSet = function(callback) {
+   $.ajax({
+        url: this.baseUrl + "/api/djset",
+        data: {
+            "dj": this.djId,
+        },
+        context: this,
+        type: "POST",
+        success: function(data) {
+            this.djsetId = data['djset_id'];
+            this.updateOnAir();
+
+            if(typeof callback == "function") {
+                callback();
+            }
+        },
+        error: this.handleError,
+    });
 };
 
 Trackman.prototype.createTrack = function(track, callback) {
@@ -464,6 +475,7 @@ Trackman.prototype.updatePlaylist = function() {
     var inst = this;
     this.fetchPlaylist(function(){
         inst.renderPlaylist();
+        inst.updateOnAir();
     });
 };
 
@@ -1254,7 +1266,8 @@ Trackman.prototype.initEventHandler = function() {
                 this.trackman.showAlert(msg['data']);
                 break;
             case 'session_end':
-                this.djsetId = null;
+                this.trackman.djsetId = null;
+                this.trackman.updateOnAir();
                 break;
         }
     };
@@ -1327,6 +1340,27 @@ Trackman.prototype.initLogout = function() {
     });
 };
 
+Trackman.prototype.initOnAir = function() {
+    this.updateOnAir();
+
+    var inst = this;
+    $('#on_air_btn').on('click', {}, function() {
+        if(inst.djsetId == null) {
+            inst.createDJSet();
+        }
+    });
+};
+
+Trackman.prototype.updateOnAir = function() {
+    if(this.djsetId != null)  {
+        $('#on_air_btn').addClass('active');
+        $('#on_air_btn').attr('aria-pressed', true);
+    } else {
+        $('#on_air_btn').removeClass('active');
+        $('#on_air_btn').attr('aria-pressed', false);
+    }
+};
+
 Trackman.prototype.initRotations = function() {
     var inst = this;
     $.ajax({
@@ -1340,6 +1374,7 @@ Trackman.prototype.initRotations = function() {
 
 Trackman.prototype.init = function() {
     this.initLogout();
+    this.initOnAir();
     this.initResizeHandler();
     this.initEventHandler();
     this.initAutologout();
