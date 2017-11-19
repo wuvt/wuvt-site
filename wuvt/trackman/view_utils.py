@@ -56,7 +56,8 @@ def require_onair(f):
     @wraps(f)
     def require_onair_wrapper(*args, **kwargs):
         if not check_onair(session.get('djset_id', None)):
-            abort(403, message="You must be on-air to use that feature.")
+            abort(403, message="You must be on-air to use that feature.",
+                  onair=False)
         else:
             return f(*args, **kwargs)
     return require_onair_wrapper

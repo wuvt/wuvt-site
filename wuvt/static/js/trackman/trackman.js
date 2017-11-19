@@ -365,7 +365,14 @@ Trackman.prototype.logTrack = function(track, callback) {
             context: this,
             type: "POST",
             success: callback,
-            error: this.handleError,
+            error: function(jqXHR, statusText, errorThrown) {
+                if(jqXHR.responseJSON['onair'] == false) {
+                    this.djsetId = null;
+                    this.logTrack(track, callback);
+                } else {
+                    inst.handleError(jqXHR, statusText, errorThrown);
+                }
+            },
         });
     } else {
         // create a new DJSet, start using it, and try again
@@ -1238,7 +1245,7 @@ Trackman.prototype.initEventHandler = function() {
                 this.trackman.showAlert(msg['data']);
                 break;
             case 'session_end':
-                location.reload();
+                this.djsetId = null;
                 break;
         }
     };
