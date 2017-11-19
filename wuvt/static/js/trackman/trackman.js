@@ -372,7 +372,7 @@ Trackman.prototype.logTrack = function(track, callback) {
 
                     this.logTrack(track, callback);
                 } else {
-                    inst.handleError(jqXHR, statusText, errorThrown);
+                    this.handleError(jqXHR, statusText, errorThrown);
                 }
             },
         });
