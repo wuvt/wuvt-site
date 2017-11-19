@@ -78,7 +78,8 @@ class DJSetEnd(TrackmanResource):
             abort(403, success=False)
 
         if djset.dtend is not None:
-            abort(400, success=False, message="DJSet has already ended")
+            abort(400, success=False, message="DJSet has already ended",
+                  ended=True)
 
         with Lock(redis_conn, 'end_djset', expire=60, auto_renewal=True):
             djset.dtend = datetime.datetime.utcnow()

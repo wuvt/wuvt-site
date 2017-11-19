@@ -1313,6 +1313,13 @@ Trackman.prototype.initLogout = function() {
 
                     location.href = inst.baseUrl;
                 },
+                error: function(jqXHR, statusText, errorThrown) {
+                    if(jqXHR.responseJSON['ended'] != true) {
+                        alert(data['message']);
+                    }
+
+                    location.href = inst.baseUrl;
+                },
             });
         } else {
             location.href = inst.baseUrl;
