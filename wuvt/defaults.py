@@ -28,8 +28,8 @@ NAV_TOP_SECTIONS = [
 ]
 
 # DJ activity timer for automation/DJ logout in seconds
-DJ_TIMEOUT = 30 * 60
-EXTENDED_DJ_TIMEOUT = 120 * 60
+DJ_TIMEOUT = 60 * 60
+EXTENDED_DJ_TIMEOUT = 180 * 60
 NO_DJ_TIMEOUT = 5 * 60
 
 CELERY_BROKER_URL = REDIS_URL

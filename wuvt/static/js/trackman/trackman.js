@@ -118,64 +118,6 @@ Trackman.prototype.validateTrack = function(track) {
     return true;
 };
 
-// Autologout {{{
-Trackman.prototype.initAutologout = function() {
-    this.extendAutologout = false;
-
-    $.ajax({
-        url: this.baseUrl + "/api/autologout",
-        dataType: "json",
-        success: this.updateAutologout,
-    });
-    $('#id_extend_autologout').on('change', null, {'instance': this},
-                                  this.toggleAutologout);
-};
-
-Trackman.prototype.toggleAutologout = function(ev) {
-    var inst = ev.data.instance;
-
-    $('#id_extend_autologout').prop('disabled', true);
-
-    var formdata = {};
-
-    if($('#id_extend_autologout').prop('checked')) {
-        formdata['autologout'] = "disable";
-    } else {
-        formdata['autologout'] = "enable";
-    }
-
-    $.ajax({
-        url: inst.baseUrl + "/api/autologout",
-        data: formdata,
-        dataType: "json",
-        type: "POST",
-        context: inst,
-        success: inst.updateAutologout,
-        error: inst.updateAutologoutError,
-    });
-};
-
-Trackman.prototype.updateAutologout = function(data) {
-    $('#id_extend_autologout').prop('disabled', false);
-
-    if(data['success'] == false) {
-        alert(data['message']);
-    } else if(data['autologout'] == true) {
-        this.extendAutologout = false;
-    } else {
-        this.extendAutologout = true;
-    }
-
-    $('#id_extend_autologout').prop('checked', this.extendAutologout);
-};
-
-Trackman.prototype.updateAutologoutError = function(jqXHR, textStatus, errorThrown) {
-    $('#id_extend_autologout').prop('disabled', false);
-    this.handleError(jqXHR, textStatus, errorThrown);
-    $('#id_extend_autologout').prop('checked', this.extendAutologout);
-};
-// }}}
-
 // Queue {{{
 Trackman.prototype.initQueue = function() {
     this.queue = [];
@@ -1382,7 +1324,6 @@ Trackman.prototype.init = function() {
     this.initOnAir();
     this.initResizeHandler();
     this.initEventHandler();
-    this.initAutologout();
     this.initRotations();
     this.initQueue();
     this.initPlaylist();
