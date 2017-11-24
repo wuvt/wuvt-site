@@ -93,7 +93,8 @@ td.row-options {
             column-count: 5;
 }
 
-.trackman-header button {
+.trackman-header form > button,
+.trackman-header .btn-group {
     margin-left: 1em;
 }
 

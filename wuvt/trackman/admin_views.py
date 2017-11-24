@@ -100,15 +100,7 @@ def log():
         djset = DJSet.query.get_or_404(djset_id)
         if djset.dtend is not None:
             # This is a logged out DJSet
-
-            flash("""\
-Your session has ended; you were either automatically logged out for inactivity
-or you pressed the Logout button somewhere else.
-""")
-            session.pop('dj_id', None)
             session.pop('djset_id', None)
-
-            return redirect(url_for('.login'))
 
     renew_dj_lease()
 

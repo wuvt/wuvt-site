@@ -365,24 +365,47 @@ Trackman.prototype.logTrack = function(track, callback) {
             context: this,
             type: "POST",
             success: callback,
-            error: this.handleError,
+            error: function(jqXHR, statusText, errorThrown) {
+                if(jqXHR.responseJSON['onair'] == false) {
+                    this.djsetId = null;
+                    this.updateOnAir();
+
+                    this.logTrack(track, callback);
+                } else {
+                    this.handleError(jqXHR, statusText, errorThrown);
+                }
+            },
         });
     } else {
         // create a new DJSet, start using it, and try again
-        $.ajax({
-            url: this.baseUrl + "/api/djset",
-            data: {
-                "dj": this.djId,
-            },
-            context: this,
-            type: "POST",
-            success: function(data) {
-                this.djsetId = data['djset_id'];
-                this.logTrack(track, callback);
-            },
-            error: this.handleError,
+        var inst = this;
+        this.createDJSet(function() {
+            inst.logTrack(track, callback);
         });
     }
+};
+
+Trackman.prototype.createDJSet = function(callback) {
+   $.ajax({
+        url: this.baseUrl + "/api/djset",
+        data: {
+            "dj": this.djId,
+        },
+        context: this,
+        type: "POST",
+        success: function(data) {
+            this.djsetId = data['djset_id'];
+            this.updateOnAir();
+
+            if(typeof callback == "function") {
+                callback();
+            }
+        },
+        error: function(jqXHR, statusText, errorThrown) {
+            this.updateOnAir();
+            this.handleError(jqXHR, statusText, errorThrown);
+        },
+    });
 };
 
 Trackman.prototype.createTrack = function(track, callback) {
@@ -457,6 +480,7 @@ Trackman.prototype.updatePlaylist = function() {
     var inst = this;
     this.fetchPlaylist(function(){
         inst.renderPlaylist();
+        inst.updateOnAir();
     });
 };
 
@@ -485,6 +509,15 @@ Trackman.prototype.fetchPlaylist = function(callback) {
                 }
 
                 callback();
+            },
+            error: function(jqXHR, statusText, errorThrown) {
+                // if fetching the DJSet returns a 403, it belongs to another
+                // DJ and we can't use it
+                if(jqXHR.status == 403) {
+                    this.djsetId = null;
+                    this.playlistKeyed = [];
+                    callback();
+                }
             },
         });
     } else {
@@ -1238,7 +1271,8 @@ Trackman.prototype.initEventHandler = function() {
                 this.trackman.showAlert(msg['data']);
                 break;
             case 'session_end':
-                location.reload();
+                this.trackman.djsetId = null;
+                this.trackman.updateOnAir();
                 break;
         }
     };
@@ -1297,11 +1331,39 @@ Trackman.prototype.initLogout = function() {
 
                     location.href = inst.baseUrl;
                 },
+                error: function(jqXHR, statusText, errorThrown) {
+                    if(jqXHR.responseJSON['ended'] != true) {
+                        alert(data['message']);
+                    }
+
+                    location.href = inst.baseUrl;
+                },
             });
         } else {
             location.href = inst.baseUrl;
         }
     });
+};
+
+Trackman.prototype.initOnAir = function() {
+    this.updateOnAir();
+
+    var inst = this;
+    $('#on_air_btn').on('click', {}, function() {
+        if(inst.djsetId == null) {
+            inst.createDJSet();
+        }
+    });
+};
+
+Trackman.prototype.updateOnAir = function() {
+    if(this.djsetId != null)  {
+        $('#on_air_btn').addClass('active');
+        $('#on_air_btn').attr('aria-pressed', true);
+    } else {
+        $('#on_air_btn').removeClass('active');
+        $('#on_air_btn').attr('aria-pressed', false);
+    }
 };
 
 Trackman.prototype.initRotations = function() {
@@ -1317,6 +1379,7 @@ Trackman.prototype.initRotations = function() {
 
 Trackman.prototype.init = function() {
     this.initLogout();
+    this.initOnAir();
     this.initResizeHandler();
     this.initEventHandler();
     this.initAutologout();
