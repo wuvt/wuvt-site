@@ -503,18 +503,19 @@ def library_redirect(path=None):
 @bp.route('/donate/csv')
 @login_required
 def donate_csv_download():
-    csvHeaders = ["id", "name", "phone", "date", "address", "useragent", "dj",
-                  "thanks", "firsttime", "dcomment", "premiums", "address1",
-                  "address2", "city", "state", "zip", "amount", "recurring",
-                  "paiddate", "shippeddate", "shirtsize", "shirtcolor",
-                  "sweatshirtsize", "method", "custid", "comments"]
+    csvHeaders = ["id", "name", "email", "phone", "date", "address",
+                  "useragent", "dj", "thanks", "firsttime", "dcomment",
+                  "premiums", "address1", "address2", "city", "state", "zip",
+                  "amount", "recurring", "paiddate", "shippeddate",
+                  "shirtsize", "shirtcolor", "sweatshirtsize", "method",
+                  "custid", "comments"]
     orders = Order.query.\
         order_by(db.desc(Order.id))
     f = io.StringIO()
     writer = csv.writer(f)
     writer.writerow(csvHeaders)
     for o in orders:
-        fields = [o.id, o.name, o.phone, o.placed_date, o.remote_addr,
+        fields = [o.id, o.name, o.email, o.phone, o.placed_date, o.remote_addr,
                   o.user_agent, o.dj, o.thank_on_air, o.first_time,
                   o.donor_comment, o.premiums, o.address1, o.address2, o.city,
                   o.state, o.zipcode, o.amount, o.recurring, o.paid_date,
