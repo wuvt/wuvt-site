@@ -1,7 +1,7 @@
 from dateutil import tz
 from flask import Flask, Request
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.contrib.cache import RedisCache
 import humanize
@@ -50,6 +50,19 @@ class JSONRequest(Request):
         return best in json_mimetypes and \
             self.accept_mimetypes[best] > \
             self.accept_mimetypes['text/html']
+
+
+class SQLAlchemy(FlaskSQLAlchemy):
+    """
+    A hack because flask-sqlalchemy hasn't fixed this yet:
+    https://github.com/mitsuhiko/flask-sqlalchemy/issues/166
+    """
+    def apply_driver_hacks(self, app, info, options):
+        if not options:
+            options = {}
+        if 'pool_pre_ping' not in options:
+            options['pool_pre_ping'] = True
+        return super(SQLAlchemy, self).apply_driver_hacks(app, info, options)
 
 
 app = Flask(__name__)

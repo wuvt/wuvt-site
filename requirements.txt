@@ -5,53 +5,54 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 -e git+https://github.com/wuvt/python-musicbrainzngs#egg=musicbrainzngs
-alembic==0.9.6            # via flask-migrate
+alembic==0.9.8            # via flask-migrate
 amqp==2.2.2               # via kombu
-aniso8601==1.3.0          # via flask-restful
+aniso8601==2.0.1          # via flask-restful
 billiard==3.5.0.3         # via celery
-bleach==2.1.1
+bleach==2.1.2
 celery==4.1.0
-certifi==2017.7.27.1      # via requests
+certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 click==6.7
 flask-caching==1.3.3
 flask-migrate==2.1.1
-flask-oidc==1.1.1
+flask-oidc==1.3.0
 flask-restful==0.3.6
 flask-sqlalchemy==2.3.2
 flask-wtf==0.14.2
 flask==0.12.2
-html5lib==1.0b10          # via bleach
+html5lib==1.0.1           # via bleach
 httplib2==0.10.3          # via oauth2client
 humanize==0.5.1
 idna==2.6                 # via requests
 itsdangerous==0.24        # via flask, flask-oidc
-jinja2==2.9.6             # via flask
+jinja2==2.10              # via flask
 kombu==4.1.0              # via celery
 mako==1.0.7               # via alembic
-markdown==2.6.9
+markdown==2.6.11
 markupsafe==1.0           # via jinja2, mako
 netaddr==0.7.19
 oauth2client==4.1.2       # via flask-oidc
 passlib==1.7.1
-psycopg2==2.7.3.1
-pyasn1-modules==0.1.5
-pyasn1==0.3.7
-pymysql==0.7.11
+psycopg2==2.7.4
+pyasn1-modules==0.2.1
+pyasn1==0.4.2
+pymysql==0.8.0
 python-dateutil==2.6.1
 python-editor==1.0.3
 python-redis-lock==3.2.0
-pytz==2017.2
+pytz==2018.3
 redis==2.10.6
 requests==2.18.4
 rsa==3.4.2                # via oauth2client
+simplejson==3.13.2        # via stripe
 six==1.11.0               # via bleach, flask-oidc, flask-restful, html5lib, oauth2client, python-dateutil, sqlalchemy-utils
-sqlalchemy-utils==0.32.19
-sqlalchemy==1.1.14        # via alembic, flask-sqlalchemy, sqlalchemy-utils
-stripe==1.69.0
-unidecode==0.4.21
+sqlalchemy-utils==0.33.0
+sqlalchemy==1.2.4
+stripe==1.79.0
+unidecode==1.0.22
 urllib3==1.22             # via requests
 vine==1.1.4               # via amqp
 webencodings==0.5.1       # via html5lib
-werkzeug==0.12.2          # via flask, flask-caching
+werkzeug==0.14.1          # via flask, flask-caching
 wtforms==2.1              # via flask-wtf
