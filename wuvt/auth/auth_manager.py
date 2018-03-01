@@ -3,7 +3,6 @@ import datetime
 import os
 from flask import abort, flash, make_response, redirect, request, session, \
     url_for, _request_ctx_stack
-from flask_oidc import OpenIDConnect
 from functools import wraps
 
 from .models import User, UserSession
@@ -21,6 +20,7 @@ class AuthManager(object):
         self.exempt_methods = set(['OPTIONS'])
         self.login_message = "Please login to access this page."
         self.login_message_category = 'message'
+        self.login_view = "auth.login"
 
         if db is not None:
             self.db = db
@@ -28,44 +28,11 @@ class AuthManager(object):
             self.init_app(app)
 
     def init_app(self, app):
-        from . import views
-
         self.app = app
 
         app.auth_manager = self
-        app.config.setdefault('AUTH_METHOD', 'local')
-        app.config.setdefault('AUTH_SUPERADMINS', ['admin'])
-        app.config.setdefault('AUTH_ROLE_GROUPS', {
-            'admin': ['webmasters'],
-            'content': ['webmasters'],
-            'business': ['business'],
-            'library': ['librarians'],
-            'missioncontrol': ['missioncontrol'],
-        })
-
         app.context_processor(_user_context_processor)
         app.context_processor(_user_roles_context_processor)
-
-        if app.config['AUTH_METHOD'] == 'oidc':
-            import flask_oidc
-            flask_oidc.logger = app.logger
-
-            with app.app_context():
-                app.config.setdefault('OIDC_SCOPES',
-                                      ['openid', 'profile', 'email'])
-                app.config.update({
-                    'OIDC_RESOURCE_SERVER_ONLY': True,
-                    'OIDC_RESOURCE_CHECK_AUD': True,
-                })
-
-                app.before_request(self._oidc_before_request)
-
-            self.oidc = OpenIDConnect(app)
-
-    def _oidc_before_request(self):
-        if self.app.config['OVERWRITE_REDIRECT_URI'] is False:
-            self.app.config['OVERWRITE_REDIRECT_URI'] = url_for(
-                'auth.oidc_callback', _external=True)
 
     def generate_session_id(self):
         return base64.urlsafe_b64encode(os.urandom(64)).decode('ascii')
@@ -93,7 +60,7 @@ class AuthManager(object):
 
     def unauthorized(self):
         flash(self.login_message, self.login_message_category)
-        return redirect(url_for('auth.login', next=request.url))
+        return redirect(url_for(self.login_view, next=request.url))
 
     def check_access(self, *roles):
         roles = set(roles)

@@ -75,3 +75,13 @@ STRIPE_MISSIONCONTROL_EMAIL = ""
 
 # Allow CSRF tokens to last for 31 days
 WTF_CSRF_TIME_LIMIT = 2678400
+
+AUTH_METHOD = 'local'
+AUTH_SUPERADMINS = ['admin']
+AUTH_ROLE_GROUPS = {
+    'admin': ['webmasters'],
+    'content': ['webmasters'],
+    'business': ['business'],
+    'library': ['librarians'],
+    'missioncontrol': ['missioncontrol'],
+}

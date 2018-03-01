@@ -61,7 +61,8 @@ def oidc_callback():
     if app.config['AUTH_METHOD'] != 'oidc':
         abort(404)
 
-    response = auth_manager.oidc._oidc_callback()
+    from wuvt import oidc
+    response = oidc.oidc._oidc_callback()
 
     id_token = getattr(g, 'oidc_id_token', None)
     if id_token is None:
@@ -89,6 +90,8 @@ def login():
     errors = []
 
     if app.config['AUTH_METHOD'] == 'oidc':
+        from wuvt import oidc
+
         # pull all flashed messages off the session, otherwise they will be
         # displayed post login, which is not what we want
         get_flashed_messages()
@@ -97,7 +100,7 @@ def login():
         if not target or not is_safe_url(target):
             target = url_for('admin.index')
 
-        return auth_manager.oidc.redirect_to_auth_server(target)
+        return oidc.oidc.redirect_to_auth_server(target)
 
     if 'username' in request.form:
         user = User.query.filter(

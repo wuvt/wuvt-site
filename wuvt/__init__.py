@@ -112,6 +112,10 @@ auth_manager = AuthManager()
 auth_manager.db = db
 auth_manager.init_app(app)
 
+if app.config['AUTH_METHOD'] == 'oidc':
+    from wuvt.auth.oidc import OpenIDConnect
+    oidc = OpenIDConnect(app)
+
 
 @app.context_processor
 def inject_nowplaying():
@@ -178,7 +182,9 @@ def init_app():
     from wuvt import admin
     app.register_blueprint(admin.bp, url_prefix='/admin')
 
-    app.register_blueprint(auth_manager.bp, url_prefix='/auth')
+    from wuvt import auth
+    from wuvt.auth import views as auth_views
+    app.register_blueprint(auth.bp, url_prefix='/auth')
 
     from wuvt import blog
     app.register_blueprint(blog.bp)
