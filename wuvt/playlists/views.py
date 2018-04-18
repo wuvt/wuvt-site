@@ -303,7 +303,7 @@ def charts_artists(period=None, year=None, month=None):
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/artists')
 def charts_artists_dj(dj_id):
-    results = call_api("/charts/dj/{0}/artistS", 'GET', dj_id)
+    results = call_api("/charts/dj/{0}/artists", 'GET', dj_id)
 
     if request.wants_json():
         return jsonify(results)
