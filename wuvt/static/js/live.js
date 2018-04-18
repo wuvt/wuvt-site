@@ -1,12 +1,21 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
 
-function wuvtLive(liveurl) {
+function wuvtLive(trackmanUrl) {
+    $.ajax({
+        'url': trackmanUrl + "/api/now_playing",
+        'dataType': 'json',
+    }).done(function(data) {
+        $('#current_track').text(data['track']['artist'] + " - " +
+                data['track']['title']);
+        addDJLink2('#current_dj', data['dj']);
+    });
+
     if(typeof EventSource == 'undefined') {
         // cannot use server-sent events, boo
         return;
     }
 
-    var source = new EventSource(liveurl);
+    var source = new EventSource(trackmanUrl + "/live");
     source.onmessage = function(ev) {
         msg = JSON.parse(ev.data);
 
@@ -60,6 +69,20 @@ function addDJLink(elem, tracklog) {
     }
 }
 
+function addDJLink2(elem, dj) {
+    if(dj['visible']) {
+        var link = document.createElement('a');
+        link.href = '/playlists/dj/' + dj['id'];
+        $(link).text(dj['airname']);
+        makeAjaxLink(link);
+
+        $(elem).html(link);
+    }
+    else {
+        $(elem).text(dj['airname']);
+    }
+}
+
 function makeAjaxLink(item) {
     var absoluteRegex = new RegExp("^([a-z]+://|//)");
     var domainRegex = new RegExp(location.host);
@@ -105,7 +128,12 @@ function loadPage(path) {
     }).done(function(data) {
         updatePage($.parseHTML(data, document, true));
     }).fail(function(data) {
-        updatePage($.parseHTML(data.responseText, document, true));
+        if(data.status < 500) {
+            updatePage($.parseHTML(data.responseText, document, true));
+        } else {
+            $('title').text("Internal Server Error");
+            $('#content').html("<section><header><h2>Internal Server Error</h2></header><p>We apologize for the inconvenience. Please try your request again later.</p></section>");
+        }
     });
 }
 

@@ -24,11 +24,11 @@
             <td><time datetime="{{ track.played|isodatetime }}" data-format="HH:mm:ss">{{ track.played|datetime("%H:%M:%S") }}</time></td>
             <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track" title="New"></span>{% endif %}</td>
             <td>{{ track.track.artist }}</td>
-            <td><a href="{{ url_for('trackman.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></td>
+            <td><a href="{{ url_for('playlists.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></td>
             <td>{{ track.track.album }}</td>
             <td>
                 {% if track.dj.visible -%}
-                <a href="{{ url_for('trackman.playlists_dj_sets', dj_id=track.dj_id) }}">{{ track.dj.airname }}</a>
+                <a href="{{ url_for('playlists.playlists_dj_sets', dj_id=track.dj_id) }}">{{ track.dj.airname }}</a>
                 {% else -%}
                 {{ track.dj.airname }}
                 {% endif -%}
@@ -47,7 +47,7 @@
 </header>
 
 <p>Check out our playlist archives. You can search
-<a href='{{ url_for('trackman.playlists_date') }}'>air date</a> or
-<a href="{{ url_for('trackman.playlists_dj') }}">DJ</a>.</p>
+<a href='{{ url_for('playlists.playlists_date') }}'>air date</a> or
+<a href="{{ url_for('playlists.playlists_dj') }}">DJ</a>.</p>
 </section>
 {% endblock %}

@@ -1,3 +1,4 @@
+import dateutil.parser
 from dateutil import tz
 from flask import Flask, Request
 from flask_migrate import Migrate
@@ -19,11 +20,19 @@ def localize_datetime(fromtime):
 
 
 def format_datetime(value, format=None):
+    # convert str as needed to deal with API responses
+    if type(value) == str:
+        value = dateutil.parser.parse(value)
+
     value = localize_datetime(value)
     return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
 
 
 def format_isodatetime(value):
+    # convert str as needed to deal with API responses
+    if type(value) == str:
+        value = dateutil.parser.parse(value)
+
     if value.utcoffset() is None:
         value = value.replace(tzinfo=tz.tzutc())
 
@@ -119,20 +128,29 @@ if app.config['AUTH_METHOD'] == 'oidc':
 
 @app.context_processor
 def inject_nowplaying():
-    from wuvt.trackman import trackinfo
-    track = trackinfo()
-    if not track:
-        return {
-            'current_track': "Not Available",
-            'current_dj': "Not Available",
-            'current_dj_id': 0,
-        }
-
     return {
-        'current_track': "{artist} - {title}".format(**track),
-        'current_dj': track['dj'],
-        'current_dj_id': track['dj_id']
+        'current_track': "Not Available",
+        'current_dj': "Not Available",
+        'current_dj_id': 0,
     }
+#    from wuvt.playlists import trackinfo
+#    try:
+#        track = trackinfo()
+#    except IOError:
+#        track = None
+#
+#    if not track:
+#        return {
+#            'current_track': "Not Available",
+#            'current_dj': "Not Available",
+#            'current_dj_id': 0,
+#        }
+#
+#    return {
+#        'current_track': "{artist} - {title}".format(**track),
+#        'current_dj': track['dj'],
+#        'current_dj_id': track['dj_id']
+#    }
 
 
 @app.context_processor
@@ -149,6 +167,14 @@ def inject_year():
 @app.context_processor
 def inject_radiothon():
     return {'radiothon': redis_conn.get('radiothon') == b"true"}
+
+
+@app.after_request
+def add_csp(response):
+    trackman_public_url = app.config.get('TRACKMAN_PUBLIC_URL',
+                                         app.config['TRACKMAN_URL'])
+    response.headers['Content-Security-Policy'] = "default-src 'self' https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://checkout.stripe.com; media-src 'self' *; frame-ancestors 'self'; connect-src 'self' {0}".format(trackman_public_url)
+    return response
 
 
 if app.debug:
@@ -193,19 +219,8 @@ def init_app():
         from wuvt import donate
         app.register_blueprint(donate.bp, url_prefix='/donate')
 
-    from wuvt import trackman
-    app.register_blueprint(trackman.bp)
-    app.register_blueprint(trackman.private_bp, url_prefix='/trackman')
-    app.register_blueprint(trackman.api_bp, url_prefix='/trackman/api')
-    app.register_blueprint(trackman.library_bp, url_prefix='/trackman/library')
-    trackman.playlists_cache.init_app(app, config={
-        'CACHE_TYPE': "redis",
-        'CACHE_REDIS_URL': app.config['REDIS_URL'],
-    })
-    trackman.charts_cache.init_app(app, config={
-        'CACHE_TYPE': "redis",
-        'CACHE_REDIS_URL': app.config['REDIS_URL'],
-    })
+    from wuvt import playlists
+    app.register_blueprint(playlists.bp)
 
     from wuvt import cli
     from wuvt import models

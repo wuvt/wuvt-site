@@ -5,7 +5,7 @@
 <section>
 <header>
     <h2>Charts: Top Artists by DJ</h2>
-    <h3><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></h3>
+    <h3><a href="{{ url_for('playlists.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></h3>
 </header>
 
 {{ macros.render_chart_artists(results) }}

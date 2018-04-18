@@ -3,17 +3,17 @@
 from flask import current_app, jsonify, render_template, redirect, request, \
         url_for, Response
 import datetime
+import dateutil.parser
 import re
 from werkzeug.contrib.atom import AtomFeed
 
 from . import bp
-from .view_utils import call_api, make_external, sse_response, \
-    tracklog_serialize, tracklog_full_serialize
-from .api.v1 import charts, playlists
+from .view_utils import call_api, make_external, \
+        tracklog_serialize, tracklog_full_serialize
 
 
 def trackinfo():
-    return call_api(playlists.LatestTrack, 'GET')
+    return call_api("/playlists/latest_track", 'GET')
 
 
 #############################################################################
@@ -23,7 +23,7 @@ def trackinfo():
 
 @bp.route('/last15')
 def last15():
-    result = call_api(playlists.Last15Tracks, 'GET')
+    result = call_api("/playlists/last15", 'GET')
 
     if request.wants_json():
         return jsonify({
@@ -36,7 +36,7 @@ def last15():
 
 @bp.route('/last15.atom')
 def last15_feed():
-    result = call_api(playlists.Last15Tracks, 'GET')
+    result = call_api("/playlists/last15", 'GET')
     tracks = result['tracks']
     feed = AtomFeed(
         "{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
@@ -126,7 +126,8 @@ contact={contact}
 @bp.route('/playlists/live')
 @bp.route('/live')
 def live():
-    return sse_response('trackman_live')
+    # TODO: do redirect to appropriate SSE endpoint
+    return "FIXME"
 
 
 # Playlist Archive (by date) {{{
@@ -140,7 +141,7 @@ def playlists_date():
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
     results, status_code = call_api(
-        playlists.PlaylistsByDay, 'GET', year, month, day)
+        "/playlists/date/{0}/{1}/{2}", 'GET', year, month, day)
 
     now = datetime.datetime.utcnow()
 
@@ -184,7 +185,7 @@ def playlists_date_jump():
 # Playlist Archive (by DJ) {{{
 @bp.route('/playlists/dj')
 def playlists_dj():
-    results = call_api(playlists.PlaylistDJs, 'GET')
+    results = call_api("/playlists/dj", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -194,7 +195,7 @@ def playlists_dj():
 
 @bp.route('/playlists/dj/all')
 def playlists_dj_all():
-    results = call_api(playlists.PlaylistAllDJs, 'GET')
+    results = call_api("/playlists/dj/all", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -204,7 +205,12 @@ def playlists_dj_all():
 
 @bp.route('/playlists/dj/<int:dj_id>')
 def playlists_dj_sets(dj_id):
-    results = call_api(playlists.PlaylistsByDJ, 'GET', dj_id)
+    results = call_api("/playlists/dj/{0}", 'GET', dj_id)
+    def cast_dates(t):
+        t['dtstart'] = dateutil.parser.parse(t['dtstart'])
+        t['dtend'] = dateutil.parser.parse(t['dtend'])
+        return t
+    results['sets'] = [cast_dates(t) for t in results['sets']]
 
     if request.wants_json():
         return jsonify(results)
@@ -218,9 +224,9 @@ def playlists_dj_sets(dj_id):
 @bp.route('/playlists/charts')
 def charts_index():
     periodic_charts = [
-        ('trackman.charts_albums', "Top albums"),
-        ('trackman.charts_artists', "Top artists"),
-        ('trackman.charts_tracks', "Top tracks"),
+        ('playlists.charts_albums', "Top albums"),
+        ('playlists.charts_artists', "Top artists"),
+        ('playlists.charts_tracks', "Top tracks"),
     ]
     return render_template('charts.html', periodic_charts=periodic_charts)
 
@@ -233,7 +239,17 @@ def charts_albums(period=None, year=None, month=None):
     if period == 'dj' and year is not None:
         return redirect(url_for('.charts_albums_dj', dj_id=year))
 
-    results = call_api(charts.AlbumCharts, 'GET', period, year, month)
+    if period is not None and year is not None and month is not None:
+        results = call_api("/charts/albums/{0}/{1}/{2}", 'GET',
+                           period, year, month)
+    elif period is not None and year is not None:
+        results = call_api("/charts/albums/{0}/{1}", 'GET',
+                           period, year, month)
+    elif period is not None:
+        results = call_api("/charts/albums/{0}", 'GET',
+                           period)
+    else:
+        results = call_api("/charts/albums", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -246,7 +262,7 @@ def charts_albums(period=None, year=None, month=None):
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/albums')
 def charts_albums_dj(dj_id):
-    results = call_api(charts.DJAlbumCharts, 'GET', dj_id)
+    results = call_api("/charts/dj/{0}/albums", 'GET', dj_id)
 
     if request.wants_json():
         return jsonify(results)
@@ -264,7 +280,17 @@ def charts_artists(period=None, year=None, month=None):
     if period == 'dj' and year is not None:
         return redirect(url_for('.charts_artists_dj', dj_id=year))
 
-    results = call_api(charts.ArtistCharts, 'GET', period, year, month)
+    if period is not None and year is not None and month is not None:
+        results = call_api("/charts/artists/{0}/{1}/{2}", 'GET',
+                           period, year, month)
+    elif period is not None and year is not None:
+        results = call_api("/charts/artists/{0}/{1}", 'GET',
+                           period, year, month)
+    elif period is not None:
+        results = call_api("/charts/artists/{0}", 'GET',
+                           period)
+    else:
+        results = call_api("/charts/artists", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -277,7 +303,7 @@ def charts_artists(period=None, year=None, month=None):
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/artists')
 def charts_artists_dj(dj_id):
-    results = call_api(charts.DJArtistCharts, 'GET', dj_id)
+    results = call_api("/charts/dj/{0}/artistS", 'GET', dj_id)
 
     if request.wants_json():
         return jsonify(results)
@@ -295,7 +321,17 @@ def charts_tracks(period=None, year=None, month=None):
     if period == 'dj' and year is not None:
         return redirect(url_for('.charts_tracks_dj', dj_id=year))
 
-    results = call_api(charts.TrackCharts, 'GET', period, year, month)
+    if period is not None and year is not None and month is not None:
+        results = call_api("/charts/tracks/{0}/{1}/{2}", 'GET',
+                           period, year, month)
+    elif period is not None and year is not None:
+        results = call_api("/charts/tracks/{0}/{1}", 'GET',
+                           period, year, month)
+    elif period is not None:
+        results = call_api("/charts/tracks/{0}", 'GET',
+                           period)
+    else:
+        results = call_api("/charts/tracks", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -308,7 +344,7 @@ def charts_tracks(period=None, year=None, month=None):
 
 @bp.route('/playlists/charts/dj/<int:dj_id>/tracks')
 def charts_tracks_dj(dj_id):
-    results = call_api(charts.DJTrackCharts, 'GET', dj_id)
+    results = call_api("/charts/dj/{0}/tracks", 'GET', dj_id)
 
     if request.wants_json():
         return jsonify(results)
@@ -320,7 +356,7 @@ def charts_tracks_dj(dj_id):
 
 @bp.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
-    results = call_api(charts.DJSpinCharts, 'GET')
+    results = call_api("/charts/dj/spins", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -330,7 +366,7 @@ def charts_dj_spins():
 
 @bp.route('/playlists/charts/dj/vinyl_spins')
 def charts_dj_vinyl_spins():
-    results = call_api(charts.DJVinylSpinCharts, 'GET')
+    results = call_api("/charts/dj/vinyl_spins", 'GET')
 
     if request.wants_json():
         return jsonify(results)
@@ -342,7 +378,7 @@ def charts_dj_vinyl_spins():
 
 @bp.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
-    results = call_api(playlists.Playlist, 'GET', set_id)
+    results = call_api("/playlists/set/{0:d}", 'GET', set_id)
 
     if request.wants_json():
         results.update({
@@ -360,7 +396,12 @@ def playlist(set_id):
 
 @bp.route('/playlists/track/<int:track_id>')
 def playlists_track(track_id):
-    results = call_api(playlists.PlaylistTrack, 'GET', track_id)
+    results = call_api("/playlists/track/{0:d}", 'GET', track_id)
+
+    def cast_played(t):
+        t['played'] = dateutil.parser.parse(t['played'])
+        return t
+    results['plays'] = [cast_played(t) for t in results['plays']]
 
     if request.wants_json():
         results['added'] = str(results['added'])

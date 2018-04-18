@@ -1,6 +1,6 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
 
-function PlaylistsByDate(wrapper) {
+function PlaylistsByDate(wrapper, trackmanUrl) {
     // number of days to display each time we scroll
     this.displayDays = 10;
 
@@ -13,6 +13,7 @@ function PlaylistsByDate(wrapper) {
 
     this.loading = false;
     this.wrapper = wrapper;
+    this.trackmanUrl = trackmanUrl;
 
     // create content divs
     this.cdiv1 = document.createElement('div');
@@ -40,7 +41,7 @@ PlaylistsByDate.prototype.loadDateSet = function(dateToLoad, destDiv, direction)
     }
 
     $.ajax({
-        'url': '/trackman/api/playlists/date/range?start=' + start.toISOString() + '&end=' + dateToLoad.toISOString(),
+        'url': this.trackmanUrl + '/api/playlists/date/range?start=' + start.toISOString() + '&end=' + dateToLoad.toISOString(),
         'dataType': 'json',
     }).done(function(data) {
         var sets = data['sets'];

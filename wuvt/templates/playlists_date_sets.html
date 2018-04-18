@@ -12,7 +12,7 @@
     {% if sets|length > 0 -%}
     <ul>
         {% for set in sets %}
-        <li><a href="{{ url_for('trackman.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="HH:mm">{{ set.dtstart|datetime("%H:%M") }}</time>-{% if set.dtend %}<time datetime="{{ set.dtend|isodatetime }}" data-format="HH:mm">>{{ set.dtend|datetime("%H:%M") }}</time>{% endif %}: {{ set.dj.airname }}</a></li>
+        <li><a href="{{ url_for('playlists.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="HH:mm">{{ set.dtstart|datetime("%H:%M") }}</time>-{% if set.dtend %}<time datetime="{{ set.dtend|isodatetime }}" data-format="HH:mm">>{{ set.dtend|datetime("%H:%M") }}</time>{% endif %}: {{ set.dj.airname }}</a></li>
         {% endfor %}
     </ul>
     {% else -%}

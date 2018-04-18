@@ -2,19 +2,8 @@
 This is the next-generation website for [WUVT-FM](https://www.wuvt.vt.edu), 
 Virginia Tech's student radio station.
 
-It has several main components:
-- A Content Management System (CMS) to store both blog-style *articles* and 
-  static *pages*. These can be managed at the `/admin` endpoint. One *admin*
-  user capable of administrative access exists; all other users have full 
-  control of articles and pages and may upload files. 
-- **Trackman**, a track logger with a UI and an API compatible with WinAmp's
-  POST plugin, [mpd-automation](https://github.com/wuvt/mpd-automation),
-  and [johnny-six](https://github.com/wuvt/johnny-six). The included SSE
-  endpoint can be used by external scripts for live track updates, similar to
-  how it is used on the website. It also provides access to previous playlists
-  and can generate charts of what has been played.
-- A simple donation system with Stripe integration for processing credit
-  card/Bitcoin transactions.
+It includes both a basic content management and simple donation system. It also
+integrates with Trackman to provide live track information and playlists.
 
 ### Deployment
 These instructions are for Linux; instructions for other platforms may vary.
@@ -35,10 +24,10 @@ docker build -t wuvt-site -f Dockerfile.dev .
 
 Now run it:
 ```
-docker run --rm -p 9090:8080 wuvt-site:latest
+docker run --rm -p 9070:8080 wuvt-site:latest
 ```
 
-You can now access the site at <http://localhost:9090/>. An admin user account
+You can now access the site at <http://localhost:9070/>. An admin user account
 will be created for you; the password is automatically generated and displayed
 when you launch the container.
 
@@ -104,13 +93,7 @@ Finally, start uWSGI:
 uwsgi --ini uwsgi.ini:dev
 ```
 
-You can now access the site at http://localhost:9090/
-
-### API
-TODO
-
-Look at submit_tracks.py for an example of sending metadata to Trackman.
-
+You can now access the site at http://localhost:9070/
 
 ### License
 
@@ -118,7 +101,7 @@ Besides the exceptions noted below, the entirety of this software is available
 under the GNU Affero General Public License:
 
 ```
-Copyright 2012-2017 James Schwinabart, Calvin Winkowski, Matt Hazinski.
+Copyright 2012-2018 James Schwinabart, Calvin Winkowski, Matt Hazinski.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by

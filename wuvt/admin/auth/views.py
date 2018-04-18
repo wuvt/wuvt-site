@@ -15,7 +15,7 @@ def role_add_user():
 
     if request.method == 'POST':
         role = request.form['role']
-        if not role in auth_manager.all_roles:
+        if role not in auth_manager.all_roles:
             error_fields.append('role')
 
         user = User.query.get(request.form['user'])
@@ -76,7 +76,7 @@ def role_add_group():
 
     if request.method == 'POST':
         role = request.form['role']
-        if not role in auth_manager.all_roles:
+        if role not in auth_manager.all_roles:
             error_fields.append('role')
 
         group = request.form['group'].strip()
