@@ -126,8 +126,8 @@ contact={contact}
 @bp.route('/playlists/live')
 @bp.route('/live')
 def live():
-    # TODO: do redirect to appropriate SSE endpoint
-    return "FIXME"
+    url = "{0}/live".format(current_app.config['TRACKMAN_URL'])
+    return redirect(url, 303)
 
 
 # Playlist Archive (by date) {{{
