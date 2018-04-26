@@ -21,12 +21,6 @@
                 Email me my playlist
             </label>
 
-            <label class="checkbox-inline">
-                <input type="checkbox" name="extend_autologout"
-                    id="id_extend_autologout" />
-                Let me play longer songs
-            </label>
-
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default" id="on_air_btn">
                     <span class="glyphicon glyphicon-flash"></span>
@@ -314,6 +308,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=18) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman/trackman.js', v=19) }}"></script>
 <script src="{{ url_for('trackman_private.log_js') }}"></script>
 {% endblock %}
