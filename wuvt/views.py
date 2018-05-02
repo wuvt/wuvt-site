@@ -98,7 +98,7 @@ def error500(error):
     if request.wants_json():
         return jsonify({'errors': "500 Internal Server Error"}), 500
 
-    return send_from_directory(app.static_folder, '500.html'), 500
+    return render_template('error500.html'), 500
 
 
 @app.route('/healthz')
