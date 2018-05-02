@@ -4,10 +4,10 @@
 <section>
 <header>
     <h2>Playlist Archive</h2>
-    <h3><a href="{{ url_for('trackman.playlists_dj_sets', dj_id=djset.dj.id) }}">{{ djset.dj.airname }}</a> / <time datetime="{{ djset.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</time></h3>
+    <h3><a href="{{ url_for('playlists.playlists_dj_sets', dj_id=djset.dj.id) }}">{{ djset.dj.airname }}</a> / <time datetime="{{ djset.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</time></h3>
 </header>
 
-{% if config.ARCHIVE_URL_FORMAT|length > 0 %}
+{% if archives|length > 0 %}
 <div class="links">
     <h4>Listen Online</h4>
     <ol>
@@ -34,7 +34,7 @@
             <td><time datetime="{{ track.played|isodatetime }}" data-format="HH:mm:ss">{{ track.played|datetime("%H:%M:%S") }}</time></td>
             <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track" title="New"></span>{% endif %}</td>
             <td>{{ track.track.artist }}</td>
-            <td><a href="{{ url_for('trackman.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></td>
+            <td><a href="{{ url_for('playlists.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></td>
             <td>{{ track.track.album }}</td>
             <td>{% if track.request %}<span class="glyphicon glyphicon-earphone" title="Request"></span>{% endif %}</td>
             <td>{% if track.vinyl %}<span class="glyphicon glyphicon-cd" title="Vinyl"></span>{% endif %}</td>

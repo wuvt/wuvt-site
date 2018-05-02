@@ -2,7 +2,6 @@ from wuvt import db
 from wuvt.models import Page
 from wuvt.auth.models import User
 from wuvt.blog.models import Article, Category
-from wuvt.trackman.models import DJ, Rotation, Track
 
 
 def initdb(username, password):
