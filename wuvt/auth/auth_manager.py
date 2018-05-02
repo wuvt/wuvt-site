@@ -123,3 +123,10 @@ class AuthManager(object):
         _request_ctx_stack.top.user = None
         _request_ctx_stack.top.user_roles = set([])
         return True
+
+    def cleanup_expired_sessions(self):
+        now = datetime.datetime.utcnow()
+        user_sessions = UserSession.query.filter(UserSession.expires <= now)
+        for user_session in user_sessions:
+            self.db.session.delete(user_session)
+        self.db.session.commit()
