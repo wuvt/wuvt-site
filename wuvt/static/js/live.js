@@ -128,11 +128,17 @@ function loadPage(path) {
     }).done(function(data) {
         updatePage($.parseHTML(data, document, true));
     }).fail(function(data) {
+        var parsedDoc = $.parseHTML(data.responseText, document, true);
         if(data.status < 500) {
-            updatePage($.parseHTML(data.responseText, document, true));
+            updatePage(parsedDoc);
         } else {
-            $('title').text("Internal Server Error");
-            $('#content').html("<section><header><h2>Internal Server Error</h2></header><p>We apologize for the inconvenience. Please try your request again later.</p></section>");
+            var doc = $('<div>').append(parsedDoc);
+            if(doc.find('title').text().indexOf('Server Error') > 0) {
+                updatePage(parsedDoc);
+            } else {
+                $('title').text("Internal Server Error");
+                $('#content').html("<section><header><h2>Internal Server Error</h2></header><p>We apologize for the inconvenience. Please try your request again later.</p></section>");
+            }
         }
     });
 }
