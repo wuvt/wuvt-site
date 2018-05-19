@@ -39,7 +39,7 @@ def last15_feed():
     result = call_api("/playlists/last15", 'GET')
     tracks = result['tracks']
     feed = AtomFeed(
-        "{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
+        "{0}: Last 15 Tracks".format(current_app.config['STATION_SHORT_NAME']),
         feed_url=request.url,
         url=make_external(url_for('.last15')))
 
@@ -57,8 +57,8 @@ def last15_feed():
                                       set_id=tracklog['djset_id'],
                                       _anchor="t{}".format(tracklog['id']))),
             author=tracklog['dj']['airname'],
-            updated=tracklog['played'],
-            published=tracklog['played'])
+            updated=dateutil.parser.parse(tracklog['played']),
+            published=dateutil.parser.parse(tracklog['played']))
 
     return feed.get_response()
 
@@ -144,15 +144,15 @@ def playlists_date_sets(year, month, day):
         "/playlists/date/{0}/{1}/{2}", 'GET', year, month, day)
 
     now = datetime.datetime.utcnow()
-
-    next_date = results['dtstart'] + datetime.timedelta(hours=24)
+    start_date = dateutil.parser.parse(results['dtstart'])
+    next_date = start_date + datetime.timedelta(hours=24)
     next_url = url_for('.playlists_date_sets', year=next_date.year,
                        month=next_date.month, day=next_date.day)
     if next_date > now:
         next_url = None
 
-    if results['dtstart'] < now:
-        prev_date = results['dtstart'] - datetime.timedelta(hours=24)
+    if start_date < now:
+        prev_date = start_date - datetime.timedelta(hours=24)
         prev_url = url_for('.playlists_date_sets', year=prev_date.year,
                            month=prev_date.month, day=prev_date.day)
     else:
