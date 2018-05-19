@@ -4,4 +4,7 @@
 {% block content %}
 <h1>{{ config.STATION_NAME }}</h1>
 <p>Please select an option in the menu above.</p>
+
+<h2>Can't find something?</h2>
+<p>Trackman has been moved to a separate application with a separate admin area. If you can't find what you're looking for, check out <a href="{{ config.TRACKMAN_PUBLIC_URL or config.TRACKMAN_URL }}/admin">the Trackman admin area</a>.
 {% endblock %}
