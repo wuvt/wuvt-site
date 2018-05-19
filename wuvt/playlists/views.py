@@ -1,7 +1,7 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
-from flask import current_app, jsonify, render_template, redirect, request, \
-        url_for, Response
+from flask import current_app, jsonify, make_response, render_template, \
+        redirect, request, url_for, Response
 import datetime
 import dateutil.parser
 import re
@@ -136,6 +136,13 @@ def playlists_date():
     today = datetime.datetime.utcnow().replace(
         hour=0, minute=0, second=0, microsecond=0)
     return render_template('playlists_date_list.html', today=today)
+
+
+@bp.route('/js/playlists_by_date_init.js')
+def playlists_by_date_init_js():
+    resp = make_response(render_template('playlists_by_date_init.js'))
+    resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
+    return resp
 
 
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')
