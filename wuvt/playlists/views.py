@@ -214,8 +214,10 @@ def playlists_dj_all():
 def playlists_dj_sets(dj_id):
     results = call_api("/playlists/dj/{0}", 'GET', dj_id)
     def cast_dates(t):
-        t['dtstart'] = dateutil.parser.parse(t['dtstart'])
-        t['dtend'] = dateutil.parser.parse(t['dtend'])
+        if t['dtstart'] is not None:
+            t['dtstart'] = dateutil.parser.parse(t['dtstart'])
+        if t['dtend'] is not None:
+            t['dtend'] = dateutil.parser.parse(t['dtend'])
         return t
     results['sets'] = [cast_dates(t) for t in results['sets']]
 
