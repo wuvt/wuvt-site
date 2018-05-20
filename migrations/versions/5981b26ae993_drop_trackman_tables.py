@@ -19,7 +19,7 @@ def upgrade():
     op.drop_table('tracklog')
     op.drop_table('trackreport')
     op.drop_table('track')
-    op.drop_table('djset')
+    op.drop_table('set')
     op.drop_table('dj')
     op.drop_table('rotation')
 
