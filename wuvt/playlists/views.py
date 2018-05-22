@@ -415,6 +415,7 @@ def playlists_track(track_id):
     def cast_played(t):
         t['played'] = dateutil.parser.parse(t['played'])
         return t
+
     results['plays'] = [cast_played(t) for t in results['plays']]
 
     if request.wants_json():
