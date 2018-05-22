@@ -5,6 +5,7 @@ from flask import current_app, jsonify, make_response, render_template, \
 import datetime
 import dateutil.parser
 import re
+import requests
 from werkzeug.contrib.atom import AtomFeed
 
 from . import bp
@@ -147,11 +148,14 @@ def playlists_by_date_init_js():
 
 @bp.route('/playlists/date/<int:year>/<int:month>/<int:day>')
 def playlists_date_sets(year, month, day):
-    results, status_code = call_api(
-        "/playlists/date/{0}/{1}/{2}", 'GET', year, month, day)
+    r = requests.get('{0}/api/playlists/date/{1}/{2}/{3}'.format(
+            current_app.config['TRACKMAN_URL'],
+            year, month, day))
+    status_code = r.status_code
+    results = r.json()
 
     now = datetime.datetime.utcnow()
-    start_date = dateutil.parser.parse(results['dtstart'])
+    start_date = dateutil.parser.parse(results['dtstart']).replace(tzinfo=None)
     next_date = start_date + datetime.timedelta(hours=24)
     next_url = url_for('.playlists_date_sets', year=next_date.year,
                        month=next_date.month, day=next_date.day)
@@ -213,6 +217,7 @@ def playlists_dj_all():
 @bp.route('/playlists/dj/<int:dj_id>')
 def playlists_dj_sets(dj_id):
     results = call_api("/playlists/dj/{0}", 'GET', dj_id)
+
     def cast_dates(t):
         if t['dtstart'] is not None:
             t['dtstart'] = dateutil.parser.parse(t['dtstart'])
