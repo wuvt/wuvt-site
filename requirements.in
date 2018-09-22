@@ -21,6 +21,7 @@ python-redis-lock
 pytz
 redis
 requests
+sentry-sdk[flask]
 sqlalchemy>=1.2.0
 SQLAlchemy-Utils
 stripe
