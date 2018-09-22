@@ -171,37 +171,16 @@ def inject_radiothon():
 
 @app.after_request
 def add_csp(response):
-    trackman_public_url = app.config.get('TRACKMAN_PUBLIC_URL',
-                                         app.config['TRACKMAN_URL'])
-    response.headers['Content-Security-Policy'] = "default-src 'self' https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://checkout.stripe.com; media-src 'self' *; frame-ancestors 'self'; connect-src 'self' {0}".format(trackman_public_url)
+    connect_srcs = ["'self'"]
+    connect_srcs.append(app.config.get('TRACKMAN_PUBLIC_URL',
+                                       app.config['TRACKMAN_URL']))
+    response.headers['Content-Security-Policy'] = "default-src 'self' https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://checkout.stripe.com; media-src 'self' *; frame-ancestors 'self'; connect-src {0}".format(' '.join(connect_srcs))
     return response
 
 
 if app.debug:
     from werkzeug.debug import DebuggedApplication
     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-else:
-    import logging
-    from logging.handlers import SMTPHandler, SysLogHandler
-
-    mail_handler = SMTPHandler(
-        app.config['SMTP_SERVER'],
-        app.config['MAIL_FROM'],
-        app.config['ADMINS'],
-        "[{}] Website error".format(app.config['STATION_NAME']))
-    mail_handler.setFormatter(logging.Formatter('''
-Message type:       %(levelname)s
-Time:               %(asctime)s
-
-%(message)s
-'''))
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
-
-    if 'SYSLOG_ADDRESS' in app.config:
-        syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
-        syslog_handler.setLevel(logging.WARNING)
-        app.logger.addHandler(syslog_handler)
 
 
 def init_app():

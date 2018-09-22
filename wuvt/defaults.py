@@ -2,7 +2,7 @@ DEBUG = False
 # SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-REDIS_URL = 'redis://localhost:6379/0'
+REDIS_URL = 'redis://redis:6379/0'
 
 POSTS_PER_PAGE = 5
 ARTISTS_PER_PAGE = 500
@@ -31,9 +31,12 @@ NAV_TOP_SECTIONS = [
 INTERNAL_IPS = ['127.0.0.1/8']
 TRACKMAN_URL = "http://localhost:9090/"
 
-ADMINS = []
 MAIL_FROM = "noreply@localhost"
-SMTP_SERVER = "localhost"
+SMTP_SERVER = "mailhog"
+SMTP_PORT = 1025
+SMTP_TLS = False
+SMTP_USER = ""
+SMTP_PASSWORD = ""
 DONATE_MAIL_FROM = "donations@localhost"
 
 PROXY_FIX = False
