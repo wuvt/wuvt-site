@@ -1,0 +1,28 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+    - APP_CONFIG_PATH=/data/config/config.json
+    - USE_EMBEDDED_DB
+    ports:
+    - "9070:8080"
+    expose:
+    - "9070"
+    volumes:
+    - ../wuvt-site-config:/data/config
+    external_links:
+    - postgres
+    depends_on:
+    - mailhog
+    - redis
+  redis:
+    image: redis:4-alpine
+    expose:
+     - "6379"
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+    - "9125:8025"
