@@ -4,6 +4,9 @@ FROM python:3
 # temporary database that is stored in the container, which you definitely
 # don't want for production.
 
+# precreate a redis user with a known uid/gid for uwsgi
+RUN useradd -d /var/lib/redis -r -s /bin/false -u 500 -U redis
+
 RUN apt-get update \
         && apt-get install -y \
             git \
