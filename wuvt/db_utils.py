@@ -7,14 +7,6 @@ from wuvt.blog.models import Article, Category
 def initdb(username, password):
     db.create_all()
 
-    dj = DJ("Automation", "Automation", False)
-    db.session.add(dj)
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise
-
     cats = [Category("Events", "events", True),
             Category("Music Adds", "music-adds", True),
             Category("Programming", "programming", True),
@@ -29,23 +21,10 @@ def initdb(username, password):
     user.set_password(str(password))
     db.session.add(user)
 
-    # The first Rotation is always the default
-    db.session.add(Rotation("None"))
-    for r in ["Metal", "New Music", "Jazz", "Rock", "Americana"]:
-        db.session.add(Rotation(r))
-
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise
-
 
 def add_sample_data():
     add_sample_articles()
     add_sample_pages()
-    add_sample_djs()
-    add_sample_tracks()
 
 
 def add_sample_articles():
