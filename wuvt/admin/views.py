@@ -255,6 +255,18 @@ def page_edit(page_id):
                            page=page,
                            form=form)
 
+@bp.route('/page/draft/<int:page_id>')
+@auth_manager.check_access('admin', 'content')
+def page_draft(page_id):
+    page = Page.query.filter(Page.id == page_id).first()
+    if not page:
+        abort(404)
+
+    if not page.content:
+        page.content = page.summary
+
+    return render_template('page.html',
+                           page=page)
 
 @bp.route('/page/add', methods=['GET', 'POST'])
 @auth_manager.check_access('admin')
@@ -529,4 +541,3 @@ def donate_csv_download():
         "Content-Disposition":
             "attachment; filename=\"{0}\"".format(filename),
         }
-
