@@ -263,7 +263,7 @@ def page_draft(page_id):
         abort(404)
 
     if not page.content:
-        page.content = page.summary
+        abort(404)
 
     return render_template('page.html',
                            page=page)
