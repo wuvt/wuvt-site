@@ -29,6 +29,7 @@
         <td>{{ page.published }}</td>
         <td class="row-options">
             <a href="{{ url_for('admin.page_edit', page_id=page.id) }}" class="btn btn-default btn-sm">Edit</a>
+            <a href="{{ url_for('admin.page_draft', page_id=page.id) }}" class="btn btn-default btn-sm">Preview</a>
             <button class="btn btn-danger btn-sm delete-button">Delete</button>
         </td>
     </tr>
