@@ -4,7 +4,6 @@ from flask import Flask, Request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from raven.contrib.flask import Sentry
 from werkzeug.contrib.cache import RedisCache
 import humanize
 import os
@@ -12,6 +11,8 @@ import redis
 from . import defaults
 import uuid
 import datetime
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 json_mimetypes = ['application/json']
 
@@ -127,7 +128,8 @@ if app.config['AUTH_METHOD'] == 'oidc':
     oidc = OpenIDConnect(app)
 
 if len(app.config['SENTRY_DSN']) > 0:
-    sentry = Sentry(app, dsn=app.config['SENTRY_DSN'])
+    sentry_sdk.init(app.config['SENTRY_DSN'],
+                    integrations=[FlaskIntegration()])
 
 
 @app.context_processor
