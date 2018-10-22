@@ -13,7 +13,7 @@
 
         <form method="post">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            <button name="reset_stats" type="submit" class="btn btn-danger btn-sm">
+            <button name="reset_stats" type="submit" class="btn btn-danger btn-sm" onclick="confirm_delete(event)">
                 <span class="glyphicon glyphicon-dashboard"></span>
                 Reset Stats
             </button>
