@@ -62,3 +62,5 @@ AUTH_ROLE_GROUPS = {
     'library': ['librarians'],
     'missioncontrol': ['missioncontrol'],
 }
+
+SENTRY_DSN = ""

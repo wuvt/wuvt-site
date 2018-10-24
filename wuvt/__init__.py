@@ -11,6 +11,8 @@ import redis
 from . import defaults
 import uuid
 import datetime
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 json_mimetypes = ['application/json']
 
@@ -124,6 +126,10 @@ auth_manager.init_app(app)
 if app.config['AUTH_METHOD'] == 'oidc':
     from wuvt.auth.oidc import OpenIDConnect
     oidc = OpenIDConnect(app)
+
+if len(app.config['SENTRY_DSN']) > 0:
+    sentry_sdk.init(app.config['SENTRY_DSN'],
+                    integrations=[FlaskIntegration()])
 
 
 @app.context_processor
