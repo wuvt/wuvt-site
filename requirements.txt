@@ -48,7 +48,7 @@ sentry-sdk[flask]==0.5.0
 six==1.11.0               # via bleach, cryptography, flask-oidc, flask-restful, oauth2client, python-dateutil, sqlalchemy-utils
 sqlalchemy-utils==0.33.6
 sqlalchemy==1.2.12
-stripe==2.10.1
+stripe==1.79.1
 unidecode==1.0.22
 urllib3==1.24             # via requests, sentry-sdk
 webencodings==0.5.1       # via bleach
