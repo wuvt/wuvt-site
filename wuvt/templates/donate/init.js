@@ -56,7 +56,7 @@ $('#donate_form').submit(function(ev) {
 
         // Open Checkout with options
         opts['amount'] = amount;
-        opts['bitcoin'] = true;
+        opts['bitcoin'] = false;
         opts['panelLabel'] = "Pay {{ '{{amount}}' }}";
         handler.open(opts);
     } else {
