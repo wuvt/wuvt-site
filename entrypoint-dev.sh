@@ -12,7 +12,7 @@ if [[ "$USE_EMBEDDED_DB" == "1" ]]; then
     echo "Embedded database enabled."
     if [[ ! -f /tmp/wuvt.db ]]; then
         echo "No database found; a new one will be created."
-        su www-data -s /bin/sh -c 'flask init_embedded_db'
+        su www-data -s /bin/sh -c 'flask init-embedded-db'
     fi
 
     echo "-------------------------------------------------------------------------------"
