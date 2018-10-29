@@ -60,6 +60,9 @@ def process_order(method):
         # if a phone number is provided, set it
         order.phone = request.form['phone'].strip()
 
+    if 'comment' in request.form:
+        order.donor_comment = request.form['comment'].strip()
+
     if premiums_config['enabled']:
         premiums = request.form.get('premiums', 'no')
 
