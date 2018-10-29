@@ -7,7 +7,10 @@ _external=True)}}
 
 {% if config.DONATE_PREMIUMS -%}
 If you ordered premiums, please check our website for more information, but
-they are usually available for pickup or shipped out within 4-6 weeks.
+they are usually available for pickup or shipped out within 4-6 weeks. If the
+premium you ordered involves an on-air message, please fill out this Google Form:
+
+https://goo.gl/forms/61gDFmAQfWyEKJMM2
 {% endif -%}
 
 If you have any questions or concerns, please feel free to contact us by
