@@ -513,14 +513,14 @@ def library_redirect(path=None):
         return redirect('/trackman/library/index')
 
 @bp.route('/donate/csv')
-@login_required
+@auth_manager.check_access('business')
 def donate_csv_download():
     csvHeaders = ["id", "name", "email", "phone", "date", "address",
                   "useragent", "dj", "thanks", "firsttime", "dcomment",
                   "premiums", "address1", "address2", "city", "state", "zip",
                   "amount", "recurring", "paiddate", "shippeddate",
                   "shirtsize", "shirtcolor", "sweatshirtsize", "method",
-                  "custid", "comments"]
+                  "custid", "donor_comment"]
     orders = Order.query.\
         order_by(db.desc(Order.id))
     f = io.StringIO()
@@ -532,7 +532,7 @@ def donate_csv_download():
                   o.donor_comment, o.premiums, o.address1, o.address2, o.city,
                   o.state, o.zipcode, o.amount, o.recurring, o.paid_date,
                   o.shipped_date, o.tshirtsize, o.tshirtcolor, o.sweatshirtsize,
-                  o.method, o.custid, o.comments]
+                  o.method, o.custid, o.donor_comment]
         writer.writerow(fields)
     f.seek(0)
     filename = "donor-premiums.csv"

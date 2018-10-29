@@ -41,7 +41,7 @@
             <th>T-Shirt Size</th>
             <th>Color</th>
             <th>Sweatshirt Size</th>
-            <th>Comments</th>
+            <th>Comment</th>
         </tr>
     </thead>
     <tbody>
@@ -68,7 +68,7 @@
             <td>{% if donation.tshirtsize %}{{ donation.tshirtsize }}{% endif %}</td>
             <td>{% if donation.tshirtcolor %}{{ donation.tshirtcolor }}{% endif %}</td>
             <td>{% if donation.sweatshirtsize %}{{ donation.sweatshirtsize }}{% endif %}</td>
-            <td>{% if donation.comments %}{{ donation.comments }}{% endif %}</td>
+            <td>{% if donation.donor_comment %}{{ donation.donor_comment }}{% endif %}</td>
         </tr>
 {% endfor %}
     </tbody>
