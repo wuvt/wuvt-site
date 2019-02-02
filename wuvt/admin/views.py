@@ -1,3 +1,4 @@
+import boto3
 import datetime
 import dateutil.parser
 import os
@@ -21,6 +22,7 @@ from wuvt.admin.auth import views as auth_views
 import csv
 import io
 
+
 @bp.route('/')
 @login_required
 def index():
@@ -33,18 +35,34 @@ def upload():
     if request.method == 'GET':
         return render_template('admin/upload.html')
     else:
-        file = request.files['file']
-        dir = request.form['destination']
+        uploaded = request.files['file']
+        destdir = secure_filename(request.form['destination'])
 
-        if dir == 'default':
-            dir = ''
+        if destdir == 'default':
+            destdir = ''
 
-        if file:
-            filename = secure_filename(file.filename)
-            newpath = os.path.join(app.config['UPLOAD_DIR'], dir, filename)
-            webroot_path = os.path.join('/static/media', dir, filename)
-            file.save(newpath)
-            flash('Your file has been uploaded to: ' + webroot_path)
+        if uploaded:
+            filename = secure_filename(uploaded.filename)
+            filepath = os.path.join(destdir, filename)
+
+            if len(app.config['UPLOAD_S3_BUCKET']) > 0:
+                aws_config = {}
+                if len(app.config['UPLOAD_S3_ENDPOINT']) > 0:
+                    aws_config['endpoint_url'] = app.config[
+                        'UPLOAD_S3_ENDPOINT']
+                if len(app.config['UPLOAD_S3_REGION']) > 0:
+                    aws_config['region_name'] = app.config['UPLOAD_S3_REGION']
+
+                s3 = boto3.resource('s3', **aws_config)
+                s3.meta.client.upload_fileobj(
+                    uploaded,
+                    app.config['UPLOAD_S3_BUCKET'],
+                    filepath)
+            else:
+                uploaded.save(os.path.join(app.config['UPLOAD_DIR'], filepath))
+
+            upload_url = app.config['UPLOAD_URL'] + '/' + filepath
+            flash('Your file has been uploaded to: ' + upload_url)
 
         return render_template('admin/upload.html')
 

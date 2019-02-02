@@ -1,4 +1,5 @@
 bleach
+boto3
 click
 Flask
 Flask-Caching
