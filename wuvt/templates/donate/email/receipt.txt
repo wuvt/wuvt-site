@@ -5,13 +5,12 @@ Thank you for your generous donation! If you'd like to support WUVT continuously
 consider setting up a recurring donation here: {{url_for('donate.donate_recurring',
 _external=True)}}
 
-{% if config.DONATE_PREMIUMS -%}
-If you ordered premiums, please check our website for more information, but
-they are usually available for pickup or shipped out within 4-6 weeks. If the
-premium you ordered involves an on-air message, please fill out this Google Form:
+If you ordered premiums for Radiothon, please check our website for more 
+information, but they are usually available for pickup or shipped out within 4-6
+weeks. If the premium you ordered involves an on-air message or show theme, 
+please fill out this Google Form:
 
-https://goo.gl/forms/61gDFmAQfWyEKJMM2
-{% endif -%}
+https://forms.gle/y5Ne7yMchV4gmyGg6
 
 If you have any questions or concerns, please feel free to contact us by
 replying to this email.
