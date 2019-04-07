@@ -18,7 +18,7 @@ from wuvt.forms import PageForm
 from wuvt.models import Page, PageRevision
 from wuvt.views import get_menus
 from wuvt.view_utils import slugify
-from wuvt.admin.auth import views as auth_views
+from wuvt.admin.auth import views as auth_views  # noqa: F401
 import csv
 import io
 
@@ -273,6 +273,7 @@ def page_edit(page_id):
                            page=page,
                            form=form)
 
+
 @bp.route('/page/draft/<int:page_id>')
 @auth_manager.check_access('admin', 'content')
 def page_draft(page_id):
@@ -285,6 +286,7 @@ def page_draft(page_id):
 
     return render_template('page.html',
                            page=page)
+
 
 @bp.route('/page/add', methods=['GET', 'POST'])
 @auth_manager.check_access('admin')
@@ -530,6 +532,7 @@ def library_redirect(path=None):
     else:
         return redirect('/trackman/library/index')
 
+
 @bp.route('/donate/csv')
 @auth_manager.check_access('business')
 def donate_csv_download():
@@ -558,4 +561,4 @@ def donate_csv_download():
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition":
             "attachment; filename=\"{0}\"".format(filename),
-        }
+    }

@@ -137,22 +137,3 @@ Mauris egestas lectus dolor. Donec non augue id tellus volutpat ultricies. Sed c
     except:
         db.session.rollback()
         raise
-
-
-def add_sample_djs():
-    db.session.add(DJ('Testy McTesterson', 'Testy McTesterson'))
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise
-
-
-def add_sample_tracks():
-    db.session.add(Track('The Divine Conspiracy', 'Epica', 'The Divine Conspiracy', 'Avalon'))
-    db.session.add(Track('Second Stone', 'Epica', 'The Quantum Enigma', 'Nuclear Blast'))
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise

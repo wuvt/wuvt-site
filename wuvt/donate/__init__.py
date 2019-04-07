@@ -25,13 +25,13 @@ def process_stripe_onetime(order, stripe_token, amount):
 
     try:
         # charge the customer using stripe_token
-        charge = stripe.Charge.create(
+        stripe.Charge.create(
             amount=amount,
             currency="usd",
             source=stripe_token,
             metadata={'order_id': order.id},
             **extra_data)
-    except stripe.CardError as e:
+    except stripe.CardError:
         return False
 
     return True
@@ -46,7 +46,7 @@ def process_stripe_recurring(order, stripe_token, plan, shipping_cost=0):
             card=stripe_token,
             email=order.email
         )
-    except stripe.CardError as e:
+    except stripe.CardError:
         return False
 
     order.custid = customer.id
