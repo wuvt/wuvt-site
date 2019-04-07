@@ -75,9 +75,7 @@ def oidc_callback():
     user = _find_or_create_user(
         id_token['sub'], id_token['name'], id_token['email'])
 
-    user_groups = None
-    if 'groups' in id_token:
-        user_groups = id_token['groups']
+    user_groups = id_token.get(app.config.get('OIDC_GROUPS_CLAIM', 'groups'))
 
     login_user(user, get_user_roles(user, user_groups))
 
