@@ -21,8 +21,6 @@ NAV_TOP_SECTIONS = [
      'name': 'Playlists'},
     {'menu': 'shows',
      'name': 'Shows'},
-    {'menu': 'contact',
-     'name': 'Contact'},
     {'menu': 'hidden',
      'name': 'Hidden',
      'hidden': True},
