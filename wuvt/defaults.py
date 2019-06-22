@@ -2,6 +2,7 @@ DEBUG = False
 # SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True}
 REDIS_URL = 'redis://localhost:6379/0'
 
 POSTS_PER_PAGE = 5
