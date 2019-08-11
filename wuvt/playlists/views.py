@@ -93,25 +93,6 @@ def latest_track_clean():
     return Response(output, mimetype="text/plain")
 
 
-@bp.route('/playlists/latest_track_slack')
-def latest_track_slack():
-    track = trackinfo()
-
-    if track['dj_id'] > 0:
-        dj_link = '<{url}|{dj}>'.format(
-            dj=track['dj'],
-            url=make_external(url_for('.playlists_dj_sets',
-                                      dj_id=track['dj_id'])))
-    else:
-        dj_link = track['dj']
-
-    return jsonify({
-        "response_type": "in_channel",
-        "text": "*{artist} - {title}*\nDJ: {dj_link}".format(
-            dj_link=dj_link, **track),
-    })
-
-
 @bp.route('/playlists/latest_track_stream')
 @bp.route('/playlists/latest_track_stream.php')
 def latest_track_stream():
