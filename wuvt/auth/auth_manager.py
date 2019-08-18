@@ -45,13 +45,20 @@ class AuthManager(object):
 
             self.login_view = 'loginpass_google.login'
         elif app.config.get('AUTH_METHOD') == 'oidc':
-            from wuvt.auth.oidc import OpenIDConnect
-            self.oidc = OpenIDConnect(app)
+            from authlib.flask.client import OAuth
+            self.oauth = OAuth(app)
 
-            from . import oidc_views
-            app.register_blueprint(oidc_views.bp, url_prefix='/auth/oidc')
+            from loginpass import create_flask_blueprint
+            from .oidc import create_oidc_backend, handle_authorize
 
-            self.login_view = 'auth_oidc.login'
+            backend = create_oidc_backend('oidc',
+                                          app.config['OIDC_CLIENT_SECRETS'],
+                                          app.config.get('OIDC_SCOPES'))
+            oidc_bp = create_flask_blueprint(backend, self.oauth,
+                                             handle_authorize)
+            app.register_blueprint(oidc_bp, url_prefix='/auth/oidc')
+
+            self.login_view = 'loginpass_oidc.login'
         else:
             from . import local_views
             app.register_blueprint(local_views.bp, url_prefix='/auth/local')

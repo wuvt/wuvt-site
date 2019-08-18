@@ -36,4 +36,4 @@
 * `GOOGLE_SERVICE_ACCOUNT_FILE` - Path to the Google service account file used for obtaining user groups
 * `GOOGLE_AUTHORIZE_URL` - Optional; override authorize URL to set custom paramters
 
-Additional configuration options are described in the documentation for [Flask](http://flask.pocoo.org/docs/1.0/config/#builtin-configuration-values), [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/2.3/config/#configuration-keys), [Flask-WTF](https://flask-wtf.readthedocs.io/en/stable/config.html), and [Flask-OIDC](https://flask-oidc.readthedocs.io/en/latest/#settings-reference).
+Additional configuration options are described in the documentation for [Flask](http://flask.pocoo.org/docs/1.0/config/#builtin-configuration-values), [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/2.3/config/#configuration-keys), and [Flask-WTF](https://flask-wtf.readthedocs.io/en/stable/config.html).
