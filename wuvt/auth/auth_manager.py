@@ -1,26 +1,21 @@
 import base64
 import datetime
 import os
-from flask import abort, flash, make_response, redirect, request, session, \
+from flask import abort, make_response, redirect, request, session, \
     url_for, _request_ctx_stack
 from functools import wraps
 
-from .models import User, UserSession
+from .models import GroupRole, User, UserRole, UserSession
 from .mixins import AnonymousUserMixin
-from .blueprint import bp
 from .utils import current_user, current_user_roles, \
     _user_context_processor, _user_roles_context_processor
 
 
 class AuthManager(object):
     def __init__(self, app=None, db=None):
-        self.bp = bp
         self.all_roles = set()
 
         self.exempt_methods = set(['OPTIONS'])
-        self.login_message = "Please login to access this page."
-        self.login_message_category = 'message'
-        self.login_view = "auth.login"
 
         if db is not None:
             self.db = db
@@ -33,6 +28,38 @@ class AuthManager(object):
         app.auth_manager = self
         app.context_processor(_user_context_processor)
         app.context_processor(_user_roles_context_processor)
+
+        if app.config.get('AUTH_METHOD') == 'google':
+            app.config.setdefault('GOOGLE_ALLOWED_DOMAINS', [])
+
+            from authlib.flask.client import OAuth
+            self.oauth = OAuth(app)
+
+            from loginpass import create_flask_blueprint
+            from loginpass.google import Google
+            from .google import handle_authorize
+
+            google_bp = create_flask_blueprint(Google, self.oauth,
+                                               handle_authorize)
+            app.register_blueprint(google_bp, url_prefix='/auth/google')
+
+            self.login_view = 'loginpass_google.login'
+        elif app.config.get('AUTH_METHOD') == 'oidc':
+            from wuvt.auth.oidc import OpenIDConnect
+            self.oidc = OpenIDConnect(app)
+
+            from . import oidc_views
+            app.register_blueprint(oidc_views.bp, url_prefix='/auth/oidc')
+
+            self.login_view = 'auth_oidc.login'
+        else:
+            from . import local_views
+            app.register_blueprint(local_views.bp, url_prefix='/auth/local')
+
+            self.login_view = 'auth_local.login'
+
+        from . import views
+        app.register_blueprint(views.bp, url_prefix='/auth')
 
     def generate_session_id(self):
         return base64.urlsafe_b64encode(os.urandom(64)).decode('ascii')
@@ -59,8 +86,8 @@ class AuthManager(object):
         return User.query.get(user_id)
 
     def unauthorized(self):
-        flash(self.login_message, self.login_message_category)
-        return redirect(url_for(self.login_view, next=request.url))
+        session['login_target'] = request.url
+        return redirect(url_for(self.login_view))
 
     def check_access(self, *roles):
         roles = set(roles)
@@ -130,3 +157,27 @@ class AuthManager(object):
         for user_session in user_sessions:
             self.db.session.delete(user_session)
         self.db.session.commit()
+
+    def get_user_roles(self, user, user_groups=None):
+        if user.username in self.app.config['AUTH_SUPERADMINS']:
+            return list(self.all_roles)
+
+        user_roles = set([])
+
+        if user_groups is not None:
+            for role, groups in list(
+                    self.app.config['AUTH_ROLE_GROUPS'].items()):
+                for group in groups:
+                    if group in user_groups:
+                        user_roles.add(role)
+
+            for group in user_groups:
+                group_roles_db = GroupRole.query.filter(GroupRole.group == group)
+                for entry in group_roles_db:
+                    user_roles.add(entry.role)
+
+        user_roles_db = UserRole.query.filter(UserRole.user_id == user.id)
+        for entry in user_roles_db:
+            user_roles.add(entry.role)
+
+        return list(user_roles)

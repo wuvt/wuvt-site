@@ -26,4 +26,4 @@ class OpenIDConnect(object):
     def _before_request(self):
         if self.app.config['OVERWRITE_REDIRECT_URI'] is False:
             self.app.config['OVERWRITE_REDIRECT_URI'] = url_for(
-                'auth.oidc_callback', _external=True)
+                'auth_oidc.oidc_callback', _external=True)
