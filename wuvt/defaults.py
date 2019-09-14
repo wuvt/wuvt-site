@@ -62,7 +62,6 @@ AUTH_ROLE_GROUPS = {
     'admin': ['webmasters'],
     'content': ['webmasters'],
     'business': ['business'],
-    'library': ['librarians'],
     'missioncontrol': ['missioncontrol'],
 }
 

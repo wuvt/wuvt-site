@@ -55,3 +55,7 @@ def login_user(user, roles):
 
 def logout_user():
     return current_app.auth_manager.logout_user()
+
+
+def get_user_roles(user, user_groups=None):
+    return current_app.auth_manager.get_user_roles(user, user_groups)

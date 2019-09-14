@@ -1,14 +1,16 @@
+Authlib
 bleach
 boto3
 click
 Flask
 Flask-Caching
 Flask-Migrate
-flask-oidc
 Flask-RESTful
 Flask-SQLAlchemy>=2.4
 Flask-WTF
+google-api-python-client
 humanize
+loginpass
 Markdown
 netaddr
 passlib

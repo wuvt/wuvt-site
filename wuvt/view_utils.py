@@ -1,4 +1,4 @@
-from flask import abort, redirect, request, Response, url_for
+from flask import abort, request, Response
 from functools import wraps
 from wuvt import app
 import netaddr
@@ -13,13 +13,6 @@ _slug_pattern = re.compile(r"[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 
 class IPAccessDeniedException(Exception):
     pass
-
-
-def is_safe_url(target):
-    ref_url = urllib.parse.urlparse(request.host_url)
-    test_url = urllib.parse.urlparse(urllib.parse.urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
-        ref_url.netloc == test_url.netloc
 
 
 def local_only(f):
@@ -45,13 +38,6 @@ def ajax_only(f):
         else:
             return abort(403)
     return ajax_only_wrapper
-
-
-def redirect_back(endpoint, **values):
-    target = request.form['next']
-    if not target or not is_safe_url(target):
-        target = url_for(endpoint, **values)
-    return redirect(target)
 
 
 def slugify(text, delim='-'):

@@ -57,7 +57,6 @@ setup(
         "click",
         "Flask",
         "Flask-Migrate",
-        "flask-oidc",
         "Flask-RESTful",
         "Flask-SQLAlchemy",
         "Flask-WTF",
