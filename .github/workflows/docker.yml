@@ -13,3 +13,4 @@ jobs:
         username: wuvt
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
+        tag_names: true
