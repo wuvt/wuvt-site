@@ -57,8 +57,11 @@ def process_order(method):
     order.set_user_agent(request.user_agent)
 
     if 'phone' in request.form:
-        # if a phone number is provided, set it
-        order.phone = request.form['phone'].strip()
+        # Removes anything non-numeric from the phone string, so that we
+        # no longer have exceptions when Mission Control users use something
+        # like (540) 555-5555 instead of 540-555-5555 or 5405555555.
+        order.phone = ''.join([char for char in request.form['phone'] if char
+                               in "0123456789"])
 
     if 'comment' in request.form:
         order.donor_comment = request.form['comment'].strip()
