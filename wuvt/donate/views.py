@@ -62,6 +62,8 @@ def process_order(method):
         # like (540) 555-5555 instead of 540-555-5555 or 5405555555.
         order.phone = ''.join([char for char in request.form['phone'] if char
                                in "0123456789"])
+        if len(order.phone) > 12:
+            return False, "Phone number exceeded max length 12"
 
     if 'comment' in request.form:
         order.donor_comment = request.form['comment'].strip()
