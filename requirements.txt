@@ -8,7 +8,7 @@ alembic==1.0.10           # via flask-migrate
 aniso8601==7.0.0          # via flask-restful
 asn1crypto==0.24.0        # via cryptography
 authlib==0.11
-bleach==3.1.0
+bleach==3.1.1
 blinker==1.4              # via sentry-sdk
 boto3==1.9.174
 botocore==1.12.174        # via boto3, s3transfer
@@ -66,4 +66,4 @@ werkzeug==0.15.4          # via flask
 wtforms==2.2.1            # via flask-wtf
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.1.0        # via markdown
+# setuptools
