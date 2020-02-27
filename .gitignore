@@ -7,6 +7,9 @@
 Thumbs.db
 __pycache__
 wuvt.db
+config/config.json
+config/oidc_secrets.json
+config/service_account.json
 config.py
 celerybeat-schedule
 /wuvt/static/img/*-?x.png

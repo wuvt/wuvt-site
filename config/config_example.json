@@ -1,0 +1,17 @@
+{
+  "DEBUG": true,
+  "AUTH_METHOD": "local",
+  "AUTH_ROLE_GROUPS": {
+    "admin": ["webmasters@wuvt.vt.edu"],
+    "content": ["webmasters@wuvt.vt.edu"],
+    "business": ["business@wuvt.vt.edu"],
+    "missioncontrol": ["missioncontrol@wuvt.vt.edu"]
+  },
+  "GOOGLE_CLIENT_ID": "",
+  "GOOGLE_CLIENT_SECRET": "",
+  "GOOGLE_ALLOWED_DOMAINS": ["wuvt.vt.edu"],
+  "GOOGLE_ADMIN_SUBJECT": "",
+  "GOOGLE_SERVICE_ACCOUNT_FILE": "/data/config/service_account.json",
+  "GOOGLE_AUTHORIZE_URL": "https://accounts.google.com/o/oauth2/v2/auth?hd=wuvt.vt.edu",
+  "SECRET_KEY": ""
+}

@@ -18,13 +18,19 @@ For Dockerfile.dev:
 ```
 git clone https://github.com/wuvt/wuvt-site.git
 cd wuvt-site
-echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > wuvt/config.py
 docker build -t wuvt-site -f Dockerfile.dev .
 ```
 
-Now run it:
+Now, go ahead and copy config/config_example.json to config/config.json and
+configure as necessary. The most important thing is to set a random value for
+`SECRET_KEY`. You can generate a random value using the following command:
 ```
-docker run --rm -p 9070:8080 wuvt-site:latest
+xxd -l 28 -p /dev/urandom
+```
+
+Finally, run it:
+```
+docker run --rm -v $PWD/config:/data/config -e APP_CONFIG_PATH=/data/config/config.json -p 9070:8080 wuvt-site:latest
 ```
 
 You can now access the site at <http://localhost:9070/>. An admin user account
