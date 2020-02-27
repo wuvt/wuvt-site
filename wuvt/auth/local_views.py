@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 
-from wuvt.auth import login_user, get_user_roles
 from wuvt.auth.models import User
+from wuvt.auth.utils import login_user, get_user_roles
 from wuvt.auth.view_utils import log_auth_success, log_auth_failure, \
         redirect_back
 
