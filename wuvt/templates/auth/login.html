@@ -8,7 +8,7 @@
 <div class="alert alert-danger">{{ msg }}</div>
 {% endfor %}
 
-<form action="{{ url_for('auth.login') }}" method="post" class="form-signin">
+<form action="{{ url_for('auth_local.login') }}" method="post" class="form-signin">
     <h1>
         <a href="{{ url_for('blog.index') }}" title="{{ config.STATION_NAME }}">
             {{ config.STATION_NAME }}
