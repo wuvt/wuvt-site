@@ -480,12 +480,12 @@ def pages():
 @auth_manager.check_access('admin')
 def settings():
     current = {
-        "radiothon": "ON" if redis_conn.get("radiothon") == b'true' else
-                     "OFF",
+        "radiothon": "on" if redis_conn.get("radiothon") == b'true' else
+                     "off",
     }
-    settings_form = SettingsForm()
+    settings_form = SettingsForm(radiothon=current["radiothon"])
     if settings_form.validate_on_submit():
-        choice = settings_form.form.data
+        choice = settings_form.radiothon.data
         if choice == "on":
             redis_conn.set('radiothon', b'true')
         elif choice == "off":
