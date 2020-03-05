@@ -4,11 +4,14 @@ import dateutil.parser
 import os
 from flask import abort, flash, jsonify, make_response, render_template, \
         redirect, request, url_for
+from flask_wtf import FlaskForm
+from wtforms import RadioField
 from werkzeug import secure_filename
 
 from wuvt import app, auth_manager, cache, db, redis_conn
 from wuvt.auth import current_user, login_required
 from wuvt.admin import bp
+from wuvt.admin.forms import SettingsForm
 from wuvt.auth.models import User
 from wuvt.blog import list_categories
 from wuvt.blog.forms import ArticleForm
@@ -473,6 +476,23 @@ def pages():
     pages = Page.query.all()
     return render_template('admin/pages.html', pages=pages)
 
+@bp.route('/settings', methods=["POST", "GET"])
+@auth_manager.check_access('admin')
+def settings():
+    current = {
+        "radiothon": "ON" if redis_conn.get("radiothon") == b'true' else
+                     "OFF",
+    }
+    settings_form = SettingsForm()
+    if settings_form.validate_on_submit():
+        choice = settings_form.form.data
+        if choice == "on":
+            redis_conn.set('radiothon', b'true')
+        elif choice == "off":
+            redis_conn.set('radiothon', b'false')
+        return redirect(url_for('.settings'))
+    return render_template('admin/settings.html', settings=settings_form,
+                           current=current["radiothon"])
 
 @bp.route('/js/pages.js')
 @auth_manager.check_access('admin', 'content')

@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% set page_title="Settings" %}
+{% block nav_admin_settings %}<li class="active"><a href="{{url_for('admin.settings') }}">Settings</a></li>{% endblock %}
+
+{% block content %}
+<h1>Settings</h1>
+
+<h2>Radiothon (currently: {{ current }})</h2>
+<form method="post" role="form">
+    {{ settings.hidden_tag() }}
+    {{ settings.form }}
+    <button type="submit" class="btn btn-primary">
+        Save Changes
+    </button>
+</form>
+{% endblock %}
