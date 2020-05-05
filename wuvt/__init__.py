@@ -13,6 +13,8 @@ import uuid
 import datetime
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 json_mimetypes = ['application/json']
 
@@ -111,8 +113,13 @@ auth_manager.db = db
 auth_manager.init_app(app)
 
 if len(app.config['SENTRY_DSN']) > 0:
-    sentry_sdk.init(app.config['SENTRY_DSN'],
-                    integrations=[FlaskIntegration()])
+    sentry_sdk.init(
+        app.config['SENTRY_DSN'],
+        integrations=[
+            FlaskIntegration(),
+            RedisIntegration(),
+            SqlalchemyIntegration(),
+        ])
 
 
 @app.context_processor
