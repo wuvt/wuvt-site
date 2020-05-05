@@ -32,33 +32,49 @@ def add_sample_articles():
                       'cloud-nothings-prize-pack-giveaway', 1, 1, """\
 ![I dont even know what this is](/static/img/article_pic.png)
 
-Yolo ipsum ratione commodi repellendus minus and so I did, but that was last
-month quidem. Illo enim libero aperiam impedit distinctio aliquid. Praesentium
-incidunt sunt asperiores magni dealing with a heart that I didn't break
-blanditiis. Voluptatum dolore aut nulla quidem and I wish she wasn't married.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ut posuere
+nulla. Ut varius, turpis at euismod ullamcorper, turpis libero sollicitudin
+lectus, vitae pellentesque magna nibh vel arcu. Etiam non euismod velit. Sed
+sit amet risus tempus, viverra mauris in, consectetur dui. Morbi purus nunc,
+mollis quis sapien et, posuere vehicula metus. Ut leo erat, blandit non urna
+vitae, finibus tempor augue. Class aptent taciti sociosqu ad litora torquent
+per conubia nostra, per inceptos himenaeos.
 
-Odit rest in peace mac dre, I'mma do it for the bay, okay accusamus alias
-illo hic minima. Cupiditate atque nam sit quae ducimus quia sint. Qui what you
-bothering me for? dignissimos hell yeah, hell yeah qui libero If you hurt, I
-don't tell you. Provident distinctio nostrum soluta accusantium voluptates.
+Curabitur sagittis metus ac consequat porttitor. Donec vitae augue sed erat
+pulvinar cursus a quis odio. Maecenas vehicula augue volutpat augue laoreet
+porttitor. Mauris eget bibendum neque, nec efficitur lorem. Vestibulum
+ultrices, urna quis sollicitudin accumsan, risus sapien aliquet mi, nec porta
+justo turpis in massa. Mauris arcu erat, sollicitudin ac feugiat quis, finibus
+nec lorem. Fusce a metus orci. Orci varius natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Vivamus at pharetra enim. Fusce ac
+commodo magna, at imperdiet tellus. Praesent dapibus erat justo, vel
+pellentesque tellus vehicula at. In hac habitasse platea dictumst.
 
-## Yolo ipsum
-Cupiditate iste beatae fuckin' right, all right ipsam sint. Non dolorem
-blanditiis facere neque excepturi amet. Id illo non officia placeat velit
-distinctio. Vero perspiciatis animi qui quisquam eum.
+Integer eget commodo diam, at lacinia odio. Duis consequat condimentum mauris
+quis vestibulum. Quisque ac lobortis magna, sit amet rutrum nisi. Curabitur
+dapibus nisl ut nibh semper placerat. Praesent pharetra, arcu et commodo
+vehicula, nunc mauris semper diam, vitae accumsan urna quam id ante. Maecenas
+maximus, elit vitae feugiat lacinia, orci nibh porttitor augue, at tincidunt
+felis magna nec odio. Cras et mi vel dui vulputate rhoncus a eu mi. Proin elit
+dui, facilisis in risus eu, aliquam suscipit libero. Sed vitae nibh mauris. Ut
+placerat efficitur congue. Aliquam quis magna vehicula, lacinia justo vitae,
+mollis tellus. Aliquam at nibh nec metus auctor viverra. Donec fermentum, leo
+non fermentum fringilla, tortor tellus cursus magna, ac dignissim ipsum dolor
+tempus nulla.
 
-Consequatur aut nemo est optio placeat. Ut illum at impedit ut repellat.
-Quia est et nobis labore then right after texting I told her I'm faded damn
-right, all right. Mollitia molestias quis one time, been in love one time
-voluptatem aut maxime molestiae. Officia et qui I'm in the building and I'm
-feeling myself I've had mine, you've had yours we both know quia cumque we all
-have our nights though, don't be so ashamed.
+Duis eget ipsum ultricies, condimentum nunc vel, gravida metus. Curabitur porta
+purus felis, vel tempor ex feugiat nec. Nulla quam augue, porttitor id leo at,
+vestibulum viverra urna. Integer sagittis ex eu tellus vulputate lacinia. Donec
+porta eu ligula rhoncus vulputate. Fusce finibus erat ac elit congue, at
+scelerisque lorem porttitor. Vivamus magna dolor, gravida a est et, interdum
+sodales sapien. Pellentesque a ultricies massa. Phasellus a dictum sapien.
 
-Vero similique ab exercitationem ipsam blanditiis vitae vitae. Quis aliquid
-ea It's women to call ex voluptas aperiam. Incidunt consequatur culpa autem
-listen, listen, whoa, yeah, listen, ooooh consequuntur ut quis. We all have our
-nights though, don't be so ashamed impedit ab officiis autem odit you hate the
-fact that you bought the dream.
+Mauris dictum rutrum purus, eu ullamcorper ipsum tempor at. Integer egestas
+volutpat leo, non faucibus felis venenatis eget. Curabitur a iaculis lectus.
+Quisque sagittis tempus felis a consequat. Nullam dui sem, cursus in convallis
+sed, placerat vel velit. Nulla pellentesque libero sed tortor ullamcorper
+dapibus nec sed nunc. Sed vel neque tempus, dapibus turpis a, dignissim neque.
+Cras iaculis nibh eros, nec iaculis purus viverra non.
 """, published=True)
     article.front_page = True
     db.session.add(article)
@@ -72,32 +88,48 @@ fact that you bought the dream.
     article = Article("Hudson Hits Another Buzzer Beater in Hokies Win",
                       'hudson-hits-another-buzzer-beater-in-hokies-win', 1, 1,
                       """\
-Yolo ipsum rerum est delectus cumque aliquam quia aliquid. I'm fucked up,
-torn down officiis accusamus repudiandae harum sint quas. Suscipit eligendi
-quasi vel veritatis enim est. Tenetur autem consequuntur sint aut soluta nostrum.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sed blandit
+felis. Suspendisse massa tellus, congue volutpat sapien eu, imperdiet commodo
+massa. Donec quis gravida mi. Suspendisse tempor ligula mauris, non consequat
+diam auctor id. Nullam mattis sed urna vitae vestibulum. Donec eros mi,
+placerat congue dolor vel, accumsan aliquet orci. Suspendisse potenti. Donec
+nec sollicitudin leo, id vulputate ipsum. In pellentesque maximus sapien, sit
+amet viverra lorem sollicitudin ut. Phasellus tincidunt ultricies sapien in
+tincidunt.
 
-Nesciunt laboriosam voluptas repellat nemo repellendus aut. One time, been
-in love one time quo I keep thinking you just don't know corrupti quo numquam
-recusandae. That she only see when she feels obligated quo recusandae nisi they
-loving the crew enim aliquid aut. Ipsa quisquam doloribus accusamus explicabo
-est voluptatem.
+Integer justo metus, dictum et imperdiet sed, mollis ultricies libero. Sed
+eleifend ut quam eget ullamcorper. Pellentesque ipsum sem, cursus vitae massa
+quis, condimentum rutrum mauris. Donec ornare pretium nunc vitae pretium. Class
+aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+himenaeos. In in tristique felis, non ornare nisl. Ut suscipit sem nec ante
+mollis, a vehicula nisl finibus. Mauris nec risus blandit, bibendum diam in,
+porta leo. Proin rutrum risus eu mollis dapibus.
 
-Dignissimos quam omnis in autem id excepturi. Possimus molestiae fuga tell
-uncle luke I'm out in miami too fugiat obcaecati ipsam. Blanditiis non we eat
-each other whenever we at the dinner table et voluptatum possimus. If you let
-me, here's what I'll do error obcaecati It's cause we blowing like a c4 ut
-autem suscipit. Ipsam nostrum inventore unde est culpa est voluptas.
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Phasellus ac ante
+ac turpis lacinia molestie a sed quam. Proin condimentum ut massa in lobortis.
+Quisque et finibus dolor. Sed pharetra sodales congue. Pellentesque ullamcorper
+molestie finibus. Curabitur cursus mi ac odio hendrerit, ac venenatis quam
+molestie.
 
-Libero they loving the crew laudantium minima ut possimus soluta. Enim autem
-et atque nulla like we sittin' on the bench, nigga we don't really play quae
-(and we say) hell yeah. Est aperiam quo quisquam quis eos et. Id minima iusto
-voluptas laborum sequi quia et. Aliquid facilis a laudantium the realest niggas
-say 'your lyrics do shit for me' et sit ad.
+Maecenas ante nisi, tincidunt nec molestie ut, dictum et dui. Cras vestibulum
+ipsum sed semper cursus. Sed vulputate sit amet neque nec lacinia. Cras sit
+amet nunc sagittis nisi faucibus hendrerit. In ex urna, gravida vel nisl a,
+cursus vestibulum erat. Suspendisse orci dui, elementum in dolor ut, feugiat
+scelerisque eros. Nullam malesuada nulla at porta convallis. Proin gravida
+libero eu ultricies viverra. Nulla accumsan, metus a mattis malesuada, enim
+libero lacinia tellus, vel commodo ipsum turpis eget sem. Donec ac augue non
+felis euismod iaculis. Vivamus fringilla rutrum magna eget viverra. Etiam vitae
+velit nunc. Integer semper venenatis pharetra. Integer ullamcorper justo elit,
+non pulvinar libero tristique a. Nam vel efficitur urna.
 
-Qui I've loved and I've lost quae ipsa id even though it's fucked up, girl,
-I'm still fucking wit ya quis. Odit voluptate energizer bunny omnis vero
-numquam est. Quia placeat go uptown, new york city biiitch oh, they lovin the
-crew but my mind didn't change you won't ever have to hide qui.
+Quisque leo ex, fermentum at volutpat eu, venenatis condimentum leo. Quisque
+faucibus odio sed elit sodales, at sagittis lectus iaculis. Suspendisse
+vestibulum maximus justo, id vulputate ante. Morbi rutrum sollicitudin augue
+eget hendrerit. Cras lacinia, purus a pulvinar consectetur, velit sem
+condimentum massa, id faucibus risus orci eget quam. Nulla efficitur pulvinar
+metus nec luctus. Curabitur dolor ipsum, blandit ac ex nec, ultricies egestas
+orci. Sed tempor facilisis enim, in vehicula velit ornare a. Quisque non metus
+odio.
 """, published=True)
     article.front_page = True
     db.session.add(article)
