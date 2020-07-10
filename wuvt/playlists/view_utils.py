@@ -11,8 +11,12 @@ def call_api(path, method, *args, **kwargs):
     path = path.format(*args, **kwargs)
     url = "{0}/api{1}".format(current_app.config['TRACKMAN_URL'], path)
     r = requests.request(method, url)
-    r.raise_for_status()
-    return r.json()
+
+    if r.status_code == 404:
+        abort(404)
+    else:
+        r.raise_for_status()
+        return r.json()
 
 
 def tracklog_serialize(t):
