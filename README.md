@@ -2,11 +2,11 @@
 This is the next-generation website for [WUVT-FM](https://www.wuvt.vt.edu), 
 Virginia Tech's student radio station.
 
-It includes both a basic content management and simple donation system. It also
+It includes both  basic content management and simple donation system. It also
 integrates with Trackman to provide live track information and playlists.
 
 ### Deployment
-These instructions are for Linux; instructions for other platforms may vary.
+These instructions are for Linux and instructions for other platforms it may vary.
 
 First, clone the repo, create an empty config, and build the appropriate Docker
 image for your environment. We provide Dockerfile.dev which is configured to
