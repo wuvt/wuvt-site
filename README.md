@@ -1,6 +1,5 @@
 ## wuvt-site
-This is the next-generation website for [WUVT-FM](https://www.wuvt.vt.edu), 
-Virginia Tech's student radio station.
+This is my new generation website that is suitable for any kind of need from old to the young mindset of the world......
 
 It includes both a basic content management and simple donation system. It also
 integrates with Trackman to provide live track information and playlists.
