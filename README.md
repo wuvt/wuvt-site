@@ -1,11 +1,11 @@
-## wuvt-site
+## wuvt-site.
 This is the next-generation website for [WUVT-FM](https://www.wuvt.vt.edu), 
 Virginia Tech's student radio station.
 
 It includes both a basic content management and simple donation system. It also
 integrates with Trackman to provide live track information and playlists.
 
-### Deployment
+### Deployment.
 These instructions are for Linux; instructions for other platforms may vary.
 
 First, clone the repo, create an empty config, and build the appropriate Docker
@@ -37,7 +37,7 @@ You can now access the site at <http://localhost:9070/>. An admin user account
 will be created for you; the password is automatically generated and displayed
 when you launch the container.
 
-### Non-Docker Deployment
+### Non-Docker Deployment.
 First, install redis. For example, on Debian or Ubuntu:
 
 ```
@@ -101,7 +101,7 @@ uwsgi --ini uwsgi.ini:dev
 
 You can now access the site at http://localhost:9070/
 
-### License
+### License.
 
 Besides the exceptions noted below, the entirety of this software is available
 under the GNU Affero General Public License:
