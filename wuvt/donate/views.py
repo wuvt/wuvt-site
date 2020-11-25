@@ -3,6 +3,7 @@ from flask import flash, make_response, redirect, render_template, request, \
         url_for, Response
 from wuvt import app
 from wuvt import db
+from wuvt import redis_conn
 from wuvt.donate import bp
 from wuvt.donate import get_plan, list_plans, mail, process_stripe_onetime, \
         process_stripe_recurring
@@ -68,7 +69,7 @@ def process_order(method):
     if 'comment' in request.form:
         order.donor_comment = request.form['comment'].strip()
 
-    if premiums_config['enabled']:
+    if premiums_config['enabled'] and redis_conn.get('radiothon') == b"true":
         premiums = request.form.get('premiums', 'no')
 
         if premiums != "no":
