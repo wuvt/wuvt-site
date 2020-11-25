@@ -51,7 +51,12 @@
             <td>{{ donation.email }}</td>
             <td>{{ donation.phone }}</td>
             <td>{{ donation.placed_date|datetime }}</td>
-            <td>{% if donation.paid_date %}{{ donation.paid_date|datetime }}{% endif %}</td>
+	    <td>{% if donation.paid_date %}{{ donation.paid_date|datetime }}
+		{% else %}<form method="post">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<input type="hidden" name="id" value="{{ donation.id }}">
+			<button name="set_paid" type="submit" class="btn btn-sm">Set as Paid</button></form>
+		{% endif %}</td>
             <td>{{ donation.method }}</td>
             <td>
 {% if donation.address1 %}
