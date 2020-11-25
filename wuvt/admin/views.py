@@ -503,7 +503,7 @@ def donation_index():
                 db.session.rollback()
                 raise
 
-        # TODO support setting asynchronously, rather than reidrecting
+        # TODO support setting asynchronously, rather than redirecting
         if 'set_shipped' in request.form:
             # TODO log who set as paid
             o = Order.get_or_404(id=request.form["id"])
