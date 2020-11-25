@@ -70,3 +70,11 @@ class Order(db.Model):
             self.paid_date = paid_date
         else:
             self.paid_date = datetime.datetime.utcnow()
+
+    def set_shipped(self, shipped_date=None):
+        if self.premiums is not None:
+            # shipped & picked up are the same
+            if shipped_date is not None:
+                self.shipped_date = shipped_date
+            else:
+                self.shipped_date = datetime.datetime.utcnow()
