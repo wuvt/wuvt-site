@@ -16,7 +16,7 @@ certifi==2019.11.28       # via requests, sentry-sdk
 cffi==1.13.2              # via cryptography
 chardet==3.0.4            # via requests
 click==7.0                # via -r requirements.in, flask
-cryptography==2.8         # via authlib
+cryptography==3.2         # via authlib
 docutils==0.15.2          # via botocore
 flask-caching==1.8.0      # via -r requirements.in
 flask-migrate==2.5.2      # via -r requirements.in
