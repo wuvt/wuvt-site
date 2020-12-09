@@ -496,7 +496,6 @@ def donation_index():
             # TODO log who set as paid
             o = Order.query.get(request.form["id"])
             o.set_paid(method="check")
-            db.session.add(o)
             try:
                 db.session.commit()
             except:
@@ -508,7 +507,6 @@ def donation_index():
             # TODO log who set as paid
             o = Order.query.get(request.form["id"])
             o.set_shipped()
-            db.session.add(o)
             try:
                 db.session.commit()
             except:
