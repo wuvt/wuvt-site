@@ -36,7 +36,7 @@ click==7.0
     # via
     #   -r requirements.in
     #   flask
-cryptography==3.2
+cryptography==3.3.2
     # via authlib
 docutils==0.15.2
     # via botocore
