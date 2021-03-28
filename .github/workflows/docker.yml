@@ -1,4 +1,4 @@
-name: Build Docker image and push to GitHub Package Registry
+name: Build Docker image and push to GitHub Container Registry
 on: [push]
 
 jobs:
@@ -9,8 +9,8 @@ jobs:
     - name: Publish to GitHub Package Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: wuvt/wuvt-site/wuvt-site
+        name: wuvt/wuvt-site
         username: wuvt
         password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
+        registry: ghcr.io
         tag_names: true
