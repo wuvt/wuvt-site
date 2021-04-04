@@ -154,7 +154,7 @@ class AuthManager(object):
                     self.db.session.rollback()
                     raise
 
-        _request_ctx_stack.top.user = None
+        _request_ctx_stack.top.user = AnonymousUserMixin()
         _request_ctx_stack.top.user_roles = set([])
         return True
 
