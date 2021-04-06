@@ -10,6 +10,7 @@ import os
 import redis
 from . import defaults
 import uuid
+import uwsgi
 import datetime
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -107,7 +108,7 @@ csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from wuvt.auth import AuthManager
+from wuvt.auth import AuthManager, current_user
 auth_manager = AuthManager()
 auth_manager.db = db
 auth_manager.init_app(app)
@@ -170,6 +171,13 @@ def add_csp(response):
     trackman_public_url = app.config.get('TRACKMAN_PUBLIC_URL',
                                          app.config['TRACKMAN_URL'])
     response.headers['Content-Security-Policy'] = "default-src 'self' https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://checkout.stripe.com; media-src 'self' *; frame-ancestors 'self'; connect-src 'self' {0}".format(trackman_public_url)
+    return response
+
+
+@app.after_request
+def add_app_user_logvar(response):
+    if current_user.is_authenticated:
+        uwsgi.set_logvar('app_user', current_user.username)
     return response
 
 
