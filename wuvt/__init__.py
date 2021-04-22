@@ -10,12 +10,16 @@ import os
 import redis
 from . import defaults
 import uuid
-import uwsgi
 import datetime
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+try:
+    import uwsgi
+except ImportError:
+    pass
 
 json_mimetypes = ['application/json']
 
@@ -176,7 +180,7 @@ def add_csp(response):
 
 @app.after_request
 def add_app_user_logvar(response):
-    if current_user.is_authenticated:
+    if uwsgi is not None and current_user.is_authenticated:
         uwsgi.set_logvar('app_user', current_user.username)
     return response
 
