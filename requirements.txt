@@ -173,7 +173,7 @@ unidecode==1.1.1
     # via -r requirements.in
 uritemplate==3.0.0
     # via google-api-python-client
-urllib3==1.25.7
+urllib3==1.25.8
     # via
     #   botocore
     #   requests
