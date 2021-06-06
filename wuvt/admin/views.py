@@ -524,15 +524,6 @@ def donation_index():
                            last_stats_reset=last_stats_reset)
 
 
-@bp.route('/library')
-@bp.route('/library/<path:path>')
-def library_redirect(path=None):
-    if path is not None and len(path) > 0:
-        return redirect('/trackman/library/{0}'.format(path))
-    else:
-        return redirect('/trackman/library/index')
-
-
 @bp.route('/donate/csv')
 @auth_manager.check_access('business')
 def donate_csv_download():
