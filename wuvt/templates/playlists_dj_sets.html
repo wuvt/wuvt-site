@@ -8,7 +8,7 @@
         <h3>{{ dj.airname }}</h3>
     </header>
 
-{% for year, year_sets in sets|groupby('dtstart.year')|sort(reverse=True) %}
+{% for year, year_sets in sets|groupby('dtstart.year')|sort(reverse=true, attribute="dtstart.year") %}
 <details><summary id="year_{{ year }}">{{ year }}</summary>
     <ul id="year_{{ year }}_data">
         {%- for set in year_sets %}
