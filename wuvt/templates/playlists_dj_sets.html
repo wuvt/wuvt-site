@@ -8,13 +8,13 @@
         <h3>{{ dj.airname }}</h3>
     </header>
 
-{% for year, year_sets in sets|groupby('dtstart.year') %}
-    <h4 id="year_{{ year }}">{{ year }}</h4>
+{% for year, year_sets in sets|groupby('dtstart.year')|sort(reverse=True) %}
+<details><summary id="year_{{ year }}">{{ year }}</summary>
     <ul id="year_{{ year }}_data">
         {%- for set in year_sets %}
         <li><a href="{{ url_for('playlists.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtstart|datetime("%Y-%m-%d %H:%M") }}</time>{% if set.dtend %}-<time datetime="{{ set.dtend|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtend|datetime("%Y-%m-%d %H:%M") }}</time>{% endif %}</a></li>
         {%- endfor %}
-    </ul>
+    </ul></details>
 {%- endfor %}
 </section>
 
