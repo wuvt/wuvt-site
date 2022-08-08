@@ -1,4 +1,4 @@
-FROM python:3.9.6
+FROM python:3.10.6
 
 # WARNING: Do not use this Dockerfile for production installs. It creates a
 # temporary database that is stored in the container, which you definitely
