@@ -1,0 +1,13 @@
+services:
+  wuvt-site:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 9070:8080
+    environment:
+      - APP_CONFIG_PATH=/data/config/config.json
+    volumes:
+      - ${PWD}/config:/data/config
+      - ./wuvt:/usr/src/app/wuvt
+  

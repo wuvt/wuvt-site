@@ -5,7 +5,7 @@
 
         <title>{% block title %}WUVT: Radio for Everyone!{% endblock %}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/wuvt.css', v=26) }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/new.css', v=26) }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/glyphiconstrap.css') }}" />
         <link rel="alternate" type="application/atom+xml"
             href="{{ feedlink or url_for('blog.all_feed') }}" title="Atom Feed"  />
@@ -19,39 +19,49 @@
     <body>
 
 <header>
-    <div id="nowplaying"> <!-- now playing bar -->
-        {% block now_playing %}
-        <ul>
-            <li><strong>Currently on air:</strong> <span id="current_track">{{ current_track }}</span></li>
-            <li><strong>Current DJ:</strong> <span id="current_dj">{% if current_dj_id > 0 -%}
-<a href="{{ url_for('playlists.playlists_dj_sets', dj_id=current_dj_id) }}">{{ current_dj }}</a>
-{% else -%}
-{{ current_dj }}{% endif -%}
-</span></li>
-        </ul>
-        {% endblock %}
+    <div class="navbar shadow">
+        <span class="dropdown">
+            <button>News</button>
+            <div class="dropdown-content">
+                {% for cat in categories %}
+                    {% if cat.published %}
+                        <span {% if active_category is defined and active_category == cat.id %} class="active"{% endif %}><a href="{{ url_for('blog.category', slug=cat.slug) }}">{{ cat.name }}</a></span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </span>
+        {% for section in config['NAV_TOP_SECTIONS'] -%}
+            {% if 'hidden' not in section or section['hidden'] == False -%}
+                <span class="dropdown">
+                    <button>{{ section['name'] }}</button>
+                    <div class="dropdown-content">
+                        {% if section['menu'] == 'playlists' -%}
+                            <span {% if active_menu == "last15" %} class="active"{% endif %}><a href="{{ url_for('playlists.last15') }}">Last 15</a></span>
+                            <span {% if active_menu == "playlists_date" %} class="active"{% endif %}><a href="{{ url_for('playlists.playlists_date') }}">by date</a></span>
+                            <span {% if active_menu == "playlists_dj" %} class="active"{% endif %}><a href="{{ url_for('playlists.playlists_dj') }}">by DJ</a></span>
+                            <span {% if active_menu == "charts_index" %} class="active"{% endif %}><a href="{{ url_for('playlists.charts_index') }}">Charts</a></span>
+                        {% endif -%}
+                        {% for page in menus[section['menu']] -%}
+                            {% if page.published %}
+                                <span {% if active_page is defined and active_page == page.slug %} class="active"{% endif %}><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></span>
+                            {% endif %} 
+                        {% endfor -%}
+                    </div>
+                </span>
+            {% endif -%}
+        {% endfor %}
+        <span class="dropdown">
+            <button>Social</button>
+            <div class="dropdown-content">
+                <a href="https://www.facebook.com/WUVTFM" rel="external" title="WUVT on Facebook">Facebook</a>
+                <a href="https://twitter.com/wuvtfm" rel="external" title="WUVT on Twitter">Twitter</a>
+                <a href="https://www.instagram.com/wuvt" rel="external" title="WUVT on Instagram">Instagram</a>
+                <a href="{{ feedlink or url_for('blog.all_feed') }}" rel="feed" title="Atom Feed">Feed</a>
+            </div>
+        </span>
+        
     </div>
 
-    <div id="mainheader">
-        <h1>
-            <a href="{{ url_for('blog.index') }}" title="{{ config.STATION_NAME }}">
-                WUVT: Radio for Everyone! 90.7 FM
-            </a>
-        </h1>
-
-        <div id="robot">
-        </div>
-    </div>
-
-    <div id="bubble">
-        {% block bubble %}
-        <ul>
-            <li><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
-            <li><a href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a></li>
-            <li><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
-        </ul>
-        {% endblock %}
-    </div>
 
     <nav> <!-- top, horizontal nav bar -->
         {% block nav_top %}
@@ -61,70 +71,39 @@
     </nav>
 </header>
 
-<div id="wrapper">
-
-    <div id="side">
+<div class="container">
+    <div class="now-playing">
+        <div id="nowplaying"> <!-- now playing bar -->
+            {% block now_playing %}
+            <ul>
+                <li><strong>Currently on air:</strong> <span id="current_track">{{ current_track }}</span></li>
+                <li><strong>Current DJ:</strong>
+                    <span id="current_dj">{% if current_dj_id > 0 -%}
+                        <a href="{{ url_for('playlists.playlists_dj_sets', dj_id=current_dj_id) }}">{{ current_dj }}</a>
+                        {% else -%}
+                        {{ current_dj }}{% endif -%}
+                    </span>
+                </li>
+            </ul>
+            {% endblock %}
+        </div>
+        <div id="bubble">
+            {% block bubble %}
+            <ul>
+                <li><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
+                <li><a href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a></li>
+                <li><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
+            </ul>
+            {% endblock %}
+        </div>
         {% if radiothon and active_page != 'donate' and active_flow != 'donate' -%}
         <div id="radiothon_banner">
             <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
         </div>
         {% endif -%}
-
-        <nav id="side_primary">
-            {% block nav_side_primary %}
-            <ul>
-                <li>
-                    <span class="menu-heading">News</span>
-                    <ul>
-                        {% for cat in categories %}
-                        {% if cat.published %}
-                        <li{% if active_category is defined and active_category == cat.id %} class="active"{% endif %}><a href="{{ url_for('blog.category', slug=cat.slug) }}">{{ cat.name }}</a></li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                </li>
-
-                {% for section in config['NAV_TOP_SECTIONS'] -%}
-                {% if 'hidden' not in section or section['hidden'] == False -%}
-                <li>
-                    <span class="menu-heading">{{ section['name'] }}</span>
-                    <ul>
-                        {% if section['menu'] == 'playlists' -%}
-                        <li{% if active_menu == "last15" %} class="active"{% endif %}><a href="{{ url_for('playlists.last15') }}">Last 15</a></li>
-                        <li{% if active_menu == "playlists_date" %} class="active"{% endif %}><a href="{{ url_for('playlists.playlists_date') }}">by date</a></li>
-                        <li{% if active_menu == "playlists_dj" %} class="active"{% endif %}><a href="{{ url_for('playlists.playlists_dj') }}">by DJ</a></li>
-                        <li{% if active_menu == "charts_index" %} class="active"{% endif %}><a href="{{ url_for('playlists.charts_index') }}">Charts</a></li>
-                        {% endif -%}
-                        {% for page in menus[section['menu']] -%}
-                        {% if page.published %}
-                        <li{% if active_page is defined and active_page == page.slug %} class="active"{% endif %}><a href="{{ url_for('page', slug=page.slug) }}">{{ page.name }}</a></li>
-                        {% endif %}
-                        {% endfor -%}
-                    </ul>
-                </li>
-                {% endif -%}
-                {% endfor %}
-
-                <li>
-                    <span class="menu-heading">Social</span>
-                    <ul>
-                        <li><a href="https://www.facebook.com/WUVTFM" rel="external" title="WUVT on Facebook">Facebook</a></li>
-                        <li><a href="https://twitter.com/wuvtfm" rel="external" title="WUVT on Twitter">Twitter</a></li>
-                        <li><a href="https://www.instagram.com/wuvt" rel="external" title="WUVT on Instagram">Instagram</a></li>
-                        <li><a href="{{ feedlink or url_for('blog.all_feed') }}" rel="feed" title="Atom Feed">Feed</a></li>
-                    </ul>
-                </li>
-            </ul>
-            {% endblock %}
-        </nav>
-
-        {% block nav_side_social %}
-        <ul id="side_social">
-        </ul>
-        {% endblock %}
     </div>
 
-    <div id="content">
+    <div id="content" class="content">
         {% block content %}
         {% endblock %}
     </div>

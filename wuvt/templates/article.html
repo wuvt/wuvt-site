@@ -2,7 +2,7 @@
 {% block title %}{{ article.title }} - {{ super() }}{% endblock %}
 {% block content %}
 
-<article>
+<article class="article">
     <header>
         <h2>{{ article.title }}</h2>
         <h3>written by {{ article.author.name }} on <time datetime="{{ article.datetime|isodatetime }}" data-format="MMMM D, YYYY, HH:mm">{{ article.datetime|datetime("%B %d, %Y, %H:%M") }}</time></h3>
