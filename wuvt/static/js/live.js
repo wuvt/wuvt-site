@@ -5,8 +5,7 @@ function wuvtLive(trackmanUrl) {
         'url': trackmanUrl + "/api/now_playing",
         'dataType': 'json',
     }).done(function(data) {
-        $('#current_track').text(data['track']['artist'] + " - " +
-                data['track']['title']);
+        $('#current_track').html(`<p class="track"><b> ${data['track']['title']} </b> </p> <p class="artist"> ${data['track']['artist']} </p>`);
         addDJLink2('#current_dj', data['dj']);
     });
 
@@ -24,8 +23,7 @@ function wuvtLive(trackmanUrl) {
             case 'track_delete':
             case 'track_edit':
                 var track = msg['tracklog']['track'];
-                $('#current_track').text(track['artist'] + " - " +
-                        track['title']);
+                $('#current_track').html(`<p class="track"><b> ${track['title']} </b> </p> <p class="artist"> ${track['artist']} </p>`);
                 addDJLink('#current_dj', msg['tracklog']);
                 break;
         }

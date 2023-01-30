@@ -70,7 +70,7 @@ def latest_track():
     if request.wants_json():
         return jsonify(trackinfo())
 
-    return Response("{artist} - {title}".format(**trackinfo()),
+    return Response("{artist} + {title}".format(**trackinfo()),
                     mimetype="text/plain")
 
 

@@ -5,18 +5,24 @@ body {
     align-items: center;
 }
 
+footer {
+    margin-top: 20px;
+    font-size: small;
+}
+
+p, h2, li, a {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .shadow {
-    box-shadow: 5px 5px;
+    box-shadow: 5px 5px rgba(0,0,0,0.8)
 }
 
 .container {
     display: grid;
-    grid-template-columns: 30vw 30vw;
+    grid-template-columns: 30vw 50vw;
 }
 
-.column {
-
-}
 
 .navbar {
     display: flex;
@@ -52,6 +58,7 @@ body {
     position: relative;
     display: inline-block;
     flex-grow: 1;
+    text-align: center;
 }
 
 .dropdown-content {
@@ -81,7 +88,7 @@ body {
 }
 
 .content {
-    width: 30vw;
+    width: 50vw;
     height: 40vw;
     overflow: scroll;
 }
@@ -101,10 +108,113 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    
 }
 
 #nowplaying {
-    background-color: #969899;
-    width: 300px;
-    height: 300px;
+    display: grid;
+    background-color: #cad5db;
+    width: 250px;
+    height: 250px;
+}
+
+#current_track > .track {
+    font-size: larger;
+}
+
+#current_track > p {
+    margin: 2px;
+}
+
+.bttnBig {
+    background-color: white;
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    width: 200px;
+    transition-duration: 0.4s;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.bttnBig:hover {
+    background-color: #b4b4b4;
+    color: #ffffff;
+}
+
+
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 48
+}
+
+.tracklist {
+    border-collapse:collapse;
+}
+
+.tracklist > tbody > tr {
+    background-color: white;
+}
+
+.entry-container {
+    display: grid;
+}
+
+.entry {
+    margin-bottom: 10px;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 5px;
+    display: inline-flex;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: 10px;
+    height: auto;
+    width: auto;
+
+}
+
+.entry > * {
+    align-self: center;
+}
+
+.entry > p > time {
+    font-size: small;
+    margin-left: 10px;
+}
+
+.entry > .trackandartist {
+    margin: 5px;
+}
+
+.entry > .trackandartist > p {
+    margin: 2px;
+}
+
+.entry > .trackandartist > .track > a {
+    color: black;
+    font-size: larger;
+}
+
+.entry > .trackandartist > .artist {
+    color: black;
+    font-size: smaller;
+}
+
+.entry > .dj > a {
+    color: black;
 }

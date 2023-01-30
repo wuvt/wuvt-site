@@ -59,7 +59,6 @@
                 <a href="{{ feedlink or url_for('blog.all_feed') }}" rel="feed" title="Atom Feed">Feed</a>
             </div>
         </span>
-        
     </div>
 
 
@@ -73,28 +72,25 @@
 
 <div class="container">
     <div class="now-playing">
-        <div id="nowplaying"> <!-- now playing bar -->
+        <b><h2>Now Playing</h3></b>
+        <div id="nowplaying">
             {% block now_playing %}
-            <ul>
-                <li><strong>Currently on air:</strong> <span id="current_track">{{ current_track }}</span></li>
-                <li><strong>Current DJ:</strong>
+            <span id="current_track">{{ current_track }}</span>
+                <p><strong>DJ:</strong>
                     <span id="current_dj">{% if current_dj_id > 0 -%}
                         <a href="{{ url_for('playlists.playlists_dj_sets', dj_id=current_dj_id) }}">{{ current_dj }}</a>
                         {% else -%}
                         {{ current_dj }}{% endif -%}
                     </span>
-                </li>
+                </p>
             </ul>
+            
             {% endblock %}
         </div>
-        <div id="bubble">
-            {% block bubble %}
-            <ul>
-                <li><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
-                <li><a href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a></li>
-                <li><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
-            </ul>
-            {% endblock %}
+        <div class="buttons">
+            <a class="bttnBig" href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a>
+            <a class="bttnBig" href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a>
+            <a class="bttnBig" href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a>
         </div>
         {% if radiothon and active_page != 'donate' and active_flow != 'donate' -%}
         <div id="radiothon_banner">
