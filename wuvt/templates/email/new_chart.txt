@@ -1,5 +1,0 @@
-New Music Chart for {{ timestamp }}
-
-{% for track in chart %}
-{{ track[2] }} : {{ track[0] }} - {{ track[1] }}
-{% endfor %}
