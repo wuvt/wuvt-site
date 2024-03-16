@@ -17,6 +17,7 @@ class RenderSVGsCommand(distutils.cmd.Command):
             ('nowplaying_banner_left.svg', 32, 15),
             ('nowplaying_banner_right.svg', 52, 34),
             ('robot.svg', 160, 148),
+            ('Hamburger_icon.svg', 60, 60),
         ]
 
     def finalize_options(self):
