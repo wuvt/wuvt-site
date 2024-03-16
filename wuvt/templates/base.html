@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{% block title %}WUVT: Radio for Everyone!{% endblock %}</title>
 
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/wuvt.css', v=26) }}" />
@@ -35,24 +35,24 @@
     <div id="mainheader">
         <h1>
             <a href="{{ url_for('blog.index') }}" title="{{ config.STATION_NAME }}">
-                WUVT: Radio for Everyone! 90.7 FM
-            </a>
-        </h1>
+                <img id="logo" src="{{ url_for('static', filename='img/logo.svg') }}" alt="WUVT: Radio for Everyone! 90.7 FM" />
+	    </a>
+	<img id="hamburger" src="{{ url_for('static', filename='img/Hamburger_icon.svg') }}" />
+	</h1>
 
         <div id="robot">
         </div>
-    </div>
-
-    <div id="bubble">
+	<div id="bubble">
         {% block bubble %}
         <ul>
-            <li><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
+            <li id="listen-live"><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
             <li><a href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a></li>
             <li><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
         </ul>
         {% endblock %}
     </div>
 
+    </div>
     <nav> <!-- top, horizontal nav bar -->
         {% block nav_top %}
         <ul>
@@ -63,7 +63,7 @@
 
 <div id="wrapper">
 
-    <div id="side">
+    <div id="side" class="translateSide">
         {% if radiothon and active_page != 'donate' and active_flow != 'donate' -%}
         <div id="radiothon_banner">
             <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
@@ -142,6 +142,30 @@
 <script src="{{ url_for('static', filename='js/stream.js', v=3) }}"></script>
 <script src="{{ url_for('static', filename='js/playlists_by_date.js') }}"></script>
 <script src="{{ url_for('init_js') }}"></script>
+<script>
+    const side = document.querySelector("#side");
+    console.log("Side: " + side);
+    const hamburger = document.querySelector("#hamburger");
+    console.log("Hamburger: " + hamburger);
+    function toggleMenu() {
+        if (side.classList.contains("showMenu")) {
+            side.classList.remove("showMenu");
+        } else {
+            side.classList.add("showMenu");
+        }
+    }
+    hamburger.addEventListener("click", toggleMenu);
+    function menuItemsToggleListeners() {
+        const sideItems = document.querySelectorAll("#side_primary ul li a"); 
+        sideItems.forEach( 
+            function(sideItem) { 
+                sideItem.addEventListener("click", toggleMenu);
+            }
+        )
+    }
+    menuItemsToggleListeners();
+    hamburger.addEventListener("click", menuItemsToggleListeners);
+</script>
 {% endblock %}
     </body>
 </html>
