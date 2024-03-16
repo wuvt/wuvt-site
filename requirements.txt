@@ -30,7 +30,7 @@ certifi==2023.7.22
     #   sentry-sdk
 cffi==1.13.2
     # via cryptography
-chardet==3.0.4
+charset-normalizer==3.3.2
     # via requests
 click==7.0
     # via
@@ -139,7 +139,7 @@ redis==3.3.11
     # via
     #   -r requirements.in
     #   python-redis-lock
-requests==2.22.0
+requests==2.31.0
     # via
     #   -r requirements.in
     #   loginpass
