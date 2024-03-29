@@ -90,9 +90,10 @@ def article(slug):
 @bp.route('/index/<int:page>')
 def index(page=1):
     articles = Article.query.filter_by(published=True, front_page=True).\
-        order_by(Article.pinned_article==True,db.desc(Article.datetime)).paginate(
+        order_by(db.desc(Article.pinned_article),db.desc(Article.datetime)).paginate(
             page=page,
             max_per_page=current_app.config['POSTS_PER_PAGE'])
+            # db.desc puts them in descending order.
     return render_template('index.html', articles=articles)
 
 
