@@ -4,7 +4,7 @@ import dateutil.parser
 import os
 from flask import abort, flash, jsonify, make_response, render_template, \
         redirect, request, url_for
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 from wuvt import app, auth_manager, cache, db, redis_conn
 from wuvt.auth import current_user, login_required
@@ -358,7 +358,8 @@ def article_add():
             author_id=form.author_id.data,
             summary=form.summary.data,
             content=form.content.data,
-            published=form.published.data)
+            published=form.published.data,
+            pinned_article=form.pinned_article.data)
         article.front_page = form.front_page.data
         if article.published is True:
             article.datetime = datetime.datetime.utcnow()
@@ -421,6 +422,7 @@ def article_edit(art_id):
         article.summary = form.summary.data
         article.content = form.content.data
         article.front_page = form.front_page.data
+        article.pinned_article = form.pinned_article.data
         article.render_html()
 
         try:

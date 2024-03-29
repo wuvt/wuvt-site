@@ -6,7 +6,8 @@ import datetime
 import dateutil.parser
 import re
 import requests
-from werkzeug.contrib.atom import AtomFeed
+#from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 
 from . import bp
 from .view_utils import call_api, make_external, \

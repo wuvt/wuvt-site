@@ -4,7 +4,9 @@ from flask import Flask, Request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from werkzeug.contrib.cache import RedisCache
+#from werkzeug.contrib.cache import RedisCache
+from flask_caching.backends import RedisCache
+import json
 import humanize
 import os
 import redis
@@ -82,7 +84,7 @@ config_path = os.environ.get('APP_CONFIG_PATH', 'config.py')
 if config_path.endswith('.py'):
     app.config.from_pyfile(config_path, silent=True)
 else:
-    app.config.from_json(config_path, silent=True)
+    app.config.from_file(config_path, load=json.load, silent=True)
 
 app.request_class = JSONRequest
 app.jinja_env.filters.update({

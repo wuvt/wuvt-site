@@ -1,7 +1,8 @@
 from flask import abort, current_app, redirect, render_template, request, \
         url_for
 from urllib.parse import urljoin
-from werkzeug.contrib.atom import AtomFeed
+#from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 
 from .. import cache, db
 from . import bp
@@ -36,7 +37,7 @@ def category(slug, page=1):
     articles = Article.query.filter(Article.category_id == category.id).\
         filter_by(published=True).\
         order_by(db.desc(Article.datetime)).\
-        paginate(page, current_app.config['POSTS_PER_PAGE'])
+        paginate(page=page, max_per_page=current_app.config['POSTS_PER_PAGE'])
 
     return render_template('category.html',
                            category=category,
@@ -89,9 +90,9 @@ def article(slug):
 @bp.route('/index/<int:page>')
 def index(page=1):
     articles = Article.query.filter_by(published=True, front_page=True).\
-        order_by(db.desc(Article.datetime)).paginate(
-            page,
-            current_app.config['POSTS_PER_PAGE'])
+        order_by(Article.pinned_article==True,db.desc(Article.datetime)).paginate(
+            page=page,
+            max_per_page=current_app.config['POSTS_PER_PAGE'])
     return render_template('index.html', articles=articles)
 
 
