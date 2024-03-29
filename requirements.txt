@@ -36,7 +36,7 @@ click==8.1.7
     # via
     #   -r requirements.in
     #   flask
-cryptography==3.3.2
+cryptography==42.0.4
     # via authlib
 docutils==0.15.2
     # via botocore
@@ -154,7 +154,6 @@ sentry-sdk[flask]==0.14.3
 six==1.13.0
     # via
     #   bleach
-    #   cryptography
     #   flask-restful
     #   google-api-python-client
     #   google-auth
