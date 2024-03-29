@@ -1,7 +1,6 @@
 from flask import abort, current_app, redirect, render_template, request, \
         url_for
 from urllib.parse import urljoin
-#from werkzeug.contrib.atom import AtomFeed
 from feedwerk.atom import AtomFeed
 
 from .. import cache, db
