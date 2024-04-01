@@ -78,6 +78,7 @@ dapibus nec sed nunc. Sed vel neque tempus, dapibus turpis a, dignissim neque.
 Cras iaculis nibh eros, nec iaculis purus viverra non.
 """, published=True)
     article.front_page = True
+    article.pinned_article = True
     db.session.add(article)
     article.render_html()
     try:
