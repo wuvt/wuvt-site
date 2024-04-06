@@ -17,8 +17,8 @@ function initPlayer() {
     playBtn.append(playIcon);
     $('#robot').append(playBtn);
 
-    var volBtnWrapper = $('<div>');
-    volBtnWrapper.attr('id', "vol_btn_wrapper");
+    //var volBtnWrapper = $('<div>');
+    //volBtnWrapper.attr('id', "vol_btn_wrapper");
     var volBtn = $('<button>');
     volBtn.attr('title', "Volume Control");
     volBtn.attr('id', "volume_btn");
@@ -26,8 +26,10 @@ function initPlayer() {
     volIcon.addClass('glyphicon');
     volIcon.addClass('glyphicon-volume-down');
     volBtn.append(volIcon);
-    volBtnWrapper.append(volBtn);
-    $('#robot').append(volBtnWrapper);
+    //volBtnWrapper.append(volBtn);
+    //$('#robot').append(volBtnWrapper);
+    $('#robot').append(volBtn);
+
 
     var audioTag = document.createElement('audio');
 

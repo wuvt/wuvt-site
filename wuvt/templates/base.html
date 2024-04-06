@@ -35,23 +35,22 @@
     <div id="mainheader">
         <h1>
             <a href="{{ url_for('blog.index') }}" title="{{ config.STATION_NAME }}">
-                <img id="logo" src="{{ url_for('static', filename='img/logo.svg') }}" alt="WUVT: Radio for Everyone! 90.7 FM" />
+	        <img id="logo" src="{{ url_for('static', filename='img/logo.svg') }}" alt="WUVT: Radio for Everyone! 90.7 FM" />
 	    </a>
-	<img id="hamburger" src="{{ url_for('static', filename='img/Hamburger_icon.svg') }}" />
+	    <img id="hamburger" src="{{ url_for('static', filename='img/Hamburger_icon.svg') }}" /> <!--Icon source: https://commons.wikimedia.org/wiki/File:Hamburger_icon.svg-->
 	</h1>
 
         <div id="robot">
         </div>
 	<div id="bubble">
-        {% block bubble %}
-        <ul>
-            <li id="listen-live"><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
-            <li><a href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a></li>
-            <li><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
-        </ul>
-        {% endblock %}
-    </div>
-
+            {% block bubble %}
+            <ul>
+                <li id="listen-live"><a href="{{ url_for('page', slug='listen-live') }}">Listen Live!</a></li>
+                <li id="last-15"><a href="{{ url_for('playlists.last15') }}">Last 15 Tracks!!</a></li>
+                <li id="donate-online"><a href="{{ url_for('page', slug='donate') }}">Donate Online!!!</a></li>
+            </ul>
+            {% endblock %}
+        </div>
     </div>
     <nav> <!-- top, horizontal nav bar -->
         {% block nav_top %}
@@ -141,31 +140,8 @@
 <script src="{{ url_for('static', filename='js/live.js', v=3) }}"></script>
 <script src="{{ url_for('static', filename='js/stream.js', v=3) }}"></script>
 <script src="{{ url_for('static', filename='js/playlists_by_date.js') }}"></script>
+<script src="{{ url_for('static', filename='js/responsive_components.js') }}"></script>
 <script src="{{ url_for('init_js') }}"></script>
-<script>
-    const side = document.querySelector("#side");
-    console.log("Side: " + side);
-    const hamburger = document.querySelector("#hamburger");
-    console.log("Hamburger: " + hamburger);
-    function toggleMenu() {
-        if (side.classList.contains("showMenu")) {
-            side.classList.remove("showMenu");
-        } else {
-            side.classList.add("showMenu");
-        }
-    }
-    hamburger.addEventListener("click", toggleMenu);
-    function menuItemsToggleListeners() {
-        const sideItems = document.querySelectorAll("#side_primary ul li a"); 
-        sideItems.forEach( 
-            function(sideItem) { 
-                sideItem.addEventListener("click", toggleMenu);
-            }
-        )
-    }
-    menuItemsToggleListeners();
-    hamburger.addEventListener("click", menuItemsToggleListeners);
-</script>
 {% endblock %}
     </body>
 </html>
