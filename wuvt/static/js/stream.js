@@ -26,6 +26,7 @@ function initPlayer() {
     volBtn.append(volIcon);
     $('#robot').append(volBtn);
 
+
     var audioTag = document.createElement('audio');
 
     for(i in streams) {
@@ -136,7 +137,7 @@ function initVolume() {
     $(muteBtn).append(muteIcon);
     $(volbox).append(muteBtn);
 
-    $('#mainheader').append(volbox);
+    $('#robot').append(volbox);
 
     $('#volume_btn').on('click', function() {
         $('#volume_btn').toggleClass('active');

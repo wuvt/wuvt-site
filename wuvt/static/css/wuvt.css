@@ -19,7 +19,6 @@ body {
     font-size: 100%;
     margin: 0 20px;
     padding: 0;
-    min-width: 900px;
     background-color: #cfeeff; 
     background-image: url('/static/img/moon-1x.png');
     background-size: 1200px 42px;
@@ -63,8 +62,8 @@ body > footer {
 
 /* Now playing bar {{{ */
 #nowplaying {
-    height: 34px;
-    margin: 8px 0px -8px 0px;
+    height: auto;
+    margin: 8px 0px 2px 0px;
     padding: 8px 50px 8px 16px;
     background-image: url('/static/img/nowplaying_banner_left-1x.png'), url('/static/img/nowplaying_banner_right-1x.png');
     background-size: 32px 15px, 52px 34px;
@@ -118,7 +117,7 @@ body > footer {
 
 /* Header: logo and robot {{{ */
 header #mainheader {
-    height: 125px;
+    height: auto;
 }
 
 header #mainheader h1 {
@@ -128,26 +127,19 @@ header #mainheader h1 {
     margin: 20px 0px 0px 0px;
     font-size: 32px;
     text-indent: -9999px;
+    vertical-align: top;
+    display: inline-block;
 }
 
-header #mainheader h1 a {
-    display: block;
-    background-image: url('/static/img/logo-1x.png');
-    background-size: 200px, 85px;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
+header #mainheader h1 #logo {
+    display: inline-block;
+    width: 200px;
+    height: auto;
+    float: left;
 }
-
-@media only screen and (min--moz-device-pixel-ratio: 1.5),
-        (-o-min-device-pixel-ratio: 3/2),
-        (-webkit-min-device-pixel-ratio: 1.5),
-        (min-device-pixel-ratio: 1.5) {
-    header #mainheader h1 a {
-        background-image: url('/static/img/logo-2x.png');
-    }
-}
+header #mainheader h1 #hamburger {
+    display: none;
+} 
 
 header #mainheader h1 span {
     position: absolute;
@@ -161,9 +153,7 @@ header #mainheader h1 span {
 header #mainheader #robot {
     position: relative;
     z-index: 999;
-    /*margin-bottom: -86px;
-    height: 238px;*/
-    margin: -110px 0 -64px 220px;
+    margin: 0 0 -22px 15px;
     width: 160px;
     height: 148px;
     border: 0;
@@ -171,6 +161,9 @@ header #mainheader #robot {
     background-image: url('/static/img/robot-1x.png');
     background-repeat: no-repeat;
     background-size: 160px, 148px;
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
 }
 
 @media only screen and (min--moz-device-pixel-ratio: 1.5),
@@ -193,7 +186,7 @@ header #mainheader button {
 
 header #mainheader #robot > button {
     position: absolute;
-    margin-top: 24px;
+    top: 24px;
     width: 45px;
     height: 45px;
     background-position: 50% 50%;
@@ -202,7 +195,7 @@ header #mainheader #robot > button {
 
 header #mainheader #robot button:disabled,
 header #mainheader #robot button.disabled {
-    opacity: 0.5;
+    /*opacity: 0.5;*/
 
     -webkit-transition: all 0.5s ease-in-out;
        -moz-transition: all 0.5s ease-in-out;
@@ -215,12 +208,13 @@ header #mainheader #robot button > span {
 }
 
 header #mainheader #robot #stream_btn {
-    margin-left: 39px;
+    left: 39px;
 }
 
 header #mainheader #robot #volume_btn {
-    margin-left: 93px;
-    padding-left: 15px;
+    /*margin-left: 0px;
+    padding-left: 15px;*/
+    left: 96px;
 
     -webkit-transition: all 0.1s ease-in-out;
        -moz-transition: all 0.1s ease-in-out;
@@ -233,17 +227,23 @@ header #mainheader #robot #volume_btn.active {
     border-radius: 30px 0 0 30px;
 }
 
+header #mainheader #robot #volume_btn[disabled] {
+    padding-left: 3px;
+}
+
 header #mainheader #volume_box {
     position: absolute;
     visibility: hidden;
     z-index: 9999;
     width: 210px;
-    height: 29px;
-    margin: -60px 0 0 350px;
+    height: 28px;
+    /*margin: -60px 0 0 350px;*/
     padding: 8px;
     background: #808080;
     border-radius: 0 30px 30px 0;
     opacity: 0;
+    left: 133px;
+    top: 24px;
 }
 
 #volume_box,
@@ -324,13 +324,13 @@ input#volume_slider::-webkit-slider-thumb {
     background: #fff;
 }
 
-header #mainheader #volume_box #volume_mute_btn {
+header #mainheader #robot #volume_box #volume_mute_btn {
     padding: 4px;
     box-shadow: none;
 }
 
-header #mainheader #volume_box #volume_mute_btn:active,
-header #mainheader #volume_box #volume_mute_btn.active {
+header #mainheader #robot #volume_box #volume_mute_btn:active,
+header #mainheader #robot #volume_box #volume_mute_btn.active {
     background: #666;
     border-radius: 50%;
     box-shadow: inset 0 0 5px 0 #333;
@@ -338,27 +338,29 @@ header #mainheader #volume_box #volume_mute_btn.active {
 /* }}} */
 
 /* Header: speech bubble {{{ */
-header #bubble {
+header #mainheader #bubble {
     position: relative;
-    margin: -130px 0 0 370px;
+    margin: 0 0 0 -11px;
     padding: 12px 0 18px 40px;
     width: 520px;
     height: 80px;
     background-image: url('/static/img/bubble-1x.png');
     background-size: 558px 99px;
     background-repeat: no-repeat;
+    vertical-align: top;
+    display: inline-block;
 }
 
 @media only screen and (min--moz-device-pixel-ratio: 1.5),
         (-o-min-device-pixel-ratio: 3/2),
         (-webkit-min-device-pixel-ratio: 1.5),
         (min-device-pixel-ratio: 1.5) {
-    header #bubble {
+    header #mainheader #bubble {
         background-image: url('/static/img/bubble-2x.png');
     }
 }
 
-header #bubble ul {
+header #mainheader #bubble ul {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -367,26 +369,26 @@ header #bubble ul {
     text-transform: uppercase;
 }
 
-header #bubble li {
+header #mainheader #bubble li {
     display: inline-block;
     padding: 0 6px;
     width: 150px;
 }
 
 /* make first element in bubble less wide */
-header #bubble li:first-child {
+header #mainheader #bubble li:first-child {
     width: 120px;
 }
 
-header #bubble li a {
+header #mainheader #bubble li a {
     display: block;
     color: #808080;
     text-decoration: none;
 }
 
-header #bubble ul li a:hover,
-header #bubble ul li a:active,
-header #bubble ul li.active a {
+header #mainheader #bubble ul li a:hover,
+header #mainheader #bubble ul li a:active,
+header #mainheader #bubble ul li.active a {
     color: #ff0000;
 }
 /* }}} */
@@ -513,7 +515,7 @@ nav > ul > li > ul > li > a {
 }
 
 #content > article h2,
-#content > section h2 {
+#content > header h2 {
     margin: 0px;
     padding: 0px;
     border-bottom: 2px solid rgba(188, 204, 211, 0.75);
@@ -538,8 +540,11 @@ nav > ul > li > ul > li > a {
 }
 
 #content > article header,
-#content > section header {
+#content > header {
     margin-bottom: 25px;
+}
+#tableSection {
+    overflow-x: auto;
 }
 
 #content > article header h3,
@@ -793,5 +798,105 @@ body > footer {
     color: #666666;
     font-size: 0.7em;
     text-align: center;
+}
+
+@media only screen and (min-width: 991px) { /*desktop layout*/
+    header #mainheader #bubble {
+        margin-left: -15px;
+	margin-top: 15px;
+    }
+    header #mainheader #robot {
+        margin: 0 0 -24px 16px;
+    }
+}
+
+@media only screen and (max-width: 990px) { /*tablet or mobile layout*/
+    header #mainheader {
+        text-align: center;
+    }
+
+    #nowplaying li {
+        white-space: wrap;
+    }
+}
+
+@media only screen and (max-width: 610px) { /*mobile layout*/
+    #nowplaying {
+        background-image: none;
+	height: auto;
+	width: 100%;
+	margin: 8px 0px 8px 0px;
+	padding: 0 0 0 0;
+    }
+    
+    #side {
+	position: absolute;
+        top: -229px; 
+        left: 0;
+	background: #94cae7;
+	z-index: 999;
+	width: 100%;
+	text-align: center;
+    }
+
+    .translateSide {
+        transform: translateY(-200%);
+        transition: transform 0.4s;
+    }
+
+    .showMenu {
+        transform: translateY(0);
+    }
+
+    #content {
+        margin-left: 0px;
+    }
+
+    header #mainheader h1 {
+        width: 100%;
+	height: auto;
+	display: inline-block;
+	background: #bcccd3;
+	margin: 0px 0px 9px 0px;
+    }
+
+    header #mainheader h1 #logo {
+        width: auto;
+        height: 60px;
+    }
+
+    header #mainheader h1 #hamburger {
+        width: auto;
+	height: 60px;
+        display: block;
+	float: right;
+    }
+
+    header #mainheader #robot {
+        margin: 0 0 -28px -14px;
+    }
+
+    #volume_box {
+        display: none;
+    }
+
+    header #mainheader #bubble {
+        padding: 12px 0 27px 20px;
+	width: auto;
+	height: auto;
+    }
+
+    header #mainheader #bubble ul #listen-live {
+        display: none;
+    }
+
+    header #mainheader #bubble ul li {
+        width: 43%; 
+	font-size: 27px;
+    }
+
+    #wrapper {
+        position: relative;
+    }
 }
 /* }}} */
