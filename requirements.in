@@ -1,12 +1,12 @@
 Authlib<13.0
-bleach
+bleach<5
 boto3
 click
 Flask<3
 Flask-Caching
 Flask-Migrate
 Flask-RESTful
-Flask-SQLAlchemy>=3.0.1
+Flask-SQLAlchemy<=3.0.1
 Flask-WTF
 google-api-python-client
 humanize
