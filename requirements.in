@@ -2,11 +2,11 @@ Authlib<13.0
 bleach
 boto3
 click
-Flask
+Flask<3
 Flask-Caching
 Flask-Migrate
 Flask-RESTful
-Flask-SQLAlchemy>=2.4
+Flask-SQLAlchemy>=3.0.1
 Flask-WTF
 google-api-python-client
 humanize
@@ -25,7 +25,8 @@ pytz
 redis
 requests
 sentry-sdk[flask]
-sqlalchemy>=1.2.0
+sqlalchemy<2
 SQLAlchemy-Utils
 stripe<=1.79.1
 Unidecode
+feedwerk
