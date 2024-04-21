@@ -21,6 +21,8 @@ def initdb(username, password):
     user.set_password(str(password))
     db.session.add(user)
 
+    db.session.commit()
+
 
 def add_sample_data():
     add_sample_articles()
