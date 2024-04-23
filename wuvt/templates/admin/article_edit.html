@@ -99,7 +99,7 @@
         </div>
         <div class="col-sm-9 checkbox">
             <label>
-                <input type="checkbox" name="pinned_article" id="id_pinned_article" value="{{ article.pinned_article }}" {% if article.pinned_article %}checked{% endif %}" />
+                <input type="checkbox" name="pinned_article" id="id_pinned_article" value="{{ article.pinned_article }}" {% if article.pinned_article %}checked{% endif %} />
                 <strong>Pin article to front page</strong>
             </label>
 {% for error in form.pinned_article.errors %}
