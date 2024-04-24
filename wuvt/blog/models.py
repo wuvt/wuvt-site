@@ -46,6 +46,8 @@ class Article(db.Model):
     html_content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     published = db.Column(db.Boolean, default=False, nullable=False)
     front_page = db.Column(db.Boolean, default=False, nullable=False)
+    pinned_article = db.Column(db.Boolean, default=False, nullable=False)
+
 
     def __init__(self, title, slug, category_id, author_id, summary,
                  content=None, published=False):
@@ -90,6 +92,7 @@ class ArticleRevision(db.Model):
     content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     html_summary = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
     html_content = db.Column(db.UnicodeText().with_variant(db.UnicodeText(length=2**1), 'mysql'))
+    pinned_article = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, article_id, author_id, title, summary, content=None):
         self.article_id = article_id

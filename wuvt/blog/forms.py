@@ -31,6 +31,7 @@ class ArticleForm(FlaskForm):
                                validators=[validators.DataRequired()])
     published = BooleanField('Published', default=False)
     front_page = BooleanField('Front Page', default=False)
+    pinned_article = BooleanField('Pin to Front Page', default=False)
     summary = StringField('Summary', filters=[strip_field],
                           validators=[validators.DataRequired()])
     content = StringField('Content', filters=[strip_field],

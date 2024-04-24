@@ -6,7 +6,8 @@
 <article>
     <header>
         <h2><a href="{{ url_for('.article', slug=article.slug) }}">{{ article.title }}</a></h2>
-        <h3>written by {{ article.author.name }} on <time datetime="{{ article.datetime|isodatetime }}" data-format="MMMM D, YYYY, HH:mm">{{ article.datetime|datetime("%B %d, %Y, %H:%M") }}</time></h3>
+        <h3>written by {{ article.author.name }} on <time datetime="{{ article.datetime|isodatetime }}" data-format="MMMM D, YYYY, HH:mm">{{ article.datetime|datetime("%B %d, %Y, %H:%M") }}</time>
+		{% if article.pinned_article -%}article pinned{% endif -%}</h3>
     </header>
 
 {{ article.html_summary|safe }}
