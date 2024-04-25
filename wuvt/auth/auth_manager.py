@@ -41,9 +41,10 @@ class AuthManager(object):
 
             google_bp = create_flask_blueprint([Google], self.oauth,
                                                handle_authorize)
-            app.register_blueprint(google_bp, url_prefix='/auth/google')
+            app.register_blueprint(google_bp, url_prefix='/auth')
 
-            self.login_view = 'loginpass_google.login'
+            self.login_view = 'loginpass.login'
+            self.login_view_kwargs = {'name': "google"}
         elif app.config.get('AUTH_METHOD') == 'oidc':
             from authlib.integrations.flask_client import OAuth
             self.oauth = OAuth(app)
@@ -56,9 +57,10 @@ class AuthManager(object):
                                           app.config.get('OIDC_SCOPES'))
             oidc_bp = create_flask_blueprint([backend], self.oauth,
                                              handle_authorize)
-            app.register_blueprint(oidc_bp, url_prefix='/auth/oidc')
+            app.register_blueprint(oidc_bp, url_prefix='/auth')
 
-            self.login_view = 'loginpass_oidc.login'
+            self.login_view = 'loginpass.login'
+            self.login_view_kwargs = {'name': "oidc"}
         else:
             from . import local_views
             app.register_blueprint(local_views.bp, url_prefix='/auth/local')
@@ -94,7 +96,7 @@ class AuthManager(object):
 
     def unauthorized(self):
         session['login_target'] = request.url
-        return redirect(url_for(self.login_view))
+        return redirect(url_for(self.login_view, **self.login_view_kwargs))
 
     def check_access(self, *roles):
         roles = set(roles)
