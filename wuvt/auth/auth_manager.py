@@ -32,7 +32,7 @@ class AuthManager(object):
         if app.config.get('AUTH_METHOD') == 'google':
             app.config.setdefault('GOOGLE_ALLOWED_DOMAINS', [])
 
-            from authlib.flask.client import OAuth
+            from authlib.integrations.flask_client import OAuth
             self.oauth = OAuth(app)
 
             from loginpass import create_flask_blueprint
@@ -45,7 +45,7 @@ class AuthManager(object):
 
             self.login_view = 'loginpass_google.login'
         elif app.config.get('AUTH_METHOD') == 'oidc':
-            from authlib.flask.client import OAuth
+            from authlib.integrations.flask_client import OAuth
             self.oauth = OAuth(app)
 
             from loginpass import create_flask_blueprint
