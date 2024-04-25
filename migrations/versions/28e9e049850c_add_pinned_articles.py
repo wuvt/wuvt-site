@@ -14,8 +14,8 @@ from alembic import op
 import sqlalchemy as sa
 
 def upgrade():
-    op.add_column("article", sa.Column("pinned_article", sa.Boolean(), nullable=False, default=False))
-    op.add_column("article_revision", sa.Column("pinned_article", sa.Boolean(), nullable=False, default=False))
+    op.add_column("article", sa.Column("pinned_article", sa.Boolean(), nullable=False, server_default=False))
+    op.add_column("article_revision", sa.Column("pinned_article", sa.Boolean(), nullable=False, server_default=False))
     pass
 
 
