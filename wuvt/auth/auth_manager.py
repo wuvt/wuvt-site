@@ -39,7 +39,7 @@ class AuthManager(object):
             from loginpass.google import Google
             from .google import handle_authorize
 
-            google_bp = create_flask_blueprint(Google, self.oauth,
+            google_bp = create_flask_blueprint([Google], self.oauth,
                                                handle_authorize)
             app.register_blueprint(google_bp, url_prefix='/auth/google')
 
@@ -54,7 +54,7 @@ class AuthManager(object):
             backend = create_oidc_backend('oidc',
                                           app.config['OIDC_CLIENT_SECRETS'],
                                           app.config.get('OIDC_SCOPES'))
-            oidc_bp = create_flask_blueprint(backend, self.oauth,
+            oidc_bp = create_flask_blueprint([backend], self.oauth,
                                              handle_authorize)
             app.register_blueprint(oidc_bp, url_prefix='/auth/oidc')
 
