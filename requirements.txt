@@ -8,7 +8,7 @@ alembic==1.13.1
     # via flask-migrate
 aniso8601==9.0.1
     # via flask-restful
-authlib==1.3.0
+authlib==0.15.6
     # via
     #   -r requirements.in
     #   loginpass
