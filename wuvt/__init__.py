@@ -104,7 +104,10 @@ app.static_folder = 'static'
 if app.config['PROXY_FIX']:
     from werkzeug.middleware.proxy_fix import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app,
-                            num_proxies=app.config['PROXY_FIX_NUM_PROXIES'])
+                            x_for=app.config['PROXY_FIX_NUM_PROXIES'],
+                            x_proto=app.config['PROXY_FIX_NUM_PROXIES'],
+                            x_host=app.config['PROXY_FIX_NUM_PROXIES'],
+                            x_prefix=app.config['PROXY_FIX_NUM_PROXIES'])
 
 redis_conn = redis.from_url(app.config['REDIS_URL'])
 
