@@ -1,4 +1,4 @@
-FROM python:3.9.6
+FROM python:3.11
 
 RUN apt-get update && apt-get install -y \
             git \
@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/uwsgi
 
 # prepare uwsgi
-RUN wget -O uwsgi-2.0.20.tar.gz https://github.com/unbit/uwsgi/archive/refs/tags/2.0.20.tar.gz && \
-        tar --strip-components=1 -axvf uwsgi-2.0.20.tar.gz
+RUN wget -O uwsgi-2.0.25.1.tar.gz https://github.com/unbit/uwsgi/archive/refs/tags/2.0.25.1.tar.gz && \
+        tar --strip-components=1 -axvf uwsgi-2.0.25.1.tar.gz
 COPY uwsgi_profile.ini buildconf/wuvt.ini
 
 # build and install uwsgi
