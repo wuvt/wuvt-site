@@ -358,9 +358,9 @@ def article_add():
             author_id=form.author_id.data,
             summary=form.summary.data,
             content=form.content.data,
-            published=form.published.data,
-            pinned_article=form.pinned_article.data)
+            published=form.published.data)
         article.front_page = form.front_page.data
+        article.pinned_article = form.pinned_article.data
         if article.published is True:
             article.datetime = datetime.datetime.utcnow()
 
