@@ -543,7 +543,7 @@ nav > ul > li > ul > li > a {
 #content > header {
     margin-bottom: 25px;
 }
-#tableSection {
+.tableSection {
     overflow-x: auto;
 }
 

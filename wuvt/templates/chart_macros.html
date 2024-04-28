@@ -1,4 +1,5 @@
 {% macro render_chart_albums(results) %}
+<section class="tableSection">
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -17,9 +18,11 @@
     {% endfor %}
     </tbody>
 </table>
+</section>
 {% endmacro %}
 
 {% macro render_chart_artists(results) %}
+<section class="tableSection">
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -36,9 +39,11 @@
     {% endfor %}
     </tbody>
 </table>
+</section>
 {% endmacro %}
 
 {% macro render_chart_tracks(results) %}
+<section class="tableSection">
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -59,9 +64,11 @@
     {% endfor %}
     </tbody>
 </table>
+</section>
 {% endmacro %}
 
 {% macro render_chart_dj(results) %}
+<section class="tableSection">
 <table class="tracklist tracklist-ranked chart">
     <thead>
         <th></th>
@@ -78,4 +85,5 @@
     {% endfor %}
     </tbody>
 </table>
+</section>
 {% endmacro %}
