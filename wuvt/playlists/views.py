@@ -368,6 +368,17 @@ def charts_dj_vinyl_spins():
 
     return render_template('chart_dj_vinyl_spins.html',
                            results=results['results'])
+
+
+@bp.route('/playlists/charts/dj/requests')
+def charts_dj_requests():
+    results = call_api("/charts/dj/requests", 'GET')
+
+    if request.wants_json():
+        return jsonify(results)
+
+    return render_template('chart_dj_requests.html',
+                           results=results['results'])
 # }}}
 
 
