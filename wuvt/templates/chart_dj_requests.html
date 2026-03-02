@@ -1,0 +1,12 @@
+{% import "chart_macros.html" as macros %}
+{% extends "base.html" %}
+{% block title %}Top DJs by Requests - Charts - {{ super() }}{% endblock %}
+{% block content %}
+<section>
+<header>
+    <h2>Charts: Top DJs by Requests</h2>
+</header>
+
+{{ macros.render_chart_dj(results) }}
+</section>
+{% endblock %}

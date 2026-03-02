@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y \
             git \
             libcap-dev \
             libjansson-dev \
-            libpcre3-dev \
+            libpcre2-dev \
             librsvg2-bin \
             libsasl2-dev \
             libyaml-dev \
