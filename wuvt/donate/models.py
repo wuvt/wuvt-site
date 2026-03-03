@@ -22,7 +22,7 @@ class Order(db.Model):
     address2 = db.Column(db.Unicode(255))
     city = db.Column(db.Unicode(255))
     state = db.Column(db.Unicode(255))
-    zipcode = db.Column(db.Integer)
+    zipcode = db.Column(db.String(11))                  # support XXXXX-XXXX format
 
     amount = db.Column(db.Integer)                      # amount charged (in US cents)
     recurring = db.Column(db.Boolean, unique=False, default=False)
