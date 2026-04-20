@@ -1,5 +1,8 @@
 FROM python:3.11
 
+# libpcre3-dev is not available for trixie
+RUN printf "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list.d/bookworm.list
+
 RUN apt-get update && apt-get install -y \
             git \
             libcap-dev \
@@ -36,9 +39,9 @@ COPY LICENSE README.md uwsgi_docker.ini setup.py /usr/src/app/
 VOLUME ["/data/config", "/data/media", "/data/ssl"]
 
 EXPOSE 8443
-ENV PYTHONPATH /usr/src/app
-ENV FLASK_APP wuvt
-ENV APP_CONFIG_PATH /data/config/config.json
+ENV PYTHONPATH=/usr/src/app
+ENV FLASK_APP=wuvt
+ENV APP_CONFIG_PATH=/data/config/config.json
 
 RUN python setup.py render_svgs
 
