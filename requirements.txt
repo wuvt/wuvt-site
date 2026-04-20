@@ -198,7 +198,7 @@ urllib3==2.2.1
     #   sentry-sdk
 webencodings==0.5.1
     # via bleach
-werkzeug==3.0.2
+werkzeug==3.0.3
     # via
     #   feedwerk
     #   flask
