@@ -138,7 +138,7 @@ pyasn1-modules==0.4.0
     #   google-auth
 pycparser==2.22
     # via cffi
-pymysql==1.1.0
+pymysql==1.1.1
     # via -r requirements.in
 pyparsing==3.1.2
     # via httplib2
