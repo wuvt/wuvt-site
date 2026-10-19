@@ -40,7 +40,7 @@
             <th>Recurring</th>
             <th>T-Shirt Size</th>
             <th>Color</th>
-            <th>Sweatshirt Size</th>
+            <th>Listen Via</th>
             <th>Comment</th>
         </tr>
     </thead>
@@ -67,7 +67,7 @@
             <td>{{ donation.recurring }}</td>
             <td>{% if donation.tshirtsize %}{{ donation.tshirtsize }}{% endif %}</td>
             <td>{% if donation.tshirtcolor %}{{ donation.tshirtcolor }}{% endif %}</td>
-            <td>{% if donation.sweatshirtsize %}{{ donation.sweatshirtsize }}{% endif %}</td>
+            <td>{% if donation.listen_method %}{{ donation.listen_method }}{% endif %}</td>
             <td>{% if donation.donor_comment %}{{ donation.donor_comment }}{% endif %}</td>
         </tr>
 {% endfor %}

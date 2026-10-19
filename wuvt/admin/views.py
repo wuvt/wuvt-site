@@ -533,8 +533,8 @@ def donate_csv_download():
                   "useragent", "dj", "thanks", "firsttime", "dcomment",
                   "premiums", "address1", "address2", "city", "state", "zip",
                   "amount", "recurring", "paiddate", "shippeddate",
-                  "shirtsize", "shirtcolor", "sweatshirtsize", "method",
-                  "custid", "donor_comment"]
+                  "shirtsize", "shirtcolor", "method", "custid",
+                  "donor_comment", "listen_method"]
     orders = Order.query.\
         order_by(db.desc(Order.id))
     f = io.StringIO()
@@ -545,8 +545,8 @@ def donate_csv_download():
                   o.user_agent, o.dj, o.thank_on_air, o.first_time,
                   o.donor_comment, o.premiums, o.address1, o.address2, o.city,
                   o.state, o.zipcode, o.amount, o.recurring, o.paid_date,
-                  o.shipped_date, o.tshirtsize, o.tshirtcolor, o.sweatshirtsize,
-                  o.method, o.custid, o.donor_comment]
+                  o.shipped_date, o.tshirtsize, o.tshirtcolor, o.method,
+                  o.custid, o.donor_comment, o.listen_method]
         writer.writerow(fields)
     f.seek(0)
     filename = "donor-premiums.csv"
