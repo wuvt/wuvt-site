@@ -129,20 +129,6 @@
         </div>
 {% endif %}
 {% endif %}
-
-{% if premiums_config.premiums.sweatshirt %}
-        <div class="form-group">
-            <label for="id_sweatshirtsize" class="col-sm-3 control-label">{{ premiums_config.premiums.sweatshirt.display }} Size</label>
-            <div class="col-sm-9">
-                <select id="id_sweatshirtsize" name="sweatshirtsize"
-                        class="form-control">
-                    {% for size in premiums_config.premiums.sweatshirt.sizes %}
-                    <option value="{{ size }}">{{ size }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-{% endif %}
     </div>
 
     <div id="shipping_fields">
@@ -206,6 +192,28 @@
                 <option value="y">Yes</option>
                 <option value="n" selected="selected">No</option>
             </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_listen_method" class="col-sm-3 control-label">How do they listen to WUVT?</label>
+        <div class="col-sm-9">
+            <select name="listen_method" id="id_listen_method" class="form-control">
+                <option value="" selected="selected">Select one</option>
+                <option value="90.7 FM">90.7 FM</option>
+                <option value="101.9 FM">101.9 FM</option>
+                <option value="Website">Website</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="listen_method_other_field">
+        <label for="id_listen_method_other" class="col-sm-3 control-label">How do they listen?</label>
+        <div class="col-sm-9">
+            <input type="text" name="listen_method_other"
+                id="id_listen_method_other" value="" maxlength="128"
+                class="form-control" />
         </div>
     </div>
 

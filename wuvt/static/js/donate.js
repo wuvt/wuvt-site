@@ -6,6 +6,18 @@ function initDonate() {
 
     hideshowPremiums();
     $('#donate_form input[name=premiums]').change(hideshowPremiums);
+
+    hideshowListenOther();
+    $('#id_listen_method').change(hideshowListenOther);
+}
+
+function hideshowListenOther() {
+    if($('#id_listen_method').val() == 'Other') {
+        $('#listen_method_other_field').show('fast');
+    }
+    else {
+        $('#listen_method_other_field').hide('fast');
+    }
 }
 
 function hideshowPremiums() {

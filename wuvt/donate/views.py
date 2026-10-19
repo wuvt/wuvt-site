@@ -10,6 +10,8 @@ from wuvt.donate.models import Order
 from wuvt.donate.view_utils import load_premiums_config
 from wuvt.view_utils import local_only
 
+LISTEN_METHODS = ["90.7 FM", "101.9 FM", "Website"]
+
 
 @bp.route('/onetime')
 def donate_onetime():
@@ -68,6 +70,16 @@ def process_order(method):
     if 'comment' in request.form:
         order.donor_comment = request.form['comment'].strip()
 
+    listen_method = request.form.get('listen_method', '').strip()
+    if listen_method in LISTEN_METHODS:
+        order.listen_method = listen_method
+    elif listen_method == "Other":
+        listen_other = request.form.get('listen_method_other', '').strip()
+        if len(listen_other) > 0:
+            order.listen_method = "Other: {0}".format(listen_other)[:255]
+        else:
+            order.listen_method = "Other"
+
     if premiums_config['enabled']:
         premiums = request.form.get('premiums', 'no')
 
@@ -76,7 +88,7 @@ def process_order(method):
             order.set_premiums(premiums,
                                request.form.get('tshirtsize', None),
                                request.form.get('tshirtcolor', None),
-                               request.form.get('sweatshirtsize', None))
+            )
 
         if premiums == "ship":
             # add shipping cost, if our order exceeds the minimum amount for

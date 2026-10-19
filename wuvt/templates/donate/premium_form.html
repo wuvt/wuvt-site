@@ -102,16 +102,6 @@
 {% endif %}
 {% endif %}
 
-{% if premiums_config.premiums.sweatshirt %}
-        <label>
-            {{ premiums_config.premiums.sweatshirt.display }} Size
-            <select id="id_sweatshirtsize" name="sweatshirtsize">
-                {% for size in premiums_config.premiums.sweatshirt.sizes %}
-                <option value="{{ size }}">{{ size }}</option>
-                {% endfor %}
-            </select>
-        </label>
-{% endif %}
         </div>
 
         <div id="shipping_fields">
@@ -157,6 +147,25 @@
                 <option value="n" selected="selected">No</option>
             </select>
         </label>
+
+        <label>
+            How do you listen to WUVT?
+            <select name="listen_method" id="id_listen_method">
+                <option value="" selected="selected">Select one</option>
+                <option value="90.7 FM">90.7 FM</option>
+                <option value="101.9 FM">101.9 FM</option>
+                <option value="Website">Website</option>
+                <option value="Other">Other</option>
+            </select>
+        </label>
+
+        <div id="listen_method_other_field">
+        <label>
+            How do you listen?
+            <input type="text" name="listen_method_other"
+                id="id_listen_method_other" value="" maxlength="128" />
+        </label>
+        </div>
 
         <button type="submit" class="btn-primary">Donate Now</button>
     </form>

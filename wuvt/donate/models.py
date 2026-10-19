@@ -31,7 +31,8 @@ class Order(db.Model):
 
     tshirtsize = db.Column(db.Unicode(255))
     tshirtcolor = db.Column(db.Unicode(255))
-    sweatshirtsize = db.Column(db.Unicode(255))
+
+    listen_method = db.Column(db.Unicode(255))
 
     method = db.Column(db.Unicode(255))
     custid = db.Column(db.Unicode(255))                 # used for Stripe recurrence
@@ -50,11 +51,10 @@ class Order(db.Model):
     def set_user_agent(self, user_agent):
         self.user_agent = str(user_agent)[:255]
 
-    def set_premiums(self, premiums, tshirtsize, tshirtcolor, sweatshirtsize):
+    def set_premiums(self, premiums, tshirtsize, tshirtcolor):
         self.premiums = premiums
         self.tshirtsize = tshirtsize
         self.tshirtcolor = tshirtcolor
-        self.sweatshirtsize = sweatshirtsize
 
     def set_address(self, address1, address2, city, state, zipcode):
         self.address1 = address1
