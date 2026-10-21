@@ -456,7 +456,11 @@ nav > ul > li > ul > li > a {
     width: 200px;
 }
 
-#side #radiothon_banner a {
+#radiothon-mobile {
+    display: none;
+}
+
+.radiothon_banner a {
     display: block;
     margin: 0 0 10px 0;
     padding: 14px;
@@ -467,7 +471,7 @@ nav > ul > li > ul > li > a {
     text-decoration: none;
 }
 
-#side #radiothon_banner a strong {
+.radiothon_banner a strong {
     color: #0071BC;
     text-decoration: underline;
 }
@@ -821,6 +825,14 @@ body > footer {
 }
 
 @media only screen and (max-width: 610px) { /*mobile layout*/
+    #radiothon-mobile {
+        display: block;
+    }
+
+    #side .radiothon_banner {
+        display: none;
+    }
+
     #nowplaying {
         background-image: none;
 	height: auto;
