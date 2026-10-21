@@ -148,9 +148,11 @@ function updatePage(srcDoc) {
 
     $('title').text(doc.find('title').text());
     $('#side').html(doc.find('#side > *'));
+    $('#radiothon-mobile').html(doc.find('#radiothon-mobile').html());
     $('#content').html(doc.find('#content > *'));
 
     $.each($('#side a'), function(i, item){makeAjaxLink(item);});
+    $.each($('#radiothon-mobile a'), function(i, item){makeAjaxLink(item);});
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});
 
     // load scripts if necessary
@@ -211,7 +213,7 @@ function initAjaxLinks() {
 
     makeAjaxLink($('#nowplaying a'));
     makeAjaxLink($('header #mainheader h1 a'));
-    makeAjaxLink($('#radiothon_banner a'));
+    $.each($('.radiothon_banner a'), function(i, item){makeAjaxLink(item);});
     $.each($('#bubble a'), function(i, item){makeAjaxLink(item);});
     $.each($('nav a'), function(i, item){makeAjaxLink(item);});
     $.each($('#content a'), function(i, item){makeAjaxLink(item);});

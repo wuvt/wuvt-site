@@ -1,3 +1,4 @@
+{% from 'radiothon_macros.html' import radiothon_banner with context -%}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -5,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{% block title %}WUVT: Radio for Everyone!{% endblock %}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/wuvt.css', v=28) }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/wuvt.css', v=29) }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/glyphiconstrap.css') }}" />
         <link rel="alternate" type="application/atom+xml"
             href="{{ feedlink or url_for('blog.all_feed') }}" title="Atom Feed"  />
@@ -40,6 +41,8 @@
 	    <img id="hamburger" src="{{ url_for('static', filename='img/Hamburger_icon.svg') }}" /> <!--Icon source: https://commons.wikimedia.org/wiki/File:Hamburger_icon.svg-->
 	</h1>
 
+        <div id="radiothon-mobile">{{ radiothon_banner() }}</div>
+
         <div id="robot">
         </div>
 	<div id="bubble">
@@ -63,11 +66,7 @@
 <div id="wrapper">
 
     <div id="side" class="translateSide">
-        {% if radiothon and active_page != 'donate' and active_flow != 'donate' -%}
-        <div id="radiothon_banner">
-            <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
-        </div>
-        {% endif -%}
+        {{ radiothon_banner() }}
 
         <nav id="side_primary">
             {% block nav_side_primary %}
@@ -137,7 +136,7 @@
 <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
 <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/global.js') }}"></script>
-<script src="{{ url_for('static', filename='js/live.js', v=3) }}"></script>
+<script src="{{ url_for('static', filename='js/live.js', v=4) }}"></script>
 <script src="{{ url_for('static', filename='js/stream.js', v=3) }}"></script>
 <script src="{{ url_for('static', filename='js/playlists_by_date.js') }}"></script>
 <script src="{{ url_for('static', filename='js/responsive_components.js') }}"></script>

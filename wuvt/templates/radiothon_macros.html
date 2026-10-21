@@ -1,0 +1,7 @@
+{% macro radiothon_banner() -%}
+{% if radiothon and active_page != 'donate' and active_flow != 'donate' -%}
+<div class="radiothon_banner">
+    <a href="{{ url_for('page', slug='donate') }}">It's Radiothon! <strong>Donate Now!</strong></a>
+</div>
+{% endif -%}
+{%- endmacro %}
